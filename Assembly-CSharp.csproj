@@ -68,6 +68,7 @@
     <Compile Include="Assets\Scripts\LiteNetLib\NetConstants.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\NetDebug.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\NetExceptions.cs" />
+    <Compile Include="Assets\Scripts\LiteNetLib\NetInterfaces.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\NetManager.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\NetPacket.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\NetPacketPool.cs" />
@@ -88,7 +89,10 @@
     <Compile Include="Assets\Scripts\LiteNetLib\Utils\NetPacketProcessor.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\Utils\NetSerializer.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\Utils\NetSerializerExceptions.cs" />
-    <Compile Include="Assets\Scripts\NetTest.cs" />
+    <Compile Include="Assets\Scripts\MenuHelper.cs" />
+    <Compile Include="Assets\Scripts\NetClient.cs" />
+    <Compile Include="Assets\Scripts\NetInterfaces.cs" />
+    <Compile Include="Assets\Scripts\NetServer.cs" />
     <Compile Include="Assets\Scripts\NetTestChooser.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">

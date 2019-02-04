@@ -1,15 +1,100 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
 
-    private const bool c_pedanticPrevision = true;
-    private const int c_simulationFrequency = 30;
-    private const int c_networkFrequency = 10;
-    private const float c_clientHistoryLength = 5.0f;
-    private const float c_serverHistoryLength = 5.0f;
+    public bool IsOwner;
 
-    private struct TransformState
+    private class SimulationHistory
+    {
+        private struct Node
+        {
+            public SimulationState simulation;
+            public InputState input;
+            public float time;
+        }
+
+        private readonly PlayerController m_probe;
+        private readonly Node[] m_history;
+        private int m_last;
+
+        public SimulationHistory(int lenght, PlayerController probe)
+        {
+            m_history = new Node[lenght];
+            m_last = -1;
+        }
+
+        private void GoBack(int node)
+        {
+            m_history[node].simulation.Apply(m_probe);
+        }
+
+        private int FromIndex(int from, int diff)
+        {
+            int r = (from + diff) % m_history.Length;
+            return r > 0 ? r : (m_history.Length + r);
+        }
+
+        private void GoBack(int node, float extraDeltaTime, bool simulate)
+        {
+            if (!Mathf.Approximately(extraDeltaTime, 0.0f))
+            {
+                if (simulate)
+                {
+                    GoBack(node);
+                    m_probe.Simulate(extraDeltaTime, m_history[node].input);
+                }
+                else
+                {
+                    if (m_last != node)
+                    {
+                        Node a = m_history[node];
+                        Node b = m_history[FromIndex(node, 1)];
+                        float progress = extraDeltaTime / (b.time - a.time);
+                        SimulationState.Lerp(a.simulation, b.simulation, progress).Apply(m_probe);
+                    }
+                    else
+                    {
+                        GoBack(node);
+                    }
+                }
+            }
+            else
+            {
+                GoBack(node);
+            }
+        }
+
+        public void GoBack(float age, bool simulate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Reconciliate(float time, SimulationState simulationState)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Append(float time, InputState input, SimulationState simulation)
+        {
+            if (m_last == -1 || m_history[m_last].time < time)
+            {
+                m_last = (m_last + 1) % m_history.Length;
+                m_history[m_last].input = input;
+                m_history[m_last].simulation = simulation;
+                m_history[m_last].time = time;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+    }
+
+    public struct TransformState
     {
         public Vector3 position;
         public float lookUp;
@@ -44,7 +129,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    private struct SimulationState
+    public struct SimulationState
     {
         public TransformState transform;
         public Vector3 velocity;
@@ -79,7 +164,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    private struct InputState
+    public struct InputState
     {
         public Vector3 movementXZ;
         public bool jump;
@@ -87,10 +172,10 @@ public class PlayerController : MonoBehaviour
         public float turn;
     }
 
-    private struct PlayerState
+    public struct InputStroke
     {
-        public SimulationState simulation;
-        public double deltaTime;
+        public InputState state;
+        public float deltaTime;
     }
 
     public CharacterController characterController;
@@ -223,6 +308,11 @@ public class PlayerController : MonoBehaviour
             m_outgoingInput.jump = false;
             m_outgoingInput.movementXZ = Vector3.zero;
         }
+    }
+
+    public void Receive(SimulationState state, InputStroke[] strokes, double timestamp)
+    {
+
     }
 
     public const float maxDeltaTime = 1 / 10.0f;

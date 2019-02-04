@@ -1,28 +1,35 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class NetTestChooser : MonoBehaviour
 {
 
     public static bool IsServer { get; private set; }
+    private static GameObject instance;
 
-    public string sceneName;
-
-    private void StartScene()
+    public static void StartServer()
     {
-        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-    }
-
-    public void StartServer()
-    {
-        StartScene();
         IsServer = true;
     }
 
-    public void StartClient()
+    public static void StartClient()
     {
-        StartScene();
         IsServer = false;
+    }
+
+    public static INetServer Server => instance.GetComponent<NetServer>();
+    public static INetClient Client => instance.GetComponent<NetClient>();
+
+    public void Start()
+    {
+        instance = gameObject;
+        if (IsServer)
+        {
+            gameObject.AddComponent<NetServer>();
+        }
+        else
+        {
+            gameObject.AddComponent<NetClient>();
+        }
     }
 
 }
