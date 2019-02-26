@@ -11,8 +11,6 @@ namespace Wheeled.Gameplay
             public float movementX;
             public bool jump;
             public bool dash;
-            public float turn;
-            public float lookUp;
         }
 
         public bool isInteractive;
@@ -23,17 +21,27 @@ namespace Wheeled.Gameplay
 
         private void AccumulateInput(InputState _inputState, float _deltaTime)
         {
+            float timeFactor = _deltaTime / c_timestep;
             m_accumulatedInput.dash |= _inputState.dash;
             m_accumulatedInput.jump |= _inputState.jump;
-            m_accumulatedInput.lookUp = _inputState.lookUp;
-            m_accumulatedInput.turn = _inputState.turn;
-            m_accumulatedInput.movementX += _inputState.movementX * _deltaTime;
-            m_accumulatedInput.movementZ += _inputState.movementZ * _deltaTime;
+            m_accumulatedInput.movementX += _inputState.movementX * timeFactor;
+            m_accumulatedInput.movementZ += _inputState.movementZ * timeFactor;
         }
+
+        public static void RotateMovementInputXZ(float _right, float _forward, float _turn, out float o_x, out float o_z)
+        {
+            float angleRad = Mathf.Deg2Rad * _turn;
+            float sin = Mathf.Sin(angleRad);
+            float cos = Mathf.Cos(angleRad);
+            o_x = (cos * _right) + (sin * _forward);
+            o_z = (cos * _forward) - (sin * _right);
+        }
+
+        private float m_timeSinceLastCommit = 0.0f;
 
         private void CommitInput()
         {
-
+            m_timeSinceLastCommit = 0.0f;
         }
 
         private void ResetInput()
@@ -51,7 +59,6 @@ namespace Wheeled.Gameplay
                 return;
             }
 
-            float deltaTime = Mathf.Min(c_maxDeltaTime, Time.deltaTime);
             bool inputJump = Input.GetButtonDown("Jump");
             float inputMovX = Input.GetAxis("Horizontal");
             float inputMovY = Input.GetAxis("Vertical");
@@ -63,34 +70,57 @@ namespace Wheeled.Gameplay
             actAngles.y += inputLookX;
             actAngles.z = 0;
 
+            RotateMovementInputXZ(inputMovX, inputMovY, actAngles.y, out float movementX, out float movementZ);
+
             gameObject.transform.eulerAngles = actAngles;
 
             InputState inputState = new InputState
             {
                 jump = inputJump,
-                movementX = inputMovX,
-                movementZ = inputMovY,
-                turn = actAngles.y,
-                lookUp = actAngles.x
+                movementX = movementX,
+                movementZ = movementZ,
             };
 
-            if (m_timeSinceLastUpdate + deltaTime >= c_timestep)
+            float timeToNextCommit = c_timestep - (m_timeSinceLastCommit % c_timestep);
+            m_timeSinceLastCommit += Time.deltaTime;
+
+            bool unrolled = false;
+
+            while (m_timeSinceLastCommit >= c_timestep)
             {
-                float timeToNextUpdate = c_timestep - m_timeSinceLastUpdate;
-                Simulate(inputState, timeToNextUpdate);
-                AccumulateInput(inputState, timeToNextUpdate);
-                CommitInput();
+                if (!unrolled)
+                {
+                    // jump to last simulation state
+                    AccumulateInput(inputState, timeToNextCommit);
+                    CommitInput();
+                    Simulate(m_accumulatedInput, c_timestep);
+                    inputState.jump = false;
+                    inputState.dash = false;
+                    m_accumulatedInput = inputState;
+                }
+                else
+                {
+                    CommitInput();
+                    Simulate(m_accumulatedInput, c_timestep);
+                }
+                m_timeSinceLastCommit -= c_timestep;
+                unrolled = true;
+            }
+
+            float timeSinceLastSimulation;
+
+            if (unrolled)
+            {
                 ResetInput();
-                inputState.jump = false;
-                inputState.dash = false;
-                AccumulateInput(inputState, deltaTime - timeToNextUpdate);
-                Simulate(inputState, deltaTime - timeToNextUpdate);
+                timeSinceLastSimulation = m_timeSinceLastCommit;
             }
             else
             {
-                AccumulateInput(inputState, deltaTime);
-                Simulate(inputState, deltaTime);
+                timeSinceLastSimulation = Time.deltaTime;
             }
+
+            AccumulateInput(inputState, timeSinceLastSimulation);
+            //Simulate(inputState, timeSinceLastSimulation);
         }
 
     }

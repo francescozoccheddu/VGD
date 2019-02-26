@@ -6,14 +6,14 @@ namespace Wheeled.Gameplay
     {
 
         public CharacterController characterController;
-        public float speed;
-        public float jumpForce;
+        public const float speed = 5.0f;
+        public const float jumpForce = 10.0f;
 
         public const float movementForce = 100.0f;
         public const float dashImpulse = 1.0f;
         public const float jumpImpulse = 5.0f;
-        public const float groundDragForce = 50.0f;
-        public const float airDragForce = 5.0f;
+        public const float groundDragForce = 5.0f;
+        public const float airDragForce = 1.0f;
         public const float dashStaminaGrowth = 1.0f;
         public const bool relativeDashImpulse = false;
         public const float gravityForce = 10.0f;
@@ -36,17 +36,76 @@ namespace Wheeled.Gameplay
             }
         }
 
-        public static Vector2 RotateMovementInputXZ(float right, float forward, float turn)
+        public struct TransformState
         {
-            float angleRad = Mathf.Deg2Rad * turn;
-            float sin = Mathf.Sin(angleRad);
-            float cos = Mathf.Cos(angleRad);
-            return new Vector2
-            {
 
-                x = (cos * right) + (sin * forward),
-                y = (cos * forward) - (sin * right)
-            };
+            public Vector3 position;
+            public float lookUp;
+            public float turn;
+
+            public static TransformState Capture(PlayerBehaviour playerController)
+            {
+                return new TransformState
+                {
+                    position = playerController.transform.position,
+                    lookUp = playerController.transform.eulerAngles.x,
+                    turn = playerController.transform.eulerAngles.y
+                };
+            }
+
+            public static TransformState Lerp(TransformState a, TransformState b, float progress)
+            {
+                return new TransformState
+                {
+                    position = Vector3.Lerp(a.position, b.position, progress),
+                    lookUp = Mathf.Lerp(a.lookUp, b.lookUp, progress),
+                    turn = Mathf.Lerp(a.turn, b.turn, progress),
+                };
+            }
+
+            public void Apply(PlayerBehaviour playerController)
+            {
+                playerController.transform.position = position;
+                playerController.transform.eulerAngles = new Vector3(lookUp, turn);
+                playerController.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+            }
+
+        }
+
+        public struct SimulationState
+        {
+
+            public TransformState transform;
+            public Vector3 velocity;
+            public float dashStamina;
+
+            public void Apply(PlayerBehaviour playerController)
+            {
+                transform.Apply(playerController);
+                playerController.m_velocity = velocity;
+                playerController.m_dashStamina = dashStamina;
+            }
+
+            public static SimulationState Capture(PlayerBehaviour playerController)
+            {
+                return new SimulationState
+                {
+                    transform = TransformState.Capture(playerController),
+                    velocity = playerController.m_velocity,
+                    dashStamina = playerController.m_dashStamina
+                };
+            }
+
+            public static SimulationState Lerp(SimulationState a, SimulationState b, float progress)
+            {
+                return new SimulationState
+                {
+                    transform = TransformState.Lerp(a.transform, b.transform, progress),
+                    velocity = Vector3.Lerp(a.velocity, b.velocity, progress),
+                    dashStamina = Mathf.Lerp(a.dashStamina, b.dashStamina, progress)
+                };
+            }
+
         }
 
         private void Simulate(InputState input, float deltaTime)
@@ -68,9 +127,10 @@ namespace Wheeled.Gameplay
             characterController.Move(m_velocity * deltaTime);
         }
 
-        private const float c_timestep = 1 / 40.0f;
+        private const float c_timestep = 1 / 30.0f;
 
-        private float m_timeSinceLastUpdate = 0.0f;
+
+        private SimulationState m_simulationState;
 
     }
 
