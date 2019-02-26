@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using Wheeled.Networking;
 
-public class MenuHelper : MonoBehaviour
+internal sealed class MenuHelper : MonoBehaviour
 {
 
     public string sceneName = "Scenes/MainScene";
+
+    public NetworkHostHolder holder;
 
     private void StartScene()
     {
@@ -13,13 +16,13 @@ public class MenuHelper : MonoBehaviour
 
     public void StartServer()
     {
-        NetTestChooser.StartServer();
+        holder.isServer = true;
         StartScene();
     }
 
     public void StartClient()
     {
-        NetTestChooser.StartClient();
+        holder.isServer = false;
         StartScene();
     }
 }
