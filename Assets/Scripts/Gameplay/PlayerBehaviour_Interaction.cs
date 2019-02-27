@@ -37,11 +37,10 @@ namespace Wheeled.Gameplay
             o_z = (cos * _forward) - (sin * _right);
         }
 
-        private float m_timeSinceLastCommit = 0.0f;
+        private float m_accumulatedTime = 0.0f;
 
         private void CommitInput()
         {
-            m_timeSinceLastCommit = 0.0f;
         }
 
         private void ResetInput()
@@ -81,12 +80,12 @@ namespace Wheeled.Gameplay
                 movementZ = movementZ,
             };
 
-            float timeToNextCommit = c_timestep - (m_timeSinceLastCommit % c_timestep);
-            m_timeSinceLastCommit += Time.deltaTime;
+            float timeToNextCommit = c_timestep - (m_accumulatedTime % c_timestep);
+            m_accumulatedTime += Time.deltaTime;
 
             bool unrolled = false;
 
-            while (m_timeSinceLastCommit >= c_timestep)
+            while (m_accumulatedTime >= c_timestep)
             {
                 if (!unrolled)
                 {
@@ -103,7 +102,7 @@ namespace Wheeled.Gameplay
                     CommitInput();
                     Simulate(m_accumulatedInput, c_timestep);
                 }
-                m_timeSinceLastCommit -= c_timestep;
+                m_accumulatedTime -= c_timestep;
                 unrolled = true;
             }
 
@@ -112,7 +111,7 @@ namespace Wheeled.Gameplay
             if (unrolled)
             {
                 ResetInput();
-                timeSinceLastSimulation = m_timeSinceLastCommit;
+                timeSinceLastSimulation = m_accumulatedTime;
             }
             else
             {
