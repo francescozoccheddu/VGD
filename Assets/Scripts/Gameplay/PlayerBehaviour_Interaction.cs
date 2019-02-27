@@ -13,6 +13,8 @@ namespace Wheeled.Gameplay
             public bool dash;
         }
 
+        private const bool c_enablePartialSimulation = true;
+
         public bool isInteractive;
 
         private InputState m_accumulatedInput;
@@ -89,19 +91,22 @@ namespace Wheeled.Gameplay
             {
                 if (!unrolled)
                 {
-                    // jump to last simulation state
+                    if (c_enablePartialSimulation)
+                    {
+                        History.Node? node = m_history.GetOrNull(m_history.Last);
+                        if (node != null)
+                        {
+                            ((History.Node) node).simulation.Apply(this);
+                        }
+                    }
                     AccumulateInput(inputState, timeToNextCommit);
-                    CommitInput();
-                    Simulate(m_accumulatedInput, c_timestep);
-                    inputState.jump = false;
-                    inputState.dash = false;
-                    m_accumulatedInput = inputState;
                 }
-                else
-                {
-                    CommitInput();
-                    Simulate(m_accumulatedInput, c_timestep);
-                }
+                Simulate(m_accumulatedInput, c_timestep);
+                CommitInput();
+                m_history.Append(new History.Node { simulation = SimulationState.Capture(this), input = m_accumulatedInput });
+                inputState.jump = false;
+                inputState.dash = false;
+                m_accumulatedInput = inputState;
                 m_accumulatedTime -= c_timestep;
                 unrolled = true;
             }
@@ -119,7 +124,10 @@ namespace Wheeled.Gameplay
             }
 
             AccumulateInput(inputState, timeSinceLastSimulation);
-            //Simulate(inputState, timeSinceLastSimulation);
+            if (c_enablePartialSimulation)
+            {
+                Simulate(inputState, timeSinceLastSimulation);
+            }
         }
 
     }

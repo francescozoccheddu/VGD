@@ -36,52 +36,19 @@ namespace Wheeled.Gameplay
             }
         }
 
-        public struct TransformState
+        public struct SimulationState
         {
 
             public Vector3 position;
             public float lookUp;
             public float turn;
-
-            public static TransformState Capture(PlayerBehaviour playerController)
-            {
-                return new TransformState
-                {
-                    position = playerController.transform.position,
-                    lookUp = playerController.transform.eulerAngles.x,
-                    turn = playerController.transform.eulerAngles.y
-                };
-            }
-
-            public static TransformState Lerp(TransformState a, TransformState b, float progress)
-            {
-                return new TransformState
-                {
-                    position = Vector3.Lerp(a.position, b.position, progress),
-                    lookUp = Mathf.Lerp(a.lookUp, b.lookUp, progress),
-                    turn = Mathf.Lerp(a.turn, b.turn, progress),
-                };
-            }
-
-            public void Apply(PlayerBehaviour playerController)
-            {
-                playerController.transform.position = position;
-                playerController.transform.eulerAngles = new Vector3(lookUp, turn);
-                playerController.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-            }
-
-        }
-
-        public struct SimulationState
-        {
-
-            public TransformState transform;
             public Vector3 velocity;
             public float dashStamina;
 
             public void Apply(PlayerBehaviour playerController)
             {
-                transform.Apply(playerController);
+                playerController.transform.position = position;
+                playerController.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                 playerController.m_velocity = velocity;
                 playerController.m_dashStamina = dashStamina;
             }
@@ -90,7 +57,9 @@ namespace Wheeled.Gameplay
             {
                 return new SimulationState
                 {
-                    transform = TransformState.Capture(playerController),
+                    position = playerController.transform.position,
+                    lookUp = playerController.transform.eulerAngles.x,
+                    turn = playerController.transform.eulerAngles.y,
                     velocity = playerController.m_velocity,
                     dashStamina = playerController.m_dashStamina
                 };
@@ -100,7 +69,9 @@ namespace Wheeled.Gameplay
             {
                 return new SimulationState
                 {
-                    transform = TransformState.Lerp(a.transform, b.transform, progress),
+                    position = Vector3.Lerp(a.position, b.position, progress),
+                    lookUp = Mathf.Lerp(a.lookUp, b.lookUp, progress),
+                    turn = Mathf.Lerp(a.turn, b.turn, progress),
                     velocity = Vector3.Lerp(a.velocity, b.velocity, progress),
                     dashStamina = Mathf.Lerp(a.dashStamina, b.dashStamina, progress)
                 };
@@ -110,21 +81,19 @@ namespace Wheeled.Gameplay
 
         private void Simulate(InputState input, float deltaTime)
         {
+            characterController.Move(new Vector3(0.0f, m_velocity.y, 0.0f) * deltaTime);
             float dragForce = airDragForce;
             if (characterController.isGrounded)
             {
-                if (input.jump)
-                {
-                    m_velocity.y = jumpImpulse;
-                }
                 m_velocity.x += input.movementX;
+                m_velocity.y = input.jump ? jumpImpulse : 0.0f;
                 m_velocity.z += input.movementZ;
                 dragForce += groundDragForce;
             }
             m_velocity.x = UpdateSpeed(m_velocity.x, dragForce, maxSpeed, deltaTime);
             m_velocity.y -= gravityForce * deltaTime;
             m_velocity.z = UpdateSpeed(m_velocity.z, dragForce, maxSpeed, deltaTime);
-            characterController.Move(m_velocity * deltaTime);
+            characterController.Move(new Vector3(m_velocity.x, 0.0f, m_velocity.z) * deltaTime);
         }
 
         private const float c_timestep = 1 / 30.0f;

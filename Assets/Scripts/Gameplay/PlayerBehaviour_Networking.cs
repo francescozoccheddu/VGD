@@ -42,7 +42,7 @@ namespace Wheeled.Gameplay
 
             private bool Contains(int _index)
             {
-                return Last - _index < Length && _index <= Last;
+                return Last - _index < Length && _index <= Last && _index >= 0;
             }
 
             public bool Reconciliate(Node _node, int _index, PlayerBehaviour _target)
