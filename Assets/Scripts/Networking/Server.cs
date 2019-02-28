@@ -1,4 +1,5 @@
 ﻿using LiteNetLib;
+using UnityEngine;
 using Wheeled.Core;
 using Wheeled.Gameplay;
 
@@ -22,24 +23,29 @@ namespace Wheeled.Networking
 
         public PlayerEventHandler PlayerEvents { get; } = null;
 
-        public bool IsRunning { get; private set; } = false;
+        public bool IsRunning => m_netManager.IsRunning;
 
         public void Start(int _port)
         {
-            if (IsRunning)
+            if (!IsRunning)
             {
-                Stop();
+                m_netManager.Start(_port);
+                if (IsRunning)
+                {
+                    m_localPlayer = GameManager.Instance.InstantiatePlayerBehaviour();
+                    m_localPlayer.isInteractive = true;
+                }
             }
-            IsRunning = true;
-            m_localPlayer = GameManager.Instance.InstantiatePlayerBehaviour();
-            m_localPlayer.isInteractive = true;
+            else
+            {
+                Debug.LogWarning("Start ignored because Server is already running");
+            }
         }
 
         public void Stop()
         {
             if (IsRunning)
             {
-                IsRunning = false;
                 // Stop networking
                 m_netManager.DisconnectAll();
                 m_netManager.Stop();

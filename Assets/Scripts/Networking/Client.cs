@@ -1,4 +1,5 @@
 ﻿using LiteNetLib;
+using UnityEngine;
 using Wheeled.Core;
 using Wheeled.Gameplay;
 
@@ -28,24 +29,36 @@ namespace Wheeled.Networking
 
         public void Start()
         {
-            m_netManager.Start();
-            IsRunning = m_netManager.IsRunning;
+            if (!IsRunning)
+            {
+                m_netManager.Start();
+            }
+            else
+            {
+                Debug.LogWarning("Start ignored because Client is already running");
+            }
         }
 
         public void Connect(GameRoom _room)
         {
-            m_netManager.Connect(_room.remoteEndPoint, "dioporco");
+            if (IsRunning)
+            {
+                m_netManager.Connect(_room.remoteEndPoint, "dioporco");
+            }
+            else
+            {
+                Debug.LogWarning("Connect ignored because Client is not running");
+            }
         }
 
         public PlayerEventHandler PlayerEvents { get; } = null;
 
-        public bool IsRunning { get; private set; } = false;
+        public bool IsRunning => m_netManager.IsRunning;
 
         public void Stop()
         {
             if (IsRunning)
             {
-                IsRunning = false;
                 // Stop networking
                 m_netManager.DisconnectAll();
                 m_netManager.Stop();
