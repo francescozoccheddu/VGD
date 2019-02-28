@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using Wheeled.Core;
 using Wheeled.Gameplay;
 
 namespace Wheeled.Networking
@@ -25,6 +26,7 @@ namespace Wheeled.Networking
 
             public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
             {
+                GameManager.Instance.QuitGame();
             }
 
             public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
@@ -37,6 +39,13 @@ namespace Wheeled.Networking
 
             public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
             {
+                if (messageType == UnconnectedMessageType.DiscoveryResponse)
+                {
+                    m_client.GameRoomDiscovered?.Invoke(new GameRoom
+                    {
+                        remoteEndPoint = remoteEndPoint
+                    });
+                }
             }
 
             public void OnPeerConnected(NetPeer peer)
@@ -45,6 +54,7 @@ namespace Wheeled.Networking
 
             public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
             {
+                GameManager.Instance.QuitGame();
             }
 
         }

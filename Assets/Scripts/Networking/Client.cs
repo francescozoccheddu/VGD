@@ -1,18 +1,11 @@
 ﻿using LiteNetLib;
-using System.Net;
+using Wheeled.Core;
 using Wheeled.Gameplay;
 
 namespace Wheeled.Networking
 {
     internal sealed partial class Client : INetworkHost
     {
-
-        public struct GameRoom
-        {
-            public IPEndPoint endPoint;
-            public string name;
-            public int map;
-        }
 
         public delegate void GameRoomDiscoveredEventHandler(GameRoom room);
 
@@ -22,12 +15,26 @@ namespace Wheeled.Networking
 
         public Client()
         {
-            m_netManager = new NetManager(new NetEventHandler(this));
+            m_netManager = new NetManager(new NetEventHandler(this))
+            {
+                DiscoveryEnabled = false,
+            };
         }
 
-        public void StartServerDiscovery()
+        public void StartServerDiscovery(int _port)
         {
+            m_netManager.SendDiscoveryRequest(new byte[0], _port);
+        }
 
+        public void Start()
+        {
+            m_netManager.Start();
+            IsRunning = m_netManager.IsRunning;
+        }
+
+        public void Connect(GameRoom _room)
+        {
+            m_netManager.Connect(_room.remoteEndPoint, "dioporco");
         }
 
         public PlayerEventHandler PlayerEvents { get; } = null;

@@ -1,13 +1,22 @@
 ﻿using System;
+using System.Net;
 using UnityEngine;
-using Wheeled.Gameplay;
-using Wheeled.Networking;
 
 namespace Wheeled.Core
 {
 
-    internal sealed class GameManager : MonoBehaviour
+    public struct GameRoom
     {
+        public IPEndPoint remoteEndPoint;
+        public string name;
+        public int map;
+    }
+
+    internal sealed partial class GameManager : MonoBehaviour
+    {
+
+        public MapCollection maps;
+        public PawnCollection pawns;
 
         private static GameManager s_instance;
 
@@ -32,40 +41,17 @@ namespace Wheeled.Core
             {
                 throw new NotSupportedException();
             }
-            DontDestroyOnLoad(gameObject);
             s_instance = this;
         }
 
-        private INetworkHost m_host;
-
-        public void StartGameAsServer()
+        public void OnEnable()
         {
-            m_host.Stop();
-            if (!(m_host is Server))
-            {
-                m_host = new Server();
-            }
-
+            DontDestroyOnLoad(gameObject);
         }
 
-        public void StartGameAsClient()
+        public void OnUpdate()
         {
-
-        }
-
-        public void DiscoveryServers()
-        {
-
-        }
-
-        public void QuitGame()
-        {
-            m_host?.Stop();
-        }
-
-        public PlayerBehaviour InstantiatePlayerBehaviour()
-        {
-            throw new NotImplementedException();
+            m_host?.Update();
         }
 
         private void OnDestroy()

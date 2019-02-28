@@ -1,18 +1,17 @@
 ﻿using UnityEngine;
-using Wheeled.Networking;
+using Wheeled.Core;
 
 internal sealed class MenuHelper : MonoBehaviour
 {
 
-    public NetworkHostHolder holder;
-
     public void StartServer()
     {
-        holder.InstantiateHost(true);
+        GameManager.Instance.StartGameAsServer();
     }
 
     public void StartClient()
     {
-        holder.InstantiateHost(false);
+        GameManager.Instance.DiscoveryServers();
     }
+
 }

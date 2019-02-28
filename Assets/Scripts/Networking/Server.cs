@@ -16,7 +16,7 @@ namespace Wheeled.Networking
                 SimulateLatency = true,
                 SimulationMaxLatency = 1500,
                 DisconnectTimeout = 5000,
-                DiscoveryEnabled = false
+                DiscoveryEnabled = true,
             };
         }
 
@@ -32,6 +32,7 @@ namespace Wheeled.Networking
             }
             IsRunning = true;
             m_localPlayer = GameManager.Instance.InstantiatePlayerBehaviour();
+            m_localPlayer.isInteractive = true;
         }
 
         public void Stop()

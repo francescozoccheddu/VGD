@@ -62,6 +62,9 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\CameraRotation.cs" />
     <Compile Include="Assets\Scripts\Core\GameManager.cs" />
+    <Compile Include="Assets\Scripts\Core\GameManager_Logic.cs" />
+    <Compile Include="Assets\Scripts\Core\MapCollection.cs" />
+    <Compile Include="Assets\Scripts\Core\PawnCollection.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour_Interaction.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour_Networking.cs" />
