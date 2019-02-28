@@ -1,38 +1,38 @@
 ﻿using LiteNetLib;
-using Wheeled.Core;
+using System.Net;
 using Wheeled.Gameplay;
 
 namespace Wheeled.Networking
 {
-    internal sealed partial class Server : INetworkHost
+    internal sealed partial class Client : INetworkHost
     {
+
+        public struct GameRoom
+        {
+            public IPEndPoint endPoint;
+            public string name;
+            public int map;
+        }
+
+        public delegate void GameRoomDiscoveredEventHandler(GameRoom room);
+
+        public event GameRoomDiscoveredEventHandler GameRoomDiscovered;
 
         private readonly NetManager m_netManager;
 
-        public Server()
+        public Client()
         {
-            m_netManager = new NetManager(new NetEventHandler(this))
-            {
-                SimulateLatency = true,
-                SimulationMaxLatency = 1500,
-                DisconnectTimeout = 5000,
-                DiscoveryEnabled = false
-            };
+            m_netManager = new NetManager(new NetEventHandler(this));
+        }
+
+        public void StartServerDiscovery()
+        {
+
         }
 
         public PlayerEventHandler PlayerEvents { get; } = null;
 
         public bool IsRunning { get; private set; } = false;
-
-        public void Start(int _port)
-        {
-            if (IsRunning)
-            {
-                Stop();
-            }
-            IsRunning = true;
-            m_localPlayer = GameManager.Instance.InstantiatePlayerBehaviour();
-        }
 
         public void Stop()
         {
@@ -57,7 +57,5 @@ namespace Wheeled.Networking
         {
             m_netManager.PollEvents();
         }
-
     }
-
 }

@@ -6,58 +6,51 @@ using Wheeled.Gameplay;
 
 namespace Wheeled.Networking
 {
-    public sealed partial class Client : INetEventListener
+    internal sealed partial class Client
     {
 
-        public readonly Dictionary<NetPeer, PlayerBehaviour> m_players = new Dictionary<NetPeer, PlayerBehaviour>();
-
-        public void OnConnectionRequest(ConnectionRequest request)
+        private sealed class NetEventHandler : INetEventListener
         {
-            // TODO Prevent being attacked
-            request.Reject();
-        }
 
-        public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
-        {
-        }
+            private readonly Client m_client;
 
-        public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
-        {
-        }
-
-        public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
-        {
-            if (peer == m_server)
+            public NetEventHandler(Client _client)
             {
-                MessageType type = reader.GetEnum<MessageType>();
-
+                m_client = _client;
             }
-        }
 
-        public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
-        {
-            if (messageType == UnconnectedMessageType.DiscoveryResponse)
+            public void OnConnectionRequest(ConnectionRequest request)
             {
-                RoomDiscovered?.Invoke(
-                    new GameRoom
-                    {
-                        endPoint = remoteEndPoint
-                    }
-                );
             }
-        }
 
-        public void OnPeerConnected(NetPeer peer)
-        {
-            m_server = peer;
-        }
-
-        public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
-        {
-            if (peer == m_server)
+            public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
             {
-                m_server = null;
             }
+
+            public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
+            {
+            }
+
+            public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
+            {
+            }
+
+            public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
+            {
+            }
+
+            public void OnPeerConnected(NetPeer peer)
+            {
+            }
+
+            public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
+            {
+            }
+
         }
+
+        private readonly Dictionary<NetPeer, PlayerBehaviour> m_netPlayers = new Dictionary<NetPeer, PlayerBehaviour>();
+        private PlayerBehaviour m_localPlayer;
+
     }
 }

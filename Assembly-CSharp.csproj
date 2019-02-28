@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\CameraRotation.cs" />
+    <Compile Include="Assets\Scripts\Core\GameManager.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour_Interaction.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour_Networking.cs" />
@@ -94,10 +95,10 @@
     <Compile Include="Assets\Scripts\LiteNetLib\Utils\NetSerializer.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\Utils\NetSerializerExceptions.cs" />
     <Compile Include="Assets\Scripts\MenuHelper.cs" />
+    <Compile Include="Assets\Scripts\Networking\Client.cs" />
     <Compile Include="Assets\Scripts\Networking\Client_Logic.cs" />
     <Compile Include="Assets\Scripts\Networking\Client_NetListener.cs" />
-    <Compile Include="Assets\Scripts\Networking\Client_Setup.cs" />
-    <Compile Include="Assets\Scripts\Networking\NetworkHostHolder.cs" />
+    <Compile Include="Assets\Scripts\Networking\NetworkHost.cs" />
     <Compile Include="Assets\Scripts\Networking\Server.cs" />
     <Compile Include="Assets\Scripts\Networking\Server_Logic.cs" />
     <Compile Include="Assets\Scripts\Networking\Server_NetListener.cs" />

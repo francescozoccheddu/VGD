@@ -6,6 +6,7 @@ namespace Wheeled.Gameplay
     {
 
         public CharacterController characterController;
+
         public const float speed = 5.0f;
         public const float jumpForce = 10.0f;
 
@@ -81,7 +82,9 @@ namespace Wheeled.Gameplay
 
         private void Simulate(InputState input, float deltaTime)
         {
+            // Simulate gravity first, in order to update characterController.isGrounded
             characterController.Move(new Vector3(0.0f, m_velocity.y, 0.0f) * deltaTime);
+            // Simulate XZ movement
             float dragForce = airDragForce;
             if (characterController.isGrounded)
             {
@@ -97,7 +100,6 @@ namespace Wheeled.Gameplay
         }
 
         private const float c_timestep = 1 / 30.0f;
-
 
         private SimulationState m_simulationState;
 

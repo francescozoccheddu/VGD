@@ -19,8 +19,6 @@ namespace Wheeled.Gameplay
 
         private InputState m_accumulatedInput;
 
-        private const float c_maxDeltaTime = 1 / 10.0f;
-
         private void AccumulateInput(InputState _inputState, float _deltaTime)
         {
             float timeFactor = _deltaTime / c_timestep;
@@ -66,15 +64,17 @@ namespace Wheeled.Gameplay
             float inputLookX = Input.GetAxis("Mouse X");
             float inputLookY = Input.GetAxis("Mouse Y");
 
+            // Rotate player
             Vector3 actAngles = transform.eulerAngles;
             actAngles.x = 0;
             actAngles.y += inputLookX;
             actAngles.z = 0;
-
-            RotateMovementInputXZ(inputMovX, inputMovY, actAngles.y, out float movementX, out float movementZ);
-
             gameObject.transform.eulerAngles = actAngles;
 
+            // Rotate movement direction depending on turn angle
+            RotateMovementInputXZ(inputMovX, inputMovY, actAngles.y, out float movementX, out float movementZ);
+
+            // Current input state based on collected input
             InputState inputState = new InputState
             {
                 jump = inputJump,
@@ -85,6 +85,7 @@ namespace Wheeled.Gameplay
             float timeToNextCommit = c_timestep - (m_accumulatedTime % c_timestep);
             m_accumulatedTime += Time.deltaTime;
 
+            // Was there a full simulation during this update?
             bool unrolled = false;
 
             while (m_accumulatedTime >= c_timestep)
@@ -93,17 +94,20 @@ namespace Wheeled.Gameplay
                 {
                     if (c_enablePartialSimulation)
                     {
+                        // Undo all partial simulations
                         History.Node? node = m_history.GetOrNull(m_history.Last);
                         if (node != null)
                         {
                             ((History.Node) node).simulation.Apply(this);
                         }
                     }
+                    // Finalize accumulated input
                     AccumulateInput(inputState, timeToNextCommit);
                 }
                 Simulate(m_accumulatedInput, c_timestep);
                 CommitInput();
                 m_history.Append(new History.Node { simulation = SimulationState.Capture(this), input = m_accumulatedInput });
+                // Jump and dash actions have already been taken into account
                 inputState.jump = false;
                 inputState.dash = false;
                 m_accumulatedInput = inputState;
@@ -126,6 +130,7 @@ namespace Wheeled.Gameplay
             AccumulateInput(inputState, timeSinceLastSimulation);
             if (c_enablePartialSimulation)
             {
+                // Do a partial simulation
                 Simulate(inputState, timeSinceLastSimulation);
             }
         }

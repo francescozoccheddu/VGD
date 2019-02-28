@@ -10,5 +10,10 @@ namespace Wheeled.Gameplay
             ProcessInput();
         }
 
+        public void Destroy()
+        {
+            Destroy(gameObject);
+        }
+
     }
 }

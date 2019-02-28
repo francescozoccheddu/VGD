@@ -6,6 +6,7 @@ namespace Wheeled.Gameplay
     public sealed partial class PlayerBehaviour
     {
 
+        // Simulation and input history
         private class History
         {
 
@@ -15,9 +16,13 @@ namespace Wheeled.Gameplay
                 public InputState input;
             }
 
+            // Index of the last appended node
             public int Last { get; private set; }
+            // Maximum number of nodes that can be stored simultaneously
             public int Length => m_nodes.Length;
+            // Maximum time span between the newer and the oldest node
             public float Duration => Length * c_timestep;
+            // Get a node by index
             public Node this[int _index] => m_nodes[_index % Length];
 
             private readonly Node[] m_nodes;
@@ -40,15 +45,18 @@ namespace Wheeled.Gameplay
                 m_nodes[m_QueueLast] = _node;
             }
 
-            private bool Contains(int _index)
+            public bool Contains(int _index)
             {
+                // True if the index is valid and the node has not yet been overwritten
                 return Last - _index < Length && _index <= Last && _index >= 0;
             }
 
+            // Replace a bad node and resimulate all subsequent nodes
             public bool Reconciliate(Node _node, int _index, PlayerBehaviour _target)
             {
                 if (!Contains(_index))
                 {
+                    // The bad node has already been overwritten by newer nodes
                     return false;
                 }
 
