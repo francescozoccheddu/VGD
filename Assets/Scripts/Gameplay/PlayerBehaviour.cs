@@ -12,6 +12,10 @@ namespace Wheeled.Gameplay
 
         public void Destroy()
         {
+            if (gameObject == null)
+            {
+                return;
+            }
             Destroy(gameObject);
         }
 

@@ -76,7 +76,6 @@
     <Compile Include="Assets\Scripts\LiteNetLib\NetConstants.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\NetDebug.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\NetExceptions.cs" />
-    <Compile Include="Assets\Scripts\LiteNetLib\NetInterfaces.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\NetManager.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\NetPacket.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\NetPacketPool.cs" />
