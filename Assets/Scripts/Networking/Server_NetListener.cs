@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using UnityEngine;
 using Wheeled.Core;
 using Wheeled.Gameplay;
 
@@ -41,6 +42,7 @@ namespace Wheeled.Networking
             {
                 if (messageType == UnconnectedMessageType.DiscoveryRequest)
                 {
+                    Debug.Log("Replied to DiscoveryRequest");
                     m_server.m_netManager.SendDiscoveryResponse(new byte[0], remoteEndPoint);
                 }
             }

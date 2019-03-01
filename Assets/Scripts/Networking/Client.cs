@@ -24,7 +24,8 @@ namespace Wheeled.Networking
 
         public void StartServerDiscovery(int _port)
         {
-            m_netManager.SendDiscoveryRequest(new byte[0], _port);
+            Debug.Log("Sent DiscoveryRequest");
+            m_netManager.SendDiscoveryRequest(new byte[] { 8 }, _port);
         }
 
         public void Start()
@@ -32,6 +33,7 @@ namespace Wheeled.Networking
             if (!IsRunning)
             {
                 m_netManager.Start();
+                Debug.LogFormat("Client started on port {0}", m_netManager.LocalPort);
             }
             else
             {

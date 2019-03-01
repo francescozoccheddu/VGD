@@ -35,6 +35,7 @@ namespace Wheeled.Networking
                     m_localPlayer = GameManager.Instance.InstantiatePlayerBehaviour();
                     m_localPlayer.isInteractive = true;
                 }
+                Debug.LogFormat("Server started on port {0}", m_netManager.LocalPort);
             }
             else
             {

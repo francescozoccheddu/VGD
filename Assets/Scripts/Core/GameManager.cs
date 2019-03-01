@@ -49,7 +49,7 @@ namespace Wheeled.Core
             DontDestroyOnLoad(gameObject);
         }
 
-        public void OnUpdate()
+        public void Update()
         {
             m_host?.Update();
         }
