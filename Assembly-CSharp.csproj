@@ -101,6 +101,7 @@
     <Compile Include="Assets\Scripts\Networking\Client_Logic.cs" />
     <Compile Include="Assets\Scripts\Networking\Client_NetListener.cs" />
     <Compile Include="Assets\Scripts\Networking\NetworkHost.cs" />
+    <Compile Include="Assets\Scripts\Networking\NetworkManager.cs" />
     <Compile Include="Assets\Scripts\Networking\Server.cs" />
     <Compile Include="Assets\Scripts\Networking\Server_Logic.cs" />
     <Compile Include="Assets\Scripts\Networking\Server_NetListener.cs" />
