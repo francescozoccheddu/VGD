@@ -7,7 +7,6 @@ using Wheeled.Core;
 namespace Wheeled.Networking
 {
 
-
     internal sealed class NetworkManager
     {
 
@@ -23,37 +22,62 @@ namespace Wheeled.Networking
 
             public void OnConnectionRequest(ConnectionRequest request)
             {
-                throw new System.NotImplementedException();
+                if (m_manager.listener?.ShouldAcceptConnectionRequest(request.Data) == true)
+                {
+                    request.Accept();
+                }
+                else
+                {
+                    request.Reject();
+                }
             }
 
             public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
             {
-                throw new System.NotImplementedException();
+                if (!m_manager.IsRunning)
+                {
+                    m_manager.NotifyStopped(StopCause.NetworkError);
+                }
             }
 
             public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
             {
-                throw new System.NotImplementedException();
+                // TODO Should forward event?
             }
 
             public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
             {
-                throw new System.NotImplementedException();
+                m_manager.listener?.ReceivedFrom(new Peer(peer), reader);
             }
 
             public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
             {
-                throw new System.NotImplementedException();
+                if (messageType == UnconnectedMessageType.DiscoveryRequest)
+                {
+                    if (m_manager.listener?.ShouldReplyToDiscoveryRequest() == true)
+                    {
+                        // TODO Add support for replying with room info
+                        m_manager.m_netManager.SendDiscoveryResponse(new byte[] { 0 }, remoteEndPoint);
+                    }
+                }
+                else if (messageType == UnconnectedMessageType.DiscoveryResponse)
+                {
+                    // TODO Parse discovery response to get room info
+                    m_manager.GameRoomDiscovered?.Invoke(new GameRoom
+                    {
+                        remoteEndPoint = remoteEndPoint
+                    });
+                }
             }
 
             public void OnPeerConnected(NetPeer peer)
             {
-                throw new System.NotImplementedException();
+                m_manager.listener?.ConnectedTo(new Peer(peer));
             }
 
             public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
             {
-                throw new System.NotImplementedException();
+                m_manager.listener?.DisconnectedFrom(new Peer(peer));
             }
         }
 
@@ -65,7 +89,7 @@ namespace Wheeled.Networking
             void Disconnect();
         }
 
-        private sealed class Peer : IPeer
+        private struct Peer : IPeer
         {
 
             private readonly NetPeer m_peer;
@@ -86,8 +110,8 @@ namespace Wheeled.Networking
 
             public override bool Equals(object obj)
             {
-                Peer peer = obj as Peer;
-                return peer != null && peer.m_peer == m_peer;
+                Peer? peer = obj as Peer?;
+                return peer != null && ((Peer) peer).m_peer == m_peer;
             }
 
             public override int GetHashCode()
@@ -128,21 +152,26 @@ namespace Wheeled.Networking
 
             void ConnectedTo(IPeer _peer);
 
+            bool ShouldAcceptConnectionRequest(NetDataReader _reader);
+
             bool ShouldReplyToDiscoveryRequest();
 
         }
 
         public enum StopCause
         {
-            UnableToStart
+            UnableToStart, Programmatically, NetworkError, UnexpectedStop
         }
 
         public delegate void StopEventHandler(StopCause cause);
         public delegate void GameRoomDiscoveredEventHandler(GameRoom room);
 
         private readonly NetManager m_netManager;
+        private bool m_wasRunning;
 
         public readonly NetworkInstance instance;
+        public bool IsRunning => m_netManager.IsRunning;
+        public int Port => m_netManager.LocalPort;
 
         public EventListener listener;
 
@@ -152,27 +181,76 @@ namespace Wheeled.Networking
 
         public NetworkManager()
         {
-            m_netManager = new NetManager(new NetEventHandler(this));
+            m_netManager = new NetManager(new NetEventHandler(this))
+            {
+                DiscoveryEnabled = true
+            };
+            m_wasRunning = false;
+            instance = new NetworkInstance(this);
+        }
+
+        private void NotifyStopped(StopCause _cause)
+        {
+            if (m_wasRunning)
+            {
+                m_wasRunning = false;
+                Stopped?.Invoke(_cause);
+            }
         }
 
         public void StartDiscovery(int _port)
         {
-
+            if (IsRunning)
+            {
+                m_netManager.SendDiscoveryRequest(new byte[0], _port);
+            }
         }
 
-        public void StartOnPort(int port)
+        public void StartOnPort(int _port)
         {
+            m_wasRunning = true;
+            if (Port != _port)
+            {
+                Stop();
+            }
+            m_netManager.Start(_port);
+            if (!IsRunning)
+            {
+                NotifyStopped(StopCause.UnableToStart);
+            }
+        }
+
+        public void Stop()
+        {
+            if (IsRunning)
+            {
+                m_netManager.Stop();
+                NotifyStopped(StopCause.Programmatically);
+            }
         }
 
         public void StartOnAvailablePort()
         {
+            m_wasRunning = true;
+            if (!IsRunning)
+            {
+                m_netManager.Start();
+            }
+            if (!IsRunning)
+            {
+                NotifyStopped(StopCause.UnableToStart);
+            }
         }
-
 
         public void Update()
         {
-
+            m_netManager.PollEvents();
+            if (!IsRunning)
+            {
+                NotifyStopped(StopCause.UnexpectedStop);
+            }
         }
 
     }
+
 }
