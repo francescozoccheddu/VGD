@@ -2,7 +2,7 @@
 
 namespace Wheeled.Gameplay
 {
-    public sealed partial class PlayerBehaviour
+    public sealed partial class PlayerMovement
     {
 
         public CharacterController characterController;
@@ -46,7 +46,7 @@ namespace Wheeled.Gameplay
             public Vector3 velocity;
             public float dashStamina;
 
-            public void Apply(PlayerBehaviour playerController)
+            public void Apply(PlayerMovement playerController)
             {
                 playerController.transform.position = position;
                 playerController.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
@@ -54,7 +54,7 @@ namespace Wheeled.Gameplay
                 playerController.m_dashStamina = dashStamina;
             }
 
-            public static SimulationState Capture(PlayerBehaviour playerController)
+            public static SimulationState Capture(PlayerMovement playerController)
             {
                 return new SimulationState
                 {

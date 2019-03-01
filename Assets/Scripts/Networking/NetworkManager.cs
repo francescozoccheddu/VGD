@@ -7,6 +7,8 @@ using Wheeled.Core;
 namespace Wheeled.Networking
 {
 
+    public delegate void GameRoomDiscoveredEventHandler(GameRoomInfo room);
+
     internal sealed class NetworkManager
     {
 
@@ -63,7 +65,7 @@ namespace Wheeled.Networking
                 else if (messageType == UnconnectedMessageType.DiscoveryResponse)
                 {
                     // TODO Parse discovery response to get room info
-                    m_manager.GameRoomDiscovered?.Invoke(new GameRoom
+                    m_manager.GameRoomDiscovered?.Invoke(new GameRoomInfo
                     {
                         remoteEndPoint = remoteEndPoint
                     });
@@ -164,7 +166,6 @@ namespace Wheeled.Networking
         }
 
         public delegate void StopEventHandler(StopCause cause);
-        public delegate void GameRoomDiscoveredEventHandler(GameRoom room);
 
         private readonly NetManager m_netManager;
         private bool m_wasRunning;
@@ -226,6 +227,18 @@ namespace Wheeled.Networking
             {
                 m_netManager.Stop();
                 NotifyStopped(StopCause.Programmatically);
+            }
+        }
+
+        public void DisconnectAll()
+        {
+            if (IsRunning)
+            {
+                m_netManager.DisconnectAll();
+            }
+            if (!IsRunning)
+            {
+                NotifyStopped(StopCause.UnexpectedStop);
             }
         }
 

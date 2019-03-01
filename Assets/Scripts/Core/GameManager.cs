@@ -5,14 +5,14 @@ using UnityEngine;
 namespace Wheeled.Core
 {
 
-    public struct GameRoom
+    public struct GameRoomInfo
     {
         public IPEndPoint remoteEndPoint;
         public string name;
         public int map;
     }
 
-    internal sealed partial class GameManager : MonoBehaviour
+    public sealed partial class GameManager : MonoBehaviour
     {
 
         public MapCollection maps;
@@ -51,13 +51,13 @@ namespace Wheeled.Core
 
         public void Update()
         {
-            m_host?.Update();
+            m_networkManager.Update();
         }
 
         private void OnDestroy()
         {
-            m_host?.Stop();
-            m_host = null;
+            m_networkManager.listener = null;
+            m_networkManager.Stop();
             s_instance = null;
         }
 

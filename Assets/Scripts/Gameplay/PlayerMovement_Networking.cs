@@ -3,11 +3,11 @@
 namespace Wheeled.Gameplay
 {
 
-    public sealed partial class PlayerBehaviour
+    public sealed partial class PlayerMovement
     {
 
         // Simulation and input history
-        private class History
+        public class History
         {
 
             public struct Node
@@ -52,13 +52,15 @@ namespace Wheeled.Gameplay
             }
 
             // Replace a bad node and resimulate all subsequent nodes
-            public bool Reconciliate(Node _node, int _index, PlayerBehaviour _target)
+            public bool Reconciliate(Node _node, int _index, PlayerMovement _target)
             {
                 if (!Contains(_index))
                 {
                     // The bad node has already been overwritten by newer nodes
                     return false;
                 }
+
+                // TODO Save first bad node in order to resimulate when _target will be not null
 
                 // TODO Reconciliate
 
@@ -77,9 +79,7 @@ namespace Wheeled.Gameplay
 
         }
 
-        private const float c_historyDuration = 2.0f;
-
-        private readonly History m_history = History.CreateHistoryByDuration(c_historyDuration);
+        public History history;
 
     }
 

@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Wheeled.Gameplay
 {
-    public sealed partial class PlayerBehaviour
+    public sealed partial class PlayerMovement
     {
 
         public struct InputState
@@ -58,6 +59,11 @@ namespace Wheeled.Gameplay
                 return;
             }
 
+            if (history == null)
+            {
+                throw new NullReferenceException("History is null");
+            }
+
             bool inputJump = Input.GetButtonDown("Jump");
             float inputMovX = Input.GetAxis("Horizontal");
             float inputMovY = Input.GetAxis("Vertical");
@@ -95,7 +101,7 @@ namespace Wheeled.Gameplay
                     if (c_enablePartialSimulation)
                     {
                         // Undo all partial simulations
-                        History.Node? node = m_history.GetOrNull(m_history.Last);
+                        History.Node? node = history.GetOrNull(history.Last);
                         if (node != null)
                         {
                             ((History.Node) node).simulation.Apply(this);
@@ -106,7 +112,7 @@ namespace Wheeled.Gameplay
                 }
                 Simulate(m_accumulatedInput, c_timestep);
                 CommitInput();
-                m_history.Append(new History.Node { simulation = SimulationState.Capture(this), input = m_accumulatedInput });
+                history.Append(new History.Node { simulation = SimulationState.Capture(this), input = m_accumulatedInput });
                 // Jump and dash actions have already been taken into account
                 inputState.jump = false;
                 inputState.dash = false;

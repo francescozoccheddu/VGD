@@ -4,7 +4,7 @@ namespace Wheeled.Core
 {
 
     [CreateAssetMenu]
-    internal sealed class PawnCollection : ScriptableObject
+    public sealed class PawnCollection : ScriptableObject
     {
 
         public GameObject playerPrefab;

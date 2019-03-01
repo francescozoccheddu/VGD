@@ -63,12 +63,14 @@
     <Compile Include="Assets\Scripts\CameraRotation.cs" />
     <Compile Include="Assets\Scripts\Core\GameManager.cs" />
     <Compile Include="Assets\Scripts\Core\GameManager_Logic.cs" />
+    <Compile Include="Assets\Scripts\Core\Player.cs" />
     <Compile Include="Assets\Scripts\Core\MapCollection.cs" />
     <Compile Include="Assets\Scripts\Core\PawnCollection.cs" />
-    <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour.cs" />
-    <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour_Interaction.cs" />
-    <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour_Networking.cs" />
-    <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour_Simulation.cs" />
+    <Compile Include="Assets\Scripts\Core\Utils.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\PlayerMovement.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\PlayerMovement_Interaction.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\PlayerMovement_Networking.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\PlayerMovement_Simulation.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\BaseChannel.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\ConnectionRequest.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\INetEventListener.cs" />
@@ -97,14 +99,8 @@
     <Compile Include="Assets\Scripts\LiteNetLib\Utils\NetSerializer.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\Utils\NetSerializerExceptions.cs" />
     <Compile Include="Assets\Scripts\MenuHelper.cs" />
-    <Compile Include="Assets\Scripts\Networking\Client.cs" />
-    <Compile Include="Assets\Scripts\Networking\Client_Logic.cs" />
-    <Compile Include="Assets\Scripts\Networking\Client_NetListener.cs" />
     <Compile Include="Assets\Scripts\Networking\NetworkHost.cs" />
     <Compile Include="Assets\Scripts\Networking\NetworkManager.cs" />
-    <Compile Include="Assets\Scripts\Networking\Server.cs" />
-    <Compile Include="Assets\Scripts\Networking\Server_Logic.cs" />
-    <Compile Include="Assets\Scripts\Networking\Server_NetListener.cs" />
     <Compile Include="Assets\Scripts\Networking\Utils.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/franc/Documents/Unity/NetworkingTest/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>

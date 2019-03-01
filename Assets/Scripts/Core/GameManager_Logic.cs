@@ -1,29 +1,35 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-using Wheeled.Gameplay;
 using Wheeled.Networking;
 
 namespace Wheeled.Core
 {
-    internal sealed partial class GameManager
+    public sealed partial class GameManager
     {
 
-        public GameRoom? Room { get; private set; }
+        public event GameRoomDiscoveredEventHandler GameRoomDiscovered
+        {
+            add
+            {
+                m_networkManager.GameRoomDiscovered += value;
+            }
+            remove
+            {
+                m_networkManager.GameRoomDiscovered -= value;
+            }
+        }
+
+        public GameRoomInfo? Room { get; private set; }
 
         public bool IsPlaying { get; private set; }
 
-        private INetworkHost m_host;
+        private readonly NetworkManager m_networkManager;
 
-        public void StartGameAsServer()
+        public void StartGameAsServer(int _port)
         {
             if (!IsPlaying)
             {
-                m_host?.Stop();
-                UnregisterGameRoomDiscoverEvent();
-                if (!(m_host is Server))
-                {
-                    m_host = new Server();
-                }
+                m_networkManager.StartOnPort(_port);
                 IsPlaying = true;
                 LoadScene(maps.gameScenes[0]);
             }
@@ -33,19 +39,13 @@ namespace Wheeled.Core
             }
         }
 
-        public void StartGameAsClient(GameRoom _room)
+        public void StartGameAsClient(GameRoomInfo _room)
         {
             if (!IsPlaying)
             {
-                if (!(m_host is Client))
-                {
-                    DestroyHost();
-                    m_host = new Client();
-                }
+                m_networkManager.StartOnAvailablePort();
                 Room = _room;
                 IsPlaying = true;
-                Client client = (Client) m_host;
-                client.Start();
                 LoadScene(maps.gameScenes[0]);
             }
             else
@@ -54,20 +54,12 @@ namespace Wheeled.Core
             }
         }
 
-        public void DiscoveryServers()
+        public void StartServerDiscovery(int _port)
         {
             if (!IsPlaying)
             {
-                if (!(m_host is Client))
-                {
-                    DestroyHost();
-                    m_host = new Client();
-                }
-                Client client = (Client) m_host;
-                client.Start();
-                client.StartServerDiscovery(9050);
-                client.GameRoomDiscovered -= GameRoomDiscovered;
-                client.GameRoomDiscovered += GameRoomDiscovered;
+                m_networkManager.StartOnAvailablePort();
+                m_networkManager.StartDiscovery(_port);
             }
             else
             {
@@ -79,36 +71,13 @@ namespace Wheeled.Core
         {
             if (IsPlaying)
             {
-                IsPlaying = false;
-                Room = null;
-                m_host?.Stop();
+                m_networkManager.DisconnectAll();
                 SceneManager.LoadScene(maps.menuScene);
             }
             else
             {
                 Debug.LogWarning("QuitGame has been ignored because no game is running");
             }
-        }
-
-        private void GameRoomDiscovered(GameRoom _room)
-        {
-            StartGameAsClient(_room);
-        }
-
-        private void UnregisterGameRoomDiscoverEvent()
-        {
-            Client client = m_host as Client;
-            if (client != null)
-            {
-                client.GameRoomDiscovered -= GameRoomDiscovered;
-            }
-        }
-
-        private void DestroyHost()
-        {
-            m_host?.Stop();
-            UnregisterGameRoomDiscoverEvent();
-            m_host = null;
         }
 
         private void LoadScene(int _scene)
@@ -118,20 +87,6 @@ namespace Wheeled.Core
 
         private void OnSceneLoaded(AsyncOperation _operation)
         {
-            if (m_host is Client)
-            {
-                ((Client) m_host).Connect((GameRoom) Room);
-            }
-            else if (m_host is Server)
-            {
-                ((Server) m_host).Start(9050);
-            }
-        }
-
-        public PlayerBehaviour InstantiatePlayerBehaviour()
-        {
-            GameObject gameObject = Instantiate(pawns.playerPrefab);
-            return gameObject.GetComponent<PlayerBehaviour>();
         }
 
     }
