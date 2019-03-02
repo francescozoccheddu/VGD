@@ -20,6 +20,13 @@ namespace Wheeled.Core
         public PlayerMovement movement;
     }
 
+    internal interface PlayerEventListener
+    {
+
+        void Moved(Player player /* ... */);
+
+    }
+
     internal sealed class Player
     {
 

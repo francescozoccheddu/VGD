@@ -6,12 +6,12 @@ internal sealed class MenuHelper : MonoBehaviour
 
     public void StartServer()
     {
-        GameManager.Instance.StartGameAsServer();
+        GameManager.Instance.StartGameAsServer(9050);
     }
 
     public void StartClient()
     {
-        GameManager.Instance.StartServerDiscovery();
+        GameManager.Instance.StartServerDiscovery(9050);
     }
 
 }

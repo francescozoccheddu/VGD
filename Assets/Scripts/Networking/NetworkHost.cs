@@ -2,16 +2,27 @@
 using LiteNetLib.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Wheeled.Core;
+using static Wheeled.Networking.NetworkManager;
 
 namespace Wheeled.Networking
 {
-    internal abstract class NetworkHost : NetworkManager.EventListener
+    using NetPlayersDictKey = NetPeer;
+
+    internal abstract class NetworkHost : EventListener, PlayerEventListener
     {
+
+        protected readonly NetworkInstance m_netInstance;
 
         protected PlayerBehaviour m_LocalPlayerBehaviour => m_localPlayer.Behaviour;
 
-        protected void NetPlayerDo(NetPeer _netPeer, Action<PlayerBehaviour> _action)
+        private NetPlayersDictKey GetPlayerDictKey(Player _player)
+        {
+            return m_netPlayers.FirstOrDefault(p => p.Value == _player).Key;
+        }
+
+        protected void NetPlayerDo(NetPlayersDictKey _netPeer, Action<PlayerBehaviour> _action)
         {
             if (!m_netPlayers.TryGetValue(_netPeer, out Player player))
             {
@@ -28,7 +39,7 @@ namespace Wheeled.Networking
             }
         }
 
-        protected void DestroyNetPlayer(NetPeer _netPeer)
+        protected void DestroyNetPlayer(NetPlayersDictKey _netPeer)
         {
             if (m_netPlayers.TryGetValue(_netPeer, out Player p))
             {
@@ -38,21 +49,24 @@ namespace Wheeled.Networking
         }
 
         private readonly Player m_localPlayer;
-        private readonly Dictionary<NetPeer, Player> m_netPlayers;
+        private readonly Dictionary<NetPlayersDictKey, Player> m_netPlayers;
         private bool m_IsGameSceneLoaded;
 
-        protected NetworkHost()
+        protected NetworkHost(NetworkInstance _netInstance)
         {
+            m_netInstance = _netInstance;
             m_localPlayer = new Player();
-            m_netPlayers = new Dictionary<NetPeer, Player>();
+            m_netPlayers = new Dictionary<NetPlayersDictKey, Player>();
             m_IsGameSceneLoaded = false;
         }
 
-        public abstract void ConnectedTo(NetworkManager.IPeer _peer);
-        public abstract void DisconnectedFrom(NetworkManager.IPeer _peer);
-        public abstract void ReceivedFrom(NetworkManager.IPeer _peer, NetPacketReader _reader);
+        public abstract void ConnectedTo(IPeer _peer);
+        public abstract void DisconnectedFrom(IPeer _peer);
+        public abstract void ReceivedFrom(IPeer _peer, NetPacketReader _reader);
         public abstract bool ShouldAcceptConnectionRequest(NetDataReader _reader);
         public abstract bool ShouldReplyToDiscoveryRequest();
+
+        public abstract void Moved(NetPlayersDictKey _key);
 
         public void GameSceneLoaded()
         {
@@ -67,5 +81,9 @@ namespace Wheeled.Networking
             }
         }
 
+        public void Moved(Player _player)
+        {
+            Moved(GetPlayerDictKey(_player));
+        }
     }
 }

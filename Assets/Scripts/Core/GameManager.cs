@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using UnityEngine;
+using Wheeled.Networking;
 
 namespace Wheeled.Core
 {
@@ -42,6 +43,7 @@ namespace Wheeled.Core
                 throw new NotSupportedException();
             }
             s_instance = this;
+            m_networkManager = new NetworkManager();
         }
 
         public void OnEnable()

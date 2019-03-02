@@ -7,6 +7,8 @@ namespace Wheeled.Core
     public sealed partial class GameManager
     {
 
+        private NetworkHost m_host;
+
         public event GameRoomDiscoveredEventHandler GameRoomDiscovered
         {
             add
@@ -31,6 +33,8 @@ namespace Wheeled.Core
             {
                 m_networkManager.StartOnPort(_port);
                 IsPlaying = true;
+                m_host = new Server(m_networkManager.instance);
+                m_networkManager.listener = m_host;
                 LoadScene(maps.gameScenes[0]);
             }
             else
@@ -46,6 +50,8 @@ namespace Wheeled.Core
                 m_networkManager.StartOnAvailablePort();
                 Room = _room;
                 IsPlaying = true;
+                //m_host = new Client(m_networkManager.instance);
+                m_networkManager.listener = m_host;
                 LoadScene(maps.gameScenes[0]);
             }
             else
@@ -72,6 +78,8 @@ namespace Wheeled.Core
             if (IsPlaying)
             {
                 m_networkManager.DisconnectAll();
+                m_networkManager.listener = null;
+                m_host = null;
                 SceneManager.LoadScene(maps.menuScene);
             }
             else
@@ -87,6 +95,7 @@ namespace Wheeled.Core
 
         private void OnSceneLoaded(AsyncOperation _operation)
         {
+            m_host.GameSceneLoaded();
         }
 
     }
