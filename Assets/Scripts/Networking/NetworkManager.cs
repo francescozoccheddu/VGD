@@ -145,7 +145,7 @@ namespace Wheeled.Networking
 
         }
 
-        public interface EventListener
+        public interface IEventListener
         {
 
             void ReceivedFrom(IPeer _peer, NetPacketReader _reader);
@@ -174,7 +174,7 @@ namespace Wheeled.Networking
         public bool IsRunning => m_netManager.IsRunning;
         public int Port => m_netManager.LocalPort;
 
-        public EventListener listener;
+        public IEventListener listener;
 
         public event StopEventHandler Stopped;
 
@@ -221,12 +221,16 @@ namespace Wheeled.Networking
             }
         }
 
-        public void Stop()
+        public void StartOnAvailablePort()
         {
-            if (IsRunning)
+            m_wasRunning = true;
+            if (!IsRunning)
             {
-                m_netManager.Stop();
-                NotifyStopped(StopCause.Programmatically);
+                m_netManager.Start();
+            }
+            if (!IsRunning)
+            {
+                NotifyStopped(StopCause.UnableToStart);
             }
         }
 
@@ -242,16 +246,12 @@ namespace Wheeled.Networking
             }
         }
 
-        public void StartOnAvailablePort()
+        public void Stop()
         {
-            m_wasRunning = true;
-            if (!IsRunning)
+            if (IsRunning)
             {
-                m_netManager.Start();
-            }
-            if (!IsRunning)
-            {
-                NotifyStopped(StopCause.UnableToStart);
+                m_netManager.Stop();
+                NotifyStopped(StopCause.Programmatically);
             }
         }
 

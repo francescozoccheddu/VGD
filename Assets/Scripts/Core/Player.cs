@@ -27,34 +27,76 @@ namespace Wheeled.Core
 
     }
 
-    internal sealed class Player
+    internal class Player
     {
 
         public PlayerStats stats;
 
-        private readonly PlayerMovement.History m_movementHistory;
+        protected readonly GameObject m_gameObject;
+        protected readonly PlayerMovement m_movement;
 
-        private GameObject m_gameObject;
-        private PlayerBehaviour m_behaviour;
+        protected bool m_isDestroyed;
 
-        public bool IsInstantiated => m_gameObject != null;
-        public PlayerBehaviour Behaviour => IsInstantiated ? m_behaviour : new PlayerBehaviour();
+        public bool IsDestroyed => m_isDestroyed || (m_gameObject == null);
 
-        public void Instantiate()
+        public readonly PlayerEventListener host;
+
+        public Player(PlayerEventListener _host)
         {
-            if (!IsInstantiated)
+            host = _host;
+            m_isDestroyed = false;
+        }
+
+        public void Move()
+        {
+            if (!IsDestroyed)
             {
-                m_gameObject = Object.Instantiate(GameManager.Instance.pawns.playerPrefab);
-                m_behaviour.movement = m_gameObject.GetComponent<PlayerMovement>();
+
             }
+        }
+
+        public void Die()
+        {
+            if (!IsDestroyed)
+            {
+
+            }
+        }
+
+        public void Hit()
+        {
+            if (!IsDestroyed)
+            {
+
+            }
+        }
+
+        public void Spawn()
+        {
+            if (!IsDestroyed)
+            {
+
+            }
+        }
+
+    }
+
+    internal sealed class NetPlayer : Player
+    {
+
+        public NetPlayer(PlayerEventListener _host) : base(_host)
+        {
         }
 
         public void Destroy()
         {
-            if (IsInstantiated)
+            if (!m_isDestroyed)
             {
-                Object.Destroy(m_gameObject);
-                m_gameObject = null;
+                m_isDestroyed = true;
+                if (m_gameObject != null)
+                {
+                    Object.Destroy(m_gameObject);
+                }
             }
         }
 

@@ -16,9 +16,6 @@ namespace Wheeled.Core
     public sealed partial class GameManager : MonoBehaviour
     {
 
-        public MapCollection maps;
-        public PawnCollection pawns;
-
         private static GameManager s_instance;
 
         public static GameManager GetOrCreate()

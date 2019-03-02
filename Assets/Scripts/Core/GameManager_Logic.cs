@@ -1,13 +1,15 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using Wheeled.Assets.Scripts.Core;
 using Wheeled.Networking;
 
 namespace Wheeled.Core
 {
+
     public sealed partial class GameManager
     {
 
-        private NetworkHost m_host;
+        private readonly NetworkManager m_networkManager;
 
         public event GameRoomDiscoveredEventHandler GameRoomDiscovered
         {
@@ -23,80 +25,89 @@ namespace Wheeled.Core
 
         public GameRoomInfo? Room { get; private set; }
 
+        public bool IsLoading { get; private set; }
         public bool IsPlaying { get; private set; }
-
-        private readonly NetworkManager m_networkManager;
+        public bool IsServer { get; private set; }
 
         public void StartGameAsServer(int _port)
         {
-            if (!IsPlaying)
+            if (!IsPlaying && !IsLoading)
             {
-                m_networkManager.StartOnPort(_port);
                 IsPlaying = true;
-                m_host = new Server(m_networkManager.instance);
-                m_networkManager.listener = m_host;
-                LoadScene(maps.gameScenes[0]);
+                IsServer = true;
+                m_networkManager.listener = null;
+                m_networkManager.StartOnPort(_port);
+                LoadScene(ScriptManager.Scenes.game[0]);
             }
             else
             {
-                Debug.LogWarning("StartGameAsServer has been ignored because a game is running");
+                Debug.LogWarning("StartGameAsServer has been ignored because a game is running or loading");
             }
         }
 
         public void StartGameAsClient(GameRoomInfo _room)
         {
-            if (!IsPlaying)
+            if (!IsPlaying && !IsLoading)
             {
-                m_networkManager.StartOnAvailablePort();
-                Room = _room;
                 IsPlaying = true;
-                //m_host = new Client(m_networkManager.instance);
-                m_networkManager.listener = m_host;
-                LoadScene(maps.gameScenes[0]);
+                IsServer = true;
+                Room = _room;
+                m_networkManager.listener = null;
+                m_networkManager.StartOnAvailablePort();
+                LoadScene(ScriptManager.Scenes.game[0]);
             }
             else
             {
-                Debug.LogWarning("StartGameAsClient has been ignored because a game is running");
+                Debug.LogWarning("StartGameAsClient has been ignored because a game is running or loading");
             }
         }
 
         public void StartServerDiscovery(int _port)
         {
-            if (!IsPlaying)
+            if (!IsPlaying && !IsLoading)
             {
                 m_networkManager.StartOnAvailablePort();
                 m_networkManager.StartDiscovery(_port);
             }
             else
             {
-                Debug.LogWarning("DiscoveryServers has been ignored because a game is running");
+                Debug.LogWarning("DiscoveryServers has been ignored because a game is running or loading");
             }
         }
 
         public void QuitGame()
         {
-            if (IsPlaying)
+            if (IsPlaying && !IsLoading)
             {
-                m_networkManager.DisconnectAll();
                 m_networkManager.listener = null;
-                m_host = null;
-                SceneManager.LoadScene(maps.menuScene);
+                m_networkManager.DisconnectAll();
+                SceneManager.LoadScene(ScriptManager.Scenes.menu);
             }
             else
             {
-                Debug.LogWarning("QuitGame has been ignored because no game is running");
+                Debug.LogWarning("QuitGame has been ignored because no game is running or a loading is in progress");
             }
         }
 
         private void LoadScene(int _scene)
         {
+            IsLoading = true;
             SceneManager.LoadSceneAsync(_scene, LoadSceneMode.Single).completed += OnSceneLoaded;
         }
 
         private void OnSceneLoaded(AsyncOperation _operation)
         {
-            m_host.GameSceneLoaded();
+            IsLoading = false;
+            if (IsServer)
+            {
+                m_networkManager.listener = new Server(m_networkManager.instance);
+            }
+            else
+            {
+
+            }
         }
 
     }
+
 }
