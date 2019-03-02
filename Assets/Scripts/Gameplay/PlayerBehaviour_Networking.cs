@@ -3,7 +3,7 @@
 namespace Wheeled.Gameplay
 {
 
-    public sealed partial class PlayerMovement
+    public sealed partial class PlayerBehaviour
     {
 
         // Simulation and input history
@@ -52,7 +52,7 @@ namespace Wheeled.Gameplay
             }
 
             // Replace a bad node and resimulate all subsequent nodes
-            public bool Reconciliate(Node _node, int _index, PlayerMovement _target)
+            public bool Reconciliate(Node _node, int _index, PlayerBehaviour _target)
             {
                 if (!Contains(_index))
                 {
@@ -79,7 +79,9 @@ namespace Wheeled.Gameplay
 
         }
 
-        public History history;
+        private const float c_historyDuration = 2.0f;
+
+        private readonly History m_history = History.CreateHistoryByDuration(c_historyDuration);
 
     }
 

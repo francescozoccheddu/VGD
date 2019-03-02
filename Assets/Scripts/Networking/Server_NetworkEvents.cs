@@ -1,5 +1,6 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
+using Wheeled.Core;
 using static Wheeled.Networking.NetworkManager;
 
 namespace Wheeled.Networking
@@ -10,9 +11,12 @@ namespace Wheeled.Networking
 
         private readonly NetworkInstance m_network;
 
+        private readonly Player m_localPlayer;
+
         public Server(NetworkInstance _network)
         {
             m_network = _network;
+            m_localPlayer = new Player(null);
         }
 
         public void ConnectedTo(IPeer _peer)

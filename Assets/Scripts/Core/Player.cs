@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Wheeled.Assets.Scripts.Core;
 using Wheeled.Gameplay;
 
 namespace Wheeled.Core
@@ -15,11 +16,6 @@ namespace Wheeled.Core
 
     }
 
-    internal struct PlayerBehaviour
-    {
-        public PlayerMovement movement;
-    }
-
     internal interface PlayerEventListener
     {
 
@@ -33,7 +29,7 @@ namespace Wheeled.Core
         public PlayerStats stats;
 
         protected readonly GameObject m_gameObject;
-        protected readonly PlayerMovement m_movement;
+        protected readonly PlayerBehaviour m_movement;
 
         protected bool m_isDestroyed;
 
@@ -45,6 +41,8 @@ namespace Wheeled.Core
         {
             host = _host;
             m_isDestroyed = false;
+            m_gameObject = Object.Instantiate(ScriptManager.Actors.player);
+            m_movement = m_gameObject.GetComponent<PlayerBehaviour>();
         }
 
         public void Move()
