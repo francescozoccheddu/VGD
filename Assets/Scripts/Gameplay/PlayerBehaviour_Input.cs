@@ -28,19 +28,20 @@ namespace Wheeled.Gameplay
             m_accumulatedInput.movementZ += _inputState.movementZ * timeFactor;
         }
 
-        public static void RotateMovementInputXZ(float _right, float _forward, float _turn, out float o_x, out float o_z)
+        public static void RotateMovementInputXZ(float _right, float _forward, float _turn, out float _out_x, out float _out_z)
         {
             float angleRad = Mathf.Deg2Rad * _turn;
             float sin = Mathf.Sin(angleRad);
             float cos = Mathf.Cos(angleRad);
-            o_x = (cos * _right) + (sin * _forward);
-            o_z = (cos * _forward) - (sin * _right);
+            _out_x = (cos * _right) + (sin * _forward);
+            _out_z = (cos * _forward) - (sin * _right);
         }
 
         private float m_accumulatedTime = 0.0f;
 
-        private void CommitInput()
+        private void SendInput()
         {
+            host.Moved(m_history.Last, m_accumulatedInput, m_history[m_history.Last].simulation);
         }
 
         private void ResetInput()
@@ -105,8 +106,8 @@ namespace Wheeled.Gameplay
                     AccumulateInput(inputState, timeToNextCommit);
                 }
                 Simulate(m_accumulatedInput, c_timestep);
-                CommitInput();
                 m_history.Append(new History.Node { simulation = SimulationState.Capture(this), input = m_accumulatedInput });
+                SendInput();
                 // Jump and dash actions have already been taken into account
                 inputState.jump = false;
                 inputState.dash = false;

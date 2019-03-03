@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using LiteNetLib;
+using LiteNetLib.Utils;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using Wheeled.Assets.Scripts.Core;
 using Wheeled.Networking;
@@ -11,7 +13,7 @@ namespace Wheeled.Core
 
         private readonly NetworkManager m_networkManager;
 
-        public event GameRoomDiscoveredEventHandler GameRoomDiscovered
+        public event GameRoomDiscoveredEventHandler OnGameRoomDiscovered
         {
             add
             {
@@ -29,13 +31,15 @@ namespace Wheeled.Core
         public bool IsPlaying { get; private set; }
         public bool IsServer { get; private set; }
 
+        private NetworkManager.Peer? m_serverPeer;
+
         public void StartGameAsServer(int _port)
         {
             if (!IsPlaying && !IsLoading)
             {
                 IsPlaying = true;
                 IsServer = true;
-                m_networkManager.listener = null;
+                DestroyHost();
                 m_networkManager.StartOnPort(_port);
                 LoadScene(ScriptManager.Scenes.game[0]);
             }
@@ -45,16 +49,48 @@ namespace Wheeled.Core
             }
         }
 
+        private sealed class ClientConnectionHelper : NetworkManager.IEventListener
+        {
+
+            public void ConnectedTo(NetworkManager.Peer _peer)
+            {
+                if (_peer == Instance.m_serverPeer)
+                {
+                    Instance.LoadScene(ScriptManager.Scenes.game[0]);
+                }
+            }
+
+            public void DisconnectedFrom(NetworkManager.Peer _peer)
+            {
+            }
+
+            public void ReceivedFrom(NetworkManager.Peer _peer, NetPacketReader _reader)
+            {
+            }
+
+            public bool ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader)
+            {
+                return false;
+            }
+
+            public bool ShouldReplyToDiscoveryRequest()
+            {
+                return false;
+            }
+        }
+
         public void StartGameAsClient(GameRoomInfo _room)
         {
             if (!IsPlaying && !IsLoading)
             {
                 IsPlaying = true;
-                IsServer = true;
+                IsServer = false;
+                IsLoading = true;
                 Room = _room;
-                m_networkManager.listener = null;
+                DestroyHost();
                 m_networkManager.StartOnAvailablePort();
-                LoadScene(ScriptManager.Scenes.game[0]);
+                m_networkManager.listener = new ClientConnectionHelper();
+                m_serverPeer = m_networkManager.instance.ConnectTo(_room.remoteEndPoint, new LiteNetLib.Utils.NetDataWriter());
             }
             else
             {
@@ -79,7 +115,7 @@ namespace Wheeled.Core
         {
             if (IsPlaying && !IsLoading)
             {
-                m_networkManager.listener = null;
+                DestroyHost();
                 m_networkManager.DisconnectAll();
                 SceneManager.LoadScene(ScriptManager.Scenes.menu);
             }
@@ -95,6 +131,17 @@ namespace Wheeled.Core
             SceneManager.LoadSceneAsync(_scene, LoadSceneMode.Single).completed += OnSceneLoaded;
         }
 
+        private void DestroyHost()
+        {
+            NetworkManager.IEventListener host = m_networkManager.listener;
+            m_networkManager.listener = null;
+            Client client = host as Client;
+            if (client != null)
+            {
+                client.OnDisconnected -= ClientDisconnected;
+            }
+        }
+
         private void OnSceneLoaded(AsyncOperation _operation)
         {
             IsLoading = false;
@@ -104,10 +151,16 @@ namespace Wheeled.Core
             }
             else
             {
-
+                Client client = new Client(m_networkManager.instance, (NetworkManager.Peer) m_serverPeer);
+                client.OnDisconnected += ClientDisconnected;
+                m_networkManager.listener = client;
             }
         }
 
+        private void ClientDisconnected()
+        {
+            QuitGame();
+        }
     }
 
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using UnityEngine;
 using Wheeled.Networking;
 
@@ -18,28 +17,24 @@ namespace Wheeled.Core
 
         private static GameManager s_instance;
 
-        public static GameManager GetOrCreate()
+        public static GameManager Instance
         {
-            if (s_instance == null)
+            get
             {
-                GameObject gameObject = new GameObject
+                if (s_instance == null)
                 {
-                    name = "GameManager"
-                };
-                gameObject.AddComponent<GameManager>();
+                    GameObject gameObject = new GameObject
+                    {
+                        name = "GameManager"
+                    };
+                    s_instance = gameObject.AddComponent<GameManager>();
+                }
+                return s_instance;
             }
-            return s_instance;
         }
-
-        public static GameManager Instance => GetOrCreate();
 
         private GameManager()
         {
-            if (s_instance != null)
-            {
-                throw new NotSupportedException();
-            }
-            s_instance = this;
             m_networkManager = new NetworkManager();
         }
 

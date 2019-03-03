@@ -6,6 +6,8 @@ namespace Wheeled.Gameplay
     public sealed partial class PlayerBehaviour
     {
 
+        public bool isAuthoritative;
+
         // Simulation and input history
         public class History
         {
@@ -82,6 +84,26 @@ namespace Wheeled.Gameplay
         private const float c_historyDuration = 2.0f;
 
         private readonly History m_history = History.CreateHistoryByDuration(c_historyDuration);
+
+        public void Move(int _node, InputState _input, SimulationState _calculatedSimulation)
+        {
+
+            characterController.transform.position = _calculatedSimulation.position;
+
+            /*
+            if (_node > m_history.Last)
+            {
+                while (m_history.Last < _node)
+                {
+
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Ignore Move because node is older than the last node in history");
+            }
+            */
+        }
 
     }
 

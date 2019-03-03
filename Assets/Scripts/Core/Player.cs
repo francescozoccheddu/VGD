@@ -16,40 +16,49 @@ namespace Wheeled.Core
 
     }
 
-    internal interface PlayerEventListener
+    internal interface IPlayerEventListener
     {
 
-        void Moved(Player player /* ... */);
+        void Moved(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _calculatedSimulation);
+
+        void Corrected(int _node, PlayerBehaviour.SimulationState _simulation);
 
     }
 
-    internal class Player
+    internal sealed class Player
     {
 
         public PlayerStats stats;
 
-        protected readonly GameObject m_gameObject;
-        protected readonly PlayerBehaviour m_movement;
+        private readonly GameObject m_gameObject;
+        private readonly PlayerBehaviour m_behaviour;
 
-        protected bool m_isDestroyed;
+        private bool m_isDestroyed;
 
         public bool IsDestroyed => m_isDestroyed || (m_gameObject == null);
 
-        public readonly PlayerEventListener host;
-
-        public Player(PlayerEventListener _host)
+        public Player()
         {
-            host = _host;
             m_isDestroyed = false;
             m_gameObject = Object.Instantiate(ScriptManager.Actors.player);
-            m_movement = m_gameObject.GetComponent<PlayerBehaviour>();
+            m_behaviour = m_gameObject.GetComponent<PlayerBehaviour>();
         }
 
-        public void Move()
+        public void Setup(IPlayerEventListener _eventListener, bool _isInteractive, bool _isAuthoritative)
         {
             if (!IsDestroyed)
             {
+                m_behaviour.host = _eventListener;
+                m_behaviour.isInteractive = _isInteractive;
+                m_behaviour.isAuthoritative = _isAuthoritative;
+            }
+        }
 
+        public void Move(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _calculatedSimulation)
+        {
+            if (!IsDestroyed)
+            {
+                m_behaviour.Move(_node, _input, _calculatedSimulation);
             }
         }
 
@@ -77,15 +86,6 @@ namespace Wheeled.Core
             }
         }
 
-    }
-
-    internal sealed class NetPlayer : Player
-    {
-
-        public NetPlayer(PlayerEventListener _host) : base(_host)
-        {
-        }
-
         public void Destroy()
         {
             if (!m_isDestroyed)
@@ -97,7 +97,6 @@ namespace Wheeled.Core
                 }
             }
         }
-
     }
 
 }

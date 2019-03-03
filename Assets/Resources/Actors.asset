@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dc779f3db5ed8e46b46bfd7af69f527, type: 3}
   m_Name: Actors
   m_EditorClassIdentifier: 
-  player: {fileID: 1409827396985943899, guid: dc99a34500f1cf541a3b85c95c3fb1b4, type: 3}
+  player: {fileID: 5949108520220492582, guid: 52ed707012d8e84459f01496b096d1f6, type: 3}

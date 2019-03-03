@@ -1,5 +1,6 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using Wheeled.Core;
@@ -24,7 +25,7 @@ namespace Wheeled.Networking
 
             public void OnConnectionRequest(ConnectionRequest request)
             {
-                if (m_manager.listener?.ShouldAcceptConnectionRequest(request.Data) == true)
+                if (m_manager.listener?.ShouldAcceptConnectionRequest(new Peer(request.Peer), request.Data) == true)
                 {
                     request.Accept();
                 }
@@ -83,15 +84,7 @@ namespace Wheeled.Networking
             }
         }
 
-        public interface IPeer
-        {
-            int Ping { get; }
-            float TimeSinceLastPacket { get; }
-            void Send(NetDataWriter _writer, DeliveryMethod _method);
-            void Disconnect();
-        }
-
-        private struct Peer : IPeer
+        public readonly struct Peer : IEquatable<Peer>
         {
 
             private readonly NetPeer m_peer;
@@ -110,15 +103,29 @@ namespace Wheeled.Networking
                 m_peer.Disconnect();
             }
 
-            public override bool Equals(object obj)
+            public static bool operator ==(Peer _a, Peer _b)
             {
-                Peer? peer = obj as Peer?;
-                return peer != null && ((Peer) peer).m_peer == m_peer;
+                return _a.Equals(_b);
+            }
+
+            public static bool operator !=(Peer _a, Peer _b)
+            {
+                return !(_a == _b);
+            }
+
+            public override bool Equals(object _other)
+            {
+                return (_other as Peer?)?.Equals(this) == true;
+            }
+
+            public bool Equals(Peer _other)
+            {
+                return _other.m_peer.Id == m_peer.Id;
             }
 
             public override int GetHashCode()
             {
-                return m_peer.GetHashCode();
+                return m_peer.Id.GetHashCode();
             }
 
             public void Send(NetDataWriter _writer, DeliveryMethod _method)
@@ -137,7 +144,7 @@ namespace Wheeled.Networking
                 m_manager = _manager;
             }
 
-            public IPeer ConnectTo(IPEndPoint _endPoint, NetDataWriter _writer)
+            public Peer ConnectTo(IPEndPoint _endPoint, NetDataWriter _writer)
             {
                 NetPeer p = m_manager.m_netManager.Connect(_endPoint, _writer);
                 return new Peer(p);
@@ -148,13 +155,13 @@ namespace Wheeled.Networking
         public interface IEventListener
         {
 
-            void ReceivedFrom(IPeer _peer, NetPacketReader _reader);
+            void ReceivedFrom(Peer _peer, NetPacketReader _reader);
 
-            void DisconnectedFrom(IPeer _peer);
+            void DisconnectedFrom(Peer _peer);
 
-            void ConnectedTo(IPeer _peer);
+            void ConnectedTo(Peer _peer);
 
-            bool ShouldAcceptConnectionRequest(NetDataReader _reader);
+            bool ShouldAcceptConnectionRequest(Peer _peer, NetDataReader _reader);
 
             bool ShouldReplyToDiscoveryRequest();
 

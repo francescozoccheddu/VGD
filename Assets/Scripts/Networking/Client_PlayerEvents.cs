@@ -1,23 +1,22 @@
-﻿using LiteNetLib.Utils;
-using Wheeled.Core;
+﻿using Wheeled.Core;
 using Wheeled.Gameplay;
 using static Wheeled.Networking.NetworkManager;
 
 namespace Wheeled.Networking
 {
 
-    internal sealed partial class Server : IEventListener
+    internal sealed partial class Client : IEventListener
     {
 
         private sealed class PlayerEventListener : IPlayerEventListener
         {
 
-            private readonly Server m_server;
-            private readonly PlayerEntry m_player;
+            private readonly Client m_server;
+            private readonly Player m_player;
 
-            public PlayerEventListener(Server _server, PlayerEntry _player)
+            public PlayerEventListener(Client _client, Player _player)
             {
-                m_server = _server;
+                m_server = _client;
                 m_player = _player;
             }
 
@@ -27,9 +26,6 @@ namespace Wheeled.Networking
 
             public void Moved(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _calculatedSimulation)
             {
-                NetDataWriter writer = new NetDataWriter();
-                writer.Put(_calculatedSimulation.position);
-                m_server.SendToAll(writer, LiteNetLib.DeliveryMethod.Sequenced);
             }
 
         }

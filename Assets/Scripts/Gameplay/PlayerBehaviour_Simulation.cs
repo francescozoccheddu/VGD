@@ -58,7 +58,7 @@ namespace Wheeled.Gameplay
             {
                 return new SimulationState
                 {
-                    position = playerController.transform.position,
+                    position = playerController.characterController.transform.position,
                     lookUp = playerController.transform.eulerAngles.x,
                     turn = playerController.transform.eulerAngles.y,
                     velocity = playerController.m_velocity,
