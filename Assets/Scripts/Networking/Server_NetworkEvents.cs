@@ -54,6 +54,13 @@ namespace Wheeled.Networking
 
         public void ConnectedTo(Peer _peer)
         {
+            if (m_netPlayers.TryGetValue(_peer, out PlayerEntry playerEntry))
+            {
+                NetDataWriter writer = new NetDataWriter();
+                writer.Put(Message.Welcome);
+                writer.Put(playerEntry.id);
+                _peer.Send(writer, DeliveryMethod.ReliableUnordered);
+            }
         }
 
         public void DisconnectedFrom(Peer _peer)
@@ -67,6 +74,22 @@ namespace Wheeled.Networking
 
         public void ReceivedFrom(Peer _peer, NetPacketReader _reader)
         {
+            Message message = _reader.GetEnum<Message>();
+            switch (message)
+            {
+                case Message.Move:
+                {
+                    if (m_netPlayers.TryGetValue(_peer, out PlayerEntry playerEntry))
+                    {
+                        playerEntry.player.Move(_reader.GetInt(), _reader.GetInputState(), _reader.GetSimulationState());
+                    }
+                }
+                break;
+                case Message.UpdatePresentationLatency:
+                break;
+                case Message.Welcome:
+                break;
+            }
         }
 
         public bool ShouldAcceptConnectionRequest(Peer _peer, NetDataReader _reader)

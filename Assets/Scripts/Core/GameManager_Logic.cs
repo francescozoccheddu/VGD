@@ -32,6 +32,7 @@ namespace Wheeled.Core
         public bool IsServer { get; private set; }
 
         private NetworkManager.Peer? m_serverPeer;
+        private byte m_clientId;
 
         public void StartGameAsServer(int _port)
         {
@@ -54,9 +55,9 @@ namespace Wheeled.Core
 
             public void ConnectedTo(NetworkManager.Peer _peer)
             {
-                if (_peer == Instance.m_serverPeer)
+                if (_peer != Instance.m_serverPeer)
                 {
-                    Instance.LoadScene(ScriptManager.Scenes.game[0]);
+                    _peer.Disconnect();
                 }
             }
 
@@ -66,6 +67,15 @@ namespace Wheeled.Core
 
             public void ReceivedFrom(NetworkManager.Peer _peer, NetPacketReader _reader)
             {
+                if (_peer == Instance.m_serverPeer)
+                {
+                    if (_reader.GetEnum<Message>() == Message.Welcome)
+                    {
+                        Instance.m_clientId = _reader.GetByte();
+                        Instance.m_networkManager.listener = null;
+                        Instance.LoadScene(ScriptManager.Scenes.game[0]);
+                    }
+                }
             }
 
             public bool ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader)
@@ -154,7 +164,7 @@ namespace Wheeled.Core
                 }
                 else
                 {
-                    Client client = new Client(m_networkManager.instance, (NetworkManager.Peer) m_serverPeer);
+                    Client client = new Client(m_networkManager.instance, (NetworkManager.Peer) m_serverPeer, m_clientId);
                     client.OnDisconnected += ClientDisconnected;
                     m_networkManager.listener = client;
                 }

@@ -3,7 +3,7 @@
 
     internal enum Message
     {
-        Move, UpdatePresentationLatency
+        Move, UpdatePresentationLatency, Welcome
     }
 
 }

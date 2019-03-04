@@ -18,16 +18,21 @@ namespace Wheeled.Gameplay
             m_timeSinceLastActorNode = _timeSinceLastNode;
             if (_clamp)
             {
-                if (m_actorNode < m_history.Oldest)
-                {
-                    m_actorNode = m_history.Oldest;
-                    m_timeSinceLastActorNode = 0.0f;
-                }
-                else if (m_actorNode > m_history.Newest)
-                {
-                    m_actorNode = m_history.Newest;
-                    m_timeSinceLastActorNode = 0.0f;
-                }
+                Clamp();
+            }
+        }
+
+        private void Clamp()
+        {
+            if (m_actorNode < m_history.Oldest)
+            {
+                m_actorNode = m_history.Oldest;
+                m_timeSinceLastActorNode = 0.0f;
+            }
+            else if (m_actorNode > m_history.Newest)
+            {
+                m_actorNode = m_history.Newest;
+                m_timeSinceLastActorNode = 0.0f;
             }
         }
 
@@ -46,11 +51,7 @@ namespace Wheeled.Gameplay
                 m_timeSinceLastActorNode %= c_timestep;
 
                 // Clamp to history tail
-                if (m_actorNode < m_history.Oldest)
-                {
-                    m_actorNode = m_history.Oldest;
-                    m_timeSinceLastActorNode = 0.0f;
-                }
+                Clamp();
 
                 // Present actor
                 int iPrevNode = m_actorNode;
@@ -103,7 +104,8 @@ namespace Wheeled.Gameplay
                         InputState predictedInput = prevNode.Value.input;
                         predictedInput.dash = false;
                         predictedInput.jump = false;
-                        Simulate(predictedInput, m_timeSinceLastActorNode);
+                        float elapsed = m_timeSinceLastActorNode + (m_actorNode - iPrevNode) * c_timestep;
+                        Simulate(predictedInput, elapsed);
                     }
                 }
                 else if (nextNode != null)
