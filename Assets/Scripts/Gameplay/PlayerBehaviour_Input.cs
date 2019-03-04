@@ -66,15 +66,17 @@ namespace Wheeled.Gameplay
             float inputLookX = Input.GetAxis("Mouse X");
             float inputLookY = Input.GetAxis("Mouse Y");
 
+
             // Rotate player
-            Vector3 actAngles = transform.eulerAngles;
+            Vector3 actAngles = characterController.transform.eulerAngles;
             actAngles.x = 0;
-            actAngles.y += inputLookX;
+            //actAngles.y += inputLookX;
             actAngles.z = 0;
             gameObject.transform.eulerAngles = actAngles;
 
             // Rotate movement direction depending on turn angle
             RotateMovementInputXZ(inputMovX, inputMovY, actAngles.y, out float movementX, out float movementZ);
+
 
             // Current input state based on collected input
             InputState inputState = new InputState

@@ -28,6 +28,7 @@ namespace Wheeled.Networking
             public void Moved(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _calculatedSimulation)
             {
                 NetDataWriter writer = new NetDataWriter();
+                writer.Put(Message.Move);
                 writer.Put(_node);
                 writer.Put(_input);
                 writer.Put(_calculatedSimulation);

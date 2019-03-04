@@ -50,7 +50,11 @@ namespace Wheeled.Networking
         {
             if (_peer == m_server)
             {
-                m_localPlayer.Move(_reader.GetInt(), _reader.GetInputState(), _reader.GetSimulationState());
+                Message message = _reader.GetEnum<Message>();
+                if (message == Message.Move)
+                {
+                    m_localPlayer.Move(_reader.GetInt(), _reader.GetInputState(), _reader.GetSimulationState());
+                }
             }
         }
 
@@ -63,6 +67,7 @@ namespace Wheeled.Networking
         {
             return false;
         }
+
 
     }
 

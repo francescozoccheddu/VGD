@@ -1,12 +1,12 @@
 ﻿using Wheeled.Core;
 using Wheeled.Gameplay;
-using static Wheeled.Networking.NetworkManager;
 
 namespace Wheeled.Networking
 {
 
-    internal sealed partial class Client : IEventListener
+    internal sealed partial class Client
     {
+
 
         private sealed class PlayerEventListener : IPlayerEventListener
         {

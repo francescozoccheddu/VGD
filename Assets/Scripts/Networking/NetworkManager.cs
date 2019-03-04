@@ -45,7 +45,7 @@ namespace Wheeled.Networking
 
             public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
             {
-                // TODO Should forward event?
+                //m_manager.listener?.LatencyUpdated(new Peer(peer), latency);
             }
 
             public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
@@ -165,6 +165,7 @@ namespace Wheeled.Networking
 
             bool ShouldReplyToDiscoveryRequest();
 
+            //void LatencyUpdated(Peer _peer, int _latency);
         }
 
         public enum StopCause
@@ -192,7 +193,11 @@ namespace Wheeled.Networking
             m_netManager = new NetManager(new NetEventHandler(this))
             {
                 DiscoveryEnabled = true,
-                UpdateTime = 500,
+                SimulatePacketLoss = true,
+                SimulationPacketLossChance = 20,
+                SimulateLatency = true,
+                SimulationMinLatency = 10,
+                SimulationMaxLatency = 200
             };
             m_wasRunning = false;
             instance = new NetworkInstance(this);

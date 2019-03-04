@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Wheeled.Gameplay
 {
@@ -63,6 +64,29 @@ namespace Wheeled.Gameplay
                 Reset();
             }
 
+            public void Set(Node? _node, int _index)
+            {
+                if (Contains(_index))
+                {
+                    m_nodes[_index % Length] = _node;
+                }
+                else if (_index > Newest)
+                {
+                    Newest = Math.Max(Newest, _index - Length + 1);
+                    while (Newest < _index)
+                    {
+                        if (this[Oldest] != null)
+                        {
+                            OldestValid = Oldest;
+                            m_oldestValidCache = this[Oldest];
+                        }
+                        Newest++;
+                        m_nodes[m_QueueLast] = null;
+                    }
+                    m_nodes[m_QueueLast] = _node;
+                }
+            }
+
             public void Append(Node? _node)
             {
                 if (this[Oldest] != null)
@@ -111,14 +135,7 @@ namespace Wheeled.Gameplay
 
         public void Move(int _node, InputState _input, SimulationState _calculatedSimulation)
         {
-            if (_node > m_history.Newest)
-            {
-                while (m_history.Newest < _node)
-                {
-                    m_history.Append(null);
-                }
-                m_history.Append(new History.Node { input = _input, simulation = _calculatedSimulation });
-            }
+            m_history.Set(new History.Node { input = _input, simulation = _calculatedSimulation }, _node);
         }
 
     }

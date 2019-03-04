@@ -12,9 +12,23 @@ namespace Wheeled.Gameplay
         private int m_actorNode;
         private float m_timeSinceLastActorNode;
 
-        private void SetActorNode(int _node, bool _clamp)
+        private void SetActorNode(int _node, float _timeSinceLastNode, bool _clamp)
         {
-
+            m_actorNode = _node;
+            m_timeSinceLastActorNode = _timeSinceLastNode;
+            if (_clamp)
+            {
+                if (m_actorNode < m_history.Oldest)
+                {
+                    m_actorNode = m_history.Oldest;
+                    m_timeSinceLastActorNode = 0.0f;
+                }
+                else if (m_actorNode > m_history.Newest)
+                {
+                    m_actorNode = m_history.Newest;
+                    m_timeSinceLastActorNode = 0.0f;
+                }
+            }
         }
 
         private void UpdateActor()

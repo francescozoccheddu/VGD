@@ -103,6 +103,7 @@
     <Compile Include="Assets\Scripts\MenuHelper.cs" />
     <Compile Include="Assets\Scripts\Networking\Client_NetworkEvents.cs" />
     <Compile Include="Assets\Scripts\Networking\Client_PlayerEvents.cs" />
+    <Compile Include="Assets\Scripts\Networking\Message.cs" />
     <Compile Include="Assets\Scripts\Networking\NetworkManager.cs" />
     <Compile Include="Assets\Scripts\Networking\Server_NetworkEvents.cs" />
     <Compile Include="Assets\Scripts\Networking\Server_PlayerEvents.cs" />
