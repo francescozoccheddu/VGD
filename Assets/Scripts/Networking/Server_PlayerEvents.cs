@@ -29,7 +29,7 @@ namespace Wheeled.Networking
             {
                 NetDataWriter writer = new NetDataWriter();
                 writer.Put(Message.Move);
-                writer.Put(m_player.id + 1);
+                writer.Put(m_player.id);
                 writer.Put(_node);
                 writer.Put(_input);
                 writer.Put(_calculatedSimulation);
