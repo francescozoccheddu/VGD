@@ -46,35 +46,35 @@ namespace Wheeled.Gameplay
             public Vector3 velocity;
             public float dashStamina;
 
-            public void Apply(PlayerBehaviour playerController)
+            public void Apply(PlayerBehaviour _playerController)
             {
-                playerController.transform.position = position;
-                playerController.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                playerController.m_velocity = velocity;
-                playerController.m_dashStamina = dashStamina;
+                _playerController.characterController.transform.position = position;
+                _playerController.characterController.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                _playerController.m_velocity = velocity;
+                _playerController.m_dashStamina = dashStamina;
             }
 
-            public static SimulationState Capture(PlayerBehaviour playerController)
+            public static SimulationState Capture(PlayerBehaviour _playerController)
             {
                 return new SimulationState
                 {
-                    position = playerController.characterController.transform.position,
-                    lookUp = playerController.transform.eulerAngles.x,
-                    turn = playerController.transform.eulerAngles.y,
-                    velocity = playerController.m_velocity,
-                    dashStamina = playerController.m_dashStamina
+                    position = _playerController.characterController.transform.position,
+                    lookUp = _playerController.transform.eulerAngles.x,
+                    turn = _playerController.transform.eulerAngles.y,
+                    velocity = _playerController.m_velocity,
+                    dashStamina = _playerController.m_dashStamina
                 };
             }
 
-            public static SimulationState Lerp(SimulationState a, SimulationState b, float progress)
+            public static SimulationState Lerp(SimulationState _a, SimulationState _b, float _progress)
             {
                 return new SimulationState
                 {
-                    position = Vector3.Lerp(a.position, b.position, progress),
-                    lookUp = Mathf.Lerp(a.lookUp, b.lookUp, progress),
-                    turn = Mathf.Lerp(a.turn, b.turn, progress),
-                    velocity = Vector3.Lerp(a.velocity, b.velocity, progress),
-                    dashStamina = Mathf.Lerp(a.dashStamina, b.dashStamina, progress)
+                    position = Vector3.Lerp(_a.position, _b.position, _progress),
+                    lookUp = Mathf.Lerp(_a.lookUp, _b.lookUp, _progress),
+                    turn = Mathf.Lerp(_a.turn, _b.turn, _progress),
+                    velocity = Vector3.Lerp(_a.velocity, _b.velocity, _progress),
+                    dashStamina = Mathf.Lerp(_a.dashStamina, _b.dashStamina, _progress)
                 };
             }
 
@@ -101,7 +101,7 @@ namespace Wheeled.Gameplay
 
         private const float c_timestep = 1 / 30.0f;
 
-        private SimulationState m_simulationState;
+        private SimulationState m_simulation;
 
     }
 

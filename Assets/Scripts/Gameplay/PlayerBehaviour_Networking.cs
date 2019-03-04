@@ -18,17 +18,39 @@ namespace Wheeled.Gameplay
                 public InputState input;
             }
 
+            // Index of the first appended node still stored
+            public int Oldest => Newest - Length + 1;
             // Index of the last appended node
-            public int Last { get; private set; }
+            public int Newest { get; private set; }
             // Maximum number of nodes that can be stored simultaneously
             public int Length => m_nodes.Length;
             // Maximum time span between the newer and the oldest node
             public float Duration => Length * c_timestep;
             // Get a node by index
-            public Node this[int _index] => m_nodes[_index % Length];
+            public Node? this[int _index]
+            {
+                get
+                {
+                    if (_index == OldestValid)
+                    {
+                        return m_oldestValidCache;
+                    }
+                    else if (Contains(_index))
+                    {
+                        return m_nodes[_index % Length];
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+            // Index of the oldest non-null node
+            public int OldestValid { get; private set; }
 
-            private readonly Node[] m_nodes;
-            private int m_QueueLast => Last % Length;
+            private readonly Node?[] m_nodes;
+            private int m_QueueLast => Newest % Length;
+            private Node? m_oldestValidCache;
 
             public static History CreateHistoryByDuration(float _minDuration)
             {
@@ -37,20 +59,25 @@ namespace Wheeled.Gameplay
 
             public History(int _length)
             {
-                m_nodes = new Node[_length];
+                m_nodes = new Node?[_length];
                 Reset();
             }
 
-            public void Append(Node _node)
+            public void Append(Node? _node)
             {
-                Last++;
+                if (this[Oldest] != null)
+                {
+                    OldestValid = Oldest;
+                    m_oldestValidCache = this[Oldest];
+                }
+                Newest++;
                 m_nodes[m_QueueLast] = _node;
             }
 
-            public bool Contains(int _index)
+            private bool Contains(int _index)
             {
                 // True if the index is valid and the node has not yet been overwritten
-                return Last - _index < Length && _index <= Last && _index >= 0;
+                return Newest - _index < Length && _index <= Newest && _index >= 0;
             }
 
             // Replace a bad node and resimulate all subsequent nodes
@@ -69,14 +96,11 @@ namespace Wheeled.Gameplay
                 return true;
             }
 
-            public Node? GetOrNull(int _index)
-            {
-                return Contains(_index) ? this[_index] : (Node?) null;
-            }
-
             public void Reset()
             {
-                Last = -1;
+                OldestValid = -1;
+                Newest = -1;
+                m_oldestValidCache = null;
             }
 
         }
@@ -87,22 +111,14 @@ namespace Wheeled.Gameplay
 
         public void Move(int _node, InputState _input, SimulationState _calculatedSimulation)
         {
-
-            characterController.transform.position = _calculatedSimulation.position;
-
-            /*
-            if (_node > m_history.Last)
+            if (_node > m_history.Newest)
             {
-                while (m_history.Last < _node)
+                while (m_history.Newest < _node)
                 {
-
+                    m_history.Append(null);
                 }
+                m_history.Append(new History.Node { input = _input, simulation = _calculatedSimulation });
             }
-            else
-            {
-                Debug.LogWarning("Ignore Move because node is older than the last node in history");
-            }
-            */
         }
 
     }

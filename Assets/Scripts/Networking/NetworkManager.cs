@@ -191,7 +191,8 @@ namespace Wheeled.Networking
         {
             m_netManager = new NetManager(new NetEventHandler(this))
             {
-                DiscoveryEnabled = true
+                DiscoveryEnabled = true,
+                UpdateTime = 500,
             };
             m_wasRunning = false;
             instance = new NetworkInstance(this);

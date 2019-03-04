@@ -3,7 +3,6 @@ using LiteNetLib.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Core;
-using Wheeled.Gameplay;
 using static Wheeled.Networking.NetworkManager;
 
 namespace Wheeled.Networking
@@ -51,8 +50,7 @@ namespace Wheeled.Networking
         {
             if (_peer == m_server)
             {
-                Vector3 position = _reader.GetVector3();
-                m_localPlayer.Move(0, new PlayerBehaviour.InputState(), new PlayerBehaviour.SimulationState { position = position });
+                m_localPlayer.Move(_reader.GetInt(), _reader.GetInputState(), _reader.GetSimulationState());
             }
         }
 

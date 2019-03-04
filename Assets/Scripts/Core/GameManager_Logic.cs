@@ -115,9 +115,10 @@ namespace Wheeled.Core
         {
             if (IsPlaying && !IsLoading)
             {
+                IsPlaying = false;
                 DestroyHost();
                 m_networkManager.DisconnectAll();
-                SceneManager.LoadScene(ScriptManager.Scenes.menu);
+                LoadScene(ScriptManager.Scenes.menu);
             }
             else
             {
@@ -145,15 +146,18 @@ namespace Wheeled.Core
         private void OnSceneLoaded(AsyncOperation _operation)
         {
             IsLoading = false;
-            if (IsServer)
+            if (IsPlaying)
             {
-                m_networkManager.listener = new Server(m_networkManager.instance);
-            }
-            else
-            {
-                Client client = new Client(m_networkManager.instance, (NetworkManager.Peer) m_serverPeer);
-                client.OnDisconnected += ClientDisconnected;
-                m_networkManager.listener = client;
+                if (IsServer)
+                {
+                    m_networkManager.listener = new Server(m_networkManager.instance);
+                }
+                else
+                {
+                    Client client = new Client(m_networkManager.instance, (NetworkManager.Peer) m_serverPeer);
+                    client.OnDisconnected += ClientDisconnected;
+                    m_networkManager.listener = client;
+                }
             }
         }
 

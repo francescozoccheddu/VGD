@@ -18,6 +18,7 @@ namespace Wheeled.Gameplay
         public bool isInteractive;
 
         private InputState m_accumulatedInput;
+        private SimulationState m_lastSimulationState;
 
         private void AccumulateInput(InputState _inputState, float _deltaTime)
         {
@@ -41,7 +42,7 @@ namespace Wheeled.Gameplay
 
         private void SendInput()
         {
-            host.Moved(m_history.Last, m_accumulatedInput, m_history[m_history.Last].simulation);
+            host.Moved(m_history.Newest, m_accumulatedInput, m_history[m_history.Newest].Value.simulation);
         }
 
         private void ResetInput()
@@ -96,7 +97,7 @@ namespace Wheeled.Gameplay
                     if (c_enablePartialSimulation)
                     {
                         // Undo all partial simulations
-                        History.Node? node = m_history.GetOrNull(m_history.Last);
+                        History.Node? node = m_history[m_history.Newest];
                         if (node != null)
                         {
                             ((History.Node) node).simulation.Apply(this);
@@ -125,6 +126,10 @@ namespace Wheeled.Gameplay
             }
             else
             {
+                if (c_enablePartialSimulation)
+                {
+                    m_lastSimulationState.Apply(this);
+                }
                 timeSinceLastSimulation = Time.deltaTime;
             }
 
@@ -133,7 +138,9 @@ namespace Wheeled.Gameplay
             {
                 // Do a partial simulation
                 Simulate(inputState, timeSinceLastSimulation);
+                m_lastSimulationState = SimulationState.Capture(this);
             }
+
         }
 
     }
