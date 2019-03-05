@@ -5,9 +5,9 @@ namespace Wheeled.Core
     internal static class Utils
     {
 
-        public static IEnumerable<T> SingletonEnumerable<T>(this T item)
+        public static IEnumerable<T> SingletonEnumerable<T>(this T _item)
         {
-            yield return item;
+            yield return _item;
         }
 
     }

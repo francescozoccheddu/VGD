@@ -23,17 +23,17 @@ namespace Wheeled.Gameplay
         private float m_dashStamina;
         private Vector3 m_velocity;
 
-        private static float UpdateSpeed(float speed, float drag, float max, float deltaTime)
+        private static float UpdateSpeed(float _speed, float _drag, float _max, float _deltaTime)
         {
-            if (speed > 0)
+            if (_speed > 0)
             {
-                speed = speed - drag * deltaTime;
-                return speed < 0.0f ? 0.0f : speed > max ? max : speed;
+                _speed = _speed - _drag * _deltaTime;
+                return _speed < 0.0f ? 0.0f : _speed > _max ? _max : _speed;
             }
             else
             {
-                speed = speed + drag * deltaTime;
-                return speed > 0.0f ? 0.0f : speed < -max ? -max : speed;
+                _speed = _speed + _drag * _deltaTime;
+                return _speed > 0.0f ? 0.0f : _speed < -_max ? -_max : _speed;
             }
         }
 
@@ -78,25 +78,46 @@ namespace Wheeled.Gameplay
                 };
             }
 
+            private static bool IsNearlyEqual(float _a, float _b)
+            {
+                return Mathf.Approximately(_a, _b);
+            }
+
+            private static bool IsNearlyEqual(Vector3 _a, Vector3 _b)
+            {
+                return IsNearlyEqual(_a.x, _b.x)
+                    && IsNearlyEqual(_a.y, _b.y)
+                    && IsNearlyEqual(_a.z, _b.z);
+            }
+
+            public bool IsNearlyEqual(SimulationState _other)
+            {
+                return IsNearlyEqual(dashStamina, _other.dashStamina)
+                    && IsNearlyEqual(lookUp, _other.lookUp)
+                    && IsNearlyEqual(turn, _other.turn)
+                    && IsNearlyEqual(velocity, _other.velocity)
+                    && IsNearlyEqual(position, _other.position);
+            }
+
         }
 
-        private void Simulate(InputState input, float deltaTime)
+        private void Simulate(InputState _input, float _deltaTime)
         {
             // Simulate gravity first, in order to update characterController.isGrounded
-            characterController.Move(new Vector3(0.0f, m_velocity.y, 0.0f) * deltaTime);
+            characterController.Move(new Vector3(0.0f, m_velocity.y, 0.0f) * _deltaTime);
             // Simulate XZ movement
             float dragForce = airDragForce;
             if (characterController.isGrounded)
             {
-                m_velocity.x += input.movementX;
-                m_velocity.y = input.jump ? jumpImpulse : 0.0f;
-                m_velocity.z += input.movementZ;
+                m_velocity.x += _input.movementX;
+                m_velocity.y = _input.jump ? jumpImpulse : 0.0f;
+                m_velocity.z += _input.movementZ;
                 dragForce += groundDragForce;
             }
-            m_velocity.x = UpdateSpeed(m_velocity.x, dragForce, maxSpeed, deltaTime);
-            m_velocity.y -= gravityForce * deltaTime;
-            m_velocity.z = UpdateSpeed(m_velocity.z, dragForce, maxSpeed, deltaTime);
-            characterController.Move(new Vector3(m_velocity.x, 0.0f, m_velocity.z) * deltaTime);
+            m_velocity.x = UpdateSpeed(m_velocity.x, dragForce, maxSpeed, _deltaTime);
+            m_velocity.y -= gravityForce * _deltaTime;
+            m_velocity.z = UpdateSpeed(m_velocity.z, dragForce, maxSpeed, _deltaTime);
+            characterController.Move(new Vector3(m_velocity.x, 0.0f, m_velocity.z) * _deltaTime);
         }
 
         private const float c_timestep = 1 / 30.0f;

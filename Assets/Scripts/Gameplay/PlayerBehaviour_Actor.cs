@@ -9,13 +9,13 @@ namespace Wheeled.Gameplay
         public Transform actorTransform;
         public Camera actorCamera;
 
-        private int m_actorNode;
-        private float m_timeSinceLastActorNode;
+        private int m_presentationNode;
+        private float m_timeSinceLastPresentationNode;
 
         private void SetActorNode(int _node, float _timeSinceLastNode, bool _clamp)
         {
-            m_actorNode = _node;
-            m_timeSinceLastActorNode = _timeSinceLastNode;
+            m_presentationNode = _node;
+            m_timeSinceLastPresentationNode = _timeSinceLastNode;
             if (_clamp)
             {
                 Clamp();
@@ -24,16 +24,16 @@ namespace Wheeled.Gameplay
 
         private void Clamp()
         {
-            if (m_actorNode < m_history.Oldest)
+            if (m_presentationNode < m_history.Oldest)
             {
-                m_actorNode = m_history.Oldest;
-                m_timeSinceLastActorNode = 0.0f;
+                m_presentationNode = m_history.Oldest;
+                m_timeSinceLastPresentationNode = 0.0f;
             }
-            else if (m_actorNode > m_history.Newest)
+            /*else if (m_presentationNode > m_history.Newest)
             {
-                m_actorNode = m_history.Newest;
-                m_timeSinceLastActorNode = 0.0f;
-            }
+                m_presentationNode = m_history.Newest;
+                m_timeSinceLastPresentationNode = 0.0f;
+            }*/
         }
 
         private void UpdateActor()
@@ -43,18 +43,10 @@ namespace Wheeled.Gameplay
                 m_lastSimulationState.Apply(this);
                 actorTransform.position = characterController.transform.position;
             }
-            else
+            else if (!isAuthoritative)
             {
-                // Update actor time
-                m_timeSinceLastActorNode += Time.deltaTime;
-                m_actorNode += Mathf.FloorToInt(m_timeSinceLastActorNode / c_timestep);
-                m_timeSinceLastActorNode %= c_timestep;
-
-                // Clamp to history tail
-                Clamp();
-
                 // Present actor
-                int iPrevNode = m_actorNode;
+                int iPrevNode = m_presentationNode;
                 History.Node? prevNode = null;
 
                 while (iPrevNode >= m_history.Oldest)
@@ -72,7 +64,7 @@ namespace Wheeled.Gameplay
                     prevNode = m_history[iPrevNode];
                 }
 
-                int iNextNode = m_actorNode + 1;
+                int iNextNode = m_presentationNode + 1;
                 History.Node? nextNode = null;
 
                 while (iNextNode <= m_history.Newest)
@@ -92,7 +84,7 @@ namespace Wheeled.Gameplay
                         // Prev & Next but missing nodes
                         // Interpolate
                         float period = (iNextNode - iPrevNode) * c_timestep;
-                        float elapsed = (m_actorNode - iPrevNode) * c_timestep + m_timeSinceLastActorNode;
+                        float elapsed = (m_presentationNode - iPrevNode) * c_timestep + m_timeSinceLastPresentationNode;
                         float progress = elapsed / period;
                         SimulationState.Lerp(prevNode.Value.simulation, nextNode.Value.simulation, progress).Apply(this);
                     }
@@ -104,7 +96,7 @@ namespace Wheeled.Gameplay
                         InputState predictedInput = prevNode.Value.input;
                         predictedInput.dash = false;
                         predictedInput.jump = false;
-                        float elapsed = m_timeSinceLastActorNode + (m_actorNode - iPrevNode) * c_timestep;
+                        float elapsed = m_timeSinceLastPresentationNode + (m_presentationNode - iPrevNode) * c_timestep;
                         Simulate(predictedInput, elapsed);
                     }
                 }
@@ -117,7 +109,22 @@ namespace Wheeled.Gameplay
                 actorTransform.position = characterController.transform.position;
 
             }
+            else
+            {
+                History.Node? node = m_history[m_lastConfirmedNode];
+                if (node != null)
+                {
+                    node.Value.simulation.Apply(this);
+                    InputState predictedInput = node.Value.input;
+                    predictedInput.dash = false;
+                    predictedInput.jump = false;
+                    float elapsed = m_timeSinceLastPresentationNode + (m_presentationNode - m_lastConfirmedNode) * c_timestep;
+                    Simulate(predictedInput, elapsed);
+                    actorTransform.position = characterController.transform.position;
+                }
+            }
         }
+
 
     }
 }

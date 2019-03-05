@@ -133,9 +133,59 @@ namespace Wheeled.Gameplay
 
         private readonly History m_history = History.CreateHistoryByDuration(c_historyDuration);
 
+        private int m_lastConfirmedNode = -1;
+
         public void Move(int _node, InputState _input, SimulationState _calculatedSimulation)
         {
-            m_history.Set(new History.Node { input = _input, simulation = _calculatedSimulation }, _node);
+            if (_node > m_lastConfirmedNode && (!isAuthoritative || _node < m_lastConfirmedNode + m_history.Length))
+            {
+                if (m_lastConfirmedNode == -1)
+                {
+                    m_lastConfirmedNode = _node;
+                }
+                m_history.Set(new History.Node { input = _input, simulation = _calculatedSimulation }, _node);
+                if (_node > LastArrivedNode)
+                {
+                    LastArrivedNode = _node;
+                }
+            }
+        }
+
+        // DELETE ME PORCODDIO
+        public int LastArrivedNode;
+        public int LastConfirmedNode;
+
+        private void ConfirmSimulation()
+        {
+            if (isAuthoritative && !isInteractive)
+            {
+                if (m_lastConfirmedNode != -1)
+                {
+                    History.Node first = m_history[m_lastConfirmedNode].Value;
+                    first.simulation.Apply(this);
+                    InputState inputState = first.input;
+                    while (m_lastConfirmedNode < m_presentationNode)
+                    {
+                        m_lastConfirmedNode++;
+                        History.Node? node = m_history[m_lastConfirmedNode];
+                        inputState.dash = false;
+                        inputState.jump = false;
+                        if (node != null)
+                        {
+                            inputState = node.Value.input;
+                        }
+                        Simulate(inputState, c_timestep);
+                        SimulationState calculatedSimulation = SimulationState.Capture(this);
+                        m_history.Set(new History.Node { input = inputState, simulation = calculatedSimulation }, m_lastConfirmedNode);
+                        host.Moved(m_lastConfirmedNode, inputState, calculatedSimulation);
+                        if (node == null || !node.Value.simulation.IsNearlyEqual(calculatedSimulation))
+                        {
+                            host.Corrected(m_lastConfirmedNode, calculatedSimulation);
+                        }
+                    }
+                }
+            }
+            LastConfirmedNode = m_lastConfirmedNode;
         }
 
     }

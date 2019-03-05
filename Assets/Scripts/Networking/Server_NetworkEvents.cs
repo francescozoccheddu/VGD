@@ -29,6 +29,20 @@ namespace Wheeled.Networking
         private readonly Dictionary<Peer, PlayerEntry> m_netPlayers;
         private byte m_nextPlayerId;
 
+        private bool TryGetPeerByPlayerId(int _id, out Peer _outPeer)
+        {
+            foreach (KeyValuePair<Peer, PlayerEntry> entry in m_netPlayers)
+            {
+                if (entry.Value.id == _id)
+                {
+                    _outPeer = entry.Key;
+                    return true;
+                }
+            }
+            _outPeer = default;
+            return false;
+        }
+
         private PlayerEntry CreateNewPlayer(bool _isInteractive, bool _isAuthoritative)
         {
             PlayerEntry entry = new PlayerEntry(m_nextPlayerId++, new Player());
@@ -42,6 +56,17 @@ namespace Wheeled.Networking
             foreach (Peer _peer in m_netPlayers.Keys)
             {
                 _peer.Send(_dataWriter, _method);
+            }
+        }
+
+        private void SendToAllBut(NetDataWriter _dataWriter, DeliveryMethod _method, Peer _but)
+        {
+            foreach (Peer _peer in m_netPlayers.Keys)
+            {
+                if (_peer != _but)
+                {
+                    _peer.Send(_dataWriter, _method);
+                }
             }
         }
 
@@ -94,7 +119,7 @@ namespace Wheeled.Networking
 
         public bool ShouldAcceptConnectionRequest(Peer _peer, NetDataReader _reader)
         {
-            m_netPlayers.Add(_peer, CreateNewPlayer(false, false));
+            m_netPlayers.Add(_peer, CreateNewPlayer(false, true));
             return m_netPlayers.Count + 1 < c_maxPlayerCount;
         }
 

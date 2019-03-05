@@ -23,17 +23,28 @@ namespace Wheeled.Networking
 
             public void Corrected(int _node, PlayerBehaviour.SimulationState _simulation)
             {
+                if (m_server.TryGetPeerByPlayerId(m_player.id, out Peer peer))
+                {
+                    NetDataWriter writer = new NetDataWriter();
+                    writer.Put(Message.Reconciliate);
+                    writer.Put(_node);
+                    writer.Put(_simulation);
+                    peer.Send(writer, LiteNetLib.DeliveryMethod.Unreliable);
+                }
             }
 
             public void Moved(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _calculatedSimulation)
             {
-                NetDataWriter writer = new NetDataWriter();
-                writer.Put(Message.Move);
-                writer.Put(m_player.id);
-                writer.Put(_node);
-                writer.Put(_input);
-                writer.Put(_calculatedSimulation);
-                m_server.SendToAll(writer, LiteNetLib.DeliveryMethod.Sequenced);
+                if (m_server.TryGetPeerByPlayerId(m_player.id, out Peer peer))
+                {
+                    NetDataWriter writer = new NetDataWriter();
+                    writer.Put(Message.Move);
+                    writer.Put(m_player.id);
+                    writer.Put(_node);
+                    writer.Put(_input);
+                    writer.Put(_calculatedSimulation);
+                    m_server.SendToAllBut(writer, LiteNetLib.DeliveryMethod.Unreliable, peer);
+                }
             }
 
         }
