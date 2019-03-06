@@ -13,6 +13,8 @@ namespace Wheeled.Networking
     internal sealed class NetworkManager
     {
 
+        private const bool c_simulateShit = true;
+
         private sealed class NetEventHandler : INetEventListener
         {
 
@@ -193,9 +195,9 @@ namespace Wheeled.Networking
             m_netManager = new NetManager(new NetEventHandler(this))
             {
                 DiscoveryEnabled = true,
-                SimulatePacketLoss = false,
+                SimulatePacketLoss = c_simulateShit,
                 SimulationPacketLossChance = 20,
-                SimulateLatency = false,
+                SimulateLatency = c_simulateShit,
                 SimulationMinLatency = 10,
                 SimulationMaxLatency = 200
             };

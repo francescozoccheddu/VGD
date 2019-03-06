@@ -9,25 +9,12 @@ namespace Wheeled.Gameplay
         public Transform actorTransform;
         public Camera actorCamera;
 
-        private int m_presentationNode;
-        private float m_timeSinceLastPresentationNode;
-
-        private void SetActorNode(int _node, float _timeSinceLastNode, bool _clamp)
-        {
-            m_presentationNode = _node;
-            m_timeSinceLastPresentationNode = _timeSinceLastNode;
-            if (_clamp)
-            {
-                Clamp();
-            }
-        }
-
         private void Clamp()
         {
-            if (m_presentationNode < m_history.Oldest)
+            if (m_presentationTime.Node < m_history.Oldest)
             {
-                m_presentationNode = m_history.Oldest;
-                m_timeSinceLastPresentationNode = 0.0f;
+                m_presentationTime.Node = m_history.Oldest;
+                m_presentationTime.TimeSinceNode = 0.0f;
             }
         }
 
@@ -41,8 +28,8 @@ namespace Wheeled.Gameplay
             else if (!isAuthoritative)
             {
                 // Present actor
-                int iPrevNode = m_presentationNode;
-                History.Node? prevNode = null;
+                int iPrevNode = m_presentationTime.Node;
+                MoveHistory.Node? prevNode = null;
 
                 while (iPrevNode >= m_history.Oldest)
                 {
@@ -59,8 +46,8 @@ namespace Wheeled.Gameplay
                     prevNode = m_history[iPrevNode];
                 }
 
-                int iNextNode = m_presentationNode + 1;
-                History.Node? nextNode = null;
+                int iNextNode = m_presentationTime.Node + 1;
+                MoveHistory.Node? nextNode = null;
 
                 while (iNextNode <= m_history.Newest)
                 {
@@ -79,7 +66,7 @@ namespace Wheeled.Gameplay
                         // Prev & Next but missing nodes
                         // Interpolate
                         float period = (iNextNode - iPrevNode) * c_timestep;
-                        float elapsed = (m_presentationNode - iPrevNode) * c_timestep + m_timeSinceLastPresentationNode;
+                        float elapsed = (m_presentationTime - new Time { Node = iPrevNode }).RealTime;
                         float progress = elapsed / period;
                         SimulationState.Lerp(prevNode.Value.simulation, nextNode.Value.simulation, progress).Apply(this);
                     }
@@ -91,7 +78,7 @@ namespace Wheeled.Gameplay
                         InputState predictedInput = prevNode.Value.input;
                         predictedInput.dash = false;
                         predictedInput.jump = false;
-                        float elapsed = m_timeSinceLastPresentationNode + (m_presentationNode - iPrevNode) * c_timestep;
+                        float elapsed = (m_presentationTime - new Time { Node = iPrevNode }).RealTime;
                         Simulate(predictedInput, elapsed);
                     }
                 }
@@ -106,14 +93,14 @@ namespace Wheeled.Gameplay
             }
             else
             {
-                History.Node? node = m_history[m_lastConfirmedNode];
+                MoveHistory.Node? node = m_history[m_lastConfirmedNode];
                 if (node != null)
                 {
                     node.Value.simulation.Apply(this);
                     InputState predictedInput = node.Value.input;
                     predictedInput.dash = false;
                     predictedInput.jump = false;
-                    float elapsed = m_timeSinceLastPresentationNode + (m_presentationNode - m_lastConfirmedNode) * c_timestep;
+                    float elapsed = (m_presentationTime - new Time { Node = m_lastConfirmedNode }).RealTime;
                     Simulate(predictedInput, elapsed);
                     actorTransform.position = m_position;
                 }

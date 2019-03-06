@@ -64,11 +64,6 @@ namespace Wheeled.Gameplay
 
         private void ProcessInput()
         {
-            if (!isInteractive)
-            {
-                return;
-            }
-
             bool inputJump = Input.GetButtonDown("Jump");
             float inputMovX = Input.GetAxis("Horizontal");
             float inputMovY = Input.GetAxis("Vertical");
@@ -96,7 +91,7 @@ namespace Wheeled.Gameplay
             };
 
             float timeToNextCommit = c_timestep - (m_accumulatedTime % c_timestep);
-            m_accumulatedTime += Time.deltaTime;
+            m_accumulatedTime += UnityEngine.Time.deltaTime;
 
             // Was there a full simulation during this update?
             bool unrolled = false;
@@ -108,17 +103,17 @@ namespace Wheeled.Gameplay
                     if (c_enablePartialSimulation)
                     {
                         // Undo all partial simulations
-                        History.Node? node = m_history[m_history.Newest];
+                        MoveHistory.Node? node = m_history[m_history.Newest];
                         if (node != null)
                         {
-                            ((History.Node) node).simulation.Apply(this);
+                            ((MoveHistory.Node) node).simulation.Apply(this);
                         }
                     }
                     // Finalize accumulated input
                     AccumulateInput(inputState, timeToNextCommit);
                 }
                 Simulate(m_accumulatedInput, c_timestep);
-                m_history.Append(new History.Node { simulation = SimulationState.Capture(this), input = m_accumulatedInput });
+                m_history.Append(new MoveHistory.Node { simulation = SimulationState.Capture(this), input = m_accumulatedInput });
                 SendInput();
                 // Jump and dash actions have already been taken into account
                 inputState.jump = false;
@@ -141,7 +136,7 @@ namespace Wheeled.Gameplay
                 {
                     m_lastSimulationState.Apply(this);
                 }
-                timeSinceLastSimulation = Time.deltaTime;
+                timeSinceLastSimulation = UnityEngine.Time.deltaTime;
             }
 
             AccumulateInput(inputState, timeSinceLastSimulation);

@@ -8,18 +8,23 @@ namespace Wheeled.Gameplay
 
         internal IPlayerEventListener host;
 
+        private Time m_presentationTime;
+
         private void Update()
         {
-            // Update actor time
-            m_timeSinceLastPresentationNode += Time.deltaTime;
-            m_presentationNode += Mathf.FloorToInt(m_timeSinceLastPresentationNode / c_timestep);
-            m_timeSinceLastPresentationNode %= c_timestep;
+            m_presentationTime += UnityEngine.Time.deltaTime;
 
-            // Clamp to history tail
             Clamp();
 
-            ProcessInput();
-            ConfirmSimulation();
+            UpdateStatus();
+            if (isInteractive)
+            {
+                ProcessInput();
+            }
+            else if (isAuthoritative)
+            {
+                ConfirmSimulation();
+            }
             UpdateActor();
         }
 

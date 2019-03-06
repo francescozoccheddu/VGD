@@ -100,10 +100,12 @@ namespace Wheeled.Gameplay
 
         }
 
-        public struct SimulationTime
+        public struct Time
         {
             private int m_node;
             private float m_timeSinceNode;
+
+            public float RealTime => m_node * c_timestep + m_timeSinceNode;
 
             public int Node
             {
@@ -124,7 +126,7 @@ namespace Wheeled.Gameplay
                 }
             }
 
-            public SimulationTime(int _node, float _timeSinceNode) : this()
+            public Time(int _node, float _timeSinceNode) : this()
             {
                 m_node = _node;
                 m_timeSinceNode = _timeSinceNode;
@@ -143,12 +145,12 @@ namespace Wheeled.Gameplay
 
             public override bool Equals(object _obj)
             {
-                if (!(_obj is SimulationTime))
+                if (!(_obj is Time))
                 {
                     return false;
                 }
 
-                SimulationTime other = (SimulationTime) _obj;
+                Time other = (Time) _obj;
                 return this == other;
             }
 
@@ -160,54 +162,54 @@ namespace Wheeled.Gameplay
                 return hashCode;
             }
 
-            public static bool operator ==(SimulationTime _a, SimulationTime _b)
+            public static bool operator ==(Time _a, Time _b)
             {
                 return _a.m_node == _b.m_node && _a.m_timeSinceNode == _b.m_timeSinceNode;
             }
 
-            public static bool operator !=(SimulationTime _a, SimulationTime _b)
+            public static bool operator !=(Time _a, Time _b)
             {
                 return !(_a == _b);
             }
 
-            public static SimulationTime operator +(SimulationTime _a, SimulationTime _b)
+            public static Time operator +(Time _a, Time _b)
             {
-                return new SimulationTime(
+                return new Time(
                     _a.m_node + _b.m_node,
                     _a.m_timeSinceNode + _b.m_timeSinceNode
                 );
             }
 
-            public static SimulationTime operator -(SimulationTime _a)
+            public static Time operator -(Time _a)
             {
-                return new SimulationTime
+                return new Time
                 (
                     -_a.m_node,
                     -_a.m_timeSinceNode
                 );
             }
 
-            public static SimulationTime operator -(SimulationTime _a, SimulationTime _b)
+            public static Time operator -(Time _a, Time _b)
             {
                 return _a + (-_b);
             }
 
-            public static SimulationTime operator +(SimulationTime _a, float _b)
+            public static Time operator +(Time _a, float _b)
             {
-                return _a + new SimulationTime { m_timeSinceNode = _b };
+                return _a + new Time { m_timeSinceNode = _b };
             }
 
-            public static SimulationTime operator -(SimulationTime _a, float _b)
+            public static Time operator -(Time _a, float _b)
             {
                 return _a + (-_b);
             }
 
-            public static SimulationTime operator +(float _a, SimulationTime _b)
+            public static Time operator +(float _a, Time _b)
             {
                 return _b + _a;
             }
 
-            public static SimulationTime operator -(float _a, SimulationTime _b)
+            public static Time operator -(float _a, Time _b)
             {
                 return (-_b) + _a;
             }

@@ -10,7 +10,7 @@ namespace Wheeled.Gameplay
         public bool isAuthoritative;
 
         // Simulation and input history
-        public class History
+        public class MoveHistory
         {
 
             public struct Node
@@ -53,12 +53,12 @@ namespace Wheeled.Gameplay
             private int m_QueueLast => Newest % Length;
             private Node? m_oldestValidCache;
 
-            public static History CreateHistoryByDuration(float _minDuration)
+            public static MoveHistory CreateHistoryByDuration(float _minDuration)
             {
-                return new History(Mathf.CeilToInt(_minDuration / c_timestep));
+                return new MoveHistory(Mathf.CeilToInt(_minDuration / c_timestep));
             }
 
-            public History(int _length)
+            public MoveHistory(int _length)
             {
                 m_nodes = new Node?[_length];
                 Reset();
@@ -138,7 +138,7 @@ namespace Wheeled.Gameplay
 
         private const float c_historyDuration = 5.0f;
 
-        private readonly History m_history = History.CreateHistoryByDuration(c_historyDuration);
+        private readonly MoveHistory m_history = MoveHistory.CreateHistoryByDuration(c_historyDuration);
 
         private int m_lastConfirmedNode = -1;
 
@@ -146,7 +146,7 @@ namespace Wheeled.Gameplay
         {
             if (isInteractive && !isAuthoritative)
             {
-                if (m_history.Reconciliate(new History.Node { input = _input, simulation = _simulation }, _node, this))
+                if (m_history.Reconciliate(new MoveHistory.Node { input = _input, simulation = _simulation }, _node, this))
                 {
                     if (m_accumulatedTime < c_timestep)
                     {
@@ -174,12 +174,11 @@ namespace Wheeled.Gameplay
 
         public void DoPOA(float _ping)
         {
-            float peerTimeSinceLastReceivedNode = Time.realtimeSinceStartup - m_lastReceivedNodeTimestamp + _ping;
-            SimulationTime peerTime = new SimulationTime(m_lastReceivedNode, peerTimeSinceLastReceivedNode);
+            float peerTimeSinceLastReceivedNode = UnityEngine.Time.realtimeSinceStartup - m_lastReceivedNodeTimestamp + _ping;
+            Time peerTime = new Time(m_lastReceivedNode, peerTimeSinceLastReceivedNode);
             float offset = c_timestep * 2.0f + _ping * 1.25f;
-            SimulationTime presentationTime = peerTime - offset;
-            SetActorNode(presentationTime.Node, presentationTime.TimeSinceNode, false);
-            Debug.LogFormat("POA: offset={0} node={1} lastNode={2}", offset, presentationTime.Node, m_lastReceivedNode);
+            m_presentationTime = peerTime - offset;
+            Debug.LogFormat("POA: offset={0} node={1} lastNode={2}", offset, m_presentationTime.Node, m_lastReceivedNode);
         }
 
         public void Move(int _node, InputState _input, SimulationState _calculatedSimulation)
@@ -188,7 +187,7 @@ namespace Wheeled.Gameplay
             if (_node > m_lastReceivedNode)
             {
                 m_lastReceivedNode = _node;
-                m_lastReceivedNodeTimestamp = Time.realtimeSinceStartup;
+                m_lastReceivedNodeTimestamp = UnityEngine.Time.realtimeSinceStartup;
             }
             if (_node > m_lastConfirmedNode && (!isAuthoritative || _node < m_lastConfirmedNode + m_history.Length))
             {
@@ -197,44 +196,41 @@ namespace Wheeled.Gameplay
                     // FIXME
                     m_lastConfirmedNode = m_history.Oldest;
                 }
-                m_history.Set(new History.Node { input = _input, simulation = _calculatedSimulation }, _node);
+                m_history.Set(new MoveHistory.Node { input = _input, simulation = _calculatedSimulation }, _node);
                 lastAcceptedNode = _node;
             }
         }
 
         private void ConfirmSimulation()
         {
-            if (isAuthoritative && !isInteractive)
+            if (m_lastConfirmedNode != -1)
             {
-                if (m_lastConfirmedNode != -1)
+                MoveHistory.Node first = m_history[m_lastConfirmedNode].Value;
+                first.simulation.Apply(this);
+                InputState inputState = first.input;
+                while (m_lastConfirmedNode < m_presentationTime.Node)
                 {
-                    History.Node first = m_history[m_lastConfirmedNode].Value;
-                    first.simulation.Apply(this);
-                    InputState inputState = first.input;
-                    while (m_lastConfirmedNode < m_presentationNode)
+                    m_lastConfirmedNode++;
+                    MoveHistory.Node? node = m_history[m_lastConfirmedNode];
+                    inputState.dash = false;
+                    inputState.jump = false;
+                    if (node != null)
                     {
-                        m_lastConfirmedNode++;
-                        History.Node? node = m_history[m_lastConfirmedNode];
-                        inputState.dash = false;
-                        inputState.jump = false;
-                        if (node != null)
-                        {
-                            inputState = node.Value.input;
-                        }
-                        Simulate(inputState, c_timestep);
-                        SimulationState calculatedSimulation = SimulationState.Capture(this);
-                        m_history.Set(new History.Node { input = inputState, simulation = calculatedSimulation }, m_lastConfirmedNode);
-                        host.Moved(m_lastConfirmedNode, inputState, calculatedSimulation);
-                        if (node == null || !node.Value.simulation.IsNearlyEqual(calculatedSimulation))
-                        {
-                            host.Corrected(m_lastConfirmedNode, inputState, calculatedSimulation);
-                            lastCorrectedNode = m_lastConfirmedNode;
-                        }
+                        inputState = node.Value.input;
+                    }
+                    Simulate(inputState, c_timestep);
+                    SimulationState calculatedSimulation = SimulationState.Capture(this);
+                    m_history.Set(new MoveHistory.Node { input = inputState, simulation = calculatedSimulation }, m_lastConfirmedNode);
+                    host.Moved(m_lastConfirmedNode, inputState, calculatedSimulation);
+                    if (node == null || !node.Value.simulation.IsNearlyEqual(calculatedSimulation))
+                    {
+                        host.Corrected(m_lastConfirmedNode, inputState, calculatedSimulation);
+                        lastCorrectedNode = m_lastConfirmedNode;
                     }
                 }
             }
             lastConfirmedNode = m_lastConfirmedNode;
-            lastPresentationNode = m_presentationNode;
+            lastPresentationNode = m_presentationTime.Node;
         }
 
     }

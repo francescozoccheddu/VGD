@@ -73,6 +73,8 @@
     <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour_Input.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour_Networking.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour_Simulation.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\PlayerBehaviour_Status.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\WeaponType.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\BaseChannel.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\ConnectionRequest.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\INetEventListener.cs" />
