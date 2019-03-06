@@ -18,7 +18,7 @@ namespace Wheeled.Networking
                 m_server = _client;
             }
 
-            public void Corrected(int _node, PlayerBehaviour.SimulationState _simulation)
+            public void Corrected(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _simulation)
             {
             }
 

@@ -113,9 +113,16 @@ namespace Wheeled.Gameplay
                     return false;
                 }
 
-                // TODO Save first bad node in order to resimulate when _target will be not null
+                m_nodes[_index % Length] = _node;
+                _node.simulation.Apply(_target);
+                for (int i = _index + 1; i <= Newest; i++)
+                {
+                    Node badNode = m_nodes[i % Length].Value;
+                    _target.Simulate(badNode.input, c_timestep);
+                    badNode.simulation = SimulationState.Capture(_target);
+                    m_nodes[i % Length] = badNode;
+                }
 
-                // TODO Reconciliate
 
                 return true;
             }
@@ -129,31 +136,71 @@ namespace Wheeled.Gameplay
 
         }
 
-        private const float c_historyDuration = 2.0f;
+        private const float c_historyDuration = 5.0f;
 
         private readonly History m_history = History.CreateHistoryByDuration(c_historyDuration);
 
         private int m_lastConfirmedNode = -1;
 
-        public void Move(int _node, InputState _input, SimulationState _calculatedSimulation)
+        public void Correct(int _node, InputState _input, SimulationState _simulation)
         {
-            if (_node > m_lastConfirmedNode && (!isAuthoritative || _node < m_lastConfirmedNode + m_history.Length))
+            if (isInteractive && !isAuthoritative)
             {
-                if (m_lastConfirmedNode == -1)
+                if (m_history.Reconciliate(new History.Node { input = _input, simulation = _simulation }, _node, this))
                 {
-                    m_lastConfirmedNode = _node;
+                    if (m_accumulatedTime < c_timestep)
+                    {
+                        Simulate(GetAccumulatedInputForPartialSimulation(), m_accumulatedTime);
+                    }
+                    m_lastSimulationState = SimulationState.Capture(this);
+                    Debug.LogFormat("Reconciliation: node={0}", _node);
                 }
-                m_history.Set(new History.Node { input = _input, simulation = _calculatedSimulation }, _node);
-                if (_node > LastArrivedNode)
+                else
                 {
-                    LastArrivedNode = _node;
+                    Debug.LogFormat("Reconciliation failed: node={0}", _node);
                 }
             }
         }
 
-        // DELETE ME PORCODDIO
-        public int LastArrivedNode;
-        public int LastConfirmedNode;
+        public int lastArrivedNode;
+        public int lastAcceptedNode;
+        public int lastPresentationNode;
+        public int lastConfirmedNode;
+        public int lastCorrectedNode;
+
+        private int m_lastReceivedNode;
+        private float m_lastReceivedNodeTimestamp;
+
+
+        public void DoPOA(float _ping)
+        {
+            float peerTimeSinceLastReceivedNode = Time.realtimeSinceStartup - m_lastReceivedNodeTimestamp + _ping;
+            SimulationTime peerTime = new SimulationTime(m_lastReceivedNode, peerTimeSinceLastReceivedNode);
+            float offset = c_timestep * 2.0f + _ping * 1.25f;
+            SimulationTime presentationTime = peerTime - offset;
+            SetActorNode(presentationTime.Node, presentationTime.TimeSinceNode, false);
+            Debug.LogFormat("POA: offset={0} node={1} lastNode={2}", offset, presentationTime.Node, m_lastReceivedNode);
+        }
+
+        public void Move(int _node, InputState _input, SimulationState _calculatedSimulation)
+        {
+            lastArrivedNode = _node;
+            if (_node > m_lastReceivedNode)
+            {
+                m_lastReceivedNode = _node;
+                m_lastReceivedNodeTimestamp = Time.realtimeSinceStartup;
+            }
+            if (_node > m_lastConfirmedNode && (!isAuthoritative || _node < m_lastConfirmedNode + m_history.Length))
+            {
+                if (m_lastConfirmedNode == -1)
+                {
+                    // FIXME
+                    m_lastConfirmedNode = m_history.Oldest;
+                }
+                m_history.Set(new History.Node { input = _input, simulation = _calculatedSimulation }, _node);
+                lastAcceptedNode = _node;
+            }
+        }
 
         private void ConfirmSimulation()
         {
@@ -180,12 +227,14 @@ namespace Wheeled.Gameplay
                         host.Moved(m_lastConfirmedNode, inputState, calculatedSimulation);
                         if (node == null || !node.Value.simulation.IsNearlyEqual(calculatedSimulation))
                         {
-                            host.Corrected(m_lastConfirmedNode, calculatedSimulation);
+                            host.Corrected(m_lastConfirmedNode, inputState, calculatedSimulation);
+                            lastCorrectedNode = m_lastConfirmedNode;
                         }
                     }
                 }
             }
-            LastConfirmedNode = m_lastConfirmedNode;
+            lastConfirmedNode = m_lastConfirmedNode;
+            lastPresentationNode = m_presentationNode;
         }
 
     }

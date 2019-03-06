@@ -21,7 +21,7 @@ namespace Wheeled.Core
 
         void Moved(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _calculatedSimulation);
 
-        void Corrected(int _node, PlayerBehaviour.SimulationState _simulation);
+        void Corrected(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _simulation);
 
     }
 
@@ -62,6 +62,14 @@ namespace Wheeled.Core
             }
         }
 
+        public void Correct(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _simulation)
+        {
+            if (!IsDestroyed)
+            {
+                m_behaviour.Correct(_node, _input, _simulation);
+            }
+        }
+
         public void Die()
         {
             if (!IsDestroyed)
@@ -83,6 +91,14 @@ namespace Wheeled.Core
             if (!IsDestroyed)
             {
 
+            }
+        }
+
+        public void DoPOA(float _ping)
+        {
+            if (!IsDestroyed)
+            {
+                m_behaviour.DoPOA(_ping);
             }
         }
 

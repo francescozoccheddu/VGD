@@ -29,11 +29,6 @@ namespace Wheeled.Gameplay
                 m_presentationNode = m_history.Oldest;
                 m_timeSinceLastPresentationNode = 0.0f;
             }
-            /*else if (m_presentationNode > m_history.Newest)
-            {
-                m_presentationNode = m_history.Newest;
-                m_timeSinceLastPresentationNode = 0.0f;
-            }*/
         }
 
         private void UpdateActor()
@@ -41,7 +36,7 @@ namespace Wheeled.Gameplay
             if (isInteractive)
             {
                 m_lastSimulationState.Apply(this);
-                actorTransform.position = characterController.transform.position;
+                actorTransform.position = m_position;
             }
             else if (!isAuthoritative)
             {
@@ -106,7 +101,7 @@ namespace Wheeled.Gameplay
                     nextNode.Value.simulation.Apply(this);
                 }
 
-                actorTransform.position = characterController.transform.position;
+                actorTransform.position = m_position;
 
             }
             else
@@ -120,7 +115,7 @@ namespace Wheeled.Gameplay
                     predictedInput.jump = false;
                     float elapsed = m_timeSinceLastPresentationNode + (m_presentationNode - m_lastConfirmedNode) * c_timestep;
                     Simulate(predictedInput, elapsed);
-                    actorTransform.position = characterController.transform.position;
+                    actorTransform.position = m_position;
                 }
             }
         }

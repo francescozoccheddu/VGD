@@ -5,8 +5,6 @@ namespace Wheeled.Gameplay
     public sealed partial class PlayerBehaviour
     {
 
-        public CharacterController characterController;
-
         public const float speed = 5.0f;
         public const float jumpForce = 10.0f;
 
@@ -22,6 +20,7 @@ namespace Wheeled.Gameplay
 
         private float m_dashStamina;
         private Vector3 m_velocity;
+        private Vector3 m_position;
 
         private static float UpdateSpeed(float _speed, float _drag, float _max, float _deltaTime)
         {
@@ -48,8 +47,8 @@ namespace Wheeled.Gameplay
 
             public void Apply(PlayerBehaviour _playerController)
             {
-                _playerController.characterController.transform.position = position;
-                _playerController.characterController.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                _playerController.m_position = position;
+                _playerController.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                 _playerController.m_velocity = velocity;
                 _playerController.m_dashStamina = dashStamina;
             }
@@ -58,7 +57,7 @@ namespace Wheeled.Gameplay
             {
                 return new SimulationState
                 {
-                    position = _playerController.characterController.transform.position,
+                    position = _playerController.m_position,
                     lookUp = _playerController.transform.eulerAngles.x,
                     turn = _playerController.transform.eulerAngles.y,
                     velocity = _playerController.m_velocity,
@@ -101,26 +100,131 @@ namespace Wheeled.Gameplay
 
         }
 
-        private void Simulate(InputState _input, float _deltaTime)
+        public struct SimulationTime
         {
-            // Simulate gravity first, in order to update characterController.isGrounded
-            characterController.Move(new Vector3(0.0f, m_velocity.y, 0.0f) * _deltaTime);
-            // Simulate XZ movement
-            float dragForce = airDragForce;
-            if (characterController.isGrounded)
+            private int m_node;
+            private float m_timeSinceNode;
+
+            public int Node
             {
-                m_velocity.x += _input.movementX;
-                m_velocity.y = _input.jump ? jumpImpulse : 0.0f;
-                m_velocity.z += _input.movementZ;
-                dragForce += groundDragForce;
+                get => m_node;
+                set
+                {
+                    m_node = value;
+                    Commit();
+                }
             }
-            m_velocity.x = UpdateSpeed(m_velocity.x, dragForce, maxSpeed, _deltaTime);
-            m_velocity.y -= gravityForce * _deltaTime;
-            m_velocity.z = UpdateSpeed(m_velocity.z, dragForce, maxSpeed, _deltaTime);
-            characterController.Move(new Vector3(m_velocity.x, 0.0f, m_velocity.z) * _deltaTime);
+            public float TimeSinceNode
+            {
+                get => m_timeSinceNode;
+                set
+                {
+                    m_timeSinceNode = value;
+                    Commit();
+                }
+            }
+
+            public SimulationTime(int _node, float _timeSinceNode) : this()
+            {
+                m_node = _node;
+                m_timeSinceNode = _timeSinceNode;
+                Commit();
+            }
+
+            private void Commit()
+            {
+                m_node += Mathf.FloorToInt(m_timeSinceNode / c_timestep);
+                m_timeSinceNode %= c_timestep;
+                if (m_timeSinceNode < 0.0f)
+                {
+                    m_timeSinceNode = c_timestep - m_timeSinceNode;
+                }
+            }
+
+            public override bool Equals(object _obj)
+            {
+                if (!(_obj is SimulationTime))
+                {
+                    return false;
+                }
+
+                SimulationTime other = (SimulationTime) _obj;
+                return this == other;
+            }
+
+            public override int GetHashCode()
+            {
+                int hashCode = -1322611433;
+                hashCode = hashCode * -1521134295 + m_node.GetHashCode();
+                hashCode = hashCode * -1521134295 + m_timeSinceNode.GetHashCode();
+                return hashCode;
+            }
+
+            public static bool operator ==(SimulationTime _a, SimulationTime _b)
+            {
+                return _a.m_node == _b.m_node && _a.m_timeSinceNode == _b.m_timeSinceNode;
+            }
+
+            public static bool operator !=(SimulationTime _a, SimulationTime _b)
+            {
+                return !(_a == _b);
+            }
+
+            public static SimulationTime operator +(SimulationTime _a, SimulationTime _b)
+            {
+                return new SimulationTime(
+                    _a.m_node + _b.m_node,
+                    _a.m_timeSinceNode + _b.m_timeSinceNode
+                );
+            }
+
+            public static SimulationTime operator -(SimulationTime _a)
+            {
+                return new SimulationTime
+                (
+                    -_a.m_node,
+                    -_a.m_timeSinceNode
+                );
+            }
+
+            public static SimulationTime operator -(SimulationTime _a, SimulationTime _b)
+            {
+                return _a + (-_b);
+            }
+
+            public static SimulationTime operator +(SimulationTime _a, float _b)
+            {
+                return _a + new SimulationTime { m_timeSinceNode = _b };
+            }
+
+            public static SimulationTime operator -(SimulationTime _a, float _b)
+            {
+                return _a + (-_b);
+            }
+
+            public static SimulationTime operator +(float _a, SimulationTime _b)
+            {
+                return _b + _a;
+            }
+
+            public static SimulationTime operator -(float _a, SimulationTime _b)
+            {
+                return (-_b) + _a;
+            }
+
         }
 
-        private const float c_timestep = 1 / 30.0f;
+        private void Simulate(InputState _input, float _deltaTime)
+        {
+            // Simulate XZ movement
+            m_velocity.x = _input.movementX * 5;
+            //m_velocity.y = -1.0f;
+            m_velocity.z = _input.movementZ * 5;
+            m_position += m_velocity * _deltaTime;
+            m_position.y = 3;
+        }
+
+        private const float c_timestep = 1 / 20.0f;
 
         private SimulationState m_simulation;
 

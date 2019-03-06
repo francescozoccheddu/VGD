@@ -87,6 +87,10 @@ namespace Wheeled.Core
             {
                 return false;
             }
+
+            public void Update()
+            {
+            }
         }
 
         public void StartGameAsClient(GameRoomInfo _room)

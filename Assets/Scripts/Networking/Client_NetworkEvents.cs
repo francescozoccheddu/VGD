@@ -13,7 +13,7 @@ namespace Wheeled.Networking
     {
 
         private readonly NetworkInstance m_network;
-        private readonly int m_localPlayerId;
+        private readonly byte m_localPlayerId;
         private readonly Dictionary<byte, Player> m_players;
         private readonly Peer m_server;
 
@@ -90,7 +90,13 @@ namespace Wheeled.Networking
                     break;
                     case Message.UpdatePresentationLatency:
                     break;
-                    default:
+                    case Message.Reconciliate:
+                    {
+                        int node = _reader.GetInt();
+                        PlayerBehaviour.InputState inputState = _reader.GetInputState();
+                        PlayerBehaviour.SimulationState simulationState = _reader.GetSimulationState();
+                        m_players[m_localPlayerId].Correct(node, inputState, simulationState);
+                    }
                     break;
                 }
             }
@@ -106,7 +112,9 @@ namespace Wheeled.Networking
             return false;
         }
 
-
+        public void Update()
+        {
+        }
     }
 
 }

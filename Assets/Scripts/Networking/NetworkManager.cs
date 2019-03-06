@@ -165,6 +165,8 @@ namespace Wheeled.Networking
 
             bool ShouldReplyToDiscoveryRequest();
 
+            void Update();
+
             //void LatencyUpdated(Peer _peer, int _latency);
         }
 
@@ -193,9 +195,9 @@ namespace Wheeled.Networking
             m_netManager = new NetManager(new NetEventHandler(this))
             {
                 DiscoveryEnabled = true,
-                SimulatePacketLoss = true,
+                SimulatePacketLoss = false,
                 SimulationPacketLossChance = 20,
-                SimulateLatency = true,
+                SimulateLatency = false,
                 SimulationMinLatency = 10,
                 SimulationMaxLatency = 200
             };
@@ -275,6 +277,7 @@ namespace Wheeled.Networking
             {
                 NotifyStopped(StopCause.UnexpectedStop);
             }
+            listener?.Update();
         }
 
     }

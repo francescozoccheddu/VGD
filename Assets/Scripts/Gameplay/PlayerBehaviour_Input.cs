@@ -11,6 +11,7 @@ namespace Wheeled.Gameplay
             public float movementX;
             public bool jump;
             public bool dash;
+
         }
 
         private const bool c_enablePartialSimulation = true;
@@ -19,6 +20,14 @@ namespace Wheeled.Gameplay
 
         private InputState m_accumulatedInput;
         private SimulationState m_lastSimulationState;
+
+        private InputState GetAccumulatedInputForPartialSimulation()
+        {
+            InputState scaledState = m_accumulatedInput;
+            scaledState.movementX *= c_timestep / m_accumulatedTime;
+            scaledState.movementZ *= c_timestep / m_accumulatedTime;
+            return scaledState;
+        }
 
         private void AccumulateInput(InputState _inputState, float _deltaTime)
         {
@@ -68,14 +77,14 @@ namespace Wheeled.Gameplay
 
 
             // Rotate player
-            Vector3 actAngles = characterController.transform.eulerAngles;
-            actAngles.x = 0;
-            //actAngles.y += inputLookX;
-            actAngles.z = 0;
-            gameObject.transform.eulerAngles = actAngles;
+            /* Vector3 actAngles = transform.eulerAngles;
+             actAngles.x = 0;
+             //actAngles.y += inputLookX;
+             actAngles.z = 0;
+             gameObject.transform.eulerAngles = actAngles;*/
 
             // Rotate movement direction depending on turn angle
-            RotateMovementInputXZ(inputMovX, inputMovY, actAngles.y, out float movementX, out float movementZ);
+            RotateMovementInputXZ(inputMovX, inputMovY, 0, out float movementX, out float movementZ);
 
 
             // Current input state based on collected input
