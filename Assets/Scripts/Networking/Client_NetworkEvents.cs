@@ -112,8 +112,15 @@ namespace Wheeled.Networking
             return false;
         }
 
-        public void Update()
+        public void LatencyUpdated(Peer _peer, int _latency)
         {
+            foreach (KeyValuePair<byte, Player> entry in m_players)
+            {
+                if (entry.Key != m_localPlayerId)
+                {
+                    entry.Value.DoPOA(_latency / 1000.0f);
+                }
+            }
         }
     }
 

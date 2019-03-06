@@ -65,6 +65,10 @@ namespace Wheeled.Core
             {
             }
 
+            public void LatencyUpdated(NetworkManager.Peer _peer, int _latency)
+            {
+            }
+
             public void ReceivedFrom(NetworkManager.Peer _peer, NetPacketReader _reader)
             {
                 if (_peer == Instance.m_serverPeer)
@@ -88,9 +92,6 @@ namespace Wheeled.Core
                 return false;
             }
 
-            public void Update()
-            {
-            }
         }
 
         public void StartGameAsClient(GameRoomInfo _room)

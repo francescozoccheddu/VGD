@@ -45,7 +45,7 @@ namespace Wheeled.Networking
 
             public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
             {
-                //m_manager.listener?.LatencyUpdated(new Peer(peer), latency);
+                m_manager.listener?.LatencyUpdated(new Peer(peer), latency);
             }
 
             public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
@@ -165,9 +165,7 @@ namespace Wheeled.Networking
 
             bool ShouldReplyToDiscoveryRequest();
 
-            void Update();
-
-            //void LatencyUpdated(Peer _peer, int _latency);
+            void LatencyUpdated(Peer _peer, int _latency);
         }
 
         public enum StopCause
@@ -277,7 +275,6 @@ namespace Wheeled.Networking
             {
                 NotifyStopped(StopCause.UnexpectedStop);
             }
-            listener?.Update();
         }
 
     }

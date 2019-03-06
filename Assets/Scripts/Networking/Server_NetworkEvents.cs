@@ -1,7 +1,6 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using System.Collections.Generic;
-using UnityEngine;
 using Wheeled.Core;
 using static Wheeled.Networking.NetworkManager;
 
@@ -76,7 +75,6 @@ namespace Wheeled.Networking
             m_network = _network;
             m_localPlayer = CreateNewPlayer(true, true);
             m_netPlayers = new Dictionary<Peer, PlayerEntry>();
-            m_timeSinceLastPoa = 0.0f;
         }
 
         public void ConnectedTo(Peer _peer)
@@ -138,16 +136,11 @@ namespace Wheeled.Networking
             }
         }
 
-        private const float c_poaPeriod = 5.0f;
-        private float m_timeSinceLastPoa;
-
-        public void Update()
+        public void LatencyUpdated(Peer _peer, int _latency)
         {
-            m_timeSinceLastPoa += Time.deltaTime;
-            if (m_timeSinceLastPoa > c_poaPeriod)
+            if (m_netPlayers.TryGetValue(_peer, out PlayerEntry playerEntry))
             {
-                m_timeSinceLastPoa = 0.0f;
-                DoPOA();
+                playerEntry.player.DoPOA(_latency / 1000.0f);
             }
         }
     }
