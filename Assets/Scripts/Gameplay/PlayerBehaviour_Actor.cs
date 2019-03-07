@@ -11,9 +11,9 @@ namespace Wheeled.Gameplay
 
         private void Clamp()
         {
-            if (m_presentationTime.Node < m_history.Oldest)
+            if (m_presentationTime.Node < m_simulationHistory.Oldest)
             {
-                m_presentationTime.Node = m_history.Oldest;
+                m_presentationTime.Node = m_simulationHistory.Oldest;
                 m_presentationTime.TimeSinceNode = 0.0f;
             }
         }
@@ -31,9 +31,9 @@ namespace Wheeled.Gameplay
                 int iPrevNode = m_presentationTime.Node;
                 MoveHistory.Node? prevNode = null;
 
-                while (iPrevNode >= m_history.Oldest)
+                while (iPrevNode >= m_simulationHistory.Oldest)
                 {
-                    prevNode = m_history[iPrevNode];
+                    prevNode = m_simulationHistory[iPrevNode];
                     if (prevNode != null)
                     {
                         break;
@@ -42,16 +42,16 @@ namespace Wheeled.Gameplay
                 }
                 if (prevNode == null)
                 {
-                    iPrevNode = m_history.OldestValid;
-                    prevNode = m_history[iPrevNode];
+                    iPrevNode = m_simulationHistory.OldestValid;
+                    prevNode = m_simulationHistory[iPrevNode];
                 }
 
                 int iNextNode = m_presentationTime.Node + 1;
                 MoveHistory.Node? nextNode = null;
 
-                while (iNextNode <= m_history.Newest)
+                while (iNextNode <= m_simulationHistory.Newest)
                 {
-                    nextNode = m_history[iNextNode];
+                    nextNode = m_simulationHistory[iNextNode];
                     if (nextNode != null)
                     {
                         break;
@@ -93,7 +93,7 @@ namespace Wheeled.Gameplay
             }
             else
             {
-                MoveHistory.Node? node = m_history[m_lastConfirmedNode];
+                MoveHistory.Node? node = m_simulationHistory[m_lastConfirmedNode];
                 if (node != null)
                 {
                     node.Value.simulation.Apply(this);

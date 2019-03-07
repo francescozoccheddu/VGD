@@ -1,4 +1,5 @@
 ﻿using LiteNetLib.Utils;
+using UnityEngine;
 using Wheeled.Core;
 using Wheeled.Gameplay;
 using static Wheeled.Networking.NetworkManager;
@@ -26,7 +27,7 @@ namespace Wheeled.Networking
                 if (m_server.TryGetPeerByPlayerId(m_player.id, out Peer peer))
                 {
                     NetDataWriter writer = new NetDataWriter();
-                    writer.Put(Message.Reconciliate);
+                    writer.Put(Message.Corrected);
                     writer.Put(_node);
                     writer.Put(_input);
                     writer.Put(_simulation);
@@ -34,10 +35,29 @@ namespace Wheeled.Networking
                 }
             }
 
+            public void Died(PlayerBehaviour.Time _time, Vector3 _hitDirection, Vector3 _hitPoint, bool _exploded)
+            {
+                NetDataWriter writer = new NetDataWriter();
+                writer.Put(Message.Died);
+                writer.Put(m_player.id);
+                writer.Put(_time);
+                writer.Put(_hitDirection);
+                writer.Put(_hitPoint);
+                writer.Put(_exploded);
+                if (m_player.id == 0)
+                {
+                    m_server.SendToAll(writer, LiteNetLib.DeliveryMethod.ReliableUnordered);
+                }
+                else if (m_server.TryGetPeerByPlayerId(m_player.id, out Peer peer))
+                {
+                    m_server.SendToAllBut(writer, LiteNetLib.DeliveryMethod.ReliableUnordered, peer);
+                }
+            }
+
             public void Moved(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _calculatedSimulation)
             {
                 NetDataWriter writer = new NetDataWriter();
-                writer.Put(Message.Move);
+                writer.Put(Message.Moved);
                 writer.Put(m_player.id);
                 writer.Put(_node);
                 writer.Put(_input);
@@ -49,6 +69,23 @@ namespace Wheeled.Networking
                 else if (m_server.TryGetPeerByPlayerId(m_player.id, out Peer peer))
                 {
                     m_server.SendToAllBut(writer, LiteNetLib.DeliveryMethod.Unreliable, peer);
+                }
+            }
+
+            public void Spawned(PlayerBehaviour.Time _time, byte _spawnPoint)
+            {
+                NetDataWriter writer = new NetDataWriter();
+                writer.Put(Message.Spawned);
+                writer.Put(m_player.id);
+                writer.Put(_time);
+                writer.Put(_spawnPoint);
+                if (m_player.id == 0)
+                {
+                    m_server.SendToAll(writer, LiteNetLib.DeliveryMethod.ReliableUnordered);
+                }
+                else if (m_server.TryGetPeerByPlayerId(m_player.id, out Peer peer))
+                {
+                    m_server.SendToAllBut(writer, LiteNetLib.DeliveryMethod.ReliableUnordered, peer);
                 }
             }
 

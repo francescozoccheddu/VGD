@@ -102,6 +102,9 @@ namespace Wheeled.Gameplay
 
         public struct Time
         {
+
+            public static readonly Time zero = new Time(0, 0.0f);
+
             private int m_node;
             private float m_timeSinceNode;
 
@@ -214,6 +217,43 @@ namespace Wheeled.Gameplay
                 return (-_b) + _a;
             }
 
+            public static bool operator <(Time _a, Time _b)
+            {
+                if (_a.m_node > _b.m_node)
+                {
+                    return false;
+                }
+                return _a.m_node < _b.m_node || _a.m_timeSinceNode < _b.m_timeSinceNode;
+            }
+
+            public static bool operator >(Time _a, Time _b)
+            {
+                if (_a.m_node < _b.m_node)
+                {
+                    return false;
+                }
+                return _a.m_node > _b.m_node || _a.m_timeSinceNode > _b.m_timeSinceNode;
+            }
+
+            public static bool operator <=(Time _a, Time _b)
+            {
+                if (_a.m_node > _b.m_node)
+                {
+                    return false;
+                }
+                return _a.m_node < _b.m_node || _a.m_timeSinceNode <= _b.m_timeSinceNode;
+            }
+
+            public static bool operator >=(Time _a, Time _b)
+            {
+                if (_a.m_node < _b.m_node)
+                {
+                    return false;
+                }
+                return _a.m_node > _b.m_node || _a.m_timeSinceNode >= _b.m_timeSinceNode;
+            }
+
+
         }
 
         private void Simulate(InputState _input, float _deltaTime)
@@ -223,7 +263,6 @@ namespace Wheeled.Gameplay
             //m_velocity.y = -1.0f;
             m_velocity.z = _input.movementZ * 5;
             m_position += m_velocity * _deltaTime;
-            m_position.y = 3;
         }
 
         private const float c_timestep = 1 / 20.0f;

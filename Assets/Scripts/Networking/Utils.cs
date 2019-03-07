@@ -79,7 +79,16 @@ namespace Wheeled.Networking
             };
         }
 
+        public static void Put(this NetDataWriter _netDataWriter, PlayerBehaviour.Time _value)
+        {
+            _netDataWriter.Put(_value.Node);
+            _netDataWriter.Put(_value.TimeSinceNode);
+        }
 
+        public static PlayerBehaviour.Time GetTime(this NetDataReader _netDataReader)
+        {
+            return new PlayerBehaviour.Time(_netDataReader.GetInt(), _netDataReader.GetFloat());
+        }
 
     }
 

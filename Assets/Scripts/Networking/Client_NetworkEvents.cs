@@ -71,7 +71,7 @@ namespace Wheeled.Networking
                 Message message = _reader.GetEnum<Message>();
                 switch (message)
                 {
-                    case Message.Move:
+                    case Message.Moved:
                     {
                         byte id = _reader.GetByte();
                         int node = _reader.GetInt();
@@ -80,22 +80,36 @@ namespace Wheeled.Networking
                         Player player = GetOrCreatePlayer(id);
                         if (id != m_localPlayerId)
                         {
-                            player.Move(node, inputState, simulationState);
-                        }
-                        else
-                        {
-                            // TODO Do reconciliation
+                            player.Do(_p => _p.Moved(node, inputState, simulationState));
                         }
                     }
                     break;
-                    case Message.UpdatePresentationLatency:
+                    case Message.Spawned:
+                    {
+                        byte id = _reader.GetByte();
+                        PlayerBehaviour.Time time = _reader.GetTime();
+                        byte spawnPoint = _reader.GetByte();
+                        Player player = GetOrCreatePlayer(id);
+                        player.Do(_p => _p.Spawned(time, spawnPoint));
+                    }
                     break;
-                    case Message.Reconciliate:
+                    case Message.Died:
+                    {
+                        byte id = _reader.GetByte();
+                        PlayerBehaviour.Time time = _reader.GetTime();
+                        Vector3 hitDirection = _reader.GetVector3();
+                        Vector3 hitPoint = _reader.GetVector3();
+                        bool exploded = _reader.GetBool();
+                        Player player = GetOrCreatePlayer(id);
+                        player.Do(_p => _p.Died(time, hitDirection, hitPoint, exploded));
+                    }
+                    break;
+                    case Message.Corrected:
                     {
                         int node = _reader.GetInt();
                         PlayerBehaviour.InputState inputState = _reader.GetInputState();
                         PlayerBehaviour.SimulationState simulationState = _reader.GetSimulationState();
-                        m_players[m_localPlayerId].Correct(node, inputState, simulationState);
+                        m_players[m_localPlayerId].Do(_p => _p.Corrected(node, inputState, simulationState));
                     }
                     break;
                 }

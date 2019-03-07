@@ -3,7 +3,7 @@
 
     internal enum Message
     {
-        Move, UpdatePresentationLatency, Welcome, Reconciliate
+        Moved, Welcome, Corrected, Spawned, Died
     }
 
 }

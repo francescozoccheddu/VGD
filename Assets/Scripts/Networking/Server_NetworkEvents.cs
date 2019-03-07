@@ -102,15 +102,13 @@ namespace Wheeled.Networking
             Message message = _reader.GetEnum<Message>();
             switch (message)
             {
-                case Message.Move:
+                case Message.Moved:
                 {
                     if (m_netPlayers.TryGetValue(_peer, out PlayerEntry playerEntry))
                     {
-                        playerEntry.player.Move(_reader.GetInt(), _reader.GetInputState(), _reader.GetSimulationState());
+                        playerEntry.player.Do(_p => _p.Moved(_reader.GetInt(), _reader.GetInputState(), _reader.GetSimulationState()));
                     }
                 }
-                break;
-                case Message.UpdatePresentationLatency:
                 break;
                 case Message.Welcome:
                 break;

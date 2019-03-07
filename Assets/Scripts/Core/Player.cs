@@ -23,6 +23,10 @@ namespace Wheeled.Core
 
         void Corrected(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _simulation);
 
+        void Died(PlayerBehaviour.Time _time, Vector3 _hitDirection, Vector3 _hitPoint, bool _exploded);
+
+        void Spawned(PlayerBehaviour.Time _time, byte _spawnPoint);
+
     }
 
     internal sealed class Player
@@ -54,43 +58,11 @@ namespace Wheeled.Core
             }
         }
 
-        public void Move(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _calculatedSimulation)
+        public void Do(System.Action<IPlayerEventListener> _action)
         {
             if (!IsDestroyed)
             {
-                m_behaviour.Move(_node, _input, _calculatedSimulation);
-            }
-        }
-
-        public void Correct(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _simulation)
-        {
-            if (!IsDestroyed)
-            {
-                m_behaviour.Correct(_node, _input, _simulation);
-            }
-        }
-
-        public void Die()
-        {
-            if (!IsDestroyed)
-            {
-
-            }
-        }
-
-        public void Hit()
-        {
-            if (!IsDestroyed)
-            {
-
-            }
-        }
-
-        public void Spawn()
-        {
-            if (!IsDestroyed)
-            {
-
+                _action(m_behaviour);
             }
         }
 

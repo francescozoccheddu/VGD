@@ -51,7 +51,7 @@ namespace Wheeled.Gameplay
 
         private void SendInput()
         {
-            host.Moved(m_history.Newest, m_accumulatedInput, m_history[m_history.Newest].Value.simulation);
+            host.Moved(m_simulationHistory.Newest, m_accumulatedInput, m_simulationHistory[m_simulationHistory.Newest].Value.simulation);
         }
 
         private void ResetInput()
@@ -103,7 +103,7 @@ namespace Wheeled.Gameplay
                     if (c_enablePartialSimulation)
                     {
                         // Undo all partial simulations
-                        MoveHistory.Node? node = m_history[m_history.Newest];
+                        MoveHistory.Node? node = m_simulationHistory[m_simulationHistory.Newest];
                         if (node != null)
                         {
                             ((MoveHistory.Node) node).simulation.Apply(this);
@@ -113,7 +113,7 @@ namespace Wheeled.Gameplay
                     AccumulateInput(inputState, timeToNextCommit);
                 }
                 Simulate(m_accumulatedInput, c_timestep);
-                m_history.Append(new MoveHistory.Node { simulation = SimulationState.Capture(this), input = m_accumulatedInput });
+                m_simulationHistory.Append(new MoveHistory.Node { simulation = SimulationState.Capture(this), input = m_accumulatedInput });
                 SendInput();
                 // Jump and dash actions have already been taken into account
                 inputState.jump = false;
