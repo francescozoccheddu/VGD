@@ -2,6 +2,7 @@
 using LiteNetLib.Utils;
 using System.Collections.Generic;
 using Wheeled.Core;
+using Wheeled.Gameplay;
 using static Wheeled.Networking.NetworkManager;
 
 namespace Wheeled.Networking
@@ -12,15 +13,17 @@ namespace Wheeled.Networking
 
         private const int c_maxPlayerCount = 4;
 
-        private readonly struct PlayerEntry
+        private struct PlayerEntry
         {
             public readonly byte id;
             public readonly Player player;
+            public bool spoken;
 
             public PlayerEntry(byte _id, Player _player)
             {
                 id = _id;
                 player = _player;
+                spoken = false;
             }
         }
 
@@ -97,6 +100,30 @@ namespace Wheeled.Networking
             }
         }
 
+        private void UpdateSpoken(Peer _peer, PlayerEntry _playerEntry)
+        {
+            if (!_playerEntry.spoken)
+            {
+                _playerEntry.spoken = true;
+                _playerEntry.player.CanSpawn();
+                NetDataWriter writer = new NetDataWriter();
+                foreach (PlayerEntry player in m_netPlayers.Values)
+                {
+                    if (player.id != _playerEntry.id)
+                    {
+                        player.player.GetSpawnInfo(out PlayerBehaviour.Time statusTime, out byte? spawnPoint);
+                        writer.Reset();
+                        writer.Put(Message.Spawned);
+                        writer.Put(player.id);
+                        writer.Put(statusTime);
+                        writer.Put(spawnPoint ?? 255);
+                        _peer.Send(writer, DeliveryMethod.ReliableUnordered);
+                    }
+                }
+                m_netPlayers[_peer] = _playerEntry;
+            }
+        }
+
         public void ReceivedFrom(Peer _peer, NetPacketReader _reader)
         {
             Message message = _reader.GetEnum<Message>();
@@ -106,11 +133,10 @@ namespace Wheeled.Networking
                 {
                     if (m_netPlayers.TryGetValue(_peer, out PlayerEntry playerEntry))
                     {
+                        UpdateSpoken(_peer, playerEntry);
                         playerEntry.player.Do(_p => _p.Moved(_reader.GetInt(), _reader.GetInputState(), _reader.GetSimulationState()));
                     }
                 }
-                break;
-                case Message.Welcome:
                 break;
             }
         }

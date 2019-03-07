@@ -10,6 +10,8 @@ namespace Wheeled.Gameplay
 
         private Time m_presentationTime;
 
+        private bool m_canSpawn = false;
+
         private void Start()
         {
             actorRenderer.enabled = false;

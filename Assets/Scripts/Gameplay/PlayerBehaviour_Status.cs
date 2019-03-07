@@ -37,7 +37,7 @@ namespace Wheeled.Gameplay
 
             public struct SpawnAction : Action
             {
-                public int spawnPoint;
+                public byte spawnPoint;
 
                 public void FullRun(PlayerBehaviour _playerBehaviour)
                 {
@@ -127,14 +127,14 @@ namespace Wheeled.Gameplay
                 }
             }
 
-            public bool? Get(Time _time, out float _outElapsedTime)
+            public bool? Get(Time _time, out Time _statusTime)
             {
                 LinkedListNode<Node> node = m_nodes.First;
                 while (node?.Next?.Value.time <= _time)
                 {
                     node = node.Next;
                 }
-                _outElapsedTime = (_time - (node?.Value.time ?? _time)).RealTime;
+                _statusTime = node?.Value.time ?? _time;
                 return node?.Value.alive;
             }
 
@@ -156,8 +156,11 @@ namespace Wheeled.Gameplay
             actorRenderer.enabled = _alive;
         }
 
-        private void Spawn(int _spawnPoint)
+        private byte m_lastSpawnPoint;
+
+        private void Spawn(byte _spawnPoint)
         {
+            m_lastSpawnPoint = _spawnPoint;
             m_statusHistory.Add(m_validationTime, true);
             m_simulationHistory.Set(new MoveHistory.Node
             {
@@ -169,6 +172,7 @@ namespace Wheeled.Gameplay
             }, m_validationTime.Node);
             // TODO Spawn effect
             Debug.Log("Spawned");
+            host.Spawned(m_validationTime, _spawnPoint);
         }
 
         private void Spawn()
@@ -182,23 +186,36 @@ namespace Wheeled.Gameplay
         private void Die(Vector3 _hitDirection, Vector3 _hitPoint, bool _exploded)
         {
             m_statusHistory.Add(m_validationTime, false);
+            host.Died(m_validationTime, _hitDirection, _hitPoint, _exploded);
         }
 
         public void UpdateStatus()
         {
             m_actionHistory.Run(m_validationTime, this);
-            bool? alive = m_statusHistory.Get(m_presentationTime, out float statusAge);
+            bool? alive = m_statusHistory.Get(m_presentationTime, out Time statusTime);
             if (alive != null)
             {
                 SetAlive(alive.Value);
             }
-            if (isAuthoritative && (alive == null || (alive == false && statusAge > c_respawnTime)))
+            if (m_canSpawn && isAuthoritative && (alive == null || (alive == false && (m_validationTime - statusTime).RealTime > c_respawnTime)))
             {
                 Spawn();
-                // TODO Tell clients
             }
             m_statusHistory.Forget(m_validationTime);
         }
+
+        public void CanSpawn()
+        {
+            m_canSpawn = true;
+        }
+
+        public void GetSpawnInfo(out Time _outTime, out byte? _outSpawnPoint)
+        {
+            bool? alive = m_statusHistory.Get(m_validationTime, out Time statusTime);
+            _outTime = alive.HasValue ? statusTime : Time.zero;
+            _outSpawnPoint = alive == true ? m_lastSpawnPoint : (byte?) null;
+        }
+
 
     }
 }

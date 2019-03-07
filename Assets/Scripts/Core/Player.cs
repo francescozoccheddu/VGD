@@ -58,6 +58,27 @@ namespace Wheeled.Core
             }
         }
 
+        public void CanSpawn()
+        {
+            if (!IsDestroyed)
+            {
+                m_behaviour.CanSpawn();
+            }
+        }
+
+        public void GetSpawnInfo(out PlayerBehaviour.Time _outTime, out byte? _outSpawnPoint)
+        {
+            if (!IsDestroyed)
+            {
+                m_behaviour.GetSpawnInfo(out _outTime, out _outSpawnPoint);
+            }
+            else
+            {
+                _outTime = PlayerBehaviour.Time.zero;
+                _outSpawnPoint = null;
+            }
+        }
+
         public void Do(System.Action<IPlayerEventListener> _action)
         {
             if (!IsDestroyed)
