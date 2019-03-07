@@ -44,14 +44,7 @@ namespace Wheeled.Networking
                 writer.Put(_hitDirection);
                 writer.Put(_hitPoint);
                 writer.Put(_exploded);
-                if (m_player.id == 0)
-                {
-                    m_server.SendToAll(writer, LiteNetLib.DeliveryMethod.ReliableUnordered);
-                }
-                else if (m_server.TryGetPeerByPlayerId(m_player.id, out Peer peer))
-                {
-                    m_server.SendToAllBut(writer, LiteNetLib.DeliveryMethod.ReliableUnordered, peer);
-                }
+                m_server.SendToAll(writer, LiteNetLib.DeliveryMethod.ReliableUnordered);
             }
 
             public void Moved(int _node, PlayerBehaviour.InputState _input, PlayerBehaviour.SimulationState _calculatedSimulation)
@@ -79,14 +72,8 @@ namespace Wheeled.Networking
                 writer.Put(m_player.id);
                 writer.Put(_time);
                 writer.Put(_spawnPoint);
-                if (m_player.id == 0)
-                {
-                    m_server.SendToAll(writer, LiteNetLib.DeliveryMethod.ReliableUnordered);
-                }
-                else if (m_server.TryGetPeerByPlayerId(m_player.id, out Peer peer))
-                {
-                    m_server.SendToAllBut(writer, LiteNetLib.DeliveryMethod.ReliableUnordered, peer);
-                }
+                Debug.Log("Sent spawn message");
+                m_server.SendToAll(writer, LiteNetLib.DeliveryMethod.ReliableUnordered);
             }
 
         }

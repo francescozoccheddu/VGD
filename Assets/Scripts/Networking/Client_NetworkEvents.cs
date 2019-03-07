@@ -91,6 +91,7 @@ namespace Wheeled.Networking
                         byte spawnPoint = _reader.GetByte();
                         Player player = GetOrCreatePlayer(id);
                         player.Do(_p => _p.Spawned(time, spawnPoint));
+                        Debug.Log("Spawned message");
                     }
                     break;
                     case Message.Died:

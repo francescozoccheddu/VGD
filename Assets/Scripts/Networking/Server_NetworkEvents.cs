@@ -1,6 +1,7 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using System.Collections.Generic;
+using UnityEngine;
 using Wheeled.Core;
 using Wheeled.Gameplay;
 using static Wheeled.Networking.NetworkManager;
@@ -102,24 +103,34 @@ namespace Wheeled.Networking
             }
         }
 
+        private void NotifySpawned(NetDataWriter _writer, Peer _peer, PlayerEntry _player)
+        {
+            _player.player.GetSpawnInfo(out PlayerBehaviour.Time statusTime, out byte? spawnPoint);
+            if (spawnPoint != null)
+            {
+                _writer.Reset();
+                _writer.Put(Message.Spawned);
+                _writer.Put(_player.id);
+                _writer.Put(statusTime);
+                _writer.Put(spawnPoint.Value);
+                _peer.Send(_writer, DeliveryMethod.ReliableUnordered);
+            }
+        }
+
         private void UpdateSpoken(Peer _peer, PlayerEntry _playerEntry)
         {
             if (!_playerEntry.spoken)
             {
+                Debug.Log("Spoken");
                 _playerEntry.spoken = true;
                 _playerEntry.player.CanSpawn();
                 NetDataWriter writer = new NetDataWriter();
+                NotifySpawned(writer, _peer, m_localPlayer);
                 foreach (PlayerEntry player in m_netPlayers.Values)
                 {
                     if (player.id != _playerEntry.id)
                     {
-                        player.player.GetSpawnInfo(out PlayerBehaviour.Time statusTime, out byte? spawnPoint);
-                        writer.Reset();
-                        writer.Put(Message.Spawned);
-                        writer.Put(player.id);
-                        writer.Put(statusTime);
-                        writer.Put(spawnPoint ?? 255);
-                        _peer.Send(writer, DeliveryMethod.ReliableUnordered);
+                        NotifySpawned(writer, _peer, player);
                     }
                 }
                 m_netPlayers[_peer] = _playerEntry;
