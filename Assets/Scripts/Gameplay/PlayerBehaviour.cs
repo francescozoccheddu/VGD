@@ -18,8 +18,6 @@ namespace Wheeled.Gameplay
             m_presentationTime = new Time(3, 0);
             m_validationTime = Time.zero;
             m_lastStatusTime = Time.zero;
-
-            m_actionHistory.Add(new Time(0, 10), new ActionHistory.DieAction());
         }
 
         private void Update()

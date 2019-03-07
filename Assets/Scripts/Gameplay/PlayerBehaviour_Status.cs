@@ -172,7 +172,6 @@ namespace Wheeled.Gameplay
             }, m_validationTime.Node);
             // TODO Spawn effect
             Debug.Log("Spawned");
-            host.Spawned(m_validationTime, _spawnPoint);
         }
 
         private void Spawn()
@@ -186,7 +185,6 @@ namespace Wheeled.Gameplay
         private void Die(Vector3 _hitDirection, Vector3 _hitPoint, bool _exploded)
         {
             m_statusHistory.Add(m_validationTime, false);
-            host.Died(m_validationTime, _hitDirection, _hitPoint, _exploded);
         }
 
         public void UpdateStatus()
@@ -200,6 +198,7 @@ namespace Wheeled.Gameplay
             if (m_canSpawn && isAuthoritative && (alive == null || (alive == false && (m_validationTime - statusTime).RealTime > c_respawnTime)))
             {
                 Spawn();
+                host.Spawned(m_validationTime, m_lastSpawnPoint);
             }
             m_statusHistory.Forget(m_validationTime);
         }
