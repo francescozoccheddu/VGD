@@ -77,6 +77,7 @@ namespace Wheeled.Networking
         {
             m_network = _network;
             m_localPlayer = CreateNewPlayer(true, true);
+            m_localPlayer.spoken = true;
             m_localPlayer.player.CanSpawn();
             m_netPlayers = new Dictionary<Peer, PlayerEntry>();
         }
