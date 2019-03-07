@@ -211,9 +211,13 @@ namespace Wheeled.Gameplay
         {
             if (m_lastConfirmedNode >= 0)
             {
-                MoveHistory.Node first = m_simulationHistory[m_lastConfirmedNode].Value;
-                first.simulation.Apply(this);
-                InputState inputState = first.input;
+                MoveHistory.Node? first = m_simulationHistory[m_lastConfirmedNode];
+                if (!first.HasValue)
+                {
+                    return;
+                }
+                first.Value.simulation.Apply(this);
+                InputState inputState = first.Value.input;
                 while (m_lastConfirmedNode < m_validationTime.Node)
                 {
                     m_lastConfirmedNode++;
