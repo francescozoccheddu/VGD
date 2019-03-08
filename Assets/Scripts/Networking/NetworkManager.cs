@@ -48,7 +48,6 @@ namespace Wheeled.Networking
                 {
                     m_manager.NotifyStopped(StopCause.NetworkError);
                 }
-                // TODO Handle unable to connect error
             }
 
             public void OnNetworkLatencyUpdate(NetPeer _peer, int _latency)

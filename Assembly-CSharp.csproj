@@ -67,6 +67,8 @@
     <Compile Include="Assets\Scripts\Core\SceneScript.cs" />
     <Compile Include="Assets\Scripts\Core\ScriptManager.cs" />
     <Compile Include="Assets\Scripts\Core\Utils.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\InteractivePlayer.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\PlayerView.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Simulation.cs" />
     <Compile Include="Assets\Scripts\Gameplay\WeaponType.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\BaseChannel.cs" />
@@ -105,6 +107,7 @@
     <Compile Include="Assets\Scripts\Networking\NetworkManager.cs" />
     <Compile Include="Assets\Scripts\Networking\Server.cs" />
     <Compile Include="Assets\Scripts\Networking\ServerGameManager.cs" />
+    <Compile Include="Assets\Scripts\Networking\Time.cs" />
     <Compile Include="Assets\Scripts\Networking\Utils.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/franc/Documents/Unity/NetworkingTest/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
