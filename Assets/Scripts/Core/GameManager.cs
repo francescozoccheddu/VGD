@@ -1,23 +1,15 @@
-﻿using System.Net;
-using UnityEngine;
+﻿using UnityEngine;
 using Wheeled.Networking;
 
 namespace Wheeled.Core
 {
 
-    public struct GameRoomInfo
-    {
-        public IPEndPoint remoteEndPoint;
-        public string name;
-        public int map;
-    }
-
-    public sealed partial class GameManager : MonoBehaviour
+    public sealed partial class GameLauncher : MonoBehaviour
     {
 
-        private static GameManager s_instance;
+        private static GameLauncher s_instance;
 
-        public static GameManager Instance
+        public static GameLauncher Instance
         {
             get
             {
@@ -27,15 +19,14 @@ namespace Wheeled.Core
                     {
                         name = "GameManager"
                     };
-                    s_instance = gameObject.AddComponent<GameManager>();
+                    s_instance = gameObject.AddComponent<GameLauncher>();
                 }
                 return s_instance;
             }
         }
 
-        private GameManager()
+        private GameLauncher()
         {
-            m_networkManager = new NetworkManager();
         }
 
         public void OnEnable()
@@ -45,14 +36,12 @@ namespace Wheeled.Core
 
         public void Update()
         {
-            m_networkManager.Update();
+            NetworkManager.instance.Update();
         }
 
         private void OnDestroy()
         {
-            m_networkManager.listener = null;
-            m_networkManager.Stop();
-            s_instance = null;
+            NetworkManager.instance.Stop();
         }
 
     }

@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using UnityEngine;
 using UnityEngine.UI;
+using Wheeled.Assets.Scripts.Networking;
 using Wheeled.Core;
 
 internal sealed class MenuHelper : MonoBehaviour
@@ -10,26 +11,27 @@ internal sealed class MenuHelper : MonoBehaviour
 
     public void StartServer()
     {
-        GameManager.Instance.StartGameAsServer(9050);
+        GameLauncher.Instance.StartGameAsServer(new GameRoomInfo(new IPEndPoint(IPAddress.Loopback, 9050), "", 0));
     }
 
     public void StartFirstClient()
     {
-        GameManager.Instance.OnGameRoomDiscovered -= GameRoomDiscovered;
-        GameManager.Instance.OnGameRoomDiscovered += GameRoomDiscovered;
-        GameManager.Instance.StartServerDiscovery(9050);
+        GameLauncher.Instance.OnGameRoomDiscovered -= GameRoomDiscovered;
+        GameLauncher.Instance.OnGameRoomDiscovered += GameRoomDiscovered;
+        GameLauncher.Instance.StartServerDiscovery(9050);
     }
 
     public void StartCustomClient()
     {
         string ipText = customClientIPText.text;
         IPEndPoint ip = new IPEndPoint(IPAddress.Parse(ipText), 9050);
-        GameManager.Instance.StartGameAsClient(new GameRoomInfo { remoteEndPoint = ip });
+        GameLauncher.Instance.StartGameAsClient(new GameRoomInfo(ip, "", 0));
     }
 
     private void GameRoomDiscovered(GameRoomInfo _room)
     {
-        GameManager.Instance.StartGameAsClient(_room);
-        GameManager.Instance.OnGameRoomDiscovered -= GameRoomDiscovered;
+        GameLauncher.Instance.StartGameAsClient(_room);
+        GameLauncher.Instance.OnGameRoomDiscovered -= GameRoomDiscovered;
     }
+
 }

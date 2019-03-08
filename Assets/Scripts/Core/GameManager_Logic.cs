@@ -1,47 +1,73 @@
-﻿using LiteNetLib;
-using LiteNetLib.Utils;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using Wheeled.Assets.Scripts.Core;
+using Wheeled.Assets.Scripts.Networking;
 using Wheeled.Networking;
 
 namespace Wheeled.Core
 {
 
-    public sealed partial class GameManager
+    public sealed partial class GameLauncher
     {
 
-        private readonly NetworkManager m_networkManager;
+        public bool IsBusy => m_host?.IsStarted == true;
+        public bool IsServer { get; private set; }
+        private IGameHost m_host;
 
-        public event GameRoomDiscoveredEventHandler OnGameRoomDiscovered
+        public event GameRoomDiscoverEventHandler OnGameRoomDiscovered;
+
+        private void UnregisterHostEvents()
         {
-            add
+            if (m_host != null)
             {
-                m_networkManager.GameRoomDiscovered += value;
-            }
-            remove
-            {
-                m_networkManager.GameRoomDiscovered -= value;
+                m_host.OnStopped -= GameStopped;
+                Client client = m_host as Client;
+                if (client != null)
+                {
+                    client.OnConnected -= RoomJoined;
+                    client.OnRoomDiscovered -= RoomDiscovered;
+                }
             }
         }
 
-        public GameRoomInfo? Room { get; private set; }
-
-        public bool IsLoading { get; private set; }
-        public bool IsPlaying { get; private set; }
-        public bool IsServer { get; private set; }
-
-        private NetworkManager.Peer? m_serverPeer;
-        private byte m_clientId;
-
-        public void StartGameAsServer(int _port)
+        private Client EnsureClient()
         {
-            if (!IsPlaying && !IsLoading)
+            if (m_host is Client)
             {
-                IsPlaying = true;
-                IsServer = true;
+                return (Client) m_host;
+            }
+            else
+            {
                 DestroyHost();
-                m_networkManager.StartOnPort(_port);
+                Client client = new Client();
+                m_host = client;
+                client.OnConnected += RoomJoined;
+                client.OnRoomDiscovered += RoomDiscovered;
+                client.OnStopped += GameStopped;
+                return client;
+            }
+        }
+
+        private Server EnsureServer()
+        {
+            if (m_host is Server)
+            {
+                return (Server) m_host;
+            }
+            else
+            {
+                DestroyHost();
+                Server server = new Server();
+                m_host = server;
+                return server;
+            }
+        }
+
+        public void StartGameAsServer(GameRoomInfo _room)
+        {
+            if (!IsBusy)
+            {
+                EnsureServer().Start(_room);
                 LoadScene(ScriptManager.Scenes.game[0]);
             }
             else
@@ -50,62 +76,12 @@ namespace Wheeled.Core
             }
         }
 
-        private sealed class ClientConnectionHelper : NetworkManager.IEventListener
-        {
-
-            public void ConnectedTo(NetworkManager.Peer _peer)
-            {
-                if (_peer != Instance.m_serverPeer)
-                {
-                    _peer.Disconnect();
-                }
-            }
-
-            public void DisconnectedFrom(NetworkManager.Peer _peer)
-            {
-            }
-
-            public void LatencyUpdated(NetworkManager.Peer _peer, int _latency)
-            {
-            }
-
-            public void ReceivedFrom(NetworkManager.Peer _peer, NetPacketReader _reader)
-            {
-                if (_peer == Instance.m_serverPeer)
-                {
-                    if (_reader.GetEnum<Message>() == Message.Welcome)
-                    {
-                        Instance.m_clientId = _reader.GetByte();
-                        Instance.m_networkManager.listener = null;
-                        Instance.LoadScene(ScriptManager.Scenes.game[0]);
-                    }
-                }
-            }
-
-            public bool ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader)
-            {
-                return false;
-            }
-
-            public bool ShouldReplyToDiscoveryRequest()
-            {
-                return false;
-            }
-
-        }
 
         public void StartGameAsClient(GameRoomInfo _room)
         {
-            if (!IsPlaying && !IsLoading)
+            if (!IsBusy)
             {
-                IsPlaying = true;
-                IsServer = false;
-                IsLoading = true;
-                Room = _room;
-                DestroyHost();
-                m_networkManager.StartOnAvailablePort();
-                m_networkManager.listener = new ClientConnectionHelper();
-                m_serverPeer = m_networkManager.instance.ConnectTo(_room.remoteEndPoint, new LiteNetLib.Utils.NetDataWriter());
+                EnsureClient().Start(_room);
             }
             else
             {
@@ -115,10 +91,9 @@ namespace Wheeled.Core
 
         public void StartServerDiscovery(int _port)
         {
-            if (!IsPlaying && !IsLoading)
+            if (!IsBusy)
             {
-                m_networkManager.StartOnAvailablePort();
-                m_networkManager.StartDiscovery(_port);
+                EnsureClient().StartRoomDiscovery(_port);
             }
             else
             {
@@ -126,13 +101,12 @@ namespace Wheeled.Core
             }
         }
 
+
         public void QuitGame()
         {
-            if (IsPlaying && !IsLoading)
+            if (m_host != null)
             {
-                IsPlaying = false;
-                DestroyHost();
-                m_networkManager.DisconnectAll();
+                m_host.Stop();
                 LoadScene(ScriptManager.Scenes.menu);
             }
             else
@@ -143,40 +117,32 @@ namespace Wheeled.Core
 
         private void LoadScene(int _scene)
         {
-            IsLoading = true;
-            SceneManager.LoadSceneAsync(_scene, LoadSceneMode.Single).completed += OnSceneLoaded;
+            SceneManager.LoadSceneAsync(_scene, LoadSceneMode.Single).completed += SceneLoaded;
         }
 
         private void DestroyHost()
         {
-            NetworkManager.IEventListener host = m_networkManager.listener;
-            m_networkManager.listener = null;
-            Client client = host as Client;
-            if (client != null)
-            {
-                client.OnDisconnected -= ClientDisconnected;
-            }
+            UnregisterHostEvents();
+            m_host?.Stop();
+            m_host = null;
         }
 
-        private void OnSceneLoaded(AsyncOperation _operation)
+        private void SceneLoaded(AsyncOperation _operation)
         {
-            IsLoading = false;
-            if (IsPlaying)
-            {
-                if (IsServer)
-                {
-                    m_networkManager.listener = new Server(m_networkManager.instance);
-                }
-                else
-                {
-                    Client client = new Client(m_networkManager.instance, (NetworkManager.Peer) m_serverPeer, m_clientId);
-                    client.OnDisconnected += ClientDisconnected;
-                    m_networkManager.listener = client;
-                }
-            }
+            m_host?.GameReady();
         }
 
-        private void ClientDisconnected()
+        private void RoomDiscovered(GameRoomInfo _room)
+        {
+            OnGameRoomDiscovered?.Invoke(_room);
+        }
+
+        private void RoomJoined(GameRoomInfo _room)
+        {
+            LoadScene(ScriptManager.Scenes.game[_room.map]);
+        }
+
+        private void GameStopped(GameHostStopCause _cause)
         {
             QuitGame();
         }

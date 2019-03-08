@@ -12,6 +12,8 @@ namespace Wheeled.Networking
     internal sealed class NetworkManager
     {
 
+        private static readonly NetDataWriter s_emptyDataWriter = new NetDataWriter(false, 0);
+
 #if SINGLETON
         public static readonly NetworkManager instance = new NetworkManager();
 #endif
@@ -46,21 +48,22 @@ namespace Wheeled.Networking
                 {
                     m_manager.NotifyStopped(StopCause.NetworkError);
                 }
+                // TODO Handle unable to connect error
             }
 
-            public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
+            public void OnNetworkLatencyUpdate(NetPeer _peer, int _latency)
             {
-                m_manager.listener?.LatencyUpdated(new Peer(peer), latency);
+                m_manager.listener?.LatencyUpdated(new Peer(_peer), _latency);
             }
 
-            public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
+            public void OnNetworkReceive(NetPeer _peer, NetPacketReader _reader, DeliveryMethod _deliveryMethod)
             {
-                m_manager.listener?.ReceivedFrom(new Peer(peer), reader);
+                m_manager.listener?.ReceivedFrom(new Peer(_peer), _reader);
             }
 
-            public void OnNetworkReceiveUnconnected(IPEndPoint _remoteEndPoint, NetPacketReader _reader, UnconnectedMessageType messageType)
+            public void OnNetworkReceiveUnconnected(IPEndPoint _remoteEndPoint, NetPacketReader _reader, UnconnectedMessageType _messageType)
             {
-                if (messageType == UnconnectedMessageType.DiscoveryRequest)
+                if (_messageType == UnconnectedMessageType.DiscoveryRequest)
                 {
                     NetDataWriter writer = null;
                     if (m_manager.listener?.ShouldReplyToDiscoveryRequest(out writer) == true)
@@ -75,20 +78,20 @@ namespace Wheeled.Networking
                         }
                     }
                 }
-                else if (messageType == UnconnectedMessageType.DiscoveryResponse)
+                else if (_messageType == UnconnectedMessageType.DiscoveryResponse)
                 {
                     m_manager.listener.Discovered(_remoteEndPoint, _reader);
                 }
             }
 
-            public void OnPeerConnected(NetPeer peer)
+            public void OnPeerConnected(NetPeer _peer)
             {
-                m_manager.listener?.ConnectedTo(new Peer(peer));
+                m_manager.listener?.ConnectedTo(new Peer(_peer));
             }
 
-            public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
+            public void OnPeerDisconnected(NetPeer _peer, DisconnectInfo _disconnectInfo)
             {
-                m_manager.listener?.DisconnectedFrom(new Peer(peer));
+                m_manager.listener?.DisconnectedFrom(new Peer(_peer));
             }
         }
 
@@ -97,20 +100,22 @@ namespace Wheeled.Networking
 
             private readonly NetPeer m_peer;
 
-            public Peer(NetPeer _peer)
+            public Peer(NetPeer _peer = null)
             {
                 m_peer = _peer;
             }
 
-            public int Ping => m_peer.Ping;
+            public bool IsValid => m_peer != null;
 
-            public float TimeSinceLastPacket => m_peer.TimeSinceLastPacket;
+            public int Ping => m_peer?.Ping ?? 0;
 
-            public object UserData => m_peer.Tag;
+            public float TimeSinceLastPacket => m_peer?.TimeSinceLastPacket ?? 0.0f;
+
+            public object UserData => m_peer?.Tag;
 
             public void Disconnect()
             {
-                m_peer.Disconnect();
+                m_peer?.Disconnect();
             }
 
             public static bool operator ==(Peer _a, Peer _b)
@@ -130,17 +135,17 @@ namespace Wheeled.Networking
 
             public bool Equals(Peer _other)
             {
-                return _other.m_peer.Id == m_peer.Id;
+                return _other.IsValid && IsValid && _other.m_peer.Id == m_peer.Id;
             }
 
             public override int GetHashCode()
             {
-                return m_peer.Id.GetHashCode();
+                return (m_peer?.Id)?.GetHashCode() ?? 0;
             }
 
             public void Send(NetDataWriter _writer, DeliveryMethod _method)
             {
-                m_peer.Send(_writer, _method);
+                m_peer?.Send(_writer, _method);
             }
 
         }
@@ -250,17 +255,16 @@ namespace Wheeled.Networking
             }
         }
 
-        public Peer? ConnectTo(IPEndPoint _endPoint, NetDataWriter _writer)
+        public Peer ConnectTo(IPEndPoint _endPoint, NetDataWriter _writer = null)
         {
             NotifyIfNotRunning();
             if (IsRunning)
             {
-                NetPeer p = m_netManager.Connect(_endPoint, _writer);
-                return new Peer(p);
+                return new Peer(m_netManager.Connect(_endPoint, _writer ?? s_emptyDataWriter));
             }
             else
             {
-                return null;
+                return new Peer();
             }
         }
 
