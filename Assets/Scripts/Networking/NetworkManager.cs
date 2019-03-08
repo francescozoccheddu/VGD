@@ -1,19 +1,22 @@
-﻿using LiteNetLib;
+﻿#define SINGLETON
+
+using LiteNetLib;
 using LiteNetLib.Utils;
 using System;
 using System.Net;
 using System.Net.Sockets;
-using Wheeled.Core;
+
 
 namespace Wheeled.Networking
 {
-
-    public delegate void GameRoomDiscoveredEventHandler(GameRoomInfo room);
-
     internal sealed class NetworkManager
     {
 
-        private const bool c_simulateShit = true;
+#if SINGLETON
+        public static readonly NetworkManager instance = new NetworkManager();
+#endif
+
+        private const bool c_simulateBadNetwork = true;
 
         private sealed class NetEventHandler : INetEventListener
         {
@@ -25,19 +28,19 @@ namespace Wheeled.Networking
                 m_manager = _manager;
             }
 
-            public void OnConnectionRequest(ConnectionRequest request)
+            public void OnConnectionRequest(ConnectionRequest _request)
             {
-                if (m_manager.listener?.ShouldAcceptConnectionRequest(new Peer(request.Peer), request.Data) == true)
+                if (m_manager.listener?.ShouldAcceptConnectionRequest(new Peer(_request.Peer), _request.Data) == true)
                 {
-                    request.Accept();
+                    _request.Accept();
                 }
                 else
                 {
-                    request.Reject();
+                    _request.Reject();
                 }
             }
 
-            public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
+            public void OnNetworkError(IPEndPoint _endPoint, SocketError _socketError)
             {
                 if (!m_manager.IsRunning)
                 {
@@ -55,23 +58,26 @@ namespace Wheeled.Networking
                 m_manager.listener?.ReceivedFrom(new Peer(peer), reader);
             }
 
-            public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
+            public void OnNetworkReceiveUnconnected(IPEndPoint _remoteEndPoint, NetPacketReader _reader, UnconnectedMessageType messageType)
             {
                 if (messageType == UnconnectedMessageType.DiscoveryRequest)
                 {
-                    if (m_manager.listener?.ShouldReplyToDiscoveryRequest() == true)
+                    NetDataWriter writer = null;
+                    if (m_manager.listener?.ShouldReplyToDiscoveryRequest(out writer) == true)
                     {
-                        // TODO Add support for replying with room info
-                        m_manager.m_netManager.SendDiscoveryResponse(new byte[] { 0 }, remoteEndPoint);
+                        if (writer != null)
+                        {
+                            m_manager.m_netManager.SendDiscoveryResponse(writer, _remoteEndPoint);
+                        }
+                        else
+                        {
+                            m_manager.m_netManager.SendDiscoveryResponse(new byte[0], _remoteEndPoint);
+                        }
                     }
                 }
                 else if (messageType == UnconnectedMessageType.DiscoveryResponse)
                 {
-                    // TODO Parse discovery response to get room info
-                    m_manager.GameRoomDiscovered?.Invoke(new GameRoomInfo
-                    {
-                        remoteEndPoint = remoteEndPoint
-                    });
+                    m_manager.listener.Discovered(_remoteEndPoint, _reader);
                 }
             }
 
@@ -99,6 +105,8 @@ namespace Wheeled.Networking
             public int Ping => m_peer.Ping;
 
             public float TimeSinceLastPacket => m_peer.TimeSinceLastPacket;
+
+            public object UserData => m_peer.Tag;
 
             public void Disconnect()
             {
@@ -137,23 +145,6 @@ namespace Wheeled.Networking
 
         }
 
-        public sealed class NetworkInstance
-        {
-            private readonly NetworkManager m_manager;
-
-            public NetworkInstance(NetworkManager _manager)
-            {
-                m_manager = _manager;
-            }
-
-            public Peer ConnectTo(IPEndPoint _endPoint, NetDataWriter _writer)
-            {
-                NetPeer p = m_manager.m_netManager.Connect(_endPoint, _writer);
-                return new Peer(p);
-            }
-
-        }
-
         public interface IEventListener
         {
 
@@ -165,9 +156,14 @@ namespace Wheeled.Networking
 
             bool ShouldAcceptConnectionRequest(Peer _peer, NetDataReader _reader);
 
-            bool ShouldReplyToDiscoveryRequest();
+            bool ShouldReplyToDiscoveryRequest(out NetDataWriter _writer);
 
             void LatencyUpdated(Peer _peer, int _latency);
+
+            void Discovered(IPEndPoint _endPoint, NetDataReader _reader);
+
+            void Stopped(StopCause _cause);
+
         }
 
         public enum StopCause
@@ -175,34 +171,30 @@ namespace Wheeled.Networking
             UnableToStart, Programmatically, NetworkError, UnexpectedStop
         }
 
-        public delegate void StopEventHandler(StopCause cause);
-
         private readonly NetManager m_netManager;
         private bool m_wasRunning;
 
-        public readonly NetworkInstance instance;
         public bool IsRunning => m_netManager.IsRunning;
         public int Port => m_netManager.LocalPort;
 
         public IEventListener listener;
 
-        public event StopEventHandler Stopped;
-
-        public event GameRoomDiscoveredEventHandler GameRoomDiscovered;
-
+#if SINGLETON
+        private NetworkManager()
+#else
         public NetworkManager()
+#endif
         {
+            m_wasRunning = false;
             m_netManager = new NetManager(new NetEventHandler(this))
             {
                 DiscoveryEnabled = true,
-                SimulatePacketLoss = c_simulateShit,
+                SimulatePacketLoss = c_simulateBadNetwork,
                 SimulationPacketLossChance = 20,
-                SimulateLatency = c_simulateShit,
+                SimulateLatency = c_simulateBadNetwork,
                 SimulationMinLatency = 10,
                 SimulationMaxLatency = 200
             };
-            m_wasRunning = false;
-            instance = new NetworkInstance(this);
         }
 
         private void NotifyStopped(StopCause _cause)
@@ -210,12 +202,21 @@ namespace Wheeled.Networking
             if (m_wasRunning)
             {
                 m_wasRunning = false;
-                Stopped?.Invoke(_cause);
+                listener?.Stopped(_cause);
+            }
+        }
+
+        private void NotifyIfNotRunning()
+        {
+            if (!IsRunning)
+            {
+                NotifyStopped(StopCause.UnexpectedStop);
             }
         }
 
         public void StartDiscovery(int _port)
         {
+            NotifyIfNotRunning();
             if (IsRunning)
             {
                 m_netManager.SendDiscoveryRequest(new byte[0], _port);
@@ -249,16 +250,27 @@ namespace Wheeled.Networking
             }
         }
 
+        public Peer? ConnectTo(IPEndPoint _endPoint, NetDataWriter _writer)
+        {
+            NotifyIfNotRunning();
+            if (IsRunning)
+            {
+                NetPeer p = m_netManager.Connect(_endPoint, _writer);
+                return new Peer(p);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public void DisconnectAll()
         {
             if (IsRunning)
             {
                 m_netManager.DisconnectAll();
             }
-            if (!IsRunning)
-            {
-                NotifyStopped(StopCause.UnexpectedStop);
-            }
+            NotifyIfNotRunning();
         }
 
         public void Stop()
@@ -273,10 +285,7 @@ namespace Wheeled.Networking
         public void Update()
         {
             m_netManager.PollEvents();
-            if (!IsRunning)
-            {
-                NotifyStopped(StopCause.UnexpectedStop);
-            }
+            NotifyIfNotRunning();
         }
 
     }
