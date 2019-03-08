@@ -76,7 +76,6 @@ namespace Wheeled.Core
             }
         }
 
-
         public void StartGameAsClient(GameRoomInfo _room)
         {
             if (!IsBusy)
@@ -100,7 +99,6 @@ namespace Wheeled.Core
                 Debug.LogWarning("DiscoveryServers has been ignored because a game is running or loading");
             }
         }
-
 
         public void QuitGame()
         {
