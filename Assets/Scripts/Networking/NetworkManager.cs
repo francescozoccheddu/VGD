@@ -4,12 +4,11 @@ using LiteNetLib;
 using LiteNetLib.Utils;
 using System;
 using System.Net;
-using System.Net.Sockets;
 
 
 namespace Wheeled.Networking
 {
-    internal sealed class NetworkManager
+    internal sealed partial class NetworkManager
     {
 
         private static readonly NetDataWriter s_emptyDataWriter = new NetDataWriter(false, 0);
@@ -19,80 +18,6 @@ namespace Wheeled.Networking
 #endif
 
         private const bool c_simulateBadNetwork = true;
-
-        private sealed class NetEventHandler : INetEventListener
-        {
-
-            private readonly NetworkManager m_manager;
-
-            public NetEventHandler(NetworkManager _manager)
-            {
-                m_manager = _manager;
-            }
-
-            public void OnConnectionRequest(ConnectionRequest _request)
-            {
-                if (m_manager.listener?.ShouldAcceptConnectionRequest(new Peer(_request.Peer), _request.Data) == true)
-                {
-                    _request.Accept();
-                }
-                else
-                {
-                    _request.Reject();
-                }
-            }
-
-            public void OnNetworkError(IPEndPoint _endPoint, SocketError _socketError)
-            {
-                if (!m_manager.IsRunning)
-                {
-                    m_manager.NotifyStopped(StopCause.NetworkError);
-                }
-            }
-
-            public void OnNetworkLatencyUpdate(NetPeer _peer, int _latency)
-            {
-                m_manager.listener?.LatencyUpdated(new Peer(_peer), _latency);
-            }
-
-            public void OnNetworkReceive(NetPeer _peer, NetPacketReader _reader, DeliveryMethod _deliveryMethod)
-            {
-                m_manager.listener?.ReceivedFrom(new Peer(_peer), _reader);
-            }
-
-            public void OnNetworkReceiveUnconnected(IPEndPoint _remoteEndPoint, NetPacketReader _reader, UnconnectedMessageType _messageType)
-            {
-                if (_messageType == UnconnectedMessageType.DiscoveryRequest)
-                {
-                    NetDataWriter writer = null;
-                    if (m_manager.listener?.ShouldReplyToDiscoveryRequest(out writer) == true)
-                    {
-                        if (writer != null)
-                        {
-                            m_manager.m_netManager.SendDiscoveryResponse(writer, _remoteEndPoint);
-                        }
-                        else
-                        {
-                            m_manager.m_netManager.SendDiscoveryResponse(new byte[0], _remoteEndPoint);
-                        }
-                    }
-                }
-                else if (_messageType == UnconnectedMessageType.DiscoveryResponse)
-                {
-                    m_manager.listener.Discovered(_remoteEndPoint, _reader);
-                }
-            }
-
-            public void OnPeerConnected(NetPeer _peer)
-            {
-                m_manager.listener?.ConnectedTo(new Peer(_peer));
-            }
-
-            public void OnPeerDisconnected(NetPeer _peer, DisconnectInfo _disconnectInfo)
-            {
-                m_manager.listener?.DisconnectedFrom(new Peer(_peer));
-            }
-        }
 
         public readonly struct Peer : IEquatable<Peer>
         {
@@ -190,7 +115,7 @@ namespace Wheeled.Networking
 #endif
         {
             m_wasRunning = false;
-            m_netManager = new NetManager(new NetEventHandler(this))
+            m_netManager = new NetManager(this)
             {
                 DiscoveryEnabled = true,
                 SimulatePacketLoss = c_simulateBadNetwork,

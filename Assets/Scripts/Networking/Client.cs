@@ -1,7 +1,4 @@
-﻿using LiteNetLib;
-using LiteNetLib.Utils;
-using System.Net;
-using UnityEngine;
+﻿using LiteNetLib.Utils;
 
 namespace Wheeled.Networking
 {
@@ -20,92 +17,11 @@ namespace Wheeled.Networking
 
         }
 
-        public sealed class Server
-        {
-
-            public int Ping => 0;
-
-            public void Send(NetDataWriter _writer)
-            {
-
-            }
-
-        }
-
-        private sealed class NetEventListener : NetworkManager.IEventListener
-        {
-
-            private readonly Client m_client;
-
-            public NetEventListener(Client _client)
-            {
-                Debug.Assert(_client != null);
-                m_client = _client;
-            }
-
-            public void ConnectedTo(NetworkManager.Peer _peer)
-            {
-                if (_peer == m_client.m_server)
-                {
-                    m_client.IsConnected = true;
-                    m_client.OnConnected?.Invoke(m_client.RoomInfo.Value);
-                }
-                else
-                {
-                    _peer.Disconnect();
-                }
-            }
-
-            public void DisconnectedFrom(NetworkManager.Peer _peer)
-            {
-                if (_peer == m_client.m_server)
-                {
-                    bool wasConnected = m_client.IsConnected;
-                    m_client.Cleanup();
-                    m_client.NotifyStopped(wasConnected ? GameHostStopCause.Disconnected : GameHostStopCause.UnableToConnect);
-                }
-            }
-
-            public void Discovered(IPEndPoint _endPoint, NetDataReader _reader)
-            {
-                // TODO Parse info
-                m_client.OnRoomDiscovered?.Invoke(new GameRoomInfo(_endPoint, "", 0));
-            }
-
-            public void LatencyUpdated(NetworkManager.Peer _peer, int _latency)
-            {
-                // TODO
-            }
-
-            public void ReceivedFrom(NetworkManager.Peer _peer, NetPacketReader _reader)
-            {
-                // TODO
-            }
-
-            public bool ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader)
-            {
-                return false;
-            }
-
-            public bool ShouldReplyToDiscoveryRequest(out NetDataWriter _writer)
-            {
-                _writer = null;
-                return false;
-            }
-
-            public void Stopped(NetworkManager.StopCause _cause)
-            {
-                m_client.NotifyStopped(GameHostStopCause.NetworkError);
-            }
-
-        }
-
         public delegate void ConnectEventHandler(GameRoomInfo _room);
 
-        private readonly NetEventListener m_netListener;
         private NetworkManager.Peer m_server;
         private bool m_wasStarted;
-        private ClientGameManager m_game;
+        private IGameManager m_game;
 
         public bool IsStarted => m_server.IsValid;
         public bool IsPlaying => m_game != null;
@@ -127,7 +43,6 @@ namespace Wheeled.Networking
 
         public Client()
         {
-            m_netListener = new NetEventListener(this);
             m_server = new NetworkManager.Peer();
             m_game = null;
             m_wasStarted = false;
@@ -139,10 +54,10 @@ namespace Wheeled.Networking
         {
             if (IsPlaying)
             {
-                Stop();
+                ((IGameHost) this).Stop();
             }
             RoomInfo = _room;
-            NetworkManager.instance.listener = m_netListener;
+            NetworkManager.instance.listener = this;
             NetworkManager.instance.StartOnAvailablePort();
             m_server = NetworkManager.instance.ConnectTo(_room.endPoint);
             m_wasStarted = true;
@@ -158,26 +73,27 @@ namespace Wheeled.Networking
             RoomInfo = null;
         }
 
-        public void Stop()
+        public void StartRoomDiscovery(int _port)
+        {
+            NetworkManager.instance.listener = this;
+            NetworkManager.instance.StartOnAvailablePort();
+            NetworkManager.instance.StartDiscovery(_port);
+        }
+
+        void IGameHost.Stop()
         {
             Cleanup();
             NotifyStopped(GameHostStopCause.Programmatically);
         }
 
-        public void StartRoomDiscovery(int _port)
-        {
-            NetworkManager.instance.listener = m_netListener;
-            NetworkManager.instance.StartOnAvailablePort();
-            NetworkManager.instance.StartDiscovery(_port);
-        }
-
-        public void GameReady()
+        void IGameHost.GameReady()
         {
             if (m_game == null && IsStarted)
             {
-                m_game = new ClientGameManager();
+                m_game = new ClientGameManager(this);
             }
         }
+
     }
 
 }

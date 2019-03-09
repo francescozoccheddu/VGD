@@ -1,7 +1,6 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
-using Wheeled.Gameplay;
 
 namespace Wheeled.Networking
 {
@@ -12,38 +11,41 @@ namespace Wheeled.Networking
         public ServerGameManager()
         {
             Debug.Log("ServerGameManager constructed");
-            PlayerHolder.Spawn();
         }
 
-        public void ConnectedTo(NetworkManager.Peer _peer)
+        #region Server.IGameManager
+
+        void Server.IGameManager.ConnectedTo(NetworkManager.Peer _peer)
         {
         }
 
-        public void DisconnectedFrom(NetworkManager.Peer _peer)
+        void Server.IGameManager.DisconnectedFrom(NetworkManager.Peer _peer)
         {
         }
 
-        public void LatencyUpdated(NetworkManager.Peer _peer, int _latency)
+        void Server.IGameManager.LatencyUpdated(NetworkManager.Peer _peer, int _latency)
         {
         }
 
-        public void ReceivedFrom(NetworkManager.Peer _peer, NetPacketReader _reader)
+        void Server.IGameManager.ReceivedFrom(NetworkManager.Peer _peer, NetPacketReader _reader)
         {
         }
 
-        public bool ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader)
-        {
-            return true;
-        }
-
-        public bool ShouldReplyToDiscoveryRequest()
+        bool Server.IGameManager.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader)
         {
             return true;
         }
 
-        public void Stopped()
+        bool Server.IGameManager.ShouldReplyToDiscoveryRequest()
+        {
+            return true;
+        }
+
+        void Server.IGameManager.Stopped()
         {
         }
+
+        #endregion
 
     }
 

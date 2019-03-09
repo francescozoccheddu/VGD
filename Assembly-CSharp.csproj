@@ -68,7 +68,7 @@
     <Compile Include="Assets\Scripts\Core\ScriptManager.cs" />
     <Compile Include="Assets\Scripts\Core\Utils.cs" />
     <Compile Include="Assets\Scripts\Gameplay\InteractivePlayer.cs" />
-    <Compile Include="Assets\Scripts\Gameplay\PlayerHolder.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\PlayerHolders.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerView.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Simulation.cs" />
     <Compile Include="Assets\Scripts\Gameplay\WeaponType.cs" />
@@ -101,12 +101,15 @@
     <Compile Include="Assets\Scripts\LiteNetLib\Utils\NetSerializerExceptions.cs" />
     <Compile Include="Assets\Scripts\MenuHelper.cs" />
     <Compile Include="Assets\Scripts\Networking\Client.cs" />
+    <Compile Include="Assets\Scripts\Networking\Client_Interfaces.cs" />
     <Compile Include="Assets\Scripts\Networking\ClientGameManager.cs" />
     <Compile Include="Assets\Scripts\Networking\GameHost.cs" />
     <Compile Include="Assets\Scripts\Networking\GameRoomInfo.cs" />
     <Compile Include="Assets\Scripts\Networking\Message.cs" />
     <Compile Include="Assets\Scripts\Networking\NetworkManager.cs" />
+    <Compile Include="Assets\Scripts\Networking\NetworkManager_Interfaces.cs" />
     <Compile Include="Assets\Scripts\Networking\Server.cs" />
+    <Compile Include="Assets\Scripts\Networking\Server_Interfaces.cs" />
     <Compile Include="Assets\Scripts\Networking\ServerGameManager.cs" />
     <Compile Include="Assets\Scripts\Networking\Time.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">

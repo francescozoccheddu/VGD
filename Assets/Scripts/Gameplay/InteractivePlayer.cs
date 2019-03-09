@@ -3,12 +3,13 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Wheeled.Core;
 using Wheeled.Networking;
 
 namespace Wheeled.Gameplay
 {
 
-    internal sealed class InteractivePlayer
+    internal sealed class InteractivePlayer : IUpdatable
     {
 
         public interface IFlushTarget
