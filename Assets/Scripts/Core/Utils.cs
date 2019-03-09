@@ -16,7 +16,7 @@ namespace Wheeled.Core
                 {
                     UnityEngine.Object.DontDestroyOnLoad(m_gameObject);
                 }
-                m_gameObject.AddComponent<UpdatableBehaviour>();
+                m_gameObject.AddComponent<UpdatableBehaviour>().SetUpdatable(this);
             }
         }
 
