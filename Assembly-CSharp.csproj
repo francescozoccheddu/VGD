@@ -109,7 +109,6 @@
     <Compile Include="Assets\Scripts\Networking\Server.cs" />
     <Compile Include="Assets\Scripts\Networking\ServerGameManager.cs" />
     <Compile Include="Assets\Scripts\Networking\Time.cs" />
-    <Compile Include="Assets\Scripts\Networking\Utils.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/franc/Documents/Unity/NetworkingTest/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>

@@ -7,6 +7,16 @@ namespace Wheeled.Networking
     internal struct TimeStep : IEquatable<TimeStep>, IComparable<TimeStep>, IComparable
     {
 
+        public static TimeStep FromSeconds(float _seconds)
+        {
+            return new TimeStep(0, _seconds);
+        }
+
+        public static TimeStep FromSteps(int _steps)
+        {
+            return new TimeStep(_steps, 0.0f);
+        }
+
         public const float c_simulationStep = 1 / 60.0f;
         public const int c_minStepsPerCommit = 2;
         public const int c_maxStepsPerCommit = 6;
