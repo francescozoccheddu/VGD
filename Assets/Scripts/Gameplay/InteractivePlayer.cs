@@ -159,6 +159,20 @@ namespace Wheeled.Gameplay
             IsRunning = true;
         }
 
+        public void Teleport(Snapshot _snapshot, bool _resetInput)
+        {
+            m_snapshot = _snapshot;
+#if !ENABLE_PARTIAL_SIMULATION
+            m_lastSimulationStep = _snapshot.simulation;
+#endif
+            if (_resetInput)
+            {
+                m_accumulatedInput = new InputStep();
+                m_accumulatedTime = 0.0f;
+            }
+            UpdateView();
+        }
+
         public void Pause(bool _flushPending)
         {
             if (_flushPending)
