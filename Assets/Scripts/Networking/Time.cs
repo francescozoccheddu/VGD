@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Wheeled.Networking
 {
 
-    internal struct TimeStep
+    internal struct TimeStep : IEquatable<TimeStep>, IComparable<TimeStep>, IComparable
     {
 
         public const float c_simulationStep = 1 / 60.0f;
@@ -170,14 +171,109 @@ namespace Wheeled.Networking
             return _a > _b ? _a : _b;
         }
 
+        public bool Equals(TimeStep _other)
+        {
+            return this == _other;
+        }
+
+        public int CompareTo(TimeStep _other)
+        {
+            if (this < _other)
+            {
+                return -1;
+            }
+            else if (this > _other)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public int CompareTo(object _obj)
+        {
+            if (_obj is TimeStep other)
+            {
+                return CompareTo(other);
+            }
+            else
+            {
+                return 1;
+            }
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}-{1:F3}", Step, m_remainder);
+        }
     }
 
     internal static class RoomTime
     {
 
-        public static TimeStep Time { get; }
+        public static class Manager
+        {
 
-        public static bool Running { get; }
+            private static float s_offset;
+            private static float s_smoothTime;
+            private static float s_smoothVelocity;
+            private static bool s_isInterpolating;
+
+            public static TimeStep Target => s_isInterpolating ? Time + s_offset : Time;
+
+            public static void Stop()
+            {
+                IsRunning = false;
+            }
+
+            public static void Start()
+            {
+                IsRunning = true;
+            }
+
+            public static void Set(TimeStep _time, bool _interpolate)
+            {
+                if (_interpolate)
+                {
+                    s_offset = (_time - Time).Seconds;
+                    s_smoothTime = Mathf.Log10(Mathf.Abs(s_offset) + 2);
+                    s_smoothVelocity = 0.0f;
+                    s_isInterpolating = true;
+                }
+                else
+                {
+                    s_isInterpolating = false;
+                    Time = _time;
+                }
+            }
+
+            public static void Update()
+            {
+                if (IsRunning)
+                {
+                    Time += UnityEngine.Time.deltaTime;
+                }
+                if (s_isInterpolating)
+                {
+                    float oldOffset = s_offset;
+                    s_offset = Mathf.SmoothDamp(s_offset, 0.0f, ref s_smoothVelocity, s_smoothTime);
+                    float step = oldOffset - s_offset;
+                    Time += step;
+                    if (Mathf.Approximately(s_offset, 0.0f))
+                    {
+                        s_isInterpolating = false;
+                    }
+                }
+            }
+
+        }
+
+        public static TimeStep Time { get; private set; }
+
+        public static bool IsRunning { get; private set; }
 
     }
 

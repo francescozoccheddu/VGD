@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Wheeled.Assets.Scripts.Networking
+namespace Wheeled.Networking
 {
 
     public delegate void GameRoomDiscoverEventHandler(GameRoomInfo _room);

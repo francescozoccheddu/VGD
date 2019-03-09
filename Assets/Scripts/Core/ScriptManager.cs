@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
-using Wheeled.Core;
 
-namespace Wheeled.Assets.Scripts.Core
+namespace Wheeled.Core
 {
 
     internal static class ScriptManager

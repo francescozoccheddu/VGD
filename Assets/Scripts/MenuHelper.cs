@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using UnityEngine;
 using UnityEngine.UI;
-using Wheeled.Assets.Scripts.Networking;
 using Wheeled.Core;
+using Wheeled.Networking;
 
-internal sealed class MenuHelper : MonoBehaviour
+public sealed class MenuHelper : MonoBehaviour
 {
 
     public Text customClientIPText;

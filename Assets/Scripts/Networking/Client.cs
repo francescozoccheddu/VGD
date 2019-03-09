@@ -2,7 +2,6 @@
 using LiteNetLib.Utils;
 using System.Net;
 using UnityEngine;
-using Wheeled.Assets.Scripts.Networking;
 
 namespace Wheeled.Networking
 {

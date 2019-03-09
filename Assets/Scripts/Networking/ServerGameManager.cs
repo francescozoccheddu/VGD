@@ -1,6 +1,7 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
+using Wheeled.Gameplay;
 
 namespace Wheeled.Networking
 {
@@ -11,6 +12,7 @@ namespace Wheeled.Networking
         public ServerGameManager()
         {
             Debug.Log("ServerGameManager constructed");
+            PlayerHolder.Spawn();
         }
 
         public void ConnectedTo(NetworkManager.Peer _peer)

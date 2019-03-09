@@ -3,7 +3,6 @@ using LiteNetLib.Utils;
 using System;
 using System.Diagnostics;
 using System.Net;
-using Wheeled.Assets.Scripts.Networking;
 
 namespace Wheeled.Networking
 {

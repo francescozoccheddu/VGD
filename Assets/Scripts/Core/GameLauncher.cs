@@ -32,10 +32,12 @@ namespace Wheeled.Core
         public void OnEnable()
         {
             DontDestroyOnLoad(gameObject);
+            RoomTime.Manager.Start();
         }
 
         public void Update()
         {
+            RoomTime.Manager.Update();
             NetworkManager.instance.Update();
         }
 

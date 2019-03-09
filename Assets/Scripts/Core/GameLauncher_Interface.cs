@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-using Wheeled.Assets.Scripts.Core;
-using Wheeled.Assets.Scripts.Networking;
 using Wheeled.Networking;
 
 namespace Wheeled.Core
@@ -21,8 +19,7 @@ namespace Wheeled.Core
             if (m_host != null)
             {
                 m_host.OnStopped -= GameStopped;
-                Client client = m_host as Client;
-                if (client != null)
+                if (m_host is Client client)
                 {
                     client.OnConnected -= RoomJoined;
                     client.OnRoomDiscovered -= RoomDiscovered;

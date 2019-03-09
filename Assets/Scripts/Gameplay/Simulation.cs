@@ -6,8 +6,9 @@ namespace Wheeled.Gameplay
     internal struct SimulationStep
     {
 
-        private const float c_jumpSpeed = 10;
-        private const float c_gravitySpeed = -5;
+        private const float c_moveSpeed = 5;
+        private const float c_jumpSpeed = 100;
+        private const float c_gravitySpeed = -10f;
 
         public Vector3 velocity;
         public Vector3 position;
@@ -15,11 +16,12 @@ namespace Wheeled.Gameplay
         public SimulationStep Simulate(in InputStep _input, float _deltaTime)
         {
             SimulationStep next = this;
-            next.velocity.x = _input.movementX;
-            next.velocity.z = _input.movementZ;
+            InputStep input = _input.Clamped;
+            next.velocity.x = input.movementX * c_moveSpeed;
+            next.velocity.z = input.movementZ * c_moveSpeed;
             if (next.position.y == 2.0f)
             {
-                if (_input.jump)
+                if (input.jump)
                 {
                     next.velocity.y = c_jumpSpeed;
                 }
@@ -67,17 +69,34 @@ namespace Wheeled.Gameplay
 
     internal struct Snapshot
     {
+        private float m_turn;
+        private float m_lookUp;
 
         public SimulationStep simulation;
-        public float turn;
-        public float lookUp;
+        public float Turn
+        {
+            get => m_turn;
+            set
+            {
+                m_turn = value % 360.0f;
+                if (m_turn < 0.0f)
+                {
+                    m_turn += 360.0f;
+                }
+            }
+        }
+        public float LookUp
+        {
+            get => m_lookUp;
+            set => m_lookUp = Mathf.Clamp(value, -40.0f, 80.0f);
+        }
 
         public static Snapshot Lerp(in Snapshot _a, in Snapshot _b, float _progress)
         {
             Snapshot l;
             l.simulation = SimulationStep.Lerp(_a.simulation, _b.simulation, _progress);
-            l.turn = Mathf.Lerp(_a.turn, _b.turn, _progress);
-            l.lookUp = Mathf.Lerp(_a.lookUp, _b.lookUp, _progress);
+            l.m_turn = Mathf.LerpAngle(_a.Turn, _b.Turn, _progress);
+            l.m_lookUp = Mathf.LerpAngle(_a.LookUp, _b.LookUp, _progress);
             return l;
         }
 
@@ -99,6 +118,26 @@ namespace Wheeled.Gameplay
                 predicted.jump = false;
                 predicted.dash = false;
                 return predicted;
+            }
+        }
+
+        public InputStep Clamped
+        {
+            get
+            {
+                InputStep clamped = this;
+                clamped.Clamp();
+                return clamped;
+            }
+        }
+
+        public void Clamp()
+        {
+            float length = Mathf.Sqrt(movementX * movementX + movementZ * movementZ);
+            if (length > 1.0f)
+            {
+                movementX /= length;
+                movementZ /= length;
             }
         }
 

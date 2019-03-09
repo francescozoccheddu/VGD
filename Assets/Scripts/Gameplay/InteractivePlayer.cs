@@ -1,4 +1,4 @@
-﻿//#define ENABLE_PARTIAL_SIMULATION
+﻿#define ENABLE_PARTIAL_SIMULATION
 
 using UnityEngine;
 using Wheeled.Networking;
@@ -56,7 +56,7 @@ namespace Wheeled.Gameplay
         private InputStep GetAccumulatedInput()
         {
             InputStep input = m_accumulatedInput;
-            if (m_accumulatedTime >= 0.0f)
+            if (m_accumulatedTime > 0.0f)
             {
                 input.movementX /= m_accumulatedTime;
                 input.movementZ /= m_accumulatedTime;
@@ -91,6 +91,7 @@ namespace Wheeled.Gameplay
                 FlushInput();
             }
             m_accumulatedInput = new InputStep();
+            m_accumulatedTime = 0.0f;
         }
 
         private void ProcessInput()
@@ -103,14 +104,14 @@ namespace Wheeled.Gameplay
             float forward = Input.GetAxis("Vertical");
             bool jumped = Input.GetButtonDown("Jump");
             bool dashed = false;
-            float turn = Input.GetAxis("MouseX");
-            float lookUp = -Input.GetAxis("MouseY");
+            float turn = Input.GetAxis("Mouse X");
+            float lookUp = -Input.GetAxis("Mouse Y");
 
             while (LastCommitTime < now)
             {
                 TimeStep step = TimeStep.Min(LastCommitTime.Next, now);
                 float stepDeltaTime = (step - LastCommitTime).Seconds;
-                RotateMovementXZ(right, forward, m_snapshot.turn, out float movementX, out float movementZ);
+                RotateMovementXZ(right, forward, m_snapshot.Turn, out float movementX, out float movementZ);
                 ClampMovement(ref movementX, ref movementZ);
                 m_accumulatedInput.movementX += movementX * stepDeltaTime;
                 m_accumulatedInput.movementZ += movementZ * stepDeltaTime;
@@ -119,16 +120,12 @@ namespace Wheeled.Gameplay
                 jumped = false;
                 dashed = false;
                 float weight = stepDeltaTime / processDeltaTime;
-                m_snapshot.turn += turn * weight;
-                m_snapshot.turn += lookUp * weight;
+                m_snapshot.Turn += turn * weight;
+                m_snapshot.LookUp += lookUp * weight;
+                m_accumulatedTime += stepDeltaTime;
                 if (!step.HasRemainder)
                 {
                     CommitInput();
-                    m_accumulatedTime = 0.0f;
-                }
-                else
-                {
-                    m_accumulatedTime += stepDeltaTime;
                 }
                 LastCommitTime = step;
             }
@@ -142,6 +139,7 @@ namespace Wheeled.Gameplay
 #else
             viewSnapshot.simulation = SimulationStep.Lerp(m_lastSimulationStep, viewSnapshot.simulation, m_accumulatedTime / TimeStep.c_simulationStep);
 #endif
+            ViewSnapshot = viewSnapshot;
         }
 
         public void StartAt(TimeStep _time, TimeStep _offset, bool _flushPending)
