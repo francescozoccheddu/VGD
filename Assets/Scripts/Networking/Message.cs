@@ -67,70 +67,113 @@ namespace Wheeled.Networking
     internal static class Deserializer
     {
 
-        // TODO Implement GetBool, GetInt, GetByte, GetFloat so that if deserialization fails, DeserializationException is thrown
-
         public sealed class DeserializationException : Exception { }
 
-        // TODO If deserialization fails throw DeserializationException
-
-        private static T GetEnum<T>(this NetDataReader _netDataReader) where T : Enum
+        private static void EnsureRead(bool _read)
         {
-            byte b = _netDataReader.GetByte();
-            return (T) Enum.ToObject(typeof(T), b);
+            if (!_read)
+            {
+                throw new DeserializationException();
+            }
         }
 
-        private static Vector3 GetVector3(this NetDataReader _netDataReader)
+        private static bool ReadBool(this NetDataReader _netDataReader)
+        {
+            EnsureRead(_netDataReader.TryGetBool(out bool value));
+            return value;
+        }
+
+        private static float ReadFloat(this NetDataReader _netDataReader)
+        {
+            EnsureRead(_netDataReader.TryGetFloat(out float value));
+            return value;
+        }
+
+        private static uint ReadUint(this NetDataReader _netDataReader)
+        {
+            EnsureRead(_netDataReader.TryGetUInt(out uint value));
+            return value;
+        }
+
+        private static int ReadInt(this NetDataReader _netDataReader)
+        {
+            EnsureRead(_netDataReader.TryGetInt(out int value));
+            return value;
+        }
+
+        private static byte ReadByte(this NetDataReader _netDataReader)
+        {
+            EnsureRead(_netDataReader.TryGetByte(out byte value));
+            return value;
+        }
+
+        private static string ReadString(this NetDataReader _netDataReader)
+        {
+            EnsureRead(_netDataReader.TryGetString(out string value));
+            return value;
+
+        }
+
+        private static T ReadEnum<T>(this NetDataReader _netDataReader) where T : Enum
+        {
+            byte b = _netDataReader.ReadByte();
+            object value = Enum.ToObject(typeof(T), b);
+            EnsureRead(Enum.IsDefined(typeof(T), value));
+            return (T) value;
+        }
+
+        private static Vector3 ReadVector3(this NetDataReader _netDataReader)
         {
             return new Vector3
             {
-                x = _netDataReader.GetFloat(),
-                y = _netDataReader.GetFloat(),
-                z = _netDataReader.GetFloat()
+                x = _netDataReader.ReadFloat(),
+                y = _netDataReader.ReadFloat(),
+                z = _netDataReader.ReadFloat()
             };
         }
 
-        private static InputStep GetInputStep(this NetDataReader _netDataReader)
+        private static InputStep ReadInputStep(this NetDataReader _netDataReader)
         {
             return new InputStep
             {
-                dash = _netDataReader.GetBool(),
-                jump = _netDataReader.GetBool(),
-                movementX = _netDataReader.GetFloat(),
-                movementZ = _netDataReader.GetFloat()
+                dash = _netDataReader.ReadBool(),
+                jump = _netDataReader.ReadBool(),
+                movementX = _netDataReader.ReadFloat(),
+                movementZ = _netDataReader.ReadFloat()
             };
         }
 
-        private static SimulationStep GetSimulationStep(this NetDataReader _netDataReader)
+        private static SimulationStep ReadSimulationStep(this NetDataReader _netDataReader)
         {
             return new SimulationStep
             {
-                velocity = _netDataReader.GetVector3(),
-                position = _netDataReader.GetVector3()
+                velocity = _netDataReader.ReadVector3(),
+                position = _netDataReader.ReadVector3()
             };
         }
 
-        private static Snapshot GetSnapshot(this NetDataReader _netDataReader)
+        private static Snapshot ReadSnapshot(this NetDataReader _netDataReader)
         {
             return new Snapshot
             {
-                simulation = _netDataReader.GetSimulationStep(),
-                Turn = _netDataReader.GetFloat(),
-                LookUp = _netDataReader.GetFloat(),
+                simulation = _netDataReader.ReadSimulationStep(),
+                Turn = _netDataReader.ReadFloat(),
+                LookUp = _netDataReader.ReadFloat(),
             };
         }
 
         public static void ReadInteractivePlayerData(this NetDataReader _netDataReader, out int _outFirstStep, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
         {
-            _outFirstStep = _netDataReader.GetInt();
-            _outSnapshot = _netDataReader.GetSnapshot();
-            int inputStepCount = _netDataReader.GetByte();
+            _outFirstStep = _netDataReader.ReadInt();
+            _outSnapshot = _netDataReader.ReadSnapshot();
+            int inputStepCount = _netDataReader.ReadByte();
             if (inputStepCount > _inputStepBuffer.Length)
             {
                 throw new DeserializationException();
             }
             for (int i = 0; i < inputStepCount; i++)
             {
-                _inputStepBuffer[i] = _netDataReader.GetInputStep();
+                _inputStepBuffer[i] = _netDataReader.ReadInputStep();
             }
         }
 

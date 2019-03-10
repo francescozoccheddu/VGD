@@ -69,6 +69,7 @@
     <Compile Include="Assets\Scripts\Core\Utils.cs" />
     <Compile Include="Assets\Scripts\Gameplay\InteractivePlayer.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerHolders.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\InteractivePlayerValidator.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerView.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Simulation.cs" />
     <Compile Include="Assets\Scripts\Gameplay\WeaponType.cs" />

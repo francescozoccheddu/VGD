@@ -24,7 +24,8 @@ namespace Wheeled.Networking
 
         void InteractivePlayer.IFlushTarget.Flush(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
         {
-            Debug.LogFormat("{0}, {1}", _firstStep, _inputSteps.Count);
+            Serializer.WriteInteractivePlayerData(_firstStep, _inputSteps, _snapshot);
+            m_server.Send(Serializer.writer, LiteNetLib.DeliveryMethod.Unreliable);
         }
 
         #endregion
