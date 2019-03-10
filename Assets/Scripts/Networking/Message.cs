@@ -41,11 +41,16 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.position);
         }
 
+        private static void Put(this NetDataWriter _netDataWriter, Sight _value)
+        {
+            _netDataWriter.Put(_value.Turn);
+            _netDataWriter.Put(_value.LookUp);
+        }
+
         private static void Put(this NetDataWriter _netDataWriter, Snapshot _value)
         {
             _netDataWriter.Put(_value.simulation);
-            _netDataWriter.Put(_value.Turn);
-            _netDataWriter.Put(_value.LookUp);
+            _netDataWriter.Put(_value.sight);
         }
 
         public static readonly NetDataWriter writer = new NetDataWriter(true, 128);
@@ -152,13 +157,21 @@ namespace Wheeled.Networking
             };
         }
 
+        private static Sight ReadSight(this NetDataReader _netDataReader)
+        {
+            return new Sight
+            {
+                Turn = _netDataReader.ReadFloat(),
+                LookUp = _netDataReader.ReadFloat(),
+            };
+        }
+
         private static Snapshot ReadSnapshot(this NetDataReader _netDataReader)
         {
             return new Snapshot
             {
                 simulation = _netDataReader.ReadSimulationStep(),
-                Turn = _netDataReader.ReadFloat(),
-                LookUp = _netDataReader.ReadFloat(),
+                sight = _netDataReader.ReadSight()
             };
         }
 

@@ -120,7 +120,7 @@ namespace Wheeled.Gameplay
             {
                 TimeStep step = TimeStep.Min(LastCommitTime.Next, now);
                 float stepDeltaTime = (step - LastCommitTime).Seconds;
-                RotateMovementXZ(right, forward, m_snapshot.Turn, out float movementX, out float movementZ);
+                RotateMovementXZ(right, forward, m_snapshot.sight.Turn, out float movementX, out float movementZ);
                 ClampMovement(ref movementX, ref movementZ);
                 m_accumulatedInput.movementX += movementX * stepDeltaTime;
                 m_accumulatedInput.movementZ += movementZ * stepDeltaTime;
@@ -129,8 +129,8 @@ namespace Wheeled.Gameplay
                 jumped = false;
                 dashed = false;
                 float weight = stepDeltaTime / processDeltaTime;
-                m_snapshot.Turn += turn * weight;
-                m_snapshot.LookUp += lookUp * weight;
+                m_snapshot.sight.Turn += turn * weight;
+                m_snapshot.sight.LookUp += lookUp * weight;
                 m_accumulatedTime += stepDeltaTime;
                 if (!step.HasRemainder)
                 {

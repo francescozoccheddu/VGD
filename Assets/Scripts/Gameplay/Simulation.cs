@@ -67,12 +67,12 @@ namespace Wheeled.Gameplay
 
     }
 
-    internal struct Snapshot
+    internal struct Sight
     {
+
         private float m_turn;
         private float m_lookUp;
 
-        public SimulationStep simulation;
         public float Turn
         {
             get => m_turn;
@@ -85,20 +85,44 @@ namespace Wheeled.Gameplay
                 }
             }
         }
+
         public float LookUp
         {
             get => m_lookUp;
             set => m_lookUp = Mathf.Clamp(value, -40.0f, 80.0f);
         }
 
-        public static Snapshot Lerp(in Snapshot _a, in Snapshot _b, float _progress)
+        public static Sight Lerp(in Sight _a, in Sight _b, float _progress)
         {
-            Snapshot l;
-            l.simulation = SimulationStep.Lerp(_a.simulation, _b.simulation, _progress);
+            Sight l;
             l.m_turn = Mathf.LerpAngle(_a.Turn, _b.Turn, _progress);
             l.m_lookUp = Mathf.LerpAngle(_a.LookUp, _b.LookUp, _progress);
             return l;
         }
+
+    }
+
+    internal struct Snapshot
+    {
+
+        public SimulationStep simulation;
+        public Sight sight;
+
+        public static Snapshot Lerp(in Snapshot _a, in Snapshot _b, float _progress)
+        {
+            Snapshot l;
+            l.simulation = SimulationStep.Lerp(_a.simulation, _b.simulation, _progress);
+            l.sight = Sight.Lerp(_a.sight, _b.sight, _progress);
+            return l;
+        }
+
+    }
+
+    internal struct SimulationStepInfo
+    {
+
+        public SimulationStep simulation;
+        public InputStep input;
 
     }
 

@@ -64,24 +64,7 @@ namespace Wheeled.Networking
             }
         }
 
-        public override bool Equals(object _obj)
-        {
-            if (!(_obj is TimeStep))
-            {
-                return false;
-            }
-
-            TimeStep other = (TimeStep) _obj;
-            return this == other;
-        }
-
-        public override int GetHashCode()
-        {
-            int hashCode = -1322611433;
-            hashCode = hashCode * -1521134295 + Step.GetHashCode();
-            hashCode = hashCode * -1521134295 + m_remainder.GetHashCode();
-            return hashCode;
-        }
+        #region Operators
 
         public static bool operator ==(TimeStep _a, TimeStep _b)
         {
@@ -181,12 +164,16 @@ namespace Wheeled.Networking
             return _a > _b ? _a : _b;
         }
 
-        public bool Equals(TimeStep _other)
+        #endregion
+
+        #region Interfaces
+
+        bool IEquatable<TimeStep>.Equals(TimeStep _other)
         {
             return this == _other;
         }
 
-        public int CompareTo(TimeStep _other)
+        int IComparable<TimeStep>.CompareTo(TimeStep _other)
         {
             if (this < _other)
             {
@@ -202,11 +189,11 @@ namespace Wheeled.Networking
             }
         }
 
-        public int CompareTo(object _obj)
+        int IComparable.CompareTo(object _obj)
         {
             if (_obj is TimeStep other)
             {
-                return CompareTo(other);
+                return ((IComparable) this).CompareTo(other);
             }
             else
             {
@@ -215,10 +202,36 @@ namespace Wheeled.Networking
 
         }
 
+        #endregion
+
+        #region Object overrides
+
+        public override bool Equals(object _obj)
+        {
+            if (!(_obj is TimeStep))
+            {
+                return false;
+            }
+
+            TimeStep other = (TimeStep) _obj;
+            return this == other;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -1322611433;
+            hashCode = hashCode * -1521134295 + Step.GetHashCode();
+            hashCode = hashCode * -1521134295 + m_remainder.GetHashCode();
+            return hashCode;
+        }
+
         public override string ToString()
         {
             return string.Format("{0}-{1:F3}", Step, m_remainder);
         }
+
+        #endregion
+
     }
 
     internal static class RoomTime

@@ -21,7 +21,7 @@ namespace Wheeled.Gameplay
         {
             EnsureSpawned();
             m_gameObject.transform.position = _snapshot.simulation.position;
-            m_gameObject.transform.eulerAngles = new Vector3(0.0f, _snapshot.Turn, 0.0f);
+            m_gameObject.transform.eulerAngles = new Vector3(0.0f, _snapshot.sight.Turn, 0.0f);
         }
 
         public void Spawn()

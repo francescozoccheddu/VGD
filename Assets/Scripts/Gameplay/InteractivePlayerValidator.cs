@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#define OUTPUT_PARTIAL_SIMULATION
+
+using UnityEngine;
 using Wheeled.Core;
 using Wheeled.Networking;
 
@@ -11,7 +13,11 @@ namespace Wheeled.Gameplay
         public interface IValidationTarget
         {
 
+#if OUTPUT_PARTIAL_SIMULATION
             void Validated(int _step, InputStep _input, SimulationStep _simulation);
+#else
+            void Validated(int _step, SimulationStep _simulation);
+#endif
 
         }
 
@@ -152,7 +158,11 @@ namespace Wheeled.Gameplay
             int bufInd = GetStep(Step);
             InputStep input = m_buffer[bufInd].input ?? m_input.Predicted;
             m_simulation = m_simulation.Simulate(input, TimeStep.c_simulationStep);
+#if OUTPUT_PARTIAL_SIMULATION
             validationTarget?.Validated(Step, input, m_simulation);
+#else
+            validationTarget?.Validated(Step, m_simulation);
+#endif
             if (m_buffer[bufInd].simulation != null)
             {
                 if (!SimulationStep.IsNearlyEqual(m_simulation, m_buffer[bufInd].simulation.Value))

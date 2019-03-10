@@ -68,6 +68,7 @@
     <Compile Include="Assets\Scripts\Core\ScriptManager.cs" />
     <Compile Include="Assets\Scripts\Core\Utils.cs" />
     <Compile Include="Assets\Scripts\Gameplay\InteractivePlayer.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\PlayerSnapshotHistory.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerHolders.cs" />
     <Compile Include="Assets\Scripts\Gameplay\InteractivePlayerValidator.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerView.cs" />
