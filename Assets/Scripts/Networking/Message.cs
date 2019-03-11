@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Wheeled.Gameplay;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking
@@ -9,11 +10,13 @@ namespace Wheeled.Networking
 
     internal enum Message
     {
-        Moved, Welcome, Corrected, Spawned, Died
+        Movement, MovementReplication, MovementCorrection, RoomUpdate
     }
 
     internal static class Serializer
     {
+
+        #region NetDataWriter Put extension methods
 
         private static void Put(this NetDataWriter _netDataWriter, Enum _value)
         {
@@ -53,11 +56,20 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.sight);
         }
 
+        private static void Put(this NetDataWriter _netDataWriter, TimeStep _value)
+        {
+            _netDataWriter.Put(_value.Step);
+            _netDataWriter.Put(_value.Remainder);
+        }
+
+        #endregion
+
         public static readonly NetDataWriter writer = new NetDataWriter(true, 128);
 
-        public static void WriteInteractivePlayerData(int _firstStep, IReadOnlyList<InputStep> _steps, in Snapshot _snapshot)
+        public static void WriteMovementMessage(int _firstStep, IReadOnlyList<InputStep> _steps, in Snapshot _snapshot)
         {
             writer.Reset();
+            writer.Put(Message.Movement);
             writer.Put(_firstStep);
             writer.Put(_snapshot);
             writer.Put((byte) _steps.Count);
@@ -65,6 +77,13 @@ namespace Wheeled.Networking
             {
                 writer.Put(inputStep);
             }
+        }
+
+        public static void WriteRoomUpdateMessage(TimeStep _time /* Player stats and status */)
+        {
+            writer.Reset();
+            writer.Put(Message.RoomUpdate);
+            writer.Put(_time);
         }
 
     }
@@ -116,7 +135,6 @@ namespace Wheeled.Networking
         {
             EnsureRead(_netDataReader.TryGetString(out string value));
             return value;
-
         }
 
         private static T ReadEnum<T>(this NetDataReader _netDataReader) where T : Enum
@@ -175,7 +193,26 @@ namespace Wheeled.Networking
             };
         }
 
-        public static void ReadInteractivePlayerData(this NetDataReader _netDataReader, out int _outFirstStep, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
+        public static Message ReadMessageType(this NetDataReader _netDataReader)
+        {
+            return _netDataReader.ReadEnum<Message>();
+        }
+
+        public static TimeStep ReadTime(this NetDataReader _netDataReader)
+        {
+            return new TimeStep
+            {
+                Step = _netDataReader.ReadInt(),
+                Remainder = _netDataReader.ReadFloat()
+            };
+        }
+
+        public static void ReadRoomUpdateMessage(this NetDataReader _netDataReader, out TimeStep _time)
+        {
+            _time = _netDataReader.ReadTime();
+        }
+
+        public static void ReadMovementMessage(this NetDataReader _netDataReader, out int _outFirstStep, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
         {
             _outFirstStep = _netDataReader.ReadInt();
             _outSnapshot = _netDataReader.ReadSnapshot();

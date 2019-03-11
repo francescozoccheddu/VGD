@@ -245,7 +245,7 @@ namespace Wheeled.Gameplay
             private static float s_smoothVelocity;
             private static bool s_isInterpolating;
 
-            public static TimeStep Target => s_isInterpolating ? Time + s_offset : Time;
+            public static TimeStep Target => s_isInterpolating ? Now + s_offset : Now;
 
             public static void Stop()
             {
@@ -261,7 +261,7 @@ namespace Wheeled.Gameplay
             {
                 if (_interpolate)
                 {
-                    s_offset = (_time - Time).Seconds;
+                    s_offset = (_time - Now).Seconds;
                     s_smoothTime = Mathf.Log10(Mathf.Abs(s_offset) + 2);
                     s_smoothVelocity = 0.0f;
                     s_isInterpolating = true;
@@ -269,7 +269,7 @@ namespace Wheeled.Gameplay
                 else
                 {
                     s_isInterpolating = false;
-                    Time = _time;
+                    Now = _time;
                 }
             }
 
@@ -277,14 +277,14 @@ namespace Wheeled.Gameplay
             {
                 if (IsRunning)
                 {
-                    Time += UnityEngine.Time.deltaTime;
+                    Now += UnityEngine.Time.deltaTime;
                 }
                 if (s_isInterpolating)
                 {
                     float oldOffset = s_offset;
                     s_offset = Mathf.SmoothDamp(s_offset, 0.0f, ref s_smoothVelocity, s_smoothTime);
                     float step = oldOffset - s_offset;
-                    Time += step;
+                    Now += step;
                     if (Mathf.Approximately(s_offset, 0.0f))
                     {
                         s_isInterpolating = false;
@@ -294,7 +294,7 @@ namespace Wheeled.Gameplay
 
         }
 
-        public static TimeStep Time { get; private set; }
+        public static TimeStep Now { get; private set; }
 
         public static bool IsRunning { get; private set; }
 

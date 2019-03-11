@@ -105,7 +105,7 @@ namespace Wheeled.Gameplay.Movement
 
         private void ProcessInput()
         {
-            TimeStep now = RoomTime.Time + Offset;
+            TimeStep now = RoomTime.Now + Offset;
             float processDeltaTime = (now - LastCommitTime).Seconds;
             TimeStep lastProcessTime = LastCommitTime;
 

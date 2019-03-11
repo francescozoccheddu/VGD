@@ -11,13 +11,15 @@ namespace Wheeled.Networking.Client
     {
 
         private readonly Client.IServer m_server;
+        private readonly PlayerHolders.InteractivePlayerHolder m_localPlayer;
 
         public ClientGameManager(Client.IServer _server)
         {
             m_server = _server;
             Debug.Log("ClientGameManager constructed");
 
-            PlayerHolders.SpawnPlayerHolder().m_interactive.target = this;
+            m_localPlayer = PlayerHolders.NewInteractivePlayer();
+            m_localPlayer.m_movementController.target = this;
 
         }
 
@@ -25,7 +27,7 @@ namespace Wheeled.Networking.Client
 
         void MovementController.IFlushTarget.Flush(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
         {
-            Serializer.WriteInteractivePlayerData(_firstStep, _inputSteps, _snapshot);
+            Serializer.WriteMovementMessage(_firstStep, _inputSteps, _snapshot);
             m_server.Send(Serializer.writer, LiteNetLib.DeliveryMethod.Unreliable);
         }
 
@@ -39,10 +41,23 @@ namespace Wheeled.Networking.Client
 
         void Client.IGameManager.Received(NetDataReader _reader)
         {
+            switch (_reader.ReadMessageType())
+            {
+                case Message.RoomUpdate:
+                {
+                    _reader.ReadRoomUpdateMessage(out TimeStep time);
+                    Debug.LogFormat("RoomUpdate at {0} (oldTime={1}, diff={2})", time, RoomTime.Now, time - RoomTime.Now);
+                    RoomTime.Manager.Set(time + m_server.Ping / 2.0f / 1000.0f, RoomTime.IsRunning);
+                    RoomTime.Manager.Start();
+                    m_localPlayer.m_movementController.StartAt(RoomTime.Now, new TimeStep(2, 0.0f));
+                }
+                break;
+            }
         }
 
         void Client.IGameManager.Stopped()
         {
+            RoomTime.Manager.Stop();
         }
 
         #endregion

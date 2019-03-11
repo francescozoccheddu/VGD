@@ -2,7 +2,6 @@
 
 using UnityEngine;
 using Wheeled.Core;
-using Wheeled.Networking;
 
 namespace Wheeled.Gameplay.Movement
 {
@@ -149,7 +148,7 @@ namespace Wheeled.Gameplay.Movement
             }
             if (_firstStep + _inputSteps.Length < Step + m_Length)
             {
-                m_buffer[_firstStep + m_Length - 1].simulation = _simulation;
+                m_buffer[GetStep(_firstStep + m_Length - 1)].simulation = _simulation;
             }
         }
 
@@ -190,7 +189,7 @@ namespace Wheeled.Gameplay.Movement
                 {
                     Validate();
                 }
-                while (Step < RoomTime.Time.Step)
+                while (Step < RoomTime.Now.Step)
                 {
                     Validate();
                 }
