@@ -108,7 +108,7 @@ namespace Wheeled.Gameplay
 
             void MovementValidator.ICorrectionTarget.Rejected(int _step, bool _newer)
             {
-                Debug.LogFormat("Rejected {0} (newer={1})", _step, _newer);
+                Debug.LogFormat("Rejected {0} (newer={1}, currentStep={2})", _step, _newer, RoomTime.Now.Step);
             }
 
             void IUpdatable.Update()

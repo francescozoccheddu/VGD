@@ -212,16 +212,12 @@ namespace Wheeled.Networking
             _time = _netDataReader.ReadTime();
         }
 
-        public static void ReadMovementMessage(this NetDataReader _netDataReader, out int _outFirstStep, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
+        public static void ReadMovementMessage(this NetDataReader _netDataReader, out int _outFirstStep, InputStep[] _inputStepBuffer, out int _outInputStepCount, out Snapshot _outSnapshot)
         {
             _outFirstStep = _netDataReader.ReadInt();
             _outSnapshot = _netDataReader.ReadSnapshot();
-            int inputStepCount = _netDataReader.ReadByte();
-            if (inputStepCount > _inputStepBuffer.Length)
-            {
-                throw new DeserializationException();
-            }
-            for (int i = 0; i < inputStepCount; i++)
+            _outInputStepCount = _netDataReader.ReadByte();
+            for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
             {
                 _inputStepBuffer[i] = _netDataReader.ReadInputStep();
             }

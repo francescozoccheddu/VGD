@@ -49,7 +49,7 @@ namespace Wheeled.Networking.Client
                     Debug.LogFormat("RoomUpdate at {0} (oldTime={1}, diff={2})", time, RoomTime.Now, time - RoomTime.Now);
                     RoomTime.Manager.Set(time + m_server.Ping / 2.0f / 1000.0f, RoomTime.IsRunning);
                     RoomTime.Manager.Start();
-                    m_localPlayer.m_movementController.StartAt(RoomTime.Now, new TimeStep(2, 0.0f));
+                    m_localPlayer.m_movementController.StartAt(RoomTime.Now, new TimeStep(10, 0.0f));
                 }
                 break;
             }

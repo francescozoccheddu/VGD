@@ -1,9 +1,11 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Core;
 using Wheeled.Gameplay;
+using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Server
 {
@@ -43,6 +45,18 @@ namespace Wheeled.Networking.Server
             m_nextPlayerId = 0;
         }
 
+        private NetPlayer? GetNetPlayerByPeer(NetworkManager.Peer _peer)
+        {
+            foreach (NetPlayer player in m_netPlayers)
+            {
+                if (player.peer == _peer)
+                {
+                    return player;
+                }
+            }
+            return null;
+        }
+
         #region Server.IGameManager
 
         void Server.IGameManager.ConnectedTo(NetworkManager.Peer _peer)
@@ -57,14 +71,33 @@ namespace Wheeled.Networking.Server
         {
         }
 
+        private readonly InputStep[] m_inputStepBuffer = new InputStep[12];
+
         void Server.IGameManager.ReceivedFrom(NetworkManager.Peer _peer, NetPacketReader _reader)
         {
+            switch (_reader.ReadMessageType())
+            {
+                case Message.Movement:
+                {
+                    NetPlayer? netPlayer = GetNetPlayerByPeer(_peer);
+                    if (netPlayer != null)
+                    {
+                        PlayerHolders.AuthoritativePlayerHolder player = netPlayer.Value.player;
+                        _reader.ReadMovementMessage(out int firstStep, m_inputStepBuffer, out int inputStepsCount, out Snapshot snapshot);
+                        player.movementValidator.Put(firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepsCount), snapshot.simulation);
+                    }
+                }
+                break;
+            }
         }
 
         bool Server.IGameManager.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader)
         {
             // TODO decide weather accept it or not
-            m_netPlayers.Add(new NetPlayer(m_nextPlayerId++, PlayerHolders.NewAuthoritativePlayer(), _peer));
+            PlayerHolders.AuthoritativePlayerHolder player = PlayerHolders.NewAuthoritativePlayer();
+            player.movementValidator.maxTrustedSteps = 10;
+            player.movementValidator.StartAt(RoomTime.Now.Step, true);
+            m_netPlayers.Add(new NetPlayer(m_nextPlayerId++, player, _peer));
             return true;
         }
 

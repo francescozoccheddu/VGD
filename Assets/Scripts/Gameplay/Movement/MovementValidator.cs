@@ -1,5 +1,6 @@
 ﻿#define OUTPUT_PARTIAL_SIMULATION
 
+using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Core;
 
@@ -128,11 +129,11 @@ namespace Wheeled.Gameplay.Movement
             IsRunning = false;
         }
 
-        public void Put(int _firstStep, InputStep[] _inputSteps, in SimulationStep _simulation)
+        public void Put(int _firstStep, IEnumerable<InputStep> _inputSteps, in SimulationStep _simulation)
         {
-            for (int i = 0; i < _inputSteps.Length; i++)
+            int step = _firstStep;
+            foreach (InputStep inputStep in _inputSteps)
             {
-                int step = i + _firstStep;
                 if (step < Step)
                 {
                     correctionTarget?.Rejected(step, false);
@@ -143,10 +144,11 @@ namespace Wheeled.Gameplay.Movement
                 }
                 else
                 {
-                    m_buffer[GetStep(step)].input = _inputSteps[i];
+                    m_buffer[GetStep(step)].input = inputStep;
                 }
+                step++;
             }
-            if (_firstStep + _inputSteps.Length < Step + m_Length)
+            if (_firstStep + step < Step + m_Length)
             {
                 m_buffer[GetStep(_firstStep + m_Length - 1)].simulation = _simulation;
             }
