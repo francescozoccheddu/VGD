@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using Wheeled.Core.Data;
 using Wheeled.Networking;
+using Wheeled.Networking.Client;
+using Wheeled.Networking.Server;
 
 namespace Wheeled.Core
 {

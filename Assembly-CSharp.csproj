@@ -60,20 +60,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\CameraRotation.cs" />
-    <Compile Include="Assets\Scripts\Core\ActorScript.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\ActorScript.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\SceneScript.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\ScriptManager.cs" />
     <Compile Include="Assets\Scripts\Core\GameLauncher.cs" />
     <Compile Include="Assets\Scripts\Core\GameLauncher_Interface.cs" />
-    <Compile Include="Assets\Scripts\Core\SceneScript.cs" />
-    <Compile Include="Assets\Scripts\Core\ScriptManager.cs" />
     <Compile Include="Assets\Scripts\Core\Utils.cs" />
-    <Compile Include="Assets\Scripts\Gameplay\InteractivePlayer.cs" />
-    <Compile Include="Assets\Scripts\Gameplay\PlayerSnapshotHistory.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Action\ActionController.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Action\ActionHistory.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Action\ActionValidator.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Action\WeaponType.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Movement\Movement.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Movement\MovementController.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Movement\MovementHistory.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Movement\MovementValidator.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerHolders.cs" />
-    <Compile Include="Assets\Scripts\Gameplay\InteractivePlayerValidator.cs" />
-    <Compile Include="Assets\Scripts\Gameplay\PlayerView.cs" />
-    <Compile Include="Assets\Scripts\Gameplay\Simulation.cs" />
-    <Compile Include="Assets\Scripts\Gameplay\WeaponType.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Time.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\View.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\BaseChannel.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\ConnectionRequest.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\INetEventListener.cs" />
@@ -102,18 +105,17 @@
     <Compile Include="Assets\Scripts\LiteNetLib\Utils\NetSerializer.cs" />
     <Compile Include="Assets\Scripts\LiteNetLib\Utils\NetSerializerExceptions.cs" />
     <Compile Include="Assets\Scripts\MenuHelper.cs" />
-    <Compile Include="Assets\Scripts\Networking\Client.cs" />
-    <Compile Include="Assets\Scripts\Networking\Client_Interfaces.cs" />
-    <Compile Include="Assets\Scripts\Networking\ClientGameManager.cs" />
+    <Compile Include="Assets\Scripts\Networking\Client\Client.cs" />
+    <Compile Include="Assets\Scripts\Networking\Client\Client_Interfaces.cs" />
+    <Compile Include="Assets\Scripts\Networking\Client\ClientGameManager.cs" />
     <Compile Include="Assets\Scripts\Networking\GameHost.cs" />
     <Compile Include="Assets\Scripts\Networking\GameRoomInfo.cs" />
     <Compile Include="Assets\Scripts\Networking\Message.cs" />
     <Compile Include="Assets\Scripts\Networking\NetworkManager.cs" />
     <Compile Include="Assets\Scripts\Networking\NetworkManager_Interfaces.cs" />
-    <Compile Include="Assets\Scripts\Networking\Server.cs" />
-    <Compile Include="Assets\Scripts\Networking\Server_Interfaces.cs" />
-    <Compile Include="Assets\Scripts\Networking\ServerGameManager.cs" />
-    <Compile Include="Assets\Scripts\Networking\Time.cs" />
+    <Compile Include="Assets\Scripts\Networking\Server\Server.cs" />
+    <Compile Include="Assets\Scripts\Networking\Server\Server_Interfaces.cs" />
+    <Compile Include="Assets\Scripts\Networking\Server\ServerGameManager.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/franc/Documents/Unity/NetworkingTest/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>

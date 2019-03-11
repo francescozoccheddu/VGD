@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using Wheeled.Core;
-using Wheeled.Networking;
+using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Gameplay
 {
@@ -21,12 +21,12 @@ namespace Wheeled.Gameplay
         public sealed class InteractivePlayerHolder : IUpdatable
         {
 
-            public readonly InteractivePlayer m_interactive;
+            public readonly MovementController m_interactive;
             public readonly PlayerView m_view;
 
             public InteractivePlayerHolder()
             {
-                m_interactive = new InteractivePlayer();
+                m_interactive = new MovementController();
                 m_view = new PlayerView();
             }
 

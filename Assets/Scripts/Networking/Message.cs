@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Wheeled.Gameplay;
+using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking
 {

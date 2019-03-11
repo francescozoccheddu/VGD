@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Wheeled.Gameplay;
 using Wheeled.Networking;
 
 namespace Wheeled.Core
