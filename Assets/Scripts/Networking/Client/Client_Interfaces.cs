@@ -10,13 +10,13 @@ namespace Wheeled.Networking.Client
 
         public interface IServer
         {
-            int Ping { get; }
+            float Ping { get; }
             void Send(NetDataWriter _writer, DeliveryMethod _method);
         }
 
         #region Client.IServer
 
-        int IServer.Ping => m_server.Ping;
+        float IServer.Ping => m_server.Ping;
 
         void IServer.Send(NetDataWriter _writer, DeliveryMethod _method)
         {
@@ -56,7 +56,7 @@ namespace Wheeled.Networking.Client
             OnRoomDiscovered?.Invoke(new GameRoomInfo(_endPoint, "", 0));
         }
 
-        void NetworkManager.IEventListener.LatencyUpdated(NetworkManager.Peer _peer, int _latency)
+        void NetworkManager.IEventListener.LatencyUpdated(NetworkManager.Peer _peer, float _latency)
         {
             if (_peer == m_server)
             {

@@ -101,7 +101,7 @@ namespace Wheeled.Gameplay
                 view = new PlayerView();
             }
 
-            void MovementValidator.ICorrectionTarget.Corrected(int _step, SimulationStep _simulation)
+            void MovementValidator.ICorrectionTarget.Corrected(int _step, in SimulationStepInfo _simulation)
             {
                 Debug.LogFormat("Corrected {0}", _step);
             }
@@ -122,7 +122,7 @@ namespace Wheeled.Gameplay
                 }
             }
 
-            void MovementValidator.IValidationTarget.Validated(int _step, InputStep _input, SimulationStep _simulation)
+            void MovementValidator.IValidationTarget.Validated(int _step, in InputStep _input, in SimulationStep _simulation)
             {
                 movementHistory.Put(_step, new SimulationStepInfo { input = _input, simulation = _simulation });
             }

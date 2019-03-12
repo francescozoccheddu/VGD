@@ -23,14 +23,14 @@ namespace Wheeled.Networking
             _netDataWriter.Put(Convert.ToByte(_value));
         }
 
-        private static void Put(this NetDataWriter _netDataWriter, Vector3 _value)
+        private static void Put(this NetDataWriter _netDataWriter, in Vector3 _value)
         {
             _netDataWriter.Put(_value.x);
             _netDataWriter.Put(_value.y);
             _netDataWriter.Put(_value.z);
         }
 
-        private static void Put(this NetDataWriter _netDataWriter, InputStep _value)
+        private static void Put(this NetDataWriter _netDataWriter, in InputStep _value)
         {
             _netDataWriter.Put(_value.dash);
             _netDataWriter.Put(_value.jump);
@@ -38,28 +38,34 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.movementZ);
         }
 
-        private static void Put(this NetDataWriter _netDataWriter, SimulationStep _value)
+        private static void Put(this NetDataWriter _netDataWriter, in SimulationStep _value)
         {
             _netDataWriter.Put(_value.velocity);
             _netDataWriter.Put(_value.position);
         }
 
-        private static void Put(this NetDataWriter _netDataWriter, Sight _value)
+        private static void Put(this NetDataWriter _netDataWriter, in Sight _value)
         {
             _netDataWriter.Put(_value.Turn);
             _netDataWriter.Put(_value.LookUp);
         }
 
-        private static void Put(this NetDataWriter _netDataWriter, Snapshot _value)
+        private static void Put(this NetDataWriter _netDataWriter, in Snapshot _value)
         {
             _netDataWriter.Put(_value.simulation);
             _netDataWriter.Put(_value.sight);
         }
 
-        private static void Put(this NetDataWriter _netDataWriter, TimeStep _value)
+        private static void Put(this NetDataWriter _netDataWriter, in TimeStep _value)
         {
             _netDataWriter.Put(_value.Step);
             _netDataWriter.Put(_value.Remainder);
+        }
+
+        private static void Put(this NetDataWriter _netDataWriter, in SimulationStepInfo _value)
+        {
+            _netDataWriter.Put(_value.input);
+            _netDataWriter.Put(_value.simulation);
         }
 
         #endregion
@@ -79,7 +85,15 @@ namespace Wheeled.Networking
             }
         }
 
-        public static void WriteRoomUpdateMessage(TimeStep _time /* Player stats and status */)
+        public static void WriteMovementCorrectionMessage(int _step, in SimulationStepInfo _simulationStepInfo)
+        {
+            writer.Reset();
+            writer.Put(Message.MovementCorrection);
+            writer.Put(_step);
+            writer.Put(_simulationStepInfo);
+        }
+
+        public static void WriteRoomUpdateMessage(in TimeStep _time /* Player stats and status */)
         {
             writer.Reset();
             writer.Put(Message.RoomUpdate);
@@ -175,6 +189,15 @@ namespace Wheeled.Networking
             };
         }
 
+        private static SimulationStepInfo ReadSimulationStepInfo(this NetDataReader _netDataReader)
+        {
+            return new SimulationStepInfo
+            {
+                input = _netDataReader.ReadInputStep(),
+                simulation = _netDataReader.ReadSimulationStep()
+            };
+        }
+
         private static Sight ReadSight(this NetDataReader _netDataReader)
         {
             return new Sight
@@ -221,6 +244,12 @@ namespace Wheeled.Networking
             {
                 _inputStepBuffer[i] = _netDataReader.ReadInputStep();
             }
+        }
+
+        public static void ReadMovementCorrectionMessage(this NetDataReader _netDataReader, out int _outStep, out SimulationStepInfo _outSimulation)
+        {
+            _outStep = _netDataReader.ReadInt();
+            _outSimulation = _netDataReader.ReadSimulationStepInfo();
         }
 
     }

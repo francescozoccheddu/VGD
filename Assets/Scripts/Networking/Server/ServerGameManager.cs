@@ -10,24 +10,8 @@ using Wheeled.Gameplay.Movement;
 namespace Wheeled.Networking.Server
 {
 
-    internal sealed class ServerGameManager : Server.IGameManager, IUpdatable
+    internal sealed partial class ServerGameManager : Server.IGameManager, IUpdatable
     {
-
-        private readonly struct NetPlayer
-        {
-
-            public readonly int id;
-            public readonly PlayerHolders.AuthoritativePlayerHolder player;
-            public readonly NetworkManager.Peer peer;
-
-            public NetPlayer(int _id, PlayerHolders.AuthoritativePlayerHolder _player, NetworkManager.Peer _peer)
-            {
-                id = _id;
-                player = _player;
-                peer = _peer;
-            }
-
-        }
 
         private readonly UpdatableHolder m_roomUpdateHolder;
         private readonly List<NetPlayer> m_netPlayers;
@@ -67,7 +51,7 @@ namespace Wheeled.Networking.Server
         {
         }
 
-        void Server.IGameManager.LatencyUpdated(NetworkManager.Peer _peer, int _latency)
+        void Server.IGameManager.LatencyUpdated(NetworkManager.Peer _peer, float _latency)
         {
         }
 
@@ -97,7 +81,7 @@ namespace Wheeled.Networking.Server
             PlayerHolders.AuthoritativePlayerHolder player = PlayerHolders.NewAuthoritativePlayer();
             player.movementValidator.maxTrustedSteps = 10;
             player.movementValidator.StartAt(RoomTime.Now.Step, true);
-            m_netPlayers.Add(new NetPlayer(m_nextPlayerId++, player, _peer));
+            m_netPlayers.Add(new NetPlayer(this, m_nextPlayerId++, player, _peer));
             return true;
         }
 

@@ -14,9 +14,9 @@ namespace Wheeled.Gameplay.Movement
         {
 
 #if OUTPUT_PARTIAL_SIMULATION
-            void Validated(int _step, InputStep _input, SimulationStep _simulation);
+            void Validated(int _step, in InputStep _input, in SimulationStep _simulation);
 #else
-            void Validated(int _step, SimulationStep _simulation);
+            void Validated(int _step, in SimulationStep _simulation);
 #endif
 
         }
@@ -24,7 +24,7 @@ namespace Wheeled.Gameplay.Movement
         public interface ICorrectionTarget
         {
 
-            void Corrected(int _step, SimulationStep _simulation);
+            void Corrected(int _step, in SimulationStepInfo _simulation);
             void Rejected(int _step, bool _newer);
 
         }
@@ -44,8 +44,7 @@ namespace Wheeled.Gameplay.Movement
 
         private readonly Node[] m_buffer;
         private int m_Length => m_buffer.Length;
-        private SimulationStep m_simulation;
-        private InputStep m_input;
+        private SimulationStepInfo m_last;
         private int m_trustedSteps;
 
         private int GetStep(int _step)
@@ -61,7 +60,7 @@ namespace Wheeled.Gameplay.Movement
         public void SendCorrection()
         {
             m_trustedSteps = 0;
-            correctionTarget?.Corrected(Step, m_simulation);
+            correctionTarget?.Corrected(Step, m_last);
         }
 
         public void ClearBuffer()
@@ -121,7 +120,7 @@ namespace Wheeled.Gameplay.Movement
 
         public void Teleport(in SimulationStep _simulation)
         {
-            m_simulation = _simulation;
+            m_last.simulation = _simulation;
         }
 
         public void Pause()
@@ -148,7 +147,7 @@ namespace Wheeled.Gameplay.Movement
                 }
                 step++;
             }
-            if (_firstStep + step < Step + m_Length)
+            if (step < Step + m_Length)
             {
                 m_buffer[GetStep(_firstStep + m_Length - 1)].simulation = _simulation;
             }
@@ -157,16 +156,18 @@ namespace Wheeled.Gameplay.Movement
         private void Validate()
         {
             int bufInd = GetStep(Step);
-            InputStep input = m_buffer[bufInd].input ?? m_input.Predicted;
-            m_simulation = m_simulation.Simulate(input, TimeStep.c_simulationStep);
+            m_last.input = m_buffer[bufInd].input ?? m_last.input.Predicted;
+            m_last.simulation = m_last.simulation.Simulate(m_last.input, TimeStep.c_simulationStep);
 #if OUTPUT_PARTIAL_SIMULATION
-            validationTarget?.Validated(Step, input, m_simulation);
+            validationTarget?.Validated(Step, m_last.input, m_last.simulation);
 #else
-            validationTarget?.Validated(Step, m_simulation);
+            validationTarget?.Validated(Step, m_last.simulation );
 #endif
             if (m_buffer[bufInd].simulation != null)
             {
-                if (!SimulationStep.IsNearlyEqual(m_simulation, m_buffer[bufInd].simulation.Value))
+                m_trustedSteps = 0;
+                Debug.Log("Validated with simulation");
+                if (!SimulationStep.IsNearlyEqual(m_last.simulation, m_buffer[bufInd].simulation.Value))
                 {
                     SendCorrection();
                 }

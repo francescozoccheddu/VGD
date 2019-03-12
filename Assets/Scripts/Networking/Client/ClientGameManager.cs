@@ -35,7 +35,7 @@ namespace Wheeled.Networking.Client
 
         #region Client.IGameManager
 
-        void Client.IGameManager.LatencyUpdated(int _latency)
+        void Client.IGameManager.LatencyUpdated(float _latency)
         {
         }
 
@@ -47,9 +47,15 @@ namespace Wheeled.Networking.Client
                 {
                     _reader.ReadRoomUpdateMessage(out TimeStep time);
                     Debug.LogFormat("RoomUpdate at {0} (oldTime={1}, diff={2})", time, RoomTime.Now, time - RoomTime.Now);
-                    RoomTime.Manager.Set(time + m_server.Ping / 2.0f / 1000.0f, RoomTime.IsRunning);
+                    RoomTime.Manager.Set(time + m_server.Ping / 2.0f, RoomTime.IsRunning);
                     RoomTime.Manager.Start();
                     m_localPlayer.m_movementController.StartAt(RoomTime.Now, new TimeStep(10, 0.0f));
+                }
+                break;
+                case Message.MovementCorrection:
+                {
+                    _reader.ReadMovementCorrectionMessage(out int step, out SimulationStepInfo _simulation);
+                    Debug.LogFormat("Reconciliation {0}", step);
                 }
                 break;
             }

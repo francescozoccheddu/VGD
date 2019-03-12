@@ -32,7 +32,7 @@ namespace Wheeled.Networking
 
         void INetEventListener.OnNetworkLatencyUpdate(NetPeer _peer, int _latency)
         {
-            listener?.LatencyUpdated(new Peer(_peer), _latency);
+            listener?.LatencyUpdated(new Peer(_peer), _latency / 1000.0f);
         }
 
         void INetEventListener.OnNetworkReceive(NetPeer _peer, NetPacketReader _reader, DeliveryMethod _deliveryMethod)

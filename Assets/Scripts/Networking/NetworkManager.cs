@@ -31,7 +31,7 @@ namespace Wheeled.Networking
 
             public bool IsValid => m_peer != null;
 
-            public int Ping => m_peer?.Ping ?? 0;
+            public float Ping => m_peer?.Ping / 1000.0f ?? 0;
 
             public float TimeSinceLastPacket => m_peer?.TimeSinceLastPacket ?? 0.0f;
 
@@ -87,7 +87,7 @@ namespace Wheeled.Networking
 
             bool ShouldReplyToDiscoveryRequest(out NetDataWriter _writer);
 
-            void LatencyUpdated(Peer _peer, int _latency);
+            void LatencyUpdated(Peer _peer, float _latency);
 
             void Discovered(IPEndPoint _endPoint, NetDataReader _reader);
 
