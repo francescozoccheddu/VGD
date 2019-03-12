@@ -54,7 +54,7 @@ namespace Wheeled.Gameplay.Movement
 
         public MovementValidator(float _duration)
         {
-            m_buffer = new Node[Mathf.CeilToInt(_duration / TimeStep.c_simulationStep)];
+            m_buffer = new Node[TimeStep.GetStepsInPeriod(_duration)];
         }
 
         public void SendCorrection()

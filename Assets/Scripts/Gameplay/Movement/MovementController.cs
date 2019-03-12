@@ -4,12 +4,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Core;
-using Wheeled.Networking;
 
 namespace Wheeled.Gameplay.Movement
 {
 
-    internal sealed class MovementController : IUpdatable
+    internal sealed partial class MovementController : IUpdatable
     {
 
         public interface IFlushTarget
@@ -23,6 +22,7 @@ namespace Wheeled.Gameplay.Movement
         private SimulationStep m_lastSimulationStep;
 #endif
 
+        private readonly History m_history;
         private InputStep m_accumulatedInput;
         private float m_accumulatedTime;
         private Snapshot m_snapshot;
@@ -95,6 +95,7 @@ namespace Wheeled.Gameplay.Movement
             m_lastSimulationStep = m_snapshot.simulation;
 #endif
             m_snapshot.simulation = m_snapshot.simulation.Simulate(input, TimeStep.c_simulationStep);
+            m_history.Append(_step, new SimulationStepInfo { input = input, simulation = m_snapshot.simulation });
             if (m_inputStepCount >= m_inputSteps.Length)
             {
                 Flush();
@@ -169,8 +170,9 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        public MovementController()
+        public MovementController(float _historyDuration)
         {
+            m_history = new History(_historyDuration);
             SetFlushRate(1);
         }
 
@@ -208,6 +210,7 @@ namespace Wheeled.Gameplay.Movement
                 m_accumulatedInput = new InputStep();
                 m_accumulatedTime = 0.0f;
             }
+            m_history.Cut(RoomTime.Now.Step);
             UpdateView();
         }
 
@@ -226,6 +229,16 @@ namespace Wheeled.Gameplay.Movement
             if (IsRunning)
             {
                 ProcessInput();
+            }
+            UpdateView();
+        }
+
+        public void Correct(int _step, SimulationStepInfo _simulation)
+        {
+            SimulationStep? correctedSimulation = m_history.Correct(_step, _simulation);
+            if (correctedSimulation != null)
+            {
+                m_snapshot.simulation = correctedSimulation.Value;
             }
             UpdateView();
         }

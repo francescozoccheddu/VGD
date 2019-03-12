@@ -36,7 +36,7 @@ namespace Wheeled.Gameplay
 
             public InteractivePlayerHolder()
             {
-                m_movementController = new MovementController();
+                m_movementController = new MovementController(2.0f);
                 m_view = new PlayerView();
             }
 

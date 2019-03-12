@@ -56,6 +56,7 @@ namespace Wheeled.Networking.Client
                 {
                     _reader.ReadMovementCorrectionMessage(out int step, out SimulationStepInfo _simulation);
                     Debug.LogFormat("Reconciliation {0}", step);
+                    m_localPlayer.m_movementController.Correct(step, _simulation);
                 }
                 break;
             }

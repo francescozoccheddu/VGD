@@ -72,6 +72,7 @@
     <Compile Include="Assets\Scripts\Gameplay\Action\WeaponType.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Movement\Movement.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Movement\MovementController.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Movement\MovementController_History.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Movement\MovementHistory.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Movement\MovementValidator.cs" />
     <Compile Include="Assets\Scripts\Gameplay\PlayerHolders.cs" />

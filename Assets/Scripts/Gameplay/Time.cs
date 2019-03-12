@@ -7,6 +7,11 @@ namespace Wheeled.Gameplay
     internal struct TimeStep : IEquatable<TimeStep>, IComparable<TimeStep>, IComparable
     {
 
+        public static int GetStepsInPeriod(float _seconds)
+        {
+            return Mathf.CeilToInt(_seconds / c_simulationStep);
+        }
+
         public static TimeStep FromSeconds(float _seconds)
         {
             return new TimeStep(0, _seconds);
