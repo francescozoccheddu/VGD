@@ -155,7 +155,7 @@ namespace Wheeled.Gameplay.Movement
         private void SetFlushRate(int _flushRate)
         {
             Debug.Assert(_flushRate > 0);
-            if (m_inputSteps != null && _flushRate < m_inputStepCount)
+            if (m_inputSteps != null && _flushRate <= m_inputStepCount)
             {
                 Flush();
             }
