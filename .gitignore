@@ -265,3 +265,5 @@ __pycache__/
 # Unity
 !Assets/**/*.meta
 /Build
+VGD.sln
+Assembly-CSharp.csproj
