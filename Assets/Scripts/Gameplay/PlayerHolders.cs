@@ -127,6 +127,7 @@ namespace Wheeled.Gameplay
                     snapshot.sight = sight.Value;
                 }
                 view.Move(snapshot);
+                view.Update(Time.deltaTime);
             }
 
             void MovementValidator.IValidationTarget.Validated(int _step, in InputStep _input, in SimulationStep _simulation)
