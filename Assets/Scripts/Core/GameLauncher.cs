@@ -37,7 +37,6 @@ namespace Wheeled.Core
 
         public void Update()
         {
-            RoomTime.Manager.Update();
             NetworkManager.instance.Update();
             Debugging.Printer.Debug("Time", RoomTime.Now);
         }

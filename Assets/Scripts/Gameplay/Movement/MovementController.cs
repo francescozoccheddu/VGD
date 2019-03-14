@@ -3,12 +3,11 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Wheeled.Core;
 
 namespace Wheeled.Gameplay.Movement
 {
 
-    internal sealed partial class MovementController : IUpdatable
+    internal sealed partial class MovementController
     {
 
         public interface IFlushTarget

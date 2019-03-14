@@ -1,26 +1,35 @@
 ﻿using LiteNetLib.Utils;
 using System.Collections.Generic;
 using UnityEngine;
+using Wheeled.Core;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Client
 {
 
-    internal sealed class ClientGameManager : Client.IGameManager, MovementController.IFlushTarget
+    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, MovementController.IFlushTarget
     {
 
+        private readonly Updatable m_updatable;
+        private const float c_controllerOffset = 0.5f;
+        private readonly MovementController m_movementController;
+        private readonly PlayerView m_view;
         private readonly Client.IServer m_server;
-        private readonly PlayerHolders.InteractivePlayerHolder m_localPlayer;
 
         public ClientGameManager(Client.IServer _server)
         {
+            m_updatable = new Updatable(this, false)
+            {
+                IsRunning = true
+            };
             m_server = _server;
             Debug.Log("ClientGameManager constructed");
-
-            m_localPlayer = PlayerHolders.NewInteractivePlayer();
-            m_localPlayer.m_movementController.target = this;
-
+            m_movementController = new MovementController(3.0f)
+            {
+                target = this
+            };
+            m_view = new PlayerView();
         }
 
         #region InteractivePlayer.IFlushTarget
@@ -55,9 +64,9 @@ namespace Wheeled.Networking.Client
                     Debug.LogFormat("RoomUpdate at {0} (oldTime={1}, diff={2})", time, RoomTime.Now, time - RoomTime.Now);
                     RoomTime.Manager.Set(time + m_server.Ping / 2.0f, RoomTime.IsRunning);
                     RoomTime.Manager.Start();
-                    if (!m_localPlayer.m_movementController.IsRunning)
+                    if (!m_movementController.IsRunning)
                     {
-                        m_localPlayer.m_movementController.StartAt(RoomTime.Now, new TimeStep(20, 0.0f));
+                        m_movementController.StartAt(RoomTime.Now, new TimeStep(20, 0.0f));
                     }
                 }
                 break;
@@ -65,7 +74,7 @@ namespace Wheeled.Networking.Client
                 {
                     _reader.ReadSimulationCorrectionMessage(out int step, out SimulationStepInfo _simulation);
                     Debug.LogFormat("Reconciliation {0}", step);
-                    m_localPlayer.m_movementController.Correct(step, _simulation);
+                    m_movementController.Correct(step, _simulation);
                 }
                 break;
             }
@@ -74,6 +83,19 @@ namespace Wheeled.Networking.Client
         void Client.IGameManager.Stopped()
         {
             RoomTime.Manager.Stop();
+            m_updatable.IsRunning = false;
+        }
+
+        #endregion
+
+        #region Room Update
+
+        void Updatable.ITarget.Update()
+        {
+            RoomTime.Manager.Update();
+            m_movementController.Update();
+            m_view.Move(m_movementController.ViewSnapshot);
+            m_view.Update(Time.deltaTime);
         }
 
         #endregion

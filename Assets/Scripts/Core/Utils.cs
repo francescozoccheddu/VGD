@@ -4,15 +4,22 @@ using UnityEngine;
 namespace Wheeled.Core
 {
 
-    internal abstract class Updatable
+    internal sealed class Updatable
     {
+
+        public interface ITarget
+        {
+
+            void Update();
+
+        }
 
         private void Start()
         {
-            if (!m_IsRunning)
+            if (!IsRunning)
             {
                 m_gameObject = new GameObject("Updatable");
-                if (m_dontDestroyOnLoad)
+                if (dontDestroyOnLoad)
                 {
                     UnityEngine.Object.DontDestroyOnLoad(m_gameObject);
                 }
@@ -36,12 +43,12 @@ namespace Wheeled.Core
 
             private void Update()
             {
-                m_updatable?.Update();
+                m_updatable.target.Update();
             }
 
             private void OnDestroy()
             {
-                if (m_updatable != null && m_updatable.m_IsAutoRecreationEnabled)
+                if (m_updatable != null && m_updatable.IsAutoRecreationEnabled)
                 {
                     m_updatable.Start();
                     m_updatable = null;
@@ -50,16 +57,18 @@ namespace Wheeled.Core
 
         }
 
-        private readonly bool m_dontDestroyOnLoad;
+        public readonly bool dontDestroyOnLoad;
         private GameObject m_gameObject;
+        public readonly ITarget target;
 
-        protected Updatable(bool _dontDestroyOnLoad = false)
+        public Updatable(ITarget _updatable, bool _dontDestroyOnLoad = false)
         {
-            m_dontDestroyOnLoad = _dontDestroyOnLoad;
+            dontDestroyOnLoad = _dontDestroyOnLoad;
+            target = _updatable;
         }
 
-        protected bool m_IsAutoRecreationEnabled { get; set; } = false;
-        protected bool m_IsRunning
+        public bool IsAutoRecreationEnabled { get; set; } = false;
+        public bool IsRunning
         {
             get => m_gameObject != null;
             set
@@ -77,36 +86,6 @@ namespace Wheeled.Core
                     }
                 }
             }
-        }
-
-        protected abstract void Update();
-
-    }
-
-    internal interface IUpdatable
-    {
-
-        void Update();
-
-    }
-
-    internal sealed class UpdatableHolder : Updatable
-    {
-
-        public readonly IUpdatable updatable;
-
-        public bool IsRunning { get => m_IsRunning; set => m_IsRunning = value; }
-        public bool IsAutoRecreationEnabled { get => m_IsAutoRecreationEnabled; set => m_IsAutoRecreationEnabled = value; }
-
-        public UpdatableHolder(IUpdatable _updatable, bool _dontDestroyOnLoad = false) : base(_dontDestroyOnLoad)
-        {
-            Debug.Assert(_updatable != null);
-            updatable = _updatable;
-        }
-
-        protected override void Update()
-        {
-            updatable.Update();
         }
 
     }

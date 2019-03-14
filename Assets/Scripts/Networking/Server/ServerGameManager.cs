@@ -10,16 +10,16 @@ using Wheeled.Gameplay.Movement;
 namespace Wheeled.Networking.Server
 {
 
-    internal sealed partial class ServerGameManager : Server.IGameManager, IUpdatable
+    internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget
     {
 
-        private readonly UpdatableHolder m_roomUpdateHolder;
+        private readonly Updatable m_updatable;
         private readonly List<NetPlayer> m_netPlayers;
         private int m_nextPlayerId;
 
         public ServerGameManager()
         {
-            m_roomUpdateHolder = new UpdatableHolder(this, false)
+            m_updatable = new Updatable(this, false)
             {
                 IsRunning = true
             };
@@ -29,7 +29,7 @@ namespace Wheeled.Networking.Server
             m_nextPlayerId = 0;
         }
 
-        private NetPlayer? GetNetPlayerByPeer(NetworkManager.Peer _peer)
+        private NetPlayer GetNetPlayerByPeer(NetworkManager.Peer _peer)
         {
             foreach (NetPlayer player in m_netPlayers)
             {
@@ -63,23 +63,21 @@ namespace Wheeled.Networking.Server
             {
                 case Message.Simulation:
                 {
-                    NetPlayer? netPlayer = GetNetPlayerByPeer(_peer);
+                    NetPlayer netPlayer = GetNetPlayerByPeer(_peer);
                     if (netPlayer != null)
                     {
-                        PlayerHolders.AuthoritativePlayerHolder player = netPlayer.Value.player;
                         _reader.ReadSimulationMessage(out int firstStep, m_inputStepBuffer, out int inputStepsCount, out SimulationStep simulation);
-                        player.movementValidator.Put(firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepsCount), simulation);
+                        netPlayer.Move(firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepsCount), simulation);
                     }
                 }
                 break;
                 case Message.Sight:
                 {
-                    NetPlayer? netPlayer = GetNetPlayerByPeer(_peer);
+                    NetPlayer netPlayer = GetNetPlayerByPeer(_peer);
                     if (netPlayer != null)
                     {
-                        PlayerHolders.AuthoritativePlayerHolder player = netPlayer.Value.player;
                         _reader.ReadSightMessage(out int step, out Sight sight);
-                        player.movementHistory.Put(step, sight);
+                        netPlayer.Sight(step, sight);
                     }
                 }
                 break;
@@ -89,10 +87,9 @@ namespace Wheeled.Networking.Server
         bool Server.IGameManager.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader)
         {
             // TODO decide weather accept it or not
-            PlayerHolders.AuthoritativePlayerHolder player = PlayerHolders.NewAuthoritativePlayer();
-            player.movementValidator.maxTrustedSteps = 10;
-            player.movementValidator.StartAt(RoomTime.Now.Step, true);
-            m_netPlayers.Add(new NetPlayer(this, m_nextPlayerId++, player, _peer));
+            NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer);
+            netPlayer.Start();
+            m_netPlayers.Add(netPlayer);
             return true;
         }
 
@@ -104,7 +101,7 @@ namespace Wheeled.Networking.Server
         void Server.IGameManager.Stopped()
         {
             RoomTime.Manager.Stop();
-            m_roomUpdateHolder.IsRunning = false;
+            m_updatable.IsRunning = false;
         }
 
         #endregion
@@ -123,13 +120,18 @@ namespace Wheeled.Networking.Server
             }
         }
 
-        void IUpdatable.Update()
+        void Updatable.ITarget.Update()
         {
+            RoomTime.Manager.Update();
             if ((m_lastRoomUpdateTime + c_roomUpdatePeriod) <= RoomTime.Now)
             {
                 Debug.LogFormat("Room Update at time {0}", RoomTime.Now);
                 m_lastRoomUpdateTime = RoomTime.Now;
                 RoomUpdate();
+            }
+            foreach (NetPlayer player in m_netPlayers)
+            {
+                player.Update();
             }
         }
 

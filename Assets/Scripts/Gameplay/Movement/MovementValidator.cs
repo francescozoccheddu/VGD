@@ -1,12 +1,11 @@
 ﻿#define OUTPUT_PARTIAL_SIMULATION
 
 using System.Collections.Generic;
-using Wheeled.Core;
 
 namespace Wheeled.Gameplay.Movement
 {
 
-    internal sealed class MovementValidator : IUpdatable
+    internal sealed class MovementValidator
     {
 
         public interface IValidationTarget
