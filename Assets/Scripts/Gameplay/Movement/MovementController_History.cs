@@ -27,18 +27,18 @@ namespace Wheeled.Gameplay.Movement
                 return _step % m_history.Length;
             }
 
-            public void Append(int _step, SimulationStepInfo _simulation)
+            public void Append(int _step, SimulationStepInfo _simulationInfo)
             {
                 if (_step >= Oldest)
                 {
-                    int step = Mathf.Max(Oldest, Newest, _step - m_Lenght + 1);
+                    int step = Mathf.Max(Oldest, Newest + 1, _step - m_Lenght + 1);
                     while (step < _step)
                     {
                         m_history[GetIndex(step)] = null;
                         step++;
                     }
                     Newest = _step;
-                    m_history[GetIndex(Newest)] = _simulation;
+                    m_history[GetIndex(Newest)] = _simulationInfo;
                     Oldest = Mathf.Max(Oldest, Newest - m_Lenght + 1);
                 }
             }
