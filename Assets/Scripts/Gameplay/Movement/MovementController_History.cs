@@ -54,7 +54,7 @@ namespace Wheeled.Gameplay.Movement
                         int step = GetIndex(i);
                         if (m_history[step] != null)
                         {
-                            simulation = m_history[step].Value;
+                            simulation.input = m_history[step].Value.input;
                             simulation.simulation = simulation.simulation.Simulate(simulation.input, TimeStep.c_simulationStep);
                             m_history[step] = simulation;
                         }

@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\Core\GameLauncher.cs" />
     <Compile Include="Assets\Scripts\Core\GameLauncher_Interface.cs" />
     <Compile Include="Assets\Scripts\Core\Utils.cs" />
+    <Compile Include="Assets\Scripts\Debugging\Printer.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Action\ActionController.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Action\ActionHistory.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Action\ActionValidator.cs" />

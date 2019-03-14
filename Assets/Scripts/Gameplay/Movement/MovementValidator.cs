@@ -1,7 +1,6 @@
 ﻿#define OUTPUT_PARTIAL_SIMULATION
 
 using System.Collections.Generic;
-using UnityEngine;
 using Wheeled.Core;
 
 namespace Wheeled.Gameplay.Movement
@@ -166,9 +165,9 @@ namespace Wheeled.Gameplay.Movement
             if (m_buffer[bufInd].simulation != null)
             {
                 m_trustedSteps = 0;
-                Debug.Log("Validated with simulation");
                 if (!SimulationStep.IsNearlyEqual(m_last.simulation, m_buffer[bufInd].simulation.Value))
                 {
+                    Debugging.Printer.DebugIncrement("WrongData");
                     SendCorrection();
                 }
             }
@@ -177,6 +176,7 @@ namespace Wheeled.Gameplay.Movement
                 m_trustedSteps++;
                 if (m_trustedSteps > maxTrustedSteps)
                 {
+                    Debugging.Printer.DebugIncrement("NoData");
                     SendCorrection();
                 }
             }

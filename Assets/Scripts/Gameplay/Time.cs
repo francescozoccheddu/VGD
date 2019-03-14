@@ -22,9 +22,7 @@ namespace Wheeled.Gameplay
             return new TimeStep(_steps, 0.0f);
         }
 
-        public const float c_simulationStep = 1 / 60.0f;
-        public const int c_minStepsPerCommit = 2;
-        public const int c_maxStepsPerCommit = 6;
+        public const float c_simulationStep = 1 / 30.0f;
 
         public static readonly TimeStep zero = new TimeStep(0, 0.0f);
 
