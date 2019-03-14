@@ -71,6 +71,14 @@ namespace Wheeled.Gameplay
             }
         }
 
+        public void Destroy()
+        {
+            if (m_gameObject != null)
+            {
+                Object.Destroy(m_gameObject);
+            }
+            m_gameObject = null;
+        }
     }
 
 }

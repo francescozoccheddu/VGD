@@ -1,4 +1,5 @@
-﻿using LiteNetLib.Utils;
+﻿using LiteNetLib;
+using LiteNetLib.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Core;
@@ -16,6 +17,8 @@ namespace Wheeled.Networking.Client
         private readonly MovementController m_movementController;
         private readonly PlayerView m_view;
         private readonly Client.IServer m_server;
+        private int m_localPlayerId;
+        private readonly Dictionary<int, NetPlayer> m_netPlayers;
 
         public ClientGameManager(Client.IServer _server)
         {
@@ -30,6 +33,9 @@ namespace Wheeled.Networking.Client
                 target = this
             };
             m_view = new PlayerView();
+            m_netPlayers = new Dictionary<int, NetPlayer>();
+            Serializer.WriteReadyMessage();
+            m_server.Send(Serializer.writer, DeliveryMethod.ReliableUnordered);
         }
 
         #region InteractivePlayer.IFlushTarget

@@ -41,6 +41,16 @@ namespace Wheeled.Networking.Server
             return null;
         }
 
+        private bool ProcessPlayerMessage(NetworkManager.Peer _peer, out NetPlayer _outNetPlayer)
+        {
+            _outNetPlayer = GetNetPlayerByPeer(_peer);
+            if (_outNetPlayer == null)
+            {
+                _peer.Disconnect();
+            }
+            return _outNetPlayer != null;
+        }
+
         #region Server.IGameManager
 
         void Server.IGameManager.ConnectedTo(NetworkManager.Peer _peer)
@@ -49,6 +59,15 @@ namespace Wheeled.Networking.Server
 
         void Server.IGameManager.DisconnectedFrom(NetworkManager.Peer _peer)
         {
+            for (int i = 0; i < m_netPlayers.Count; i++)
+            {
+                if (m_netPlayers[i].peer == _peer)
+                {
+                    m_netPlayers[i].Destroy();
+                    m_netPlayers.RemoveAt(i);
+                    return;
+                }
+            }
         }
 
         void Server.IGameManager.LatencyUpdated(NetworkManager.Peer _peer, float _latency)
@@ -63,8 +82,7 @@ namespace Wheeled.Networking.Server
             {
                 case Message.Simulation:
                 {
-                    NetPlayer netPlayer = GetNetPlayerByPeer(_peer);
-                    if (netPlayer != null)
+                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
                         _reader.ReadSimulationMessage(out int firstStep, m_inputStepBuffer, out int inputStepsCount, out SimulationStep simulation);
                         netPlayer.Move(firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepsCount), simulation);
@@ -73,11 +91,20 @@ namespace Wheeled.Networking.Server
                 break;
                 case Message.Sight:
                 {
-                    NetPlayer netPlayer = GetNetPlayerByPeer(_peer);
-                    if (netPlayer != null)
+                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
                         _reader.ReadSightMessage(out int step, out Sight sight);
                         netPlayer.Sight(step, sight);
+                    }
+                }
+                break;
+                case Message.Ready:
+                {
+                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
+                    {
+                        netPlayer.Start();
+                        PrepareRoomUpdateMessage();
+                        _peer.Send(Serializer.writer, DeliveryMethod.Unreliable);
                     }
                 }
                 break;
@@ -86,9 +113,8 @@ namespace Wheeled.Networking.Server
 
         bool Server.IGameManager.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader)
         {
-            // TODO decide weather accept it or not
+            // TODO decide whether accept it or not
             NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer);
-            netPlayer.Start();
             m_netPlayers.Add(netPlayer);
             return true;
         }
@@ -111,9 +137,14 @@ namespace Wheeled.Networking.Server
         private const float c_roomUpdatePeriod = 2.0f;
         private TimeStep m_lastRoomUpdateTime;
 
-        private void RoomUpdate()
+        private void PrepareRoomUpdateMessage()
         {
             Serializer.WriteRoomUpdateMessage(RoomTime.Now);
+        }
+
+        private void RoomUpdate()
+        {
+            PrepareRoomUpdateMessage();
             foreach (NetPlayer netPlayer in m_netPlayers)
             {
                 netPlayer.peer.Send(Serializer.writer, DeliveryMethod.Unreliable);

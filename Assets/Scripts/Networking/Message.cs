@@ -10,7 +10,10 @@ namespace Wheeled.Networking
 
     internal enum Message
     {
-        Simulation, SimulationReplication, SimulationCorrection, RoomUpdate, Sight, SightReplication
+        // Movement
+        Simulation, SimulationReplication, SimulationCorrection, Sight, SightReplication, SimulationAndSightReplication,
+        // Room
+        RoomUpdate, Ready,
     }
 
     internal static class Serializer
@@ -106,6 +109,12 @@ namespace Wheeled.Networking
             writer.Reset();
             writer.Put(Message.RoomUpdate);
             writer.Put(_time);
+        }
+
+        public static void WriteReadyMessage()
+        {
+            writer.Reset();
+            writer.Put(Message.Ready);
         }
 
     }

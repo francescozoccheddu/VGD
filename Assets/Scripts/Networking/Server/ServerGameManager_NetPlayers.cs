@@ -14,11 +14,13 @@ namespace Wheeled.Networking.Server
 
             private const int c_historyCacheSteps = 100;
             private readonly ServerGameManager m_manager;
-            public readonly int id;
             private readonly MovementValidator m_movementValidator;
             private readonly MovementHistory m_movementHistory;
             private readonly PlayerView m_view;
+
+            public readonly int id;
             public readonly NetworkManager.Peer peer;
+            public bool IsStarted { get; private set; }
 
             public NetPlayer(ServerGameManager _manager, int _id, NetworkManager.Peer _peer)
             {
@@ -37,7 +39,11 @@ namespace Wheeled.Networking.Server
 
             public void Start()
             {
-                m_movementValidator.StartAt(RoomTime.Now.Step, false);
+                if (!IsStarted)
+                {
+                    IsStarted = true;
+                    m_movementValidator.StartAt(RoomTime.Now.Step, false);
+                }
             }
 
             public void Move(int _firstStep, IEnumerable<InputStep> _inputSteps, in SimulationStep _simulation)
@@ -69,6 +75,11 @@ namespace Wheeled.Networking.Server
                 m_view.Update(Time.deltaTime);
             }
 
+            public void Destroy()
+            {
+                m_view.Destroy();
+            }
+
             void MovementValidator.ICorrectionTarget.Corrected(int _step, in SimulationStepInfo _simulation)
             {
                 Serializer.WriteSimulationCorrectionMessage(_step, _simulation);
@@ -85,7 +96,6 @@ namespace Wheeled.Networking.Server
             }
 
         }
-
 
     }
 
