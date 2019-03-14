@@ -36,7 +36,7 @@ namespace Wheeled.Gameplay
 
             public InteractivePlayerHolder()
             {
-                m_movementController = new MovementController(2.0f);
+                m_movementController = new MovementController(10.0f);
                 m_view = new PlayerView();
             }
 
@@ -92,7 +92,7 @@ namespace Wheeled.Gameplay
 
             public AuthoritativePlayerHolder()
             {
-                movementValidator = new MovementValidator(3.0f)
+                movementValidator = new MovementValidator(10.0f)
                 {
                     validationTarget = this,
                     correctionTarget = this

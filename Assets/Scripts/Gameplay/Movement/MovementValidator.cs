@@ -148,7 +148,7 @@ namespace Wheeled.Gameplay.Movement
             }
             if (step < Step + m_Length)
             {
-                m_buffer[GetStep(step)].simulation = _simulation;
+                m_buffer[GetStep(step - 1)].simulation = _simulation;
             }
         }
 
