@@ -10,7 +10,7 @@ namespace Wheeled.Networking
 
     internal enum Message
     {
-        Movement, MovementReplication, MovementCorrection, RoomUpdate
+        Simulation, SimulationReplication, SimulationCorrection, RoomUpdate, Sight, SightReplication
     }
 
     internal static class Serializer
@@ -72,12 +72,12 @@ namespace Wheeled.Networking
 
         public static readonly NetDataWriter writer = new NetDataWriter(true, 128);
 
-        public static void WriteMovementMessage(int _firstStep, IReadOnlyList<InputStep> _steps, in Snapshot _snapshot)
+        public static void WriteSimulationMessage(int _firstStep, IReadOnlyList<InputStep> _steps, in SimulationStep _simulation)
         {
             writer.Reset();
-            writer.Put(Message.Movement);
+            writer.Put(Message.Simulation);
             writer.Put(_firstStep);
-            writer.Put(_snapshot);
+            writer.Put(_simulation);
             writer.Put((byte) _steps.Count);
             foreach (InputStep inputStep in _steps)
             {
@@ -85,10 +85,18 @@ namespace Wheeled.Networking
             }
         }
 
-        public static void WriteMovementCorrectionMessage(int _step, in SimulationStepInfo _simulationStepInfo)
+        public static void WriteSightMessage(int _step, in Sight _sight)
         {
             writer.Reset();
-            writer.Put(Message.MovementCorrection);
+            writer.Put(Message.Sight);
+            writer.Put(_step);
+            writer.Put(_sight);
+        }
+
+        public static void WriteSimulationCorrectionMessage(int _step, in SimulationStepInfo _simulationStepInfo)
+        {
+            writer.Reset();
+            writer.Put(Message.SimulationCorrection);
             writer.Put(_step);
             writer.Put(_simulationStepInfo);
         }
@@ -235,10 +243,10 @@ namespace Wheeled.Networking
             _time = _netDataReader.ReadTime();
         }
 
-        public static void ReadMovementMessage(this NetDataReader _netDataReader, out int _outFirstStep, InputStep[] _inputStepBuffer, out int _outInputStepCount, out Snapshot _outSnapshot)
+        public static void ReadSimulationMessage(this NetDataReader _netDataReader, out int _outFirstStep, InputStep[] _inputStepBuffer, out int _outInputStepCount, out SimulationStep _outSimulation)
         {
             _outFirstStep = _netDataReader.ReadInt();
-            _outSnapshot = _netDataReader.ReadSnapshot();
+            _outSimulation = _netDataReader.ReadSimulationStep();
             _outInputStepCount = _netDataReader.ReadByte();
             for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
             {
@@ -246,7 +254,13 @@ namespace Wheeled.Networking
             }
         }
 
-        public static void ReadMovementCorrectionMessage(this NetDataReader _netDataReader, out int _outStep, out SimulationStepInfo _outSimulation)
+        public static void ReadSightMessage(this NetDataReader _netDataReader, out int _outStep, out Sight _outSight)
+        {
+            _outStep = _netDataReader.ReadInt();
+            _outSight = _netDataReader.ReadSight();
+        }
+
+        public static void ReadSimulationCorrectionMessage(this NetDataReader _netDataReader, out int _outStep, out SimulationStepInfo _outSimulation)
         {
             _outStep = _netDataReader.ReadInt();
             _outSimulation = _netDataReader.ReadSimulationStepInfo();

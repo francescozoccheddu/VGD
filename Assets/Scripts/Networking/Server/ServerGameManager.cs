@@ -61,14 +61,25 @@ namespace Wheeled.Networking.Server
         {
             switch (_reader.ReadMessageType())
             {
-                case Message.Movement:
+                case Message.Simulation:
                 {
                     NetPlayer? netPlayer = GetNetPlayerByPeer(_peer);
                     if (netPlayer != null)
                     {
                         PlayerHolders.AuthoritativePlayerHolder player = netPlayer.Value.player;
-                        _reader.ReadMovementMessage(out int firstStep, m_inputStepBuffer, out int inputStepsCount, out Snapshot snapshot);
-                        player.movementValidator.Put(firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepsCount), snapshot.simulation);
+                        _reader.ReadSimulationMessage(out int firstStep, m_inputStepBuffer, out int inputStepsCount, out SimulationStep simulation);
+                        player.movementValidator.Put(firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepsCount), simulation);
+                    }
+                }
+                break;
+                case Message.Sight:
+                {
+                    NetPlayer? netPlayer = GetNetPlayerByPeer(_peer);
+                    if (netPlayer != null)
+                    {
+                        PlayerHolders.AuthoritativePlayerHolder player = netPlayer.Value.player;
+                        _reader.ReadSightMessage(out int step, out Sight sight);
+                        player.movementHistory.Put(step, sight);
                     }
                 }
                 break;

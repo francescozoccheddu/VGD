@@ -25,6 +25,7 @@ namespace Wheeled.Gameplay
             m_gameObject.transform.eulerAngles = new Vector3(0.0f, _snapshot.sight.Turn, 0.0f);
         }
 
+
         public void Spawn()
         {
 

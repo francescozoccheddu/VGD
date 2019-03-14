@@ -69,13 +69,13 @@ namespace Wheeled.Gameplay
                 }
                 if (Input.GetKeyDown(KeyCode.P))
                 {
-                    m_movementController.FlushRate++;
-                    Debug.LogFormat("FlushRate={0}", m_movementController.FlushRate);
+                    m_movementController.SimulationFlushRate++;
+                    Debug.LogFormat("FlushRate={0}", m_movementController.SimulationFlushRate);
                 }
                 if (Input.GetKeyDown(KeyCode.O))
                 {
-                    m_movementController.FlushRate--;
-                    Debug.LogFormat("FlushRate={0}", m_movementController.FlushRate);
+                    m_movementController.SimulationFlushRate--;
+                    Debug.LogFormat("FlushRate={0}", m_movementController.SimulationFlushRate);
                 }
                 m_movementController.Update();
                 m_view.Move(m_movementController.ViewSnapshot);
@@ -115,11 +115,18 @@ namespace Wheeled.Gameplay
             {
                 movementValidator.Update();
                 movementHistory.TrimOlder(RoomTime.Now.Step - 100, true);
-                movementHistory.Get(RoomTime.Now, out SimulationStep? simulation, out Sight? sight);
+                Snapshot snapshot = new Snapshot();
+                movementHistory.GetSimulation(RoomTime.Now, out SimulationStep? simulation);
                 if (simulation != null)
                 {
-                    view.Move(new Snapshot { simulation = simulation.Value });
+                    snapshot.simulation = simulation.Value;
                 }
+                movementHistory.GetSight(RoomTime.Now, out Sight? sight);
+                if (sight != null)
+                {
+                    snapshot.sight = sight.Value;
+                }
+                view.Move(snapshot);
             }
 
             void MovementValidator.IValidationTarget.Validated(int _step, in InputStep _input, in SimulationStep _simulation)

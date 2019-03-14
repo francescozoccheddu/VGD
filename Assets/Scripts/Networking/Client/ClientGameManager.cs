@@ -25,9 +25,15 @@ namespace Wheeled.Networking.Client
 
         #region InteractivePlayer.IFlushTarget
 
-        void MovementController.IFlushTarget.Flush(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
+        void MovementController.IFlushTarget.FlushSimulation(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in SimulationStep _simulation)
         {
-            Serializer.WriteMovementMessage(_firstStep, _inputSteps, _snapshot);
+            Serializer.WriteSimulationMessage(_firstStep, _inputSteps, _simulation);
+            m_server.Send(Serializer.writer, LiteNetLib.DeliveryMethod.Unreliable);
+        }
+
+        void MovementController.IFlushTarget.FlushSight(int _step, in Sight _sight)
+        {
+            Serializer.WriteSightMessage(_step, _sight);
             m_server.Send(Serializer.writer, LiteNetLib.DeliveryMethod.Unreliable);
         }
 
@@ -55,9 +61,9 @@ namespace Wheeled.Networking.Client
                     }
                 }
                 break;
-                case Message.MovementCorrection:
+                case Message.SimulationCorrection:
                 {
-                    _reader.ReadMovementCorrectionMessage(out int step, out SimulationStepInfo _simulation);
+                    _reader.ReadSimulationCorrectionMessage(out int step, out SimulationStepInfo _simulation);
                     Debug.LogFormat("Reconciliation {0}", step);
                     m_localPlayer.m_movementController.Correct(step, _simulation);
                 }

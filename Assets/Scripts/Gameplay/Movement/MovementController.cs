@@ -14,7 +14,8 @@ namespace Wheeled.Gameplay.Movement
         public interface IFlushTarget
         {
 
-            void Flush(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot);
+            void FlushSimulation(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in SimulationStep _simulation);
+            void FlushSight(int _step, in Sight _sight);
 
         }
 
@@ -26,14 +27,17 @@ namespace Wheeled.Gameplay.Movement
         private InputStep m_accumulatedInput;
         private float m_accumulatedTime;
         private Snapshot m_snapshot;
+        private int m_skippedSights;
 
         public IFlushTarget target;
 
-        public int FlushRate
+        public int SimulationFlushRate
         {
             get => m_inputSteps.Length;
-            set => SetFlushRate(value);
+            set => SetSimulationFlushRate(value);
         }
+
+        public int sightFlushRate;
 
         public TimeStep Offset { get; private set; } = TimeStep.zero;
 
@@ -80,28 +84,39 @@ namespace Wheeled.Gameplay.Movement
 
         private void CommitInput(int _step)
         {
-            if (m_inputStepCount == 0)
+            // Simulation
             {
-                m_firstStep = _step;
-            }
-            else if (_step - m_inputStepCount != m_firstStep)
-            {
-                Flush();
-                m_firstStep = _step;
-            }
-            InputStep input = GetAccumulatedInput();
-            m_inputSteps[m_inputStepCount++] = input;
+                if (m_inputStepCount == 0)
+                {
+                    m_firstStep = _step;
+                }
+                else if (_step - m_inputStepCount != m_firstStep)
+                {
+                    FlushSimulation();
+                    m_firstStep = _step;
+                }
+                InputStep input = GetAccumulatedInput();
+                m_inputSteps[m_inputStepCount++] = input;
 #if !ENABLE_PARTIAL_SIMULATION
             m_lastSimulationStep = m_snapshot.simulation;
 #endif
-            m_snapshot.simulation = m_snapshot.simulation.Simulate(input, TimeStep.c_simulationStep);
-            m_history.Append(_step, new SimulationStepInfo { input = input, simulation = m_snapshot.simulation });
-            if (m_inputStepCount >= m_inputSteps.Length)
-            {
-                Flush();
+                m_snapshot.simulation = m_snapshot.simulation.Simulate(input, TimeStep.c_simulationStep);
+                m_history.Append(_step, new SimulationStepInfo { input = input, simulation = m_snapshot.simulation });
+                if (m_inputStepCount >= m_inputSteps.Length)
+                {
+                    FlushSimulation();
+                }
+                m_accumulatedInput = new InputStep();
+                m_accumulatedTime = 0.0f;
             }
-            m_accumulatedInput = new InputStep();
-            m_accumulatedTime = 0.0f;
+            // Sight
+            {
+                m_skippedSights++;
+                if (m_skippedSights > sightFlushRate)
+                {
+                    FlushSight();
+                }
+            }
         }
 
         private void ProcessInput()
@@ -152,12 +167,12 @@ namespace Wheeled.Gameplay.Movement
             ViewSnapshot = viewSnapshot;
         }
 
-        private void SetFlushRate(int _flushRate)
+        private void SetSimulationFlushRate(int _flushRate)
         {
             Debug.Assert(_flushRate > 0);
             if (m_inputSteps != null && _flushRate <= m_inputStepCount)
             {
-                Flush();
+                FlushSimulation();
             }
             if (m_inputSteps == null || _flushRate != m_inputSteps.Length)
             {
@@ -173,23 +188,30 @@ namespace Wheeled.Gameplay.Movement
         public MovementController(float _historyDuration)
         {
             m_history = new History(_historyDuration);
-            SetFlushRate(1);
+            SetSimulationFlushRate(1);
+            sightFlushRate = 2;
         }
 
-        public void Flush()
+        public void FlushSimulation()
         {
             if (m_inputStepCount > 0)
             {
-                target?.Flush(m_firstStep, new ArraySegment<InputStep>(m_inputSteps, 0, m_inputStepCount), m_snapshot);
+                target?.FlushSimulation(m_firstStep, new ArraySegment<InputStep>(m_inputSteps, 0, m_inputStepCount), m_snapshot.simulation);
             }
             m_inputStepCount = 0;
+        }
+
+        public void FlushSight()
+        {
+            m_skippedSights = 0;
+            target?.FlushSight(LastCommitTime.Step, m_snapshot.sight);
         }
 
         public void StartAt(TimeStep _time, TimeStep _offset, bool _flushPending = true)
         {
             if (_flushPending)
             {
-                Flush();
+                FlushSimulation();
             }
             m_inputStepCount = 0;
             Offset = _offset;
@@ -218,7 +240,7 @@ namespace Wheeled.Gameplay.Movement
         {
             if (_flushPending)
             {
-                Flush();
+                FlushSimulation();
             }
             m_inputStepCount = 0;
             IsRunning = false;

@@ -26,7 +26,7 @@ namespace Wheeled.Networking.Server
 
             void MovementValidator.ICorrectionTarget.Corrected(int _step, in SimulationStepInfo _simulation)
             {
-                Serializer.WriteMovementCorrectionMessage(_step, _simulation);
+                Serializer.WriteSimulationCorrectionMessage(_step, _simulation);
                 peer.Send(Serializer.writer, LiteNetLib.DeliveryMethod.Unreliable);
             }
 

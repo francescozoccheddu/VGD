@@ -1,7 +1,6 @@
 ﻿#define ENABLE_PARTIAL_SIMULATION
 
 using System.Collections.Generic;
-using Wheeled.Networking;
 
 namespace Wheeled.Gameplay.Movement
 {
@@ -139,78 +138,78 @@ namespace Wheeled.Gameplay.Movement
             return simulation;
         }
 
-        public void Get(TimeStep _time, out SimulationStep? _outSimulation, out Sight? _outSight)
+        public void GetSimulation(TimeStep _time, out SimulationStep? _outSimulation)
         {
+            m_simulationHistory.Query(_time.Step, out History<SimulationType>.Node? prev, out History<SimulationType>.Node? next);
+            if (prev != null)
             {
-                m_simulationHistory.Query(_time.Step, out History<SimulationType>.Node? prev, out History<SimulationType>.Node? next);
-                if (prev != null)
+                if (next != null)
                 {
-                    if (next != null)
+                    // Prev & next
+                    if (next.Value.step - prev.Value.step > 1)
                     {
-                        // Prev & next
-                        if (next.Value.step - prev.Value.step > 1)
-                        {
-                            // Consecutive prev & next
+                        // Consecutive prev & next
 #if ENABLE_PARTIAL_SIMULATION
-                            _outSimulation = PartialSimulate(prev.Value.value.input, prev.Value.value.simulation, new TimeStep(0, _time.Remainder));
+                        _outSimulation = PartialSimulate(prev.Value.value.input, prev.Value.value.simulation, new TimeStep(0, _time.Remainder));
 #else
                             _outSimulation = SimulationStep.Lerp(prev.Value.value, next.Value.value, _time.Remainder);
 #endif
-                        }
-                        else
-                        {
-                            // History holes
-                            SimulationStep a, b;
+                    }
+                    else
+                    {
+                        // History holes
+                        SimulationStep a, b;
 #if ENABLE_PARTIAL_SIMULATION
-                            a = prev.Value.value.simulation;
-                            b = next.Value.value.simulation;
+                        a = prev.Value.value.simulation;
+                        b = next.Value.value.simulation;
 #else
                             a = prev.Value.value;
                             b = next.Value.value;
 #endif
-                            float period = (next.Value.step - prev.Value.step) * TimeStep.c_simulationStep;
-                            float elapsed = (_time - new TimeStep(prev.Value.step, 0.0f)).Seconds;
-                            _outSimulation = SimulationStep.Lerp(a, b, elapsed / period);
-                        }
+                        float period = (next.Value.step - prev.Value.step) * TimeStep.c_simulationStep;
+                        float elapsed = (_time - new TimeStep(prev.Value.step, 0.0f)).Seconds;
+                        _outSimulation = SimulationStep.Lerp(a, b, elapsed / period);
                     }
-                    else
-                    {
-                        // Prev only
-                        History<SimulationType>.Node node = prev.Value;
+                }
+                else
+                {
+                    // Prev only
+                    History<SimulationType>.Node node = prev.Value;
 #if ENABLE_PARTIAL_SIMULATION
-                        _outSimulation = PartialSimulate(node.value.input, node.value.simulation, _time - new TimeStep(node.step, 0.0f));
+                    _outSimulation = PartialSimulate(node.value.input, node.value.simulation, _time - new TimeStep(node.step, 0.0f));
 #else
                         _outSimulation = node.value;
 #endif
-                    }
-                }
-                else
-                {
-                    // No prev
-                    _outSimulation = null;
                 }
             }
+            else
             {
-                m_sightHistory.Query(_time.Step, out History<Sight>.Node? prev, out History<Sight>.Node? next);
-                if (prev != null)
+                // No prev
+                _outSimulation = null;
+            }
+        }
+
+        public void GetSight(TimeStep _time, out Sight? _outSight)
+        {
+            m_sightHistory.Query(_time.Step, out History<Sight>.Node? prev, out History<Sight>.Node? next);
+            if (prev != null)
+            {
+                if (next != null)
                 {
-                    if (next != null)
-                    {
-                        // Prev & next
-                        float progress = (next.Value.step - prev.Value.step) * TimeStep.c_simulationStep;
-                        _outSight = Sight.Lerp(prev.Value.value, next.Value.value, progress);
-                    }
-                    else
-                    {
-                        // Prev only
-                        _outSight = prev.Value.value;
-                    }
+                    // Prev & next
+                    float progress = (next.Value.step - prev.Value.step) * TimeStep.c_simulationStep;
+                    _outSight = Sight.Lerp(prev.Value.value, next.Value.value, progress);
                 }
                 else
                 {
-                    // No prev
-                    _outSight = null;
+                    // Prev only
+                    _outSight = prev.Value.value;
                 }
+            }
+            else
+            {
+                // No prev
+                _outSight = null;
             }
         }
 
