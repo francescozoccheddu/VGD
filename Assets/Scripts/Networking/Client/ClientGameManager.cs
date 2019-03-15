@@ -38,10 +38,7 @@ namespace Wheeled.Networking.Client
             };
             m_server = _server;
             Debug.Log("ClientGameManager constructed");
-            m_movementController = new MovementController(3.0f)
-            {
-                target = this
-            };
+            m_movementController = new MovementController(3.0f);
             m_view = new PlayerView();
             m_netPlayers = new Dictionary<int, NetPlayer>();
             Serializer.WriteReadyMessage();
@@ -60,13 +57,14 @@ namespace Wheeled.Networking.Client
             {
                 case Message.RoomUpdate:
                 {
+                    // TODO Check if time is corrupted
                     _reader.ReadRoomUpdateMessage(out TimeStep time);
                     Debug.LogFormat("RoomUpdate at {0} (oldTime={1}, diff={2})", time, RoomTime.Now, time - RoomTime.Now);
                     RoomTime.Manager.Set(time + m_server.Ping / 2.0f, RoomTime.IsRunning);
                     RoomTime.Manager.Start();
                     if (!m_movementController.IsRunning)
                     {
-                        m_movementController.StartAt(RoomTime.Now, new TimeStep(20, 0.0f));
+                        m_movementController.StartAt(RoomTime.Now);
                     }
                 }
                 break;

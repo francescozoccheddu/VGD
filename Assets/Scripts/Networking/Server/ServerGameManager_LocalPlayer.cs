@@ -1,39 +1,24 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Server
 {
 
-    internal sealed partial class ServerGameManager : MovementController.IFlushTarget
+    internal sealed partial class ServerGameManager
     {
 
         private readonly MovementController m_movementController;
         private readonly PlayerView m_view;
 
-        void MovementController.IFlushTarget.FlushCombined(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
-        {
-            Serializer.WriteMovementReplicationMessage(0, _firstStep, _snapshot.sight, _inputSteps, _snapshot.simulation);
-            SendAll(LiteNetLib.DeliveryMethod.Unreliable);
-        }
-
-        void MovementController.IFlushTarget.FlushSight(int _step, in Sight _sight)
-        {
-        }
-
-        void MovementController.IFlushTarget.FlushSimulation(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in SimulationStep _simulation)
-        {
-        }
-
         private void StartLocalPlayer()
         {
-            m_movementController.StartAt(RoomTime.Now, TimeStep.zero);
+            m_movementController.StartAt(RoomTime.Now);
         }
 
         private void UpdateLocalPlayer()
         {
-            m_movementController.Update();
+            m_movementController.UpdateUntil(RoomTime.Now);
             m_view.Move(m_movementController.ViewSnapshot);
             m_view.Update(Time.deltaTime);
         }

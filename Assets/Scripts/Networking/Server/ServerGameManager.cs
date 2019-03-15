@@ -28,11 +28,7 @@ namespace Wheeled.Networking.Server
             m_netPlayers = new List<NetPlayer>();
             m_nextPlayerId = 1;
 
-
-            m_movementController = new MovementController(3.0f)
-            {
-                target = this
-            };
+            m_movementController = new MovementController(3.0f);
             m_view = new PlayerView();
             StartLocalPlayer();
         }
