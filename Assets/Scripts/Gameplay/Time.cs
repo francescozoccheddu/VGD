@@ -22,6 +22,16 @@ namespace Wheeled.Gameplay
             return new TimeStep(_steps, 0.0f);
         }
 
+        public static TimeStep Min(TimeStep _a, TimeStep _b)
+        {
+            return _a < _b ? _a : _b;
+        }
+
+        public static TimeStep Max(TimeStep _a, TimeStep _b)
+        {
+            return _a > _b ? _a : _b;
+        }
+
         public const float c_simulationStep = 1 / 30.0f;
 
         public static readonly TimeStep zero = new TimeStep(0, 0.0f);
@@ -37,6 +47,8 @@ namespace Wheeled.Gameplay
         public TimeStep Next => new TimeStep(Step + 1, 0.0f);
 
         public TimeStep Ceil => m_remainder == 0.0f ? this : Next;
+
+        public TimeStep RemainderTime => new TimeStep(0, Remainder);
 
         public bool HasRemainder => Remainder != 0.0f;
 
@@ -155,16 +167,6 @@ namespace Wheeled.Gameplay
                 return false;
             }
             return _a.Step > _b.Step || _a.m_remainder >= _b.m_remainder;
-        }
-
-        public static TimeStep Min(TimeStep _a, TimeStep _b)
-        {
-            return _a < _b ? _a : _b;
-        }
-
-        public static TimeStep Max(TimeStep _a, TimeStep _b)
-        {
-            return _a > _b ? _a : _b;
         }
 
         #endregion
