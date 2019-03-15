@@ -67,9 +67,9 @@ namespace Wheeled.Networking
                 return (m_peer?.Id)?.GetHashCode() ?? 0;
             }
 
-            public void Send(DeliveryMethod _method)
+            public void Send(bool _reliable)
             {
-                m_peer?.Send(Serializer.writer, _method);
+                m_peer?.Send(Serializer.writer, _reliable ? DeliveryMethod.ReliableUnordered : DeliveryMethod.Unreliable);
             }
 
         }
@@ -82,19 +82,19 @@ namespace Wheeled.Networking
         public interface IEventListener
         {
 
-            void ReceivedFrom(Peer _peer, NetPacketReader _reader);
+            void ReceivedFrom(Peer _peer, Deserializer _reader);
 
             void DisconnectedFrom(Peer _peer);
 
             void ConnectedTo(Peer _peer);
 
-            bool ShouldAcceptConnectionRequest(Peer _peer, NetDataReader _reader);
+            bool ShouldAcceptConnectionRequest(Peer _peer, Deserializer _reader);
 
-            DiscoveryRequestAction DiscoveryRequested(NetDataReader _reader);
+            DiscoveryRequestAction DiscoveryRequested(Deserializer _reader);
 
             void LatencyUpdated(Peer _peer, float _latency);
 
-            void Discovered(IPEndPoint _endPoint, NetDataReader _reader);
+            void Discovered(IPEndPoint _endPoint, Deserializer _reader);
 
             void Stopped(StopCause _cause);
 

@@ -29,8 +29,8 @@ namespace Wheeled.Gameplay.Movement
                     InputStep[] newBuffer = new InputStep[value];
                     if (m_oldestInputStep != -1)
                     {
-                        m_oldestInputStep = Mathf.Max(m_oldestInputStep, LastCommitTime.Step - value + 1);
-                        for (int i = m_oldestInputStep; i <= LastCommitTime.Step; i++)
+                        m_oldestInputStep = Mathf.Max(m_oldestInputStep, Time.Step - value + 1);
+                        for (int i = m_oldestInputStep; i <= Time.Step; i++)
                         {
                             newBuffer[i % value] = m_inputBuffer[i % m_inputBuffer.Length];
                         }
@@ -40,7 +40,7 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        public TimeStep LastCommitTime { get; private set; }
+        public TimeStep Time { get; private set; }
         public bool IsRunning { get; private set; }
         public Snapshot RawSnapshot => m_snapshot;
         public Snapshot ViewSnapshot { get; private set; }
@@ -80,25 +80,25 @@ namespace Wheeled.Gameplay.Movement
         {
             if (m_oldestInputStep == -1)
             {
-                m_oldestInputStep = LastCommitTime.Step;
+                m_oldestInputStep = Time.Step;
             }
             else
             {
-                m_oldestInputStep = Mathf.Max(m_oldestInputStep, LastCommitTime.Step - InputBufferSize + 1);
+                m_oldestInputStep = Mathf.Max(m_oldestInputStep, Time.Step - InputBufferSize + 1);
             }
             InputStep input = GetAccumulatedInput();
-            m_inputBuffer[LastCommitTime.Step % InputBufferSize] = input;
+            m_inputBuffer[Time.Step % InputBufferSize] = input;
             m_lastSimulation = m_snapshot.simulation;
             m_snapshot.simulation = m_snapshot.simulation.Simulate(input, TimeStep.c_simulationStep);
-            m_history.Append(LastCommitTime.Step, new SimulationStepInfo { input = input, simulation = m_snapshot.simulation });
+            m_history.Append(Time.Step, new SimulationStepInfo { input = input, simulation = m_snapshot.simulation });
             m_accumulatedInput = new InputStep();
             m_accumulatedTime = 0.0f;
         }
 
         private void ProcessInput(TimeStep _now)
         {
-            float processDeltaTime = (_now - LastCommitTime).Seconds;
-            TimeStep lastProcessTime = LastCommitTime;
+            float processDeltaTime = (_now - Time).Seconds;
+            TimeStep lastProcessTime = Time;
 
             float right = Input.GetAxis("Horizontal");
             float forward = Input.GetAxis("Vertical");
@@ -107,10 +107,10 @@ namespace Wheeled.Gameplay.Movement
             float turn = Input.GetAxis("Mouse X");
             float lookUp = -Input.GetAxis("Mouse Y");
 
-            while (LastCommitTime < _now)
+            while (Time < _now)
             {
-                TimeStep step = TimeStep.Min(LastCommitTime.Next, _now);
-                float stepDeltaTime = (step - LastCommitTime).Seconds;
+                TimeStep step = TimeStep.Min(Time.Next, _now);
+                float stepDeltaTime = (step - Time).Seconds;
 
                 RotateMovementXZ(right, forward, m_snapshot.sight.Turn, out float movementX, out float movementZ);
                 ClampMovement(ref movementX, ref movementZ);
@@ -127,7 +127,7 @@ namespace Wheeled.Gameplay.Movement
                 m_snapshot.sight.LookUp += lookUp * weight;
 
                 m_accumulatedTime += stepDeltaTime;
-                LastCommitTime = step;
+                Time = step;
                 if (!step.HasRemainder)
                 {
                     CommitInput();
@@ -160,7 +160,7 @@ namespace Wheeled.Gameplay.Movement
         public void StartAt(TimeStep _time)
         {
             ClearInputBuffer();
-            LastCommitTime = _time;
+            Time = _time;
             m_accumulatedInput = new InputStep();
             m_accumulatedTime = 0.0f;
             IsRunning = true;
@@ -190,9 +190,9 @@ namespace Wheeled.Gameplay.Movement
 
         public void PullInputBuffer(InputStep[] _target, out int _outCount, int _maxSteps)
         {
-            int step = Mathf.Max(LastCommitTime.Step - _maxSteps + 1, m_oldestInputStep, 0);
+            int step = Mathf.Max(Time.Step - _maxSteps + 1, m_oldestInputStep, 0);
             int i = 0;
-            while (step < LastCommitTime.Step)
+            while (step < Time.Step)
             {
                 _target[i++] = m_inputBuffer[step % InputBufferSize];
             }

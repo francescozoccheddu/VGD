@@ -1,6 +1,4 @@
-﻿using LiteNetLib;
-using LiteNetLib.Utils;
-using System;
+﻿using System;
 using System.Net;
 
 namespace Wheeled.Networking.Server
@@ -18,9 +16,9 @@ namespace Wheeled.Networking.Server
 
             void LatencyUpdated(NetworkManager.Peer _peer, float _latency);
 
-            void ReceivedFrom(NetworkManager.Peer _peer, NetPacketReader _reader);
+            void ReceivedFrom(NetworkManager.Peer _peer, Deserializer _reader);
 
-            bool ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader);
+            bool ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, Deserializer _reader);
 
             bool ShouldReplyToDiscoveryRequest();
 

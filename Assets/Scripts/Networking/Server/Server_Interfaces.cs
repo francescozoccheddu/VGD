@@ -1,6 +1,4 @@
-﻿using LiteNetLib;
-using LiteNetLib.Utils;
-using System.Net;
+﻿using System.Net;
 
 namespace Wheeled.Networking.Server
 {
@@ -20,7 +18,7 @@ namespace Wheeled.Networking.Server
             m_game?.DisconnectedFrom(_peer);
         }
 
-        void NetworkManager.IEventListener.Discovered(IPEndPoint _endPoint, NetDataReader _reader)
+        void NetworkManager.IEventListener.Discovered(IPEndPoint _endPoint, Deserializer _reader)
         {
         }
 
@@ -29,17 +27,17 @@ namespace Wheeled.Networking.Server
             m_game?.LatencyUpdated(_peer, _latency);
         }
 
-        void NetworkManager.IEventListener.ReceivedFrom(NetworkManager.Peer _peer, NetPacketReader _reader)
+        void NetworkManager.IEventListener.ReceivedFrom(NetworkManager.Peer _peer, Deserializer _reader)
         {
             m_game?.ReceivedFrom(_peer, _reader);
         }
 
-        bool NetworkManager.IEventListener.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader)
+        bool NetworkManager.IEventListener.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, Deserializer _reader)
         {
             return m_game?.ShouldAcceptConnectionRequest(_peer, _reader) == true;
         }
 
-        NetworkManager.DiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(NetDataReader _reader)
+        NetworkManager.DiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(Deserializer _reader)
         {
             if (m_game?.ShouldReplyToDiscoveryRequest() == true)
             {

@@ -31,7 +31,8 @@ namespace Wheeled.Networking.Server
                 {
                     correctionTarget = this,
                     validationTarget = this,
-                    maxTrustedSteps = 10
+                    MaxTrustedSteps = 10,
+                    MinCorrectionRate = 3,
                 };
                 m_movementHistory = new MovementHistory(true);
                 m_view = new PlayerView();
@@ -58,7 +59,7 @@ namespace Wheeled.Networking.Server
 
             public void Update()
             {
-                m_movementValidator.Update();
+                m_movementValidator.UpdateUntil(RoomTime.Now.Step);
                 m_movementHistory.TrimOlder(RoomTime.Now.Step - c_historyCacheSteps, true);
                 Snapshot snapshot = new Snapshot();
                 m_movementHistory.GetSimulation(RoomTime.Now, out SimulationStep? simulation);
@@ -83,7 +84,7 @@ namespace Wheeled.Networking.Server
             void MovementValidator.ICorrectionTarget.Corrected(int _step, in SimulationStepInfo _simulation)
             {
                 Serializer.WriteSimulationCorrectionMessage(_step, _simulation);
-                peer.Send(LiteNetLib.DeliveryMethod.Unreliable);
+                peer.Send(false);
             }
 
             void MovementValidator.ICorrectionTarget.Rejected(int _step, bool _newer)

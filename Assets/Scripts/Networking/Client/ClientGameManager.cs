@@ -1,6 +1,4 @@
-﻿using LiteNetLib;
-using LiteNetLib.Utils;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Core;
 using Wheeled.Gameplay;
@@ -42,7 +40,7 @@ namespace Wheeled.Networking.Client
             m_view = new PlayerView();
             m_netPlayers = new Dictionary<int, NetPlayer>();
             Serializer.WriteReadyMessage();
-            m_server.Send(DeliveryMethod.ReliableUnordered);
+            m_server.Send(false);
         }
 
         #region Client.IGameManager
@@ -51,7 +49,7 @@ namespace Wheeled.Networking.Client
         {
         }
 
-        void Client.IGameManager.Received(NetDataReader _reader)
+        void Client.IGameManager.Received(Deserializer _reader)
         {
             switch (_reader.ReadMessageType())
             {

@@ -1,6 +1,7 @@
 ﻿#define OUTPUT_PARTIAL_SIMULATION
 
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Wheeled.Gameplay.Movement
 {
@@ -29,7 +30,6 @@ namespace Wheeled.Gameplay.Movement
 
         public int Step { get; private set; }
         public bool IsRunning { get; private set; }
-        public int maxTrustedSteps;
 
         public IValidationTarget validationTarget;
         public ICorrectionTarget correctionTarget;
@@ -44,6 +44,33 @@ namespace Wheeled.Gameplay.Movement
         private int m_Length => m_buffer.Length;
         private SimulationStepInfo m_last;
         private int m_trustedSteps;
+        private int m_maxTrustedSteps;
+        private int m_lastCorrectedStep;
+        private int m_minCorrectionRate;
+
+        public int MaxTrustedSteps
+        {
+            get => m_maxTrustedSteps;
+            set
+            {
+                Debug.Assert(value > 0);
+                m_maxTrustedSteps = value;
+                if (m_trustedSteps > m_maxTrustedSteps)
+                {
+                    SendCorrection();
+                }
+            }
+        }
+
+        public int MinCorrectionRate
+        {
+            get => m_minCorrectionRate;
+            set
+            {
+                Debug.Assert(value > 0);
+                m_minCorrectionRate = value;
+            }
+        }
 
         private int GetStep(int _step)
         {
@@ -53,10 +80,22 @@ namespace Wheeled.Gameplay.Movement
         public MovementValidator(float _duration)
         {
             m_buffer = new Node[TimeStep.GetStepsInPeriod(_duration)];
+            MaxTrustedSteps = 2;
+            m_lastCorrectedStep = -1;
+            MinCorrectionRate = 1;
+        }
+
+        private void SendCorrectionIfNeeded()
+        {
+            if (m_lastCorrectedStep + m_minCorrectionRate <= Step)
+            {
+                SendCorrection();
+            }
         }
 
         public void SendCorrection()
         {
+            m_lastCorrectedStep = Step;
             m_trustedSteps = 0;
             correctionTarget?.Corrected(Step, m_last);
         }
@@ -71,6 +110,7 @@ namespace Wheeled.Gameplay.Movement
 
         public void StartAt(int _step, bool _clearBuffer)
         {
+            m_lastCorrectedStep = -1;
             if (_clearBuffer)
             {
                 ClearBuffer();
@@ -167,23 +207,23 @@ namespace Wheeled.Gameplay.Movement
                 if (!SimulationStep.IsNearlyEqual(m_last.simulation, m_buffer[bufInd].simulation.Value))
                 {
                     Debugging.Printer.DebugIncrement("WrongData");
-                    SendCorrection();
+                    SendCorrectionIfNeeded();
                 }
             }
             else
             {
                 m_trustedSteps++;
-                if (m_trustedSteps > maxTrustedSteps)
+                if (m_trustedSteps > m_maxTrustedSteps)
                 {
                     Debugging.Printer.DebugIncrement("NoData");
-                    SendCorrection();
+                    SendCorrectionIfNeeded();
                 }
             }
             m_buffer[bufInd] = new Node();
             Step++;
         }
 
-        public void Update()
+        public void UpdateUntil(int _step)
         {
             if (IsRunning)
             {
@@ -191,7 +231,7 @@ namespace Wheeled.Gameplay.Movement
                 {
                     Validate();
                 }
-                while (Step < RoomTime.Now.Step)
+                while (Step < _step)
                 {
                     Validate();
                 }

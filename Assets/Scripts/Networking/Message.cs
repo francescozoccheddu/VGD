@@ -160,8 +160,15 @@ namespace Wheeled.Networking
 
     }
 
-    internal static class Deserializer
+    internal sealed class Deserializer
     {
+
+        private readonly NetDataReader m_netDataReader;
+
+        public Deserializer(NetDataReader _netDataReader)
+        {
+            m_netDataReader = _netDataReader;
+        }
 
         public sealed class DeserializationException : Exception { }
 
@@ -173,178 +180,178 @@ namespace Wheeled.Networking
             }
         }
 
-        private static bool ReadBool(this NetDataReader _netDataReader)
+        private bool ReadBool()
         {
-            EnsureRead(_netDataReader.TryGetBool(out bool value));
+            EnsureRead(m_netDataReader.TryGetBool(out bool value));
             return value;
         }
 
-        private static float ReadFloat(this NetDataReader _netDataReader)
+        private float ReadFloat()
         {
-            EnsureRead(_netDataReader.TryGetFloat(out float value));
+            EnsureRead(m_netDataReader.TryGetFloat(out float value));
             return value;
         }
 
-        private static uint ReadUint(this NetDataReader _netDataReader)
+        private uint ReadUint()
         {
-            EnsureRead(_netDataReader.TryGetUInt(out uint value));
+            EnsureRead(m_netDataReader.TryGetUInt(out uint value));
             return value;
         }
 
-        private static int ReadInt(this NetDataReader _netDataReader)
+        private int ReadInt()
         {
-            EnsureRead(_netDataReader.TryGetInt(out int value));
+            EnsureRead(m_netDataReader.TryGetInt(out int value));
             return value;
         }
 
-        private static byte ReadByte(this NetDataReader _netDataReader)
+        private byte ReadByte()
         {
-            EnsureRead(_netDataReader.TryGetByte(out byte value));
+            EnsureRead(m_netDataReader.TryGetByte(out byte value));
             return value;
         }
 
-        private static string ReadString(this NetDataReader _netDataReader)
+        private string ReadString()
         {
-            EnsureRead(_netDataReader.TryGetString(out string value));
+            EnsureRead(m_netDataReader.TryGetString(out string value));
             return value;
         }
 
-        private static T ReadEnum<T>(this NetDataReader _netDataReader) where T : Enum
+        private T ReadEnum<T>() where T : Enum
         {
-            byte b = _netDataReader.ReadByte();
+            byte b = ReadByte();
             object value = Enum.ToObject(typeof(T), b);
             EnsureRead(Enum.IsDefined(typeof(T), value));
             return (T) value;
         }
 
-        private static Vector3 ReadVector3(this NetDataReader _netDataReader)
+        private Vector3 ReadVector3()
         {
             return new Vector3
             {
-                x = _netDataReader.ReadFloat(),
-                y = _netDataReader.ReadFloat(),
-                z = _netDataReader.ReadFloat()
+                x = ReadFloat(),
+                y = ReadFloat(),
+                z = ReadFloat()
             };
         }
 
-        private static InputStep ReadInputStep(this NetDataReader _netDataReader)
+        private InputStep ReadInputStep()
         {
             return new InputStep
             {
-                dash = _netDataReader.ReadBool(),
-                jump = _netDataReader.ReadBool(),
-                movementX = _netDataReader.ReadFloat(),
-                movementZ = _netDataReader.ReadFloat()
+                dash = ReadBool(),
+                jump = ReadBool(),
+                movementX = ReadFloat(),
+                movementZ = ReadFloat()
             };
         }
 
-        private static SimulationStep ReadSimulationStep(this NetDataReader _netDataReader)
+        private SimulationStep ReadSimulationStep()
         {
             return new SimulationStep
             {
-                velocity = _netDataReader.ReadVector3(),
-                position = _netDataReader.ReadVector3()
+                velocity = ReadVector3(),
+                position = ReadVector3()
             };
         }
 
-        private static SimulationStepInfo ReadSimulationStepInfo(this NetDataReader _netDataReader)
+        private SimulationStepInfo ReadSimulationStepInfo()
         {
             return new SimulationStepInfo
             {
-                input = _netDataReader.ReadInputStep(),
-                simulation = _netDataReader.ReadSimulationStep()
+                input = ReadInputStep(),
+                simulation = ReadSimulationStep()
             };
         }
 
-        private static Sight ReadSight(this NetDataReader _netDataReader)
+        private Sight ReadSight()
         {
             return new Sight
             {
-                Turn = _netDataReader.ReadFloat(),
-                LookUp = _netDataReader.ReadFloat(),
+                Turn = ReadFloat(),
+                LookUp = ReadFloat(),
             };
         }
 
-        private static Snapshot ReadSnapshot(this NetDataReader _netDataReader)
+        private Snapshot ReadSnapshot()
         {
             return new Snapshot
             {
-                simulation = _netDataReader.ReadSimulationStep(),
-                sight = _netDataReader.ReadSight()
+                simulation = ReadSimulationStep(),
+                sight = ReadSight()
             };
         }
 
-        public static Message ReadMessageType(this NetDataReader _netDataReader)
+        public Message ReadMessageType()
         {
-            return _netDataReader.ReadEnum<Message>();
+            return ReadEnum<Message>();
         }
 
-        public static TimeStep ReadTime(this NetDataReader _netDataReader)
+        public TimeStep ReadTime()
         {
             return new TimeStep
             {
-                Step = _netDataReader.ReadInt(),
-                Remainder = _netDataReader.ReadFloat()
+                Step = ReadInt(),
+                Remainder = ReadFloat()
             };
         }
 
-        public static void ReadRoomUpdateMessage(this NetDataReader _netDataReader, out TimeStep _time)
+        public void ReadRoomUpdateMessage(out TimeStep _time)
         {
-            _time = _netDataReader.ReadTime();
+            _time = ReadTime();
         }
 
-        public static void ReadSimulationMessage(this NetDataReader _netDataReader, out int _outFirstStep, InputStep[] _inputStepBuffer, out int _outInputStepCount, out SimulationStep _outSimulation)
+        public void ReadSimulationMessage(out int _outFirstStep, InputStep[] _inputStepBuffer, out int _outInputStepCount, out SimulationStep _outSimulation)
         {
-            _outFirstStep = _netDataReader.ReadInt();
-            _outSimulation = _netDataReader.ReadSimulationStep();
-            _outInputStepCount = _netDataReader.ReadByte();
+            _outFirstStep = ReadInt();
+            _outSimulation = ReadSimulationStep();
+            _outInputStepCount = ReadByte();
             for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
             {
-                _inputStepBuffer[i] = _netDataReader.ReadInputStep();
+                _inputStepBuffer[i] = ReadInputStep();
             }
         }
 
-        public static void ReadSightMessage(this NetDataReader _netDataReader, out int _outStep, out Sight _outSight)
+        public void ReadSightMessage(out int _outStep, out Sight _outSight)
         {
-            _outStep = _netDataReader.ReadInt();
-            _outSight = _netDataReader.ReadSight();
+            _outStep = ReadInt();
+            _outSight = ReadSight();
         }
 
-        public static void ReadSimulationCorrectionMessage(this NetDataReader _netDataReader, out int _outStep, out SimulationStepInfo _outSimulation)
+        public void ReadSimulationCorrectionMessage(out int _outStep, out SimulationStepInfo _outSimulation)
         {
-            _outStep = _netDataReader.ReadInt();
-            _outSimulation = _netDataReader.ReadSimulationStepInfo();
+            _outStep = ReadInt();
+            _outSimulation = ReadSimulationStepInfo();
         }
 
-        public static void ReadMovementReplicationMessage(this NetDataReader _netDataReader, out byte _id, out int _step, out Snapshot _snapshot)
+        public void ReadMovementReplicationMessage(out byte _id, out int _step, out Snapshot _snapshot)
         {
-            _id = _netDataReader.ReadByte();
-            _step = _netDataReader.ReadInt();
-            _snapshot.sight = _netDataReader.ReadSight();
-            _snapshot.simulation = _netDataReader.ReadSimulationStep();
+            _id = ReadByte();
+            _step = ReadInt();
+            _snapshot.sight = ReadSight();
+            _snapshot.simulation = ReadSimulationStep();
         }
 
-        public static void ReadMovementReplicationMessage(this NetDataReader _netDataReader, out byte _id, out int _firstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
+        public void ReadMovementReplicationMessage(out byte _id, out int _firstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
         {
-            _id = _netDataReader.ReadByte();
-            _firstStep = _netDataReader.ReadInt();
-            _snapshot.sight = _netDataReader.ReadSight();
-            _snapshot.simulation = _netDataReader.ReadSimulationStep();
-            _outInputStepCount = _netDataReader.ReadByte();
+            _id = ReadByte();
+            _firstStep = ReadInt();
+            _snapshot.sight = ReadSight();
+            _snapshot.simulation = ReadSimulationStep();
+            _outInputStepCount = ReadByte();
             for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
             {
-                _inputStepBuffer[i] = _netDataReader.ReadInputStep();
+                _inputStepBuffer[i] = ReadInputStep();
             }
         }
 
-        public static void ReadSimulationAndSightMessage(this NetDataReader _netDataReader, out int _firstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
+        public void ReadSimulationAndSightMessage(out int _firstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
         {
-            _firstStep = _netDataReader.ReadInt();
-            _snapshot = _netDataReader.ReadSnapshot();
-            _outInputStepCount = _netDataReader.ReadByte();
+            _firstStep = ReadInt();
+            _snapshot = ReadSnapshot();
+            _outInputStepCount = ReadByte();
             for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
             {
-                _inputStepBuffer[i] = _netDataReader.ReadInputStep();
+                _inputStepBuffer[i] = ReadInputStep();
             }
         }
 

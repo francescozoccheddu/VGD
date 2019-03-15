@@ -1,6 +1,4 @@
-﻿using LiteNetLib.Utils;
-
-namespace Wheeled.Networking.Client
+﻿namespace Wheeled.Networking.Client
 {
 
     internal sealed partial class Client : IGameHost
@@ -11,7 +9,7 @@ namespace Wheeled.Networking.Client
 
             void LatencyUpdated(float _latency);
 
-            void Received(NetDataReader _reader);
+            void Received(Deserializer _reader);
 
             void Stopped();
 

@@ -1,6 +1,4 @@
-﻿using LiteNetLib;
-using LiteNetLib.Utils;
-using System.Net;
+﻿using System.Net;
 
 namespace Wheeled.Networking.Client
 {
@@ -11,16 +9,16 @@ namespace Wheeled.Networking.Client
         public interface IServer
         {
             float Ping { get; }
-            void Send(DeliveryMethod _method);
+            void Send(bool _reliable);
         }
 
         #region Client.IServer
 
         float IServer.Ping => m_server.Ping;
 
-        void IServer.Send(DeliveryMethod _method)
+        void IServer.Send(bool _reliable)
         {
-            m_server.Send(_method);
+            m_server.Send(_reliable);
         }
 
         #endregion
@@ -50,7 +48,7 @@ namespace Wheeled.Networking.Client
             }
         }
 
-        void NetworkManager.IEventListener.Discovered(IPEndPoint _endPoint, NetDataReader _reader)
+        void NetworkManager.IEventListener.Discovered(IPEndPoint _endPoint, Deserializer _reader)
         {
             // TODO Parse info
             OnRoomDiscovered?.Invoke(new GameRoomInfo(_endPoint, "", 0));
@@ -68,7 +66,7 @@ namespace Wheeled.Networking.Client
             }
         }
 
-        void NetworkManager.IEventListener.ReceivedFrom(NetworkManager.Peer _peer, NetPacketReader _reader)
+        void NetworkManager.IEventListener.ReceivedFrom(NetworkManager.Peer _peer, Deserializer _reader)
         {
             if (_peer == m_server)
             {
@@ -80,12 +78,12 @@ namespace Wheeled.Networking.Client
             }
         }
 
-        bool NetworkManager.IEventListener.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, NetDataReader _reader)
+        bool NetworkManager.IEventListener.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, Deserializer _reader)
         {
             return false;
         }
 
-        NetworkManager.DiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(NetDataReader _reader)
+        NetworkManager.DiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(Deserializer _reader)
         {
             return NetworkManager.DiscoveryRequestAction.Ignore;
         }

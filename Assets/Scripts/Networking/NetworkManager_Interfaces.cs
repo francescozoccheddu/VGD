@@ -11,7 +11,7 @@ namespace Wheeled.Networking
 
         void INetEventListener.OnConnectionRequest(ConnectionRequest _request)
         {
-            if (listener?.ShouldAcceptConnectionRequest(new Peer(_request.Peer), _request.Data) == true)
+            if (listener?.ShouldAcceptConnectionRequest(new Peer(_request.Peer), new Deserializer(_request.Data)) == true)
             {
                 _request.Accept();
             }
@@ -36,14 +36,14 @@ namespace Wheeled.Networking
 
         void INetEventListener.OnNetworkReceive(NetPeer _peer, NetPacketReader _reader, DeliveryMethod _deliveryMethod)
         {
-            listener?.ReceivedFrom(new Peer(_peer), _reader);
+            listener?.ReceivedFrom(new Peer(_peer), new Deserializer(_reader));
         }
 
         void INetEventListener.OnNetworkReceiveUnconnected(IPEndPoint _remoteEndPoint, NetPacketReader _reader, UnconnectedMessageType _messageType)
         {
             if (_messageType == UnconnectedMessageType.DiscoveryRequest)
             {
-                DiscoveryRequestAction? action = listener?.DiscoveryRequested(_reader);
+                DiscoveryRequestAction? action = listener?.DiscoveryRequested(new Deserializer(_reader));
                 switch (action)
                 {
                     case DiscoveryRequestAction.Reply:
@@ -56,7 +56,7 @@ namespace Wheeled.Networking
             }
             else if (_messageType == UnconnectedMessageType.DiscoveryResponse)
             {
-                listener?.Discovered(_remoteEndPoint, _reader);
+                listener?.Discovered(_remoteEndPoint, new Deserializer(_reader));
             }
         }
 

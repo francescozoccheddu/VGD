@@ -18,6 +18,14 @@ namespace Wheeled.Gameplay
         private Vector3 m_position;
         private Sight m_sight;
 
+        public PlayerView()
+        {
+            isPositionInterpolationEnabled = false;
+            isSightInterpolationEnabled = false;
+            positionInterpolationQuickness = 4.0f;
+            sightInterpolationQuickness = 2.0f;
+        }
+
         private void EnsureSpawned()
         {
             if (m_gameObject == null)
