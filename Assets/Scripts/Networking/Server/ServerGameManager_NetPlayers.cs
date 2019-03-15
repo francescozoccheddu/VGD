@@ -18,11 +18,11 @@ namespace Wheeled.Networking.Server
             private readonly MovementHistory m_movementHistory;
             private readonly PlayerView m_view;
 
-            public readonly int id;
+            public readonly byte id;
             public readonly NetworkManager.Peer peer;
             public bool IsStarted { get; private set; }
 
-            public NetPlayer(ServerGameManager _manager, int _id, NetworkManager.Peer _peer)
+            public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer)
             {
                 m_manager = _manager;
                 id = _id;

@@ -13,11 +13,7 @@ namespace Wheeled.Networking.Client
     {
 
         private readonly Updatable m_updatable;
-        private const float c_controllerOffset = 0.5f;
-        private readonly MovementController m_movementController;
-        private readonly PlayerView m_view;
         private readonly Client.IServer m_server;
-        private int m_localPlayerId;
         private readonly Dictionary<int, NetPlayer> m_netPlayers;
 
         public ClientGameManager(Client.IServer _server)
@@ -99,9 +95,7 @@ namespace Wheeled.Networking.Client
         void Updatable.ITarget.Update()
         {
             RoomTime.Manager.Update();
-            m_movementController.Update();
-            m_view.Move(m_movementController.ViewSnapshot);
-            m_view.Update(Time.deltaTime);
+            UpdateLocalPlayer();
         }
 
         #endregion

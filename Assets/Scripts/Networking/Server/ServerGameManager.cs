@@ -15,7 +15,7 @@ namespace Wheeled.Networking.Server
 
         private readonly Updatable m_updatable;
         private readonly List<NetPlayer> m_netPlayers;
-        private int m_nextPlayerId;
+        private byte m_nextPlayerId;
 
         public ServerGameManager()
         {
@@ -26,7 +26,12 @@ namespace Wheeled.Networking.Server
             RoomTime.Manager.Set(TimeStep.zero, false);
             RoomTime.Manager.Start();
             m_netPlayers = new List<NetPlayer>();
-            m_nextPlayerId = 0;
+            m_nextPlayerId = 1;
+
+
+            m_movementController = new MovementController(3.0f);
+            m_view = new PlayerView();
+            StartLocalPlayer();
         }
 
         private NetPlayer GetNetPlayerByPeer(NetworkManager.Peer _peer)
@@ -151,6 +156,8 @@ namespace Wheeled.Networking.Server
             }
         }
 
+        #endregion
+
         void Updatable.ITarget.Update()
         {
             RoomTime.Manager.Update();
@@ -160,13 +167,31 @@ namespace Wheeled.Networking.Server
                 m_lastRoomUpdateTime = RoomTime.Now;
                 RoomUpdate();
             }
+            UpdateLocalPlayer();
             foreach (NetPlayer player in m_netPlayers)
             {
                 player.Update();
             }
         }
 
-        #endregion
+        private void SendAll(DeliveryMethod _deliveryMethod)
+        {
+            foreach (NetPlayer netPlayer in m_netPlayers)
+            {
+                netPlayer.peer.Send(Serializer.writer, _deliveryMethod);
+            }
+        }
+
+        private void SendAllBut(NetworkManager.Peer _peer, DeliveryMethod _deliveryMethod)
+        {
+            foreach (NetPlayer netPlayer in m_netPlayers)
+            {
+                if (netPlayer.peer != _peer)
+                {
+                    netPlayer.peer.Send(Serializer.writer, _deliveryMethod);
+                }
+            }
+        }
 
     }
 

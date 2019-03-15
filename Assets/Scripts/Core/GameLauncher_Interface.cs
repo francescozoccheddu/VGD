@@ -100,12 +100,22 @@ namespace Wheeled.Core
             }
         }
 
+        private bool m_isQuitting = false;
+
+        private void OnApplicationQuit()
+        {
+            m_isQuitting = true;
+        }
+
         public void QuitGame()
         {
             if (m_host != null)
             {
                 m_host.Stop();
-                LoadScene(ScriptManager.Scenes.menu);
+                if (!m_isQuitting)
+                {
+                    LoadScene(ScriptManager.Scenes.menu);
+                }
             }
             else
             {

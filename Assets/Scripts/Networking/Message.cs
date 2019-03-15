@@ -10,10 +10,13 @@ namespace Wheeled.Networking
 
     internal enum Message
     {
+        // TODO Optimization: Add messages for combined simulation and sight
         // Movement
-        Simulation, SimulationReplication, SimulationCorrection, Sight, SightReplication, SimulationAndSightReplication,
+        Simulation, SimulationReplication, SimulationCorrection, Sight, SightReplication,
         // Room
         RoomUpdate, Ready,
+        // Actions
+        SpawnOrder, DeathOrder, Shoot, ShootReplication, HitFeedback, HitNotify, Kaze
     }
 
     internal static class Serializer
@@ -116,6 +119,12 @@ namespace Wheeled.Networking
             writer.Reset();
             writer.Put(Message.Ready);
         }
+
+        public static void WriteSightReplicationMessage(byte _id, int _step, in Sight _sight)
+        {
+
+        }
+
 
     }
 
