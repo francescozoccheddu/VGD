@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Movement;
 
@@ -9,14 +10,32 @@ namespace Wheeled.Networking.Client
     {
 
         private const float c_controllerOffset = 0.5f;
+        private const int c_controllerSendFrequency = 10;
         private readonly MovementController m_movementController;
         private readonly PlayerView m_view;
+        private int m_lastSendStep;
+        private float m_timeSinceLastSend;
+        private readonly InputStep[] m_inputBuffer;
+
+        private void ScheduleLocalPlayerSend()
+        {
+            m_lastSendStep = -1;
+        }
 
         private void UpdateLocalPlayer()
         {
             m_movementController.UpdateUntil(RoomTime.Now + c_controllerOffset);
             m_view.Move(m_movementController.ViewSnapshot);
             m_view.Update(Time.deltaTime);
+            m_timeSinceLastSend += Time.deltaTime;
+            if (m_lastSendStep == -1 || (m_lastSendStep < m_movementController.Time.Step && m_timeSinceLastSend >= 1.0f / c_controllerSendFrequency))
+            {
+                m_timeSinceLastSend = 0.0f;
+                m_lastSendStep = m_movementController.Time.Step;
+                m_movementController.PullInputBuffer(m_inputBuffer, out int inputStepsCount);
+                Serializer.WriteMovementNotifyMessage(m_lastSendStep - inputStepsCount + 1, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepsCount), m_movementController.RawSnapshot);
+                m_server.Send(false);
+            }
         }
 
     }

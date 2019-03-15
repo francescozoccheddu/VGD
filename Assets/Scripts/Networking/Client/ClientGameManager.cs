@@ -35,10 +35,18 @@ namespace Wheeled.Networking.Client
                 IsRunning = true
             };
             m_server = _server;
-            Debug.Log("ClientGameManager constructed");
-            m_movementController = new MovementController(3.0f);
+            // Local player
+            int maxInputStepCount = TimeStep.GetStepsInPeriod(1.0f / c_controllerSendFrequency) + 1;
+            m_movementController = new MovementController(3.0f)
+            {
+                InputBufferSize = maxInputStepCount
+            };
             m_view = new PlayerView();
+            ScheduleLocalPlayerSend();
+            m_inputBuffer = new InputStep[maxInputStepCount];
+            // Net players
             m_netPlayers = new Dictionary<int, NetPlayer>();
+            // Ready notify
             Serializer.WriteReadyMessage();
             m_server.Send(false);
         }
@@ -62,6 +70,7 @@ namespace Wheeled.Networking.Client
                     RoomTime.Manager.Start();
                     if (!m_movementController.IsRunning)
                     {
+                        ScheduleLocalPlayerSend();
                         m_movementController.StartAt(RoomTime.Now);
                     }
                 }
@@ -90,15 +99,12 @@ namespace Wheeled.Networking.Client
 
         #endregion
 
-        #region Room Update
 
         void Updatable.ITarget.Update()
         {
             RoomTime.Manager.Update();
             UpdateLocalPlayer();
         }
-
-        #endregion
 
     }
 

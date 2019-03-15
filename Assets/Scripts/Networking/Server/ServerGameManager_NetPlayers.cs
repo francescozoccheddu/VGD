@@ -12,11 +12,13 @@ namespace Wheeled.Networking.Server
         private sealed class NetPlayer : MovementValidator.ICorrectionTarget, MovementValidator.IValidationTarget
         {
 
+            private const int c_maxCorrectionFrequency = 2;
             private const int c_historyCacheSteps = 100;
             private readonly ServerGameManager m_manager;
             private readonly MovementValidator m_movementValidator;
             private readonly MovementHistory m_movementHistory;
             private readonly PlayerView m_view;
+            private float m_timeSinceLastCorrection;
 
             public readonly byte id;
             public readonly NetworkManager.Peer peer;
@@ -32,7 +34,6 @@ namespace Wheeled.Networking.Server
                     correctionTarget = this,
                     validationTarget = this,
                     MaxTrustedSteps = 10,
-                    MinCorrectionRate = 3,
                 };
                 m_movementHistory = new MovementHistory(true);
                 m_view = new PlayerView();
@@ -59,6 +60,7 @@ namespace Wheeled.Networking.Server
 
             public void Update()
             {
+                m_timeSinceLastCorrection += Time.deltaTime;
                 m_movementValidator.UpdateUntil(RoomTime.Now.Step);
                 m_movementHistory.TrimOlder(RoomTime.Now.Step - c_historyCacheSteps, true);
                 Snapshot snapshot = new Snapshot();
@@ -83,8 +85,12 @@ namespace Wheeled.Networking.Server
 
             void MovementValidator.ICorrectionTarget.Corrected(int _step, in SimulationStepInfo _simulation)
             {
-                Serializer.WriteSimulationCorrectionMessage(_step, _simulation);
-                peer.Send(false);
+                if (m_timeSinceLastCorrection >= 1.0f / c_maxCorrectionFrequency)
+                {
+                    m_timeSinceLastCorrection = 0.0f;
+                    Serializer.WriteSimulationCorrectionMessage(_step, _simulation);
+                    peer.Send(false);
+                }
             }
 
             void MovementValidator.ICorrectionTarget.Rejected(int _step, bool _newer)
