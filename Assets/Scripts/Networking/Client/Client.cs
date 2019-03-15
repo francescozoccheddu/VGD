@@ -59,7 +59,7 @@ namespace Wheeled.Networking.Client
             RoomInfo = _room;
             NetworkManager.instance.listener = this;
             NetworkManager.instance.StartOnAvailablePort();
-            m_server = NetworkManager.instance.ConnectTo(_room.endPoint);
+            m_server = NetworkManager.instance.ConnectTo(_room.endPoint, false);
             m_wasStarted = true;
         }
 
@@ -77,7 +77,7 @@ namespace Wheeled.Networking.Client
         {
             NetworkManager.instance.listener = this;
             NetworkManager.instance.StartOnAvailablePort();
-            NetworkManager.instance.StartDiscovery(_port);
+            NetworkManager.instance.StartDiscovery(_port, false);
         }
 
         void IGameHost.Stop()

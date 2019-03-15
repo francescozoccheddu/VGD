@@ -39,18 +39,16 @@ namespace Wheeled.Networking.Server
             return m_game?.ShouldAcceptConnectionRequest(_peer, _reader) == true;
         }
 
-        bool NetworkManager.IEventListener.ShouldReplyToDiscoveryRequest(out NetDataWriter _outWriter)
+        NetworkManager.DiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(NetDataReader _reader)
         {
             if (m_game?.ShouldReplyToDiscoveryRequest() == true)
             {
-                _outWriter = new NetDataWriter();
                 // TODO Inject room data
-                return true;
+                return NetworkManager.DiscoveryRequestAction.Reply;
             }
             else
             {
-                _outWriter = null;
-                return false;
+                return NetworkManager.DiscoveryRequestAction.Ignore;
             }
         }
 

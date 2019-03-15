@@ -106,13 +106,23 @@ namespace Wheeled.Networking.Server
                     }
                 }
                 break;
+                case Message.SimulationAndSight:
+                {
+                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
+                    {
+                        _reader.ReadSimulationAndSightMessage(out int firstStep, out int inputStepCount, m_inputStepBuffer, out Snapshot snapshot);
+                        netPlayer.Sight(firstStep + inputStepCount - 1, snapshot.sight);
+                        netPlayer.Move(firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), snapshot.simulation);
+                    }
+                }
+                break;
                 case Message.Ready:
                 {
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
                         netPlayer.Start();
                         PrepareRoomUpdateMessage();
-                        _peer.Send(Serializer.writer, DeliveryMethod.Unreliable);
+                        _peer.Send(DeliveryMethod.Unreliable);
                     }
                 }
                 break;
@@ -155,7 +165,7 @@ namespace Wheeled.Networking.Server
             PrepareRoomUpdateMessage();
             foreach (NetPlayer netPlayer in m_netPlayers)
             {
-                netPlayer.peer.Send(Serializer.writer, DeliveryMethod.Unreliable);
+                netPlayer.peer.Send(DeliveryMethod.Unreliable);
             }
         }
 
@@ -181,7 +191,7 @@ namespace Wheeled.Networking.Server
         {
             foreach (NetPlayer netPlayer in m_netPlayers)
             {
-                netPlayer.peer.Send(Serializer.writer, _deliveryMethod);
+                netPlayer.peer.Send(_deliveryMethod);
             }
         }
 
@@ -191,7 +201,7 @@ namespace Wheeled.Networking.Server
             {
                 if (netPlayer.peer != _peer)
                 {
-                    netPlayer.peer.Send(Serializer.writer, _deliveryMethod);
+                    netPlayer.peer.Send(_deliveryMethod);
                 }
             }
         }

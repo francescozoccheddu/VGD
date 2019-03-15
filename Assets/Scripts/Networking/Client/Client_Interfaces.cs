@@ -11,16 +11,16 @@ namespace Wheeled.Networking.Client
         public interface IServer
         {
             float Ping { get; }
-            void Send(NetDataWriter _writer, DeliveryMethod _method);
+            void Send(DeliveryMethod _method);
         }
 
         #region Client.IServer
 
         float IServer.Ping => m_server.Ping;
 
-        void IServer.Send(NetDataWriter _writer, DeliveryMethod _method)
+        void IServer.Send(DeliveryMethod _method)
         {
-            m_server.Send(_writer, _method);
+            m_server.Send(_method);
         }
 
         #endregion
@@ -85,10 +85,9 @@ namespace Wheeled.Networking.Client
             return false;
         }
 
-        bool NetworkManager.IEventListener.ShouldReplyToDiscoveryRequest(out NetDataWriter _writer)
+        NetworkManager.DiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(NetDataReader _reader)
         {
-            _writer = null;
-            return false;
+            return NetworkManager.DiscoveryRequestAction.Ignore;
         }
 
         void NetworkManager.IEventListener.Stopped(NetworkManager.StopCause _cause)

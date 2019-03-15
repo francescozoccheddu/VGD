@@ -67,11 +67,16 @@ namespace Wheeled.Networking
                 return (m_peer?.Id)?.GetHashCode() ?? 0;
             }
 
-            public void Send(NetDataWriter _writer, DeliveryMethod _method)
+            public void Send(DeliveryMethod _method)
             {
-                m_peer?.Send(_writer, _method);
+                m_peer?.Send(Serializer.writer, _method);
             }
 
+        }
+
+        public enum DiscoveryRequestAction
+        {
+            Ignore, Reply, ReplyWithData
         }
 
         public interface IEventListener
@@ -85,7 +90,7 @@ namespace Wheeled.Networking
 
             bool ShouldAcceptConnectionRequest(Peer _peer, NetDataReader _reader);
 
-            bool ShouldReplyToDiscoveryRequest(out NetDataWriter _writer);
+            DiscoveryRequestAction DiscoveryRequested(NetDataReader _reader);
 
             void LatencyUpdated(Peer _peer, float _latency);
 
@@ -122,7 +127,7 @@ namespace Wheeled.Networking
                 SimulationPacketLossChance = 20,
                 SimulateLatency = c_simulateBadNetwork,
                 SimulationMinLatency = 10,
-                SimulationMaxLatency = 200
+                SimulationMaxLatency = 200,
             };
         }
 
@@ -143,12 +148,19 @@ namespace Wheeled.Networking
             }
         }
 
-        public void StartDiscovery(int _port)
+        public void StartDiscovery(int _port, bool _sendData)
         {
             NotifyIfNotRunning();
             if (IsRunning)
             {
-                m_netManager.SendDiscoveryRequest(new byte[0], _port);
+                if (_sendData)
+                {
+                    m_netManager.SendDiscoveryRequest(new byte[0], _port);
+                }
+                else
+                {
+                    m_netManager.SendDiscoveryRequest(Serializer.writer, _port);
+                }
             }
         }
 
@@ -179,12 +191,12 @@ namespace Wheeled.Networking
             }
         }
 
-        public Peer ConnectTo(IPEndPoint _endPoint, NetDataWriter _writer = null)
+        public Peer ConnectTo(IPEndPoint _endPoint, bool _sendData)
         {
             NotifyIfNotRunning();
             if (IsRunning)
             {
-                return new Peer(m_netManager.Connect(_endPoint, _writer ?? s_emptyDataWriter));
+                return new Peer(m_netManager.Connect(_endPoint, _sendData ? Serializer.writer : s_emptyDataWriter));
             }
             else
             {

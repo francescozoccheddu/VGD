@@ -1,5 +1,4 @@
 ﻿using LiteNetLib;
-using LiteNetLib.Utils;
 using System.Net;
 using System.Net.Sockets;
 
@@ -44,22 +43,20 @@ namespace Wheeled.Networking
         {
             if (_messageType == UnconnectedMessageType.DiscoveryRequest)
             {
-                NetDataWriter writer = null;
-                if (listener?.ShouldReplyToDiscoveryRequest(out writer) == true)
+                DiscoveryRequestAction? action = listener?.DiscoveryRequested(_reader);
+                switch (action)
                 {
-                    if (writer != null)
-                    {
-                        m_netManager.SendDiscoveryResponse(writer, _remoteEndPoint);
-                    }
-                    else
-                    {
-                        m_netManager.SendDiscoveryResponse(new byte[0], _remoteEndPoint);
-                    }
+                    case DiscoveryRequestAction.Reply:
+                    m_netManager.SendDiscoveryResponse(new byte[0], _remoteEndPoint);
+                    break;
+                    case DiscoveryRequestAction.ReplyWithData:
+                    m_netManager.SendDiscoveryResponse(Serializer.writer, _remoteEndPoint);
+                    break;
                 }
             }
             else if (_messageType == UnconnectedMessageType.DiscoveryResponse)
             {
-                listener.Discovered(_remoteEndPoint, _reader);
+                listener?.Discovered(_remoteEndPoint, _reader);
             }
         }
 

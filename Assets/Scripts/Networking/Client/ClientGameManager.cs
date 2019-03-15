@@ -9,12 +9,26 @@ using Wheeled.Gameplay.Movement;
 namespace Wheeled.Networking.Client
 {
 
-    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, MovementController.IFlushTarget
+    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager
     {
 
         private readonly Updatable m_updatable;
         private readonly Client.IServer m_server;
         private readonly Dictionary<int, NetPlayer> m_netPlayers;
+
+        private NetPlayer GetOrCreatePlayer(int _id)
+        {
+            if (m_netPlayers.TryGetValue(_id, out NetPlayer netPlayer))
+            {
+                return netPlayer;
+            }
+            else
+            {
+                NetPlayer newNetPlayer = new NetPlayer(_id);
+                m_netPlayers.Add(_id, newNetPlayer);
+                return newNetPlayer;
+            }
+        }
 
         public ClientGameManager(Client.IServer _server)
         {
@@ -31,28 +45,8 @@ namespace Wheeled.Networking.Client
             m_view = new PlayerView();
             m_netPlayers = new Dictionary<int, NetPlayer>();
             Serializer.WriteReadyMessage();
-            m_server.Send(Serializer.writer, DeliveryMethod.ReliableUnordered);
+            m_server.Send(DeliveryMethod.ReliableUnordered);
         }
-
-        #region InteractivePlayer.IFlushTarget
-
-        void MovementController.IFlushTarget.FlushSimulation(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in SimulationStep _simulation)
-        {
-            Serializer.WriteSimulationMessage(_firstStep, _inputSteps, _simulation);
-            m_server.Send(Serializer.writer, LiteNetLib.DeliveryMethod.Unreliable);
-        }
-
-        void MovementController.IFlushTarget.FlushSight(int _step, in Sight _sight)
-        {
-            Serializer.WriteSightMessage(_step, _sight);
-            m_server.Send(Serializer.writer, LiteNetLib.DeliveryMethod.Unreliable);
-        }
-
-        void MovementController.IFlushTarget.FlushCombined(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
-        {
-        }
-
-        #endregion
 
         #region Client.IGameManager
 
@@ -81,6 +75,12 @@ namespace Wheeled.Networking.Client
                     _reader.ReadSimulationCorrectionMessage(out int step, out SimulationStepInfo _simulation);
                     Debug.LogFormat("Reconciliation {0}", step);
                     m_movementController.Correct(step, _simulation);
+                }
+                break;
+                case Message.MovementReplication:
+                {
+                    _reader.ReadMovementReplicationMessage(out byte id, out int step, out Snapshot snapshot);
+                    GetOrCreatePlayer(id).Move(step, snapshot);
                 }
                 break;
             }

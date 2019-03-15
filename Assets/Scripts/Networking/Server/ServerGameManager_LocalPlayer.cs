@@ -14,7 +14,8 @@ namespace Wheeled.Networking.Server
 
         void MovementController.IFlushTarget.FlushCombined(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
         {
-            Debug.Log("CombinedFlush");
+            Serializer.WriteMovementReplicationMessage(0, _firstStep, _snapshot.sight, _inputSteps, _snapshot.simulation);
+            SendAll(LiteNetLib.DeliveryMethod.Unreliable);
         }
 
         void MovementController.IFlushTarget.FlushSight(int _step, in Sight _sight)
@@ -23,7 +24,6 @@ namespace Wheeled.Networking.Server
 
         void MovementController.IFlushTarget.FlushSimulation(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in SimulationStep _simulation)
         {
-
         }
 
         private void StartLocalPlayer()

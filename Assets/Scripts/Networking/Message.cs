@@ -12,7 +12,7 @@ namespace Wheeled.Networking
     {
         // TODO Optimization: Add messages for combined simulation and sight
         // Movement
-        Simulation, SimulationCorrection, Sight, MovementReplication,
+        Simulation, SimulationCorrection, Sight, MovementReplication, SimulationAndSight,
         // Room
         RoomUpdate, Ready,
         // Actions
@@ -138,6 +138,19 @@ namespace Wheeled.Networking
             writer.Put(_firstStep);
             writer.Put(_sight);
             writer.Put(_simulation);
+            writer.Put((byte) _inputSteps.Count);
+            foreach (InputStep inputStep in _inputSteps)
+            {
+                writer.Put(inputStep);
+            }
+        }
+
+        public static void WriteSimulationAndSightMessage(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
+        {
+            writer.Reset();
+            writer.Put(Message.SimulationAndSight);
+            writer.Put(_firstStep);
+            writer.Put(_snapshot);
             writer.Put((byte) _inputSteps.Count);
             foreach (InputStep inputStep in _inputSteps)
             {
@@ -303,20 +316,31 @@ namespace Wheeled.Networking
             _outSimulation = _netDataReader.ReadSimulationStepInfo();
         }
 
-        public static void WriteMovementReplicationMessage(this NetDataReader _netDataReader, out byte _id, out int _step, out Sight _sight, out SimulationStep _simulation)
+        public static void ReadMovementReplicationMessage(this NetDataReader _netDataReader, out byte _id, out int _step, out Snapshot _snapshot)
         {
             _id = _netDataReader.ReadByte();
             _step = _netDataReader.ReadInt();
-            _sight = _netDataReader.ReadSight();
-            _simulation = _netDataReader.ReadSimulationStep();
+            _snapshot.sight = _netDataReader.ReadSight();
+            _snapshot.simulation = _netDataReader.ReadSimulationStep();
         }
 
-        public static void WriteMovementReplicationMessage(this NetDataReader _netDataReader, out byte _id, out int _firstStep, out Sight _sight, out int _outInputStepCount, InputStep[] _inputStepBuffer, out SimulationStep _simulation)
+        public static void ReadMovementReplicationMessage(this NetDataReader _netDataReader, out byte _id, out int _firstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
         {
             _id = _netDataReader.ReadByte();
             _firstStep = _netDataReader.ReadInt();
-            _sight = _netDataReader.ReadSight();
-            _simulation = _netDataReader.ReadSimulationStep();
+            _snapshot.sight = _netDataReader.ReadSight();
+            _snapshot.simulation = _netDataReader.ReadSimulationStep();
+            _outInputStepCount = _netDataReader.ReadByte();
+            for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
+            {
+                _inputStepBuffer[i] = _netDataReader.ReadInputStep();
+            }
+        }
+
+        public static void ReadSimulationAndSightMessage(this NetDataReader _netDataReader, out int _firstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
+        {
+            _firstStep = _netDataReader.ReadInt();
+            _snapshot = _netDataReader.ReadSnapshot();
             _outInputStepCount = _netDataReader.ReadByte();
             for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
             {
