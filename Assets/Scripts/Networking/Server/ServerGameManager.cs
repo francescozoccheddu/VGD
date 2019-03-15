@@ -82,29 +82,11 @@ namespace Wheeled.Networking.Server
         {
             switch (_reader.ReadMessageType())
             {
-                case Message.Simulation:
+                case Message.MovementNotify:
                 {
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
-                        _reader.ReadSimulationMessage(out int firstStep, m_inputStepBuffer, out int inputStepsCount, out SimulationStep simulation);
-                        netPlayer.Move(firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepsCount), simulation);
-                    }
-                }
-                break;
-                case Message.Sight:
-                {
-                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
-                    {
-                        _reader.ReadSightMessage(out int step, out Sight sight);
-                        netPlayer.Sight(step, sight);
-                    }
-                }
-                break;
-                case Message.SimulationAndSight:
-                {
-                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
-                    {
-                        _reader.ReadSimulationAndSightMessage(out int firstStep, out int inputStepCount, m_inputStepBuffer, out Snapshot snapshot);
+                        _reader.ReadMovementNotifyMessage(out int firstStep, m_inputStepBuffer, out int inputStepCount, out Snapshot snapshot);
                         netPlayer.Sight(firstStep + inputStepCount - 1, snapshot.sight);
                         netPlayer.Move(firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), snapshot.simulation);
                     }

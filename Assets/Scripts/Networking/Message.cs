@@ -10,19 +10,20 @@ namespace Wheeled.Networking
 
     internal enum Message
     {
-        // TODO Optimization: Add messages for combined simulation and sight
         // Movement
-        Simulation, SimulationCorrection, Sight, MovementReplication, SimulationAndSight,
+        MovementNotify, SimulationCorrection, MovementReplication, MovementAndInputReplication,
         // Room
         RoomUpdate, Ready,
         // Actions
-        SpawnOrder, DeathOrder, Shoot, ShootReplication, HitFeedback, HitNotify, Kaze
+        SpawnOrder, DeathOrder, ShootNotify, ShootReplication, HitFeedback, HitNotify, Kaze
     }
 
     internal static class Serializer
     {
 
-        #region NetDataWriter Put extension methods
+        public static readonly NetDataWriter writer = new NetDataWriter(true, 128);
+
+        #region Primitive put extension methods
 
         private static void Put(this NetDataWriter _netDataWriter, Enum _value)
         {
@@ -76,27 +77,17 @@ namespace Wheeled.Networking
 
         #endregion
 
-        public static readonly NetDataWriter writer = new NetDataWriter(true, 128);
-
-        public static void WriteSimulationMessage(int _firstStep, IReadOnlyList<InputStep> _steps, in SimulationStep _simulation)
+        public static void WriteMovementNotifyMessage(int _firstStep, IReadOnlyList<InputStep> _steps, in Snapshot _snapshot)
         {
             writer.Reset();
-            writer.Put(Message.Simulation);
+            writer.Put(Message.MovementNotify);
             writer.Put(_firstStep);
-            writer.Put(_simulation);
+            writer.Put(_snapshot);
             writer.Put((byte) _steps.Count);
             foreach (InputStep inputStep in _steps)
             {
                 writer.Put(inputStep);
             }
-        }
-
-        public static void WriteSightMessage(int _step, in Sight _sight)
-        {
-            writer.Reset();
-            writer.Put(Message.Sight);
-            writer.Put(_step);
-            writer.Put(_sight);
         }
 
         public static void WriteSimulationCorrectionMessage(int _step, in SimulationStepInfo _simulationStepInfo)
@@ -107,11 +98,19 @@ namespace Wheeled.Networking
             writer.Put(_simulationStepInfo);
         }
 
+        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(float) + sizeof(int)];
+
         public static void WriteRoomUpdateMessage(in TimeStep _time /* Player stats and status */)
         {
             writer.Reset();
             writer.Put(Message.RoomUpdate);
             writer.Put(_time);
+            {
+                FastBitConverter.GetBytes(s_timeChecksumBuffer, 0, _time.Step);
+                FastBitConverter.GetBytes(s_timeChecksumBuffer, sizeof(int), _time.Remainder);
+                ushort crc = CRC16.Compute(s_timeChecksumBuffer);
+                writer.Put(crc);
+            }
         }
 
         public static void WriteReadyMessage()
@@ -120,35 +119,20 @@ namespace Wheeled.Networking
             writer.Put(Message.Ready);
         }
 
-        public static void WriteMovementReplicationMessage(byte _id, int _step, in Sight _sight, in SimulationStep _simulation)
+        public static void WriteMovementReplicationMessage(byte _id, int _step, in Snapshot _snapshot)
         {
             writer.Reset();
             writer.Put(Message.MovementReplication);
             writer.Put(_id);
             writer.Put(_step);
-            writer.Put(_sight);
-            writer.Put(_simulation);
+            writer.Put(_snapshot);
         }
 
-        public static void WriteMovementReplicationMessage(byte _id, int _firstStep, in Sight _sight, IReadOnlyList<InputStep> _inputSteps, in SimulationStep _simulation)
+        public static void WriteMovementAndInputReplicationMessage(byte _id, int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
         {
             writer.Reset();
-            writer.Put(Message.MovementReplication);
+            writer.Put(Message.MovementAndInputReplication);
             writer.Put(_id);
-            writer.Put(_firstStep);
-            writer.Put(_sight);
-            writer.Put(_simulation);
-            writer.Put((byte) _inputSteps.Count);
-            foreach (InputStep inputStep in _inputSteps)
-            {
-                writer.Put(inputStep);
-            }
-        }
-
-        public static void WriteSimulationAndSightMessage(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
-        {
-            writer.Reset();
-            writer.Put(Message.SimulationAndSight);
             writer.Put(_firstStep);
             writer.Put(_snapshot);
             writer.Put((byte) _inputSteps.Count);
@@ -180,6 +164,8 @@ namespace Wheeled.Networking
             }
         }
 
+        #region Primitive read methods
+
         private bool ReadBool()
         {
             EnsureRead(m_netDataReader.TryGetBool(out bool value));
@@ -201,6 +187,12 @@ namespace Wheeled.Networking
         private int ReadInt()
         {
             EnsureRead(m_netDataReader.TryGetInt(out int value));
+            return value;
+        }
+
+        private ushort ReadUshort()
+        {
+            EnsureRead(m_netDataReader.TryGetUShort(out ushort value));
             return value;
         }
 
@@ -295,26 +287,33 @@ namespace Wheeled.Networking
             };
         }
 
+        #endregion
+
+        #region Message read methods
+
+        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(float) + sizeof(int) + sizeof(ushort)];
+
         public void ReadRoomUpdateMessage(out TimeStep _time)
         {
             _time = ReadTime();
+            {
+                ushort crc = ReadUshort();
+                FastBitConverter.GetBytes(s_timeChecksumBuffer, 0, _time.Step);
+                FastBitConverter.GetBytes(s_timeChecksumBuffer, sizeof(int), _time.Remainder);
+                FastBitConverter.GetBytes(s_timeChecksumBuffer, sizeof(int) + sizeof(float), crc);
+                EnsureRead(CRC16.Compute(s_timeChecksumBuffer) == 0);
+            }
         }
 
-        public void ReadSimulationMessage(out int _outFirstStep, InputStep[] _inputStepBuffer, out int _outInputStepCount, out SimulationStep _outSimulation)
+        public void ReadMovementNotifyMessage(out int _outFirstStep, InputStep[] _inputStepBuffer, out int _outInputStepCount, out Snapshot _outSnapshot)
         {
             _outFirstStep = ReadInt();
-            _outSimulation = ReadSimulationStep();
+            _outSnapshot = ReadSnapshot();
             _outInputStepCount = ReadByte();
             for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
             {
                 _inputStepBuffer[i] = ReadInputStep();
             }
-        }
-
-        public void ReadSightMessage(out int _outStep, out Sight _outSight)
-        {
-            _outStep = ReadInt();
-            _outSight = ReadSight();
         }
 
         public void ReadSimulationCorrectionMessage(out int _outStep, out SimulationStepInfo _outSimulation)
@@ -331,7 +330,7 @@ namespace Wheeled.Networking
             _snapshot.simulation = ReadSimulationStep();
         }
 
-        public void ReadMovementReplicationMessage(out byte _id, out int _firstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
+        public void ReadMovementAndInputReplicationMessage(out byte _id, out int _firstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
         {
             _id = ReadByte();
             _firstStep = ReadInt();
@@ -344,16 +343,7 @@ namespace Wheeled.Networking
             }
         }
 
-        public void ReadSimulationAndSightMessage(out int _firstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
-        {
-            _firstStep = ReadInt();
-            _snapshot = ReadSnapshot();
-            _outInputStepCount = ReadByte();
-            for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
-            {
-                _inputStepBuffer[i] = ReadInputStep();
-            }
-        }
+        #endregion
 
     }
 

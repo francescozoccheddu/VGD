@@ -1,5 +1,4 @@
-﻿#define OUTPUT_PARTIAL_SIMULATION
-
+﻿
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,11 +11,7 @@ namespace Wheeled.Gameplay.Movement
         public interface IValidationTarget
         {
 
-#if OUTPUT_PARTIAL_SIMULATION
             void Validated(int _step, in InputStep _input, in SimulationStep _simulation);
-#else
-            void Validated(int _step, in SimulationStep _simulation);
-#endif
 
         }
 
@@ -196,11 +191,7 @@ namespace Wheeled.Gameplay.Movement
             int bufInd = GetStep(Step);
             m_last.input = m_buffer[bufInd].input ?? m_last.input.Predicted;
             m_last.simulation = m_last.simulation.Simulate(m_last.input, TimeStep.c_simulationStep);
-#if OUTPUT_PARTIAL_SIMULATION
             validationTarget?.Validated(Step, m_last.input, m_last.simulation);
-#else
-            validationTarget?.Validated(Step, m_last.simulation );
-#endif
             if (m_buffer[bufInd].simulation != null)
             {
                 m_trustedSteps = 0;
