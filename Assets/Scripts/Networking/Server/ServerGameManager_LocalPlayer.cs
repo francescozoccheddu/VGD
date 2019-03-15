@@ -12,6 +12,11 @@ namespace Wheeled.Networking.Server
         private readonly MovementController m_movementController;
         private readonly PlayerView m_view;
 
+        void MovementController.IFlushTarget.FlushCombined(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
+        {
+            Debug.Log("CombinedFlush");
+        }
+
         void MovementController.IFlushTarget.FlushSight(int _step, in Sight _sight)
         {
         }

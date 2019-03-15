@@ -13,6 +13,7 @@ namespace Wheeled.Gameplay.Movement
         public interface IFlushTarget
         {
 
+            void FlushCombined(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot);
             void FlushSimulation(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in SimulationStep _simulation);
             void FlushSight(int _step, in Sight _sight);
 
@@ -27,16 +28,49 @@ namespace Wheeled.Gameplay.Movement
         private float m_accumulatedTime;
         private Snapshot m_snapshot;
         private int m_skippedSights;
+        private int m_sightFlushRate;
 
         public IFlushTarget target;
 
         public int SimulationFlushRate
         {
             get => m_inputSteps.Length;
-            set => SetSimulationFlushRate(value);
+            set
+            {
+                Debug.Assert(value > 0);
+                if (m_inputSteps != null && value <= m_inputStepCount)
+                {
+                    FlushSimulation();
+                }
+                if (m_inputSteps == null || value != m_inputSteps.Length)
+                {
+                    InputStep[] newBuffer = new InputStep[value];
+                    if (m_inputSteps != null)
+                    {
+                        Array.Copy(m_inputSteps, newBuffer, m_inputStepCount);
+                    }
+                    m_inputSteps = newBuffer;
+                }
+            }
         }
 
-        public int sightFlushRate;
+        public int SightFlushRate
+        {
+            get => m_sightFlushRate;
+            set
+            {
+                Debug.Assert(value > 0);
+                if (value <= m_skippedSights)
+                {
+                    FlushSight();
+                }
+                m_sightFlushRate = value;
+                if (m_sightFlushRate == SimulationFlushRate)
+                {
+                    m_skippedSights = 0;
+                }
+            }
+        }
 
         public TimeStep Offset { get; private set; } = TimeStep.zero;
 
@@ -103,18 +137,36 @@ namespace Wheeled.Gameplay.Movement
                 m_history.Append(_step, new SimulationStepInfo { input = input, simulation = m_snapshot.simulation });
                 if (m_inputStepCount >= m_inputSteps.Length)
                 {
-                    FlushSimulation();
+                    if (SimulationFlushRate == SightFlushRate)
+                    {
+                        FlushCombined();
+                    }
+                    else
+                    {
+                        FlushSimulation();
+                    }
                 }
                 m_accumulatedInput = new InputStep();
                 m_accumulatedTime = 0.0f;
             }
             // Sight
+            if (SimulationFlushRate != SightFlushRate)
             {
                 m_skippedSights++;
-                if (m_skippedSights > sightFlushRate)
+                if (m_skippedSights > m_sightFlushRate)
                 {
                     FlushSight();
                 }
+            }
+        }
+
+        public void FlushCombined()
+        {
+            if (m_inputStepCount > 0)
+            {
+                target?.FlushCombined(m_firstStep, new ArraySegment<InputStep>(m_inputSteps, 0, m_inputStepCount), m_snapshot);
+                m_inputStepCount = 0;
+                m_skippedSights = 0;
             }
         }
 
@@ -166,29 +218,11 @@ namespace Wheeled.Gameplay.Movement
             ViewSnapshot = viewSnapshot;
         }
 
-        private void SetSimulationFlushRate(int _flushRate)
-        {
-            Debug.Assert(_flushRate > 0);
-            if (m_inputSteps != null && _flushRate <= m_inputStepCount)
-            {
-                FlushSimulation();
-            }
-            if (m_inputSteps == null || _flushRate != m_inputSteps.Length)
-            {
-                InputStep[] newBuffer = new InputStep[_flushRate];
-                if (m_inputSteps != null)
-                {
-                    Array.Copy(m_inputSteps, newBuffer, m_inputStepCount);
-                }
-                m_inputSteps = newBuffer;
-            }
-        }
-
         public MovementController(float _historyDuration)
         {
             m_history = new History(_historyDuration);
-            SetSimulationFlushRate(1);
-            sightFlushRate = 2;
+            SimulationFlushRate = 2;
+            SightFlushRate = 2;
         }
 
         public void FlushSimulation()

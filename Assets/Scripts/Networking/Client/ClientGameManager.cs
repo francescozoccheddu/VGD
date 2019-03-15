@@ -48,6 +48,10 @@ namespace Wheeled.Networking.Client
             m_server.Send(Serializer.writer, LiteNetLib.DeliveryMethod.Unreliable);
         }
 
+        void MovementController.IFlushTarget.FlushCombined(int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
+        {
+        }
+
         #endregion
 
         #region Client.IGameManager
