@@ -20,17 +20,18 @@ namespace Wheeled.Networking.Client
             public NetPlayer(int _id)
             {
                 id = _id;
-                m_movementHistory = new MovementHistory(true);
+                m_movementHistory = new MovementHistory();
                 m_playerView = new PlayerView
                 {
                     isSightInterpolationEnabled = false
                 };
             }
 
+
             public void Update()
             {
                 Snapshot snapshot = new Snapshot();
-                m_movementHistory.GetSimulation(RoomTime.Now - c_historyOffset, out SimulationStep? simulation);
+                m_movementHistory.GetSimulation(RoomTime.Now - c_historyOffset, out SimulationStep? simulation, true);
                 if (simulation != null)
                 {
                     snapshot.simulation = simulation.Value;

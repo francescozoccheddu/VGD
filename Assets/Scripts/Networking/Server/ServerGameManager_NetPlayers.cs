@@ -35,7 +35,7 @@ namespace Wheeled.Networking.Server
                     validationTarget = this,
                     MaxTrustedSteps = 10,
                 };
-                m_movementHistory = new MovementHistory(true);
+                m_movementHistory = new MovementHistory();
                 m_view = new PlayerView();
             }
 
@@ -64,7 +64,7 @@ namespace Wheeled.Networking.Server
                 m_movementValidator.UpdateUntil(RoomTime.Now.Step);
                 m_movementHistory.TrimOlder(RoomTime.Now.Step - c_historyCacheSteps, true);
                 Snapshot snapshot = new Snapshot();
-                m_movementHistory.GetSimulation(RoomTime.Now, out SimulationStep? simulation);
+                m_movementHistory.GetSimulation(RoomTime.Now, out SimulationStep? simulation, true);
                 if (simulation != null)
                 {
                     snapshot.simulation = simulation.Value;

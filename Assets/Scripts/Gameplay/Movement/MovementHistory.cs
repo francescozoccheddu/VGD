@@ -111,14 +111,11 @@ namespace Wheeled.Gameplay.Movement
         private readonly History<SimulationStep> m_simulationHistory;
         private readonly History<InputStep> m_inputHistory;
 
-        public readonly bool isPartialSimulationEnabled;
-
-        public MovementHistory(bool _isPartialSimulationEnabled)
+        public MovementHistory()
         {
-            isPartialSimulationEnabled = _isPartialSimulationEnabled;
             m_sightHistory = new History<Sight>();
             m_simulationHistory = new History<SimulationStep>();
-            m_inputHistory = isPartialSimulationEnabled ? new History<InputStep>() : null;
+            m_inputHistory = new History<InputStep>();
         }
 
         public void Put(int _step, in Sight _sight)
@@ -133,10 +130,7 @@ namespace Wheeled.Gameplay.Movement
 
         public void Put(int _step, in InputStep _inputStep)
         {
-            if (isPartialSimulationEnabled)
-            {
-                m_inputHistory.Put(_step, _inputStep);
-            }
+            m_inputHistory.Put(_step, _inputStep);
         }
 
         private void PartialSimulate(ref SimulationStep _refSimulationStep, ref int _refStep, ref TimeStep _refDeltaTime, bool _canPredict)
@@ -175,7 +169,7 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        public void GetSimulation(TimeStep _time, out SimulationStep? _outSimulation)
+        public void GetSimulation(TimeStep _time, out SimulationStep? _outSimulation, bool _isPartialSimulationEnabled)
         {
             m_simulationHistory.Query(_time.Step, out History<SimulationStep>.Node? prev, out History<SimulationStep>.Node? next);
             if (prev != null)
@@ -187,13 +181,13 @@ namespace Wheeled.Gameplay.Movement
                     {
                         Printer.Debug("History", "Consecutive");
                         // Consecutive prev & next
-                        if (isPartialSimulationEnabled)
+                        if (_isPartialSimulationEnabled)
                         {
                             SimulationStep simulation = prev.Value.value;
                             int step = prev.Value.step;
                             TimeStep delta = _time.RemainderTime;
                             PartialSimulate(ref simulation, ref step, ref delta, false);
-                            float lerpAlpha = delta.Remainder / (TimeStep.c_simulationStep - _time.Remainder + delta.Remainder);
+                            float lerpAlpha = delta.Seconds / (TimeStep.c_simulationStep - _time.Remainder + delta.Seconds);
                             _outSimulation = SimulationStep.Lerp(simulation, next.Value.value, lerpAlpha);
                         }
                         else
@@ -208,14 +202,14 @@ namespace Wheeled.Gameplay.Movement
                         SimulationStep a = prev.Value.value;
                         SimulationStep b = next.Value.value;
                         float period = (next.Value.step - prev.Value.step) * TimeStep.c_simulationStep;
-                        if (isPartialSimulationEnabled)
+                        if (_isPartialSimulationEnabled)
                         {
                             SimulationStep simulation = prev.Value.value;
                             int step = prev.Value.step;
                             TimeStep targetDelta = _time - TimeStep.FromSteps(step);
                             TimeStep delta = targetDelta;
                             PartialSimulate(ref simulation, ref step, ref delta, false);
-                            float lerpAlpha = delta.Remainder / (period - targetDelta.Seconds + delta.Seconds);
+                            float lerpAlpha = delta.Seconds / (period - targetDelta.Seconds + delta.Seconds);
                             _outSimulation = SimulationStep.Lerp(simulation, next.Value.value, lerpAlpha);
                         }
                         else
@@ -230,11 +224,12 @@ namespace Wheeled.Gameplay.Movement
                     Printer.Debug("History", "Prev Only");
                     // Prev only
                     History<SimulationStep>.Node node = prev.Value;
-                    if (isPartialSimulationEnabled)
+                    if (_isPartialSimulationEnabled)
                     {
+                        const float c_maxPrevision = 1.0f;
                         SimulationStep simulation = node.value;
                         int step = node.step;
-                        TimeStep delta = TimeStep.Min(_time - TimeStep.FromSteps(step), TimeStep.FromSeconds(1.0f));
+                        TimeStep delta = TimeStep.Min(_time - TimeStep.FromSteps(step), TimeStep.FromSeconds(c_maxPrevision));
                         PartialSimulate(ref simulation, ref step, ref delta, true);
                         _outSimulation = simulation;
                     }
@@ -281,20 +276,14 @@ namespace Wheeled.Gameplay.Movement
         {
             m_sightHistory.TrimOlder(_oldest, _keepOldest);
             m_simulationHistory.TrimOlder(_oldest, _keepOldest);
-            if (isPartialSimulationEnabled)
-            {
-                m_inputHistory.TrimOlder(_oldest, _keepOldest);
-            }
+            m_inputHistory.TrimOlder(_oldest, _keepOldest);
         }
 
         public void TrimNewer(int _newest, bool _keepNewest)
         {
             m_sightHistory.TrimNewer(_newest, _keepNewest);
             m_simulationHistory.TrimNewer(_newest, _keepNewest);
-            if (isPartialSimulationEnabled)
-            {
-                m_inputHistory.TrimNewer(_newest, _keepNewest);
-            }
+            m_inputHistory.TrimNewer(_newest, _keepNewest);
         }
 
     }
