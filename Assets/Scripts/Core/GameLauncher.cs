@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Wheeled.Gameplay;
 using Wheeled.Networking;
 
 namespace Wheeled.Core
@@ -38,7 +37,6 @@ namespace Wheeled.Core
         public void Update()
         {
             NetworkManager.instance.Update();
-            Debugging.Printer.Debug("Time", RoomTime.Now);
         }
 
         private void OnDestroy()

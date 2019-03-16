@@ -11,7 +11,7 @@ namespace Wheeled.Gameplay.Movement
         private SimulationStep m_lastSimulation;
         private readonly History m_history;
         private InputStep m_accumulatedInput;
-        private float m_accumulatedTime;
+        private double m_accumulatedTime;
         private Snapshot m_snapshot;
         private int m_oldestInputStep;
         private InputStep[] m_inputBuffer;
@@ -29,8 +29,9 @@ namespace Wheeled.Gameplay.Movement
                     InputStep[] newBuffer = new InputStep[value];
                     if (m_oldestInputStep != -1)
                     {
-                        m_oldestInputStep = Mathf.Max(m_oldestInputStep, Time.Step - value + 1);
-                        for (int i = m_oldestInputStep; i <= Time.Step; i++)
+                        int currentStep = Time.SimulationSteps();
+                        m_oldestInputStep = Mathf.Max(m_oldestInputStep, currentStep - value + 1);
+                        for (int i = m_oldestInputStep; i <= currentStep; i++)
                         {
                             newBuffer[i % value] = m_inputBuffer[i % m_inputBuffer.Length];
                         }
@@ -40,7 +41,7 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        public TimeStep Time { get; private set; }
+        public double Time { get; private set; }
         public bool IsRunning { get; private set; }
         public Snapshot RawSnapshot => m_snapshot;
         public Snapshot ViewSnapshot { get; private set; }
@@ -69,8 +70,8 @@ namespace Wheeled.Gameplay.Movement
             InputStep input = m_accumulatedInput;
             if (m_accumulatedTime > 0.0f)
             {
-                input.movementX /= m_accumulatedTime;
-                input.movementZ /= m_accumulatedTime;
+                input.movementX = (float) (input.movementX / m_accumulatedTime);
+                input.movementZ = (float) (input.movementZ / m_accumulatedTime);
             }
             ClampMovement(ref input.movementX, ref input.movementZ);
             return input;
@@ -78,27 +79,27 @@ namespace Wheeled.Gameplay.Movement
 
         private void CommitInput()
         {
+            int step = Time.SimulationSteps();
             if (m_oldestInputStep == -1)
             {
-                m_oldestInputStep = Time.Step;
+                m_oldestInputStep = step;
             }
             else
             {
-                m_oldestInputStep = Mathf.Max(m_oldestInputStep, Time.Step - InputBufferSize + 1);
+                m_oldestInputStep = Mathf.Max(m_oldestInputStep, step - InputBufferSize + 1);
             }
             InputStep input = GetAccumulatedInput();
-            m_inputBuffer[Time.Step % InputBufferSize] = input;
+            m_inputBuffer[step % InputBufferSize] = input;
             m_lastSimulation = m_snapshot.simulation;
-            m_snapshot.simulation = m_snapshot.simulation.Simulate(input, TimeStep.c_simulationStep);
-            m_history.Append(Time.Step, new SimulationStepInfo { input = input, simulation = m_snapshot.simulation });
+            m_snapshot.simulation = m_snapshot.simulation.Simulate(input, TimeConstants.c_simulationStep);
+            m_history.Append(step, new SimulationStepInfo { input = input, simulation = m_snapshot.simulation });
             m_accumulatedInput = new InputStep();
             m_accumulatedTime = 0.0f;
         }
 
-        private void ProcessInput(TimeStep _now)
+        private void ProcessInput(double _now)
         {
-            float processDeltaTime = (_now - Time).Seconds;
-            TimeStep lastProcessTime = Time;
+            double processDeltaTime = _now - Time;
 
             float right = Input.GetAxis("Horizontal");
             float forward = Input.GetAxis("Vertical");
@@ -109,26 +110,32 @@ namespace Wheeled.Gameplay.Movement
 
             while (Time < _now)
             {
-                TimeStep step = TimeStep.Min(Time.Next, _now);
-                float stepDeltaTime = (step - Time).Seconds;
+                double stepDeltaTime;
+                bool finalized;
+                {
+                    double nextStep = (Time.SimulationSteps() + 1).SimulationPeriod();
+                    finalized = nextStep <= _now;
+                    double step = finalized ? nextStep : _now;
+                    stepDeltaTime = step - Time;
+                    Time = step;
+                }
 
                 RotateMovementXZ(right, forward, m_snapshot.sight.Turn, out float movementX, out float movementZ);
                 ClampMovement(ref movementX, ref movementZ);
-                m_accumulatedInput.movementX += movementX * stepDeltaTime;
-                m_accumulatedInput.movementZ += movementZ * stepDeltaTime;
+                m_accumulatedInput.movementX += (float) (movementX * stepDeltaTime);
+                m_accumulatedInput.movementZ += (float) (movementZ * stepDeltaTime);
                 m_accumulatedInput.jump |= jumped;
                 m_accumulatedInput.dash |= dashed;
 
                 jumped = false;
                 dashed = false;
 
-                float weight = stepDeltaTime / processDeltaTime;
+                float weight = (float) (stepDeltaTime / processDeltaTime);
                 m_snapshot.sight.Turn += turn * weight;
                 m_snapshot.sight.LookUp += lookUp * weight;
 
                 m_accumulatedTime += stepDeltaTime;
-                Time = step;
-                if (!step.HasRemainder)
+                if (finalized)
                 {
                     CommitInput();
                 }
@@ -144,20 +151,20 @@ namespace Wheeled.Gameplay.Movement
             }
             else
             {
-                viewSnapshot.simulation = SimulationStep.Lerp(m_lastSimulation, viewSnapshot.simulation, m_accumulatedTime / TimeStep.c_simulationStep);
+                viewSnapshot.simulation = SimulationStep.Lerp(m_lastSimulation, viewSnapshot.simulation, (float) (m_accumulatedTime / TimeConstants.c_simulationStep));
             }
             ViewSnapshot = viewSnapshot;
         }
 
-        public MovementController(float _historyDuration)
+        public MovementController(double _historyDuration)
         {
-            m_history = new History(_historyDuration);
+            m_history = new History(_historyDuration.CeilingSimulationSteps());
             m_oldestInputStep = -1;
             InputBufferSize = 10;
             isPartialSimulationEnabled = true;
         }
 
-        public void StartAt(TimeStep _time)
+        public void StartAt(double _time)
         {
             ClearInputBuffer();
             Time = _time;
@@ -179,7 +186,7 @@ namespace Wheeled.Gameplay.Movement
             {
                 ClearInputBuffer();
             }
-            m_history.Cut(RoomTime.Now.Step);
+            m_history.Cut(Time.SimulationSteps());
             UpdateView();
         }
 
@@ -193,15 +200,16 @@ namespace Wheeled.Gameplay.Movement
             _outCount = 0;
             if (m_oldestInputStep != -1)
             {
-                while (_outCount < _target.Length && Time.Step - _outCount >= m_oldestInputStep)
+                int currentStep = Time.SimulationSteps();
+                while (_outCount < _target.Length && currentStep - _outCount >= m_oldestInputStep)
                 {
-                    _target[_outCount] = m_inputBuffer[(Time.Step - _outCount) % InputBufferSize];
+                    _target[_outCount] = m_inputBuffer[(currentStep - _outCount) % InputBufferSize];
                     _outCount++;
                 }
             }
         }
 
-        public void UpdateUntil(TimeStep _time)
+        public void UpdateUntil(double _time)
         {
             if (IsRunning)
             {

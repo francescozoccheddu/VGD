@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Wheeled.Gameplay;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking
@@ -63,12 +62,6 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.sight);
         }
 
-        private static void Put(this NetDataWriter _netDataWriter, in TimeStep _value)
-        {
-            _netDataWriter.Put(_value.Step);
-            _netDataWriter.Put(_value.Remainder);
-        }
-
         private static void Put(this NetDataWriter _netDataWriter, in SimulationStepInfo _value)
         {
             _netDataWriter.Put(_value.input);
@@ -98,16 +91,15 @@ namespace Wheeled.Networking
             writer.Put(_simulationStepInfo);
         }
 
-        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(float) + sizeof(int)];
+        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double)];
 
-        public static void WriteRoomUpdateMessage(in TimeStep _time /* Player stats and status */)
+        public static void WriteRoomUpdateMessage(double _time /* Player stats and status */)
         {
             writer.Reset();
             writer.Put(Message.RoomUpdate);
             writer.Put(_time);
             {
-                FastBitConverter.GetBytes(s_timeChecksumBuffer, 0, _time.Step);
-                FastBitConverter.GetBytes(s_timeChecksumBuffer, sizeof(int), _time.Remainder);
+                FastBitConverter.GetBytes(s_timeChecksumBuffer, 0, _time);
                 ushort crc = CRC16.Compute(s_timeChecksumBuffer);
                 writer.Put(crc);
             }
@@ -175,6 +167,13 @@ namespace Wheeled.Networking
         private float ReadFloat()
         {
             EnsureRead(m_netDataReader.TryGetFloat(out float value));
+            return value;
+        }
+
+
+        private double ReadDouble()
+        {
+            EnsureRead(m_netDataReader.TryGetDouble(out double value));
             return value;
         }
 
@@ -278,32 +277,23 @@ namespace Wheeled.Networking
             return ReadEnum<Message>();
         }
 
-        public TimeStep ReadTime()
-        {
-            return new TimeStep
-            {
-                Step = ReadInt(),
-                Remainder = ReadFloat()
-            };
-        }
-
         #endregion
 
         #region Message read methods
 
-        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(float) + sizeof(int) + sizeof(ushort)];
+        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double) + sizeof(ushort)];
 
-        public void ReadRoomUpdateMessage(out TimeStep _time)
+        public void ReadRoomUpdateMessage(out double _time)
         {
-            _time = ReadTime();
+            _time = ReadDouble();
             {
                 ushort crc = ReadUshort();
-                FastBitConverter.GetBytes(s_timeChecksumBuffer, 0, _time.Step);
-                FastBitConverter.GetBytes(s_timeChecksumBuffer, sizeof(int), _time.Remainder);
-                FastBitConverter.GetBytes(s_timeChecksumBuffer, sizeof(int) + sizeof(float), crc);
+                FastBitConverter.GetBytes(s_timeChecksumBuffer, 0, _time);
+                FastBitConverter.GetBytes(s_timeChecksumBuffer, sizeof(double), crc);
                 EnsureRead(CRC16.Compute(s_timeChecksumBuffer) == 0);
             }
         }
+
 
         public void ReadMovementNotifyMessage(out int _outStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
         {

@@ -23,17 +23,18 @@ namespace Wheeled.Networking.Client
 
         private void UpdateLocalPlayer()
         {
-            m_movementController.UpdateUntil(RoomTime.Now + c_controllerOffset);
+            m_movementController.UpdateUntil(m_time + c_controllerOffset);
             m_view.Move(m_movementController.ViewSnapshot);
             m_view.Update(Time.deltaTime);
             m_timeSinceLastSend += Time.deltaTime;
-            if (m_lastSendStep == -1 || (m_lastSendStep < m_movementController.Time.Step && m_timeSinceLastSend >= 1.0f / c_controllerSendFrequency))
+            int currentStep = m_movementController.Time.SimulationSteps();
+            if (m_lastSendStep == -1 || (m_lastSendStep < currentStep && m_timeSinceLastSend >= 1.0f / c_controllerSendFrequency))
             {
                 m_timeSinceLastSend = 0.0f;
-                m_lastSendStep = m_movementController.Time.Step;
+                m_lastSendStep = currentStep;
                 m_movementController.PullReversedInputBuffer(m_inputBuffer, out int inputStepsCount);
                 m_movementController.ClearInputBuffer();
-                Serializer.WriteMovementNotifyMessage(m_movementController.Time.Step, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepsCount), m_movementController.RawSnapshot);
+                Serializer.WriteMovementNotifyMessage(currentStep, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepsCount), m_movementController.RawSnapshot);
                 m_server.Send(NetworkManager.SendMethod.Unreliable);
             }
         }

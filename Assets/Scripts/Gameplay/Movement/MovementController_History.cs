@@ -17,9 +17,9 @@ namespace Wheeled.Gameplay.Movement
             public int Oldest { get; private set; }
             public int Newest { get; private set; }
 
-            public History(float _duration)
+            public History(int _length)
             {
-                m_history = new SimulationStepInfo?[TimeStep.GetStepsInPeriod(_duration)];
+                m_history = new SimulationStepInfo?[_length];
             }
 
             private int GetIndex(int _step)
@@ -55,13 +55,13 @@ namespace Wheeled.Gameplay.Movement
                         if (m_history[step] != null)
                         {
                             simulation.input = m_history[step].Value.input;
-                            simulation.simulation = simulation.simulation.Simulate(simulation.input, TimeStep.c_simulationStep);
+                            simulation.simulation = simulation.simulation.Simulate(simulation.input, TimeConstants.c_simulationStep);
                             m_history[step] = simulation;
                         }
                         else
                         {
                             simulation.input = simulation.input.Predicted;
-                            simulation.simulation = simulation.simulation.Simulate(simulation.input, TimeStep.c_simulationStep);
+                            simulation.simulation = simulation.simulation.Simulate(simulation.input, TimeConstants.c_simulationStep);
                         }
                     }
                     return simulation.simulation;

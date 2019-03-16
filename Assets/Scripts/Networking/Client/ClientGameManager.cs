@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Core;
+using Wheeled.Debugging;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Movement;
 
@@ -18,6 +19,11 @@ namespace Wheeled.Networking.Client
         private readonly Client.IServer m_server;
         private readonly Dictionary<int, NetPlayer> m_netPlayers;
 
+        private double m_time;
+        private double m_targetTime;
+        private bool m_isRunning;
+        private const double c_timeSmoothQuickness = 0.1;
+
         private NetPlayer GetOrCreatePlayer(int _id)
         {
             if (m_netPlayers.TryGetValue(_id, out NetPlayer netPlayer))
@@ -26,7 +32,7 @@ namespace Wheeled.Networking.Client
             }
             else
             {
-                NetPlayer newNetPlayer = new NetPlayer(_id);
+                NetPlayer newNetPlayer = new NetPlayer(this, _id);
                 m_netPlayers.Add(_id, newNetPlayer);
                 return newNetPlayer;
             }
@@ -40,7 +46,7 @@ namespace Wheeled.Networking.Client
             };
             m_server = _server;
             // Local player
-            int maxInputStepCount = TimeStep.GetStepsInPeriod(1.0f / c_controllerSendFrequency) + 1;
+            int maxInputStepCount = (1.0 / c_controllerSendFrequency).CeilingSimulationSteps() + 1;
             m_movementController = new MovementController(3.0f)
             {
                 InputBufferSize = maxInputStepCount
@@ -68,14 +74,18 @@ namespace Wheeled.Networking.Client
             {
                 case Message.RoomUpdate:
                 {
-                    _reader.ReadRoomUpdateMessage(out TimeStep time);
-                    Debug.LogFormat("RoomUpdate at {0} (oldTime={1}, diff={2})", time, RoomTime.Now, time - RoomTime.Now);
-                    RoomTime.Manager.Set(time + m_server.Ping / 2.0f, RoomTime.IsRunning);
-                    RoomTime.Manager.Start();
+                    _reader.ReadRoomUpdateMessage(out double time);
+                    Debug.LogFormat("RoomUpdate at {0} (oldTime={1}, diff={2})", time, m_time, time - m_time);
+                    m_targetTime = time + m_server.Ping / 2.0;
+                    if (!m_isRunning)
+                    {
+                        m_isRunning = true;
+                        m_time = m_targetTime;
+                    }
                     if (!m_movementController.IsRunning)
                     {
                         ScheduleLocalPlayerSend();
-                        m_movementController.StartAt(RoomTime.Now);
+                        m_movementController.StartAt(m_time);
                     }
                 }
                 break;
@@ -103,7 +113,7 @@ namespace Wheeled.Networking.Client
 
         void Client.IGameManager.Stopped()
         {
-            RoomTime.Manager.Stop();
+            m_isRunning = false;
             m_updatable.IsRunning = false;
         }
 
@@ -111,7 +121,13 @@ namespace Wheeled.Networking.Client
 
         void Updatable.ITarget.Update()
         {
-            RoomTime.Manager.Update();
+            if (m_isRunning)
+            {
+                m_time += Time.deltaTime;
+                m_targetTime += Time.deltaTime;
+                m_time = m_time * (1.0 - c_timeSmoothQuickness) + m_targetTime * (c_timeSmoothQuickness);
+                Printer.Print("Offset", m_targetTime - m_time);
+            }
             UpdateLocalPlayer();
             foreach (NetPlayer netPlayer in m_netPlayers.Values)
             {

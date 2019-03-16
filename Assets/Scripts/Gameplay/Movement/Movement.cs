@@ -13,7 +13,7 @@ namespace Wheeled.Gameplay.Movement
         public Vector3 velocity;
         public Vector3 position;
 
-        public SimulationStep Simulate(in InputStep _input, float _deltaTime)
+        public SimulationStep Simulate(in InputStep _input, double _deltaTime)
         {
             SimulationStep next = this;
             InputStep input = _input.Clamped;
@@ -30,8 +30,8 @@ namespace Wheeled.Gameplay.Movement
                     next.velocity.y = 0.0f;
                 }
             }
-            next.velocity.y += c_gravitySpeed * _deltaTime;
-            next.position += velocity * _deltaTime;
+            next.velocity.y += (float) (c_gravitySpeed * _deltaTime);
+            next.position += velocity * (float) _deltaTime;
             if (next.position.y <= 2.0f)
             {
                 next.position.y = 2.0f;

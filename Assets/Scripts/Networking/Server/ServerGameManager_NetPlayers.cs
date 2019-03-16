@@ -48,7 +48,7 @@ namespace Wheeled.Networking.Server
                 if (!IsStarted)
                 {
                     IsStarted = true;
-                    m_movementValidator.StartAt(RoomTime.Now.Step, false);
+                    m_movementValidator.StartAt(m_manager.m_time.SimulationSteps(), false);
                 }
             }
 
@@ -57,12 +57,12 @@ namespace Wheeled.Networking.Server
                 if (_force || m_lastSendStep < m_movementValidator.Step)
                 {
                     Snapshot snapshot = new Snapshot();
-                    m_movementHistory.GetSimulation(TimeStep.FromSeconds(m_movementValidator.Step), out SimulationStep? simulation, true);
+                    m_movementHistory.GetSimulation(m_movementValidator.Step.SimulationPeriod(), out SimulationStep? simulation, true);
                     if (simulation != null)
                     {
                         snapshot.simulation = simulation.Value;
                     }
-                    m_movementHistory.GetSight(TimeStep.FromSeconds(m_movementValidator.Step), out Sight? sight);
+                    m_movementHistory.GetSight(m_movementValidator.Step.SimulationPeriod(), out Sight? sight);
                     if (sight != null)
                     {
                         snapshot.sight = sight.Value;
@@ -89,17 +89,17 @@ namespace Wheeled.Networking.Server
                 m_movementHistory.Put(_step, _snapshot.sight);
             }
 
-            public void Update(TimeStep _time)
+            public void Update()
             {
                 m_timeSinceLastCorrection += Time.deltaTime;
-                m_movementValidator.UpdateUntil(_time.Step);
+                m_movementValidator.UpdateUntil(m_manager.m_time.SimulationSteps());
                 Snapshot snapshot = new Snapshot();
-                m_movementHistory.GetSimulation(_time, out SimulationStep? simulation, true);
+                m_movementHistory.GetSimulation(m_manager.m_time, out SimulationStep? simulation, true);
                 if (simulation != null)
                 {
                     snapshot.simulation = simulation.Value;
                 }
-                m_movementHistory.GetSight(_time, out Sight? sight);
+                m_movementHistory.GetSight(m_manager.m_time, out Sight? sight);
                 if (sight != null)
                 {
                     snapshot.sight = sight.Value;

@@ -20,14 +20,15 @@ namespace Wheeled.Networking.Server
         private byte m_nextPlayerId;
         private float m_timeSinceLastReplication;
 
+        private double m_time;
+
         public ServerGameManager()
         {
             m_updatable = new Updatable(this, false)
             {
                 IsRunning = true
             };
-            RoomTime.Manager.Set(TimeStep.zero, false);
-            RoomTime.Manager.Start();
+            m_time = 0.0;
             // Net players
             m_netPlayers = new List<NetPlayer>();
             m_nextPlayerId = 1;
@@ -126,7 +127,6 @@ namespace Wheeled.Networking.Server
 
         void Server.IGameManager.Stopped()
         {
-            RoomTime.Manager.Stop();
             m_updatable.IsRunning = false;
         }
 
@@ -134,12 +134,12 @@ namespace Wheeled.Networking.Server
 
         #region Room Update
 
-        private const float c_roomUpdatePeriod = 2.0f;
-        private TimeStep m_lastRoomUpdateTime;
+        private const double c_roomUpdatePeriod = 2.0f;
+        private double m_lastRoomUpdateTime;
 
         private void PrepareRoomUpdateMessage()
         {
-            Serializer.WriteRoomUpdateMessage(RoomTime.Now);
+            Serializer.WriteRoomUpdateMessage(m_time);
         }
 
         private void RoomUpdate()
@@ -155,18 +155,18 @@ namespace Wheeled.Networking.Server
 
         void Updatable.ITarget.Update()
         {
+            m_time += Time.deltaTime;
             m_timeSinceLastReplication += Time.deltaTime;
-            RoomTime.Manager.Update();
-            if ((m_lastRoomUpdateTime + c_roomUpdatePeriod) <= RoomTime.Now)
+            if (m_lastRoomUpdateTime + c_roomUpdatePeriod <= m_time)
             {
-                Debug.LogFormat("Room Update at time {0}", RoomTime.Now);
-                m_lastRoomUpdateTime = RoomTime.Now;
+                Debug.LogFormat("Room Update at time {0}", m_time);
+                m_lastRoomUpdateTime = m_time;
                 RoomUpdate();
             }
             UpdateLocalPlayer();
             foreach (NetPlayer player in m_netPlayers)
             {
-                player.Update(RoomTime.Now);
+                player.Update();
             }
             if (m_timeSinceLastReplication > 1.0f / c_replicationRate)
             {

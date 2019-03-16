@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Wheeled.Debugging;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Wheeled.Gameplay.Movement
 {
@@ -164,11 +164,11 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        private void PartialSimulate(ref SimulationStep _refSimulationStep, ref int _refStep, ref TimeStep _refDeltaTime, bool _canPredict)
+        private void PartialSimulate(ref SimulationStep _refSimulationStep, ref int _refStep, ref double _refDeltaTime, bool _canPredict)
         {
             LinkedListNode<History<InputStep>.Node> inputNode = m_inputHistory.GetNodeOrPrevious(_refStep) ?? m_inputHistory.First;
             InputStep input = new InputStep();
-            while (_refDeltaTime > TimeStep.zero)
+            while (_refDeltaTime > 0.0)
             {
                 if (inputNode?.Value.step < _refStep && _canPredict)
                 {
@@ -187,81 +187,56 @@ namespace Wheeled.Gameplay.Movement
                 {
                     return;
                 }
-                if (_refDeltaTime.Step > 0)
+                if (_refDeltaTime > TimeConstants.c_simulationStep)
                 {
-                    _refSimulationStep = _refSimulationStep.Simulate(input, TimeStep.c_simulationStep);
-                    _refDeltaTime.Step--;
+                    _refSimulationStep = _refSimulationStep.Simulate(input, TimeConstants.c_simulationStep);
+                    _refDeltaTime -= TimeConstants.c_simulationStep;
                 }
-                else if (_refDeltaTime.HasRemainder)
+                else
                 {
-                    _refSimulationStep = _refSimulationStep.Simulate(input, _refDeltaTime.Remainder);
-                    _refDeltaTime = TimeStep.zero;
+                    _refSimulationStep = _refSimulationStep.Simulate(input, _refDeltaTime);
+                    _refDeltaTime = 0.0;
                 }
             }
         }
 
-        public void GetSimulation(TimeStep _time, out SimulationStep? _outSimulation, bool _isPartialSimulationEnabled)
+        public void GetSimulation(double _time, out SimulationStep? _outSimulation, bool _isPartialSimulationEnabled)
         {
-            m_simulationHistory.Query(_time.Step, out History<SimulationStep>.Node? prev, out History<SimulationStep>.Node? next);
+            m_simulationHistory.Query(_time.SimulationSteps(), out History<SimulationStep>.Node? prev, out History<SimulationStep>.Node? next);
             if (prev != null)
             {
                 if (next != null)
                 {
                     // Prev & next
-                    if (next.Value.step - prev.Value.step == 1)
+                    SimulationStep a = prev.Value.value;
+                    SimulationStep b = next.Value.value;
+                    double period = (next.Value.step - prev.Value.step).SimulationPeriod();
+                    double progress = _time - (prev.Value.step).SimulationPeriod();
+                    if (_isPartialSimulationEnabled)
                     {
-                        Printer.Debug("History", "Consecutive");
-                        // Consecutive prev & next
-                        if (_isPartialSimulationEnabled)
-                        {
-                            SimulationStep simulation = prev.Value.value;
-                            int step = prev.Value.step;
-                            TimeStep delta = _time.RemainderTime;
-                            PartialSimulate(ref simulation, ref step, ref delta, false);
-                            float lerpAlpha = delta.Seconds / (TimeStep.c_simulationStep - _time.Remainder + delta.Seconds);
-                            _outSimulation = SimulationStep.Lerp(simulation, next.Value.value, lerpAlpha);
-                        }
-                        else
-                        {
-                            _outSimulation = SimulationStep.Lerp(prev.Value.value, next.Value.value, _time.Remainder / TimeStep.c_simulationStep);
-                        }
+                        SimulationStep simulation = prev.Value.value;
+                        int step = prev.Value.step;
+                        double partialSimulationProgress = progress;
+                        PartialSimulate(ref simulation, ref step, ref partialSimulationProgress, false);
+                        float lerpAlpha = (float) (partialSimulationProgress / (period - progress + partialSimulationProgress));
+                        _outSimulation = SimulationStep.Lerp(simulation, next.Value.value, lerpAlpha);
                     }
                     else
                     {
-                        Printer.Debug("History", "Holes");
-                        // History holes
-                        SimulationStep a = prev.Value.value;
-                        SimulationStep b = next.Value.value;
-                        float period = (next.Value.step - prev.Value.step) * TimeStep.c_simulationStep;
-                        if (_isPartialSimulationEnabled)
-                        {
-                            SimulationStep simulation = prev.Value.value;
-                            int step = prev.Value.step;
-                            TimeStep targetDelta = _time - TimeStep.FromSteps(step);
-                            TimeStep delta = targetDelta;
-                            PartialSimulate(ref simulation, ref step, ref delta, false);
-                            float lerpAlpha = delta.Seconds / (period - targetDelta.Seconds + delta.Seconds);
-                            _outSimulation = SimulationStep.Lerp(simulation, next.Value.value, lerpAlpha);
-                        }
-                        else
-                        {
-                            float elapsed = (_time - TimeStep.FromSteps(prev.Value.step)).Seconds;
-                            _outSimulation = SimulationStep.Lerp(a, b, elapsed / period);
-                        }
+                        _outSimulation = SimulationStep.Lerp(a, b, (float) (progress / period));
                     }
                 }
                 else
                 {
-                    Printer.Debug("History", "Prev Only");
                     // Prev only
                     History<SimulationStep>.Node node = prev.Value;
                     if (_isPartialSimulationEnabled)
                     {
-                        const float c_maxPrevision = 1.0f;
+                        const double c_maxPrevision = 1.0f;
                         SimulationStep simulation = node.value;
                         int step = node.step;
-                        TimeStep delta = TimeStep.Min(_time - TimeStep.FromSteps(step), TimeStep.FromSeconds(c_maxPrevision));
-                        PartialSimulate(ref simulation, ref step, ref delta, true);
+                        double partialSimulationProgress = Math.Min(_time - step.SimulationPeriod(), c_maxPrevision);
+                        PartialSimulate(ref simulation, ref step, ref partialSimulationProgress, true);
                         _outSimulation = simulation;
                     }
                     else
@@ -272,23 +247,22 @@ namespace Wheeled.Gameplay.Movement
             }
             else
             {
-                Printer.Debug("History", "None");
                 // No prev
                 _outSimulation = null;
             }
         }
 
-        public void GetSight(TimeStep _time, out Sight? _outSight)
+        public void GetSight(double _time, out Sight? _outSight)
         {
-            m_sightHistory.Query(_time.Step, out History<Sight>.Node? prev, out History<Sight>.Node? next);
+            m_sightHistory.Query(_time.SimulationSteps(), out History<Sight>.Node? prev, out History<Sight>.Node? next);
             if (prev != null)
             {
                 if (next != null)
                 {
                     // Prev & next
-                    float period = (next.Value.step - prev.Value.step) * TimeStep.c_simulationStep;
-                    float elapsed = (_time - TimeStep.FromSteps(prev.Value.step)).Seconds;
-                    _outSight = Sight.Lerp(prev.Value.value, next.Value.value, elapsed / period);
+                    double period = (next.Value.step - prev.Value.step).SimulationPeriod();
+                    double elapsed = _time - prev.Value.step.SimulationPeriod();
+                    _outSight = Sight.Lerp(prev.Value.value, next.Value.value, (float) (elapsed / period));
                 }
                 else
                 {

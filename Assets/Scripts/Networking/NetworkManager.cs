@@ -26,7 +26,7 @@ namespace Wheeled.Networking
             ReliableOrdered = LiteNetLib.DeliveryMethod.ReliableOrdered
         }
 
-        private const bool c_simulateBadNetwork = true;
+        private const bool c_simulateBadNetwork = false;
 
         public readonly struct Peer : IEquatable<Peer>
         {

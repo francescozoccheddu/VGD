@@ -43,13 +43,13 @@ namespace Wheeled.Debugging
             }
         }
 
-        public static void Debug(string _name, object _value)
+        public static void Print(string _name, object _value)
         {
             EnsureCreated();
             s_printer.values[_name] = _value;
         }
 
-        public static void DebugIncrement(string _name)
+        public static void PrintIncrement(string _name)
         {
             EnsureCreated();
             if (s_printer.values.TryGetValue(_name, out object value) && value is int intval)
@@ -60,16 +60,6 @@ namespace Wheeled.Debugging
             {
                 s_printer.values[_name] = 0;
             }
-        }
-
-        public static object DebugGet(string _name)
-        {
-            EnsureCreated();
-            if (s_printer.values.TryGetValue(_name, out object value))
-            {
-                return value;
-            }
-            return null;
         }
 
         public static void Clear()

@@ -60,9 +60,9 @@ namespace Wheeled.Gameplay.Movement
             return _step % m_Length;
         }
 
-        public MovementValidator(float _duration)
+        public MovementValidator(double _duration)
         {
-            m_buffer = new Node[TimeStep.GetStepsInPeriod(_duration)];
+            m_buffer = new Node[_duration.CeilingSimulationSteps()];
             MaxTrustedSteps = 2;
         }
 
@@ -166,14 +166,14 @@ namespace Wheeled.Gameplay.Movement
         {
             int bufInd = GetStep(Step);
             m_last.input = m_buffer[bufInd].input ?? m_last.input.Predicted;
-            m_last.simulation = m_last.simulation.Simulate(m_last.input, TimeStep.c_simulationStep);
+            m_last.simulation = m_last.simulation.Simulate(m_last.input, TimeConstants.c_simulationStep);
             validationTarget?.Validated(Step, m_last.input, m_last.simulation);
             if (m_buffer[bufInd].simulation != null)
             {
                 m_trustedSteps = 0;
                 if (!SimulationStep.IsNearlyEqual(m_last.simulation, m_buffer[bufInd].simulation.Value))
                 {
-                    Debugging.Printer.DebugIncrement("WrongData");
+                    Debugging.Printer.PrintIncrement("WrongData");
                     SendCorrection();
                 }
             }
@@ -182,7 +182,7 @@ namespace Wheeled.Gameplay.Movement
                 m_trustedSteps++;
                 if (m_trustedSteps > m_maxTrustedSteps)
                 {
-                    Debugging.Printer.DebugIncrement("NoData");
+                    Debugging.Printer.PrintIncrement("NoData");
                     SendCorrection();
                 }
             }
