@@ -42,6 +42,7 @@ namespace Wheeled.Gameplay.Movement
         }
 
         public double Time { get; private set; }
+        public int Step { get; private set; }
         public bool IsRunning { get; private set; }
         public Snapshot RawSnapshot => m_snapshot;
         public Snapshot ViewSnapshot { get; private set; }
@@ -79,20 +80,19 @@ namespace Wheeled.Gameplay.Movement
 
         private void CommitInput()
         {
-            int step = Time.SimulationSteps();
             if (m_oldestInputStep == -1)
             {
-                m_oldestInputStep = step;
+                m_oldestInputStep = Step;
             }
             else
             {
-                m_oldestInputStep = Mathf.Max(m_oldestInputStep, step - InputBufferSize + 1);
+                m_oldestInputStep = Mathf.Max(m_oldestInputStep, Step - InputBufferSize + 1);
             }
             InputStep input = GetAccumulatedInput();
-            m_inputBuffer[step % InputBufferSize] = input;
+            m_inputBuffer[Step % InputBufferSize] = input;
             m_lastSimulation = m_snapshot.simulation;
             m_snapshot.simulation = m_snapshot.simulation.Simulate(input, TimeConstants.c_simulationStep);
-            m_history.Append(step, new SimulationStepInfo { input = input, simulation = m_snapshot.simulation });
+            m_history.Append(Step, new SimulationStepInfo { input = input, simulation = m_snapshot.simulation });
             m_accumulatedInput = new InputStep();
             m_accumulatedTime = 0.0f;
         }
@@ -113,11 +113,11 @@ namespace Wheeled.Gameplay.Movement
                 double stepDeltaTime;
                 bool finalized;
                 {
-                    double nextStep = (Time.SimulationSteps() + 1).SimulationPeriod();
+                    double nextStep = (Step + 1).SimulationPeriod();
                     finalized = nextStep <= _now;
-                    double step = finalized ? nextStep : _now;
-                    stepDeltaTime = step - Time;
-                    Time = step;
+                    double newTime = finalized ? nextStep : _now;
+                    stepDeltaTime = newTime - Time;
+                    Time = newTime;
                 }
 
                 RotateMovementXZ(right, forward, m_snapshot.sight.Turn, out float movementX, out float movementZ);
@@ -137,6 +137,7 @@ namespace Wheeled.Gameplay.Movement
                 m_accumulatedTime += stepDeltaTime;
                 if (finalized)
                 {
+                    Step++;
                     CommitInput();
                 }
             }
@@ -168,6 +169,7 @@ namespace Wheeled.Gameplay.Movement
         {
             ClearInputBuffer();
             Time = _time;
+            Step = _time.SimulationSteps();
             m_accumulatedInput = new InputStep();
             m_accumulatedTime = 0.0f;
             IsRunning = true;

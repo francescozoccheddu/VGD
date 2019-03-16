@@ -1,10 +1,8 @@
-﻿#define SINGLETON
-
+﻿
 using LiteNetLib;
 using LiteNetLib.Utils;
 using System;
 using System.Net;
-
 
 namespace Wheeled.Networking
 {
@@ -13,9 +11,7 @@ namespace Wheeled.Networking
 
         private static readonly NetDataWriter s_emptyDataWriter = new NetDataWriter(false, 0);
 
-#if SINGLETON
         public static readonly NetworkManager instance = new NetworkManager();
-#endif
 
         public enum SendMethod
         {
@@ -25,8 +21,6 @@ namespace Wheeled.Networking
             ReliableSequenced = LiteNetLib.DeliveryMethod.ReliableSequenced,
             ReliableOrdered = LiteNetLib.DeliveryMethod.ReliableOrdered
         }
-
-        private const bool c_simulateBadNetwork = false;
 
         public readonly struct Peer : IEquatable<Peer>
         {
@@ -122,19 +116,15 @@ namespace Wheeled.Networking
 
         public IEventListener listener;
 
-#if SINGLETON
         private NetworkManager()
-#else
-        public NetworkManager()
-#endif
         {
             m_wasRunning = false;
             m_netManager = new NetManager(this)
             {
                 DiscoveryEnabled = true,
-                SimulatePacketLoss = c_simulateBadNetwork,
+                SimulatePacketLoss = false,
                 SimulationPacketLossChance = 20,
-                SimulateLatency = c_simulateBadNetwork,
+                SimulateLatency = false,
                 SimulationMinLatency = 10,
                 SimulationMaxLatency = 200,
             };
@@ -233,6 +223,14 @@ namespace Wheeled.Networking
 
         public void Update()
         {
+#if UNITY_EDITOR
+            if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.F8))
+            {
+                m_netManager.SimulatePacketLoss = m_netManager.SimulateLatency = !m_netManager.SimulateLatency;
+                UnityEngine.Debug.LogFormat("NetworkManager bad network simulation = {0}", m_netManager.SimulatePacketLoss);
+                Debugging.Printer.Print("BadNetwork", m_netManager.SimulatePacketLoss);
+            }
+#endif
             m_netManager.PollEvents();
             NotifyIfNotRunning();
         }

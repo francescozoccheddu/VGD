@@ -27,23 +27,20 @@ namespace Wheeled.Networking.Server
 
         private void ReplicateLocalPlayer(bool _force, bool _sendInput)
         {
-            int currentStep = m_movementController.Time.SimulationSteps();
-            if (_force || m_localLastSentStep < currentStep)
+            if (_force || m_localLastSentStep < m_movementController.Step)
             {
+                m_localLastSentStep = m_movementController.Step;
+                if (_sendInput)
                 {
-                    m_localLastSentStep = currentStep;
-                    if (_sendInput)
-                    {
-                        m_movementController.PullReversedInputBuffer(m_inputStepBuffer, out int inputStepCount);
-                        m_movementController.ClearInputBuffer();
-                        Serializer.WriteMovementAndInputReplicationMessage(0, currentStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), m_movementController.RawSnapshot);
-                    }
-                    else
-                    {
-                        Serializer.WriteMovementReplicationMessage(0, currentStep, m_movementController.RawSnapshot);
-                    }
-                    SendAll(NetworkManager.SendMethod.Unreliable);
+                    m_movementController.PullReversedInputBuffer(m_inputStepBuffer, out int inputStepCount);
+                    m_movementController.ClearInputBuffer();
+                    Serializer.WriteMovementAndInputReplicationMessage(0, m_movementController.Step, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), m_movementController.RawSnapshot);
                 }
+                else
+                {
+                    Serializer.WriteMovementReplicationMessage(0, m_movementController.Step, m_movementController.RawSnapshot);
+                }
+                SendAll(NetworkManager.SendMethod.Unreliable);
             }
 
         }
