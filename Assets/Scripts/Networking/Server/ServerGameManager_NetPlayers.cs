@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Movement;
@@ -14,11 +15,14 @@ namespace Wheeled.Networking.Server
 
             private const int c_maxCorrectionFrequency = 2;
             private const int c_historyCacheSteps = 100;
+            private const int c_maxReplicationInputSteps = 10;
+
             private readonly ServerGameManager m_manager;
             private readonly MovementValidator m_movementValidator;
             private readonly MovementHistory m_movementHistory;
             private readonly PlayerView m_view;
             private float m_timeSinceLastCorrection;
+            private int m_lastSendStep;
 
             public readonly byte id;
             public readonly NetworkManager.Peer peer;
@@ -48,28 +52,54 @@ namespace Wheeled.Networking.Server
                 }
             }
 
-            public void Move(int _step, IEnumerable<InputStep> _reversedInputSteps, in SimulationStep _simulation)
+            public void SendReplication(bool _includeInput, bool _force)
             {
-                m_movementValidator.Put(_step, _reversedInputSteps, _simulation);
+                if (_force || m_lastSendStep < m_movementValidator.Step)
+                {
+                    Snapshot snapshot = new Snapshot();
+                    m_movementHistory.GetSimulation(TimeStep.FromSeconds(m_movementValidator.Step), out SimulationStep? simulation, true);
+                    if (simulation != null)
+                    {
+                        snapshot.simulation = simulation.Value;
+                    }
+                    m_movementHistory.GetSight(TimeStep.FromSeconds(m_movementValidator.Step), out Sight? sight);
+                    if (sight != null)
+                    {
+                        snapshot.sight = sight.Value;
+                    }
+                    if (_includeInput)
+                    {
+                        m_movementHistory.PullReverseInputBuffer(m_movementValidator.Step, m_manager.m_inputStepBuffer, out int count);
+                        Serializer.WriteMovementAndInputReplicationMessage(id, m_movementValidator.Step, new ArraySegment<InputStep>(m_manager.m_inputStepBuffer, 0, count), snapshot);
+                    }
+                    else
+                    {
+                        Serializer.WriteMovementReplicationMessage(id, m_movementValidator.Step, snapshot);
+                    }
+                    m_manager.SendAllBut(peer, NetworkManager.SendMethod.Unreliable);
+                    m_lastSendStep = m_movementValidator.Step;
+                    m_movementHistory.TrimOlder(m_lastSendStep, true);
+                }
             }
 
-            public void Sight(int _step, in Sight _sight)
+
+            public void Move(int _step, IEnumerable<InputStep> _reversedInputSteps, in Snapshot _snapshot)
             {
-                m_movementHistory.Put(_step, _sight);
+                m_movementValidator.Put(_step, _reversedInputSteps, _snapshot.simulation);
+                m_movementHistory.Put(_step, _snapshot.sight);
             }
 
-            public void Update()
+            public void Update(TimeStep _time)
             {
                 m_timeSinceLastCorrection += Time.deltaTime;
-                m_movementValidator.UpdateUntil(RoomTime.Now.Step);
-                m_movementHistory.TrimOlder(RoomTime.Now.Step - c_historyCacheSteps, true);
+                m_movementValidator.UpdateUntil(_time.Step);
                 Snapshot snapshot = new Snapshot();
-                m_movementHistory.GetSimulation(RoomTime.Now, out SimulationStep? simulation, true);
+                m_movementHistory.GetSimulation(_time, out SimulationStep? simulation, true);
                 if (simulation != null)
                 {
                     snapshot.simulation = simulation.Value;
                 }
-                m_movementHistory.GetSight(RoomTime.Now, out Sight? sight);
+                m_movementHistory.GetSight(_time, out Sight? sight);
                 if (sight != null)
                 {
                     snapshot.sight = sight.Value;

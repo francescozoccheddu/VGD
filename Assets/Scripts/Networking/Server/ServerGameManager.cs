@@ -18,6 +18,7 @@ namespace Wheeled.Networking.Server
         private readonly Updatable m_updatable;
         private readonly List<NetPlayer> m_netPlayers;
         private byte m_nextPlayerId;
+        private float m_timeSinceLastReplication;
 
         public ServerGameManager()
         {
@@ -34,7 +35,6 @@ namespace Wheeled.Networking.Server
             m_movementController = new MovementController(3.0f);
             m_view = new PlayerView();
             StartLocalPlayer();
-            ScheduleLocalPlayerReplication();
         }
 
         private NetPlayer GetNetPlayerByPeer(NetworkManager.Peer _peer)
@@ -94,8 +94,7 @@ namespace Wheeled.Networking.Server
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
                         _reader.ReadMovementNotifyMessage(out int step, out int inputStepCount, m_inputStepBuffer, out Snapshot snapshot);
-                        netPlayer.Sight(step, snapshot.sight);
-                        netPlayer.Move(step, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), snapshot.simulation);
+                        netPlayer.Move(step, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), snapshot);
                     }
                 }
                 break;
@@ -156,6 +155,7 @@ namespace Wheeled.Networking.Server
 
         void Updatable.ITarget.Update()
         {
+            m_timeSinceLastReplication += Time.deltaTime;
             RoomTime.Manager.Update();
             if ((m_lastRoomUpdateTime + c_roomUpdatePeriod) <= RoomTime.Now)
             {
@@ -166,9 +166,17 @@ namespace Wheeled.Networking.Server
             UpdateLocalPlayer();
             foreach (NetPlayer player in m_netPlayers)
             {
-                player.Update();
+                player.Update(RoomTime.Now);
             }
-            ReplicateLocalPlayer();
+            if (m_timeSinceLastReplication > 1.0f / c_replicationRate)
+            {
+                m_timeSinceLastReplication = 0.0f;
+                ReplicateLocalPlayer(false, true);
+                foreach (NetPlayer player in m_netPlayers)
+                {
+                    player.SendReplication(true, false);
+                }
+            }
         }
 
         private void SendAll(NetworkManager.SendMethod _method)

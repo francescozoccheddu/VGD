@@ -81,6 +81,18 @@ namespace Wheeled.Gameplay.Movement
 
             public LinkedListNode<Node> First => m_nodes.First;
 
+            public LinkedListNode<Node> GetNode(int _step)
+            {
+                LinkedListNode<Node> node = GetNodeOrPrevious(_step);
+                if (node?.Value.step != _step)
+                {
+                    return null;
+                }
+                else
+                {
+                    return node;
+                }
+            }
 
             public LinkedListNode<Node> GetNodeOrPrevious(int _step)
             {
@@ -131,6 +143,25 @@ namespace Wheeled.Gameplay.Movement
         public void Put(int _step, in InputStep _inputStep)
         {
             m_inputHistory.Put(_step, _inputStep);
+        }
+
+
+        public void PullReverseInputBuffer(int _step, InputStep[] _dstBuffer, out int _outCount)
+        {
+            LinkedListNode<History<InputStep>.Node> node = m_inputHistory.GetNode(_step);
+            _outCount = 0;
+            while (node != null && _outCount < _dstBuffer.Length)
+            {
+                _dstBuffer[_outCount] = node.Value.value;
+                if (node.Previous?.Value.step != node.Value.step - 1)
+                {
+                    node = null;
+                }
+                else
+                {
+                    node = node.Previous;
+                }
+            }
         }
 
         private void PartialSimulate(ref SimulationStep _refSimulationStep, ref int _refStep, ref TimeStep _refDeltaTime, bool _canPredict)

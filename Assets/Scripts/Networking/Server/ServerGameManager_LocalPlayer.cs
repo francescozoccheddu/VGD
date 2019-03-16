@@ -12,7 +12,6 @@ namespace Wheeled.Networking.Server
         private readonly MovementController m_movementController;
         private readonly PlayerView m_view;
         private int m_localLastSentStep;
-        private float m_timeSinceLastSend;
 
         private void StartLocalPlayer()
         {
@@ -21,36 +20,32 @@ namespace Wheeled.Networking.Server
 
         private void UpdateLocalPlayer()
         {
-            m_timeSinceLastSend += Time.deltaTime;
             m_movementController.UpdateUntil(RoomTime.Now);
             m_view.Move(m_movementController.ViewSnapshot);
             m_view.Update(Time.deltaTime);
         }
 
-        private void ScheduleLocalPlayerReplication()
+        private void ReplicateLocalPlayer(bool _force, bool _sendInput)
         {
-            m_localLastSentStep = -1;
-        }
-
-        private void ReplicateLocalPlayer()
-        {
-            if (m_localLastSentStep == -1 || (m_localLastSentStep < m_movementController.Time.Step && m_timeSinceLastSend > 1.0f / c_replicationRate))
+            if (_force || m_localLastSentStep < m_movementController.Time.Step)
             {
-                m_timeSinceLastSend = 0.0f;
-                m_localLastSentStep = m_movementController.Time.Step;
-                if (c_sendInputReplication)
                 {
-                    m_movementController.PullReversedInputBuffer(m_inputStepBuffer, out int inputStepCount);
-                    Serializer.WriteMovementAndInputReplicationMessage(0, m_movementController.Time.Step, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), m_movementController.RawSnapshot);
+                    m_localLastSentStep = m_movementController.Time.Step;
+                    if (_sendInput)
+                    {
+                        m_movementController.PullReversedInputBuffer(m_inputStepBuffer, out int inputStepCount);
+                        m_movementController.ClearInputBuffer();
+                        Serializer.WriteMovementAndInputReplicationMessage(0, m_movementController.Time.Step, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), m_movementController.RawSnapshot);
+                    }
+                    else
+                    {
+                        Serializer.WriteMovementReplicationMessage(0, m_movementController.Time.Step, m_movementController.RawSnapshot);
+                    }
+                    SendAll(NetworkManager.SendMethod.Unreliable);
                 }
-                else
-                {
-                    Serializer.WriteMovementReplicationMessage(0, m_movementController.Time.Step, m_movementController.RawSnapshot);
-                }
-                SendAll(NetworkManager.SendMethod.Unreliable);
             }
+
         }
 
     }
-
 }
