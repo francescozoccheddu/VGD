@@ -137,10 +137,10 @@ namespace Wheeled.Gameplay.Movement
             IsRunning = false;
         }
 
-        public void Put(int _firstStep, IEnumerable<InputStep> _inputSteps, in SimulationStep _simulation)
+        public void Put(int _step, IEnumerable<InputStep> _reversedInputSteps, in SimulationStep _simulation)
         {
-            int step = _firstStep;
-            foreach (InputStep inputStep in _inputSteps)
+            int step = _step;
+            foreach (InputStep inputStep in _reversedInputSteps)
             {
                 if (step < Step)
                 {
@@ -154,11 +154,11 @@ namespace Wheeled.Gameplay.Movement
                 {
                     m_buffer[GetStep(step)].input = inputStep;
                 }
-                step++;
+                step--;
             }
-            if (step < Step + m_Length)
+            if (_step < Step + m_Length)
             {
-                m_buffer[GetStep(step - 1)].simulation = _simulation;
+                m_buffer[GetStep(_step)].simulation = _simulation;
             }
         }
 

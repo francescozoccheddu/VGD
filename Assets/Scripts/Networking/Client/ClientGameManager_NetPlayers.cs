@@ -51,16 +51,16 @@ namespace Wheeled.Networking.Client
                 m_movementHistory.Put(_step, _snapshot.sight);
             }
 
-            public void Move(int _firstStep, IEnumerable<InputStep> _inputSteps, Snapshot _snapshot)
+            public void Move(int _step, IEnumerable<InputStep> _reversedInputSteps, Snapshot _snapshot)
             {
-                int step = _firstStep;
-                foreach (InputStep inputStep in _inputSteps)
+                int step = _step;
+                foreach (InputStep inputStep in _reversedInputSteps)
                 {
                     m_movementHistory.Put(step, inputStep);
-                    step++;
+                    step--;
                 }
-                m_movementHistory.Put(step - 1, _snapshot.simulation);
-                m_movementHistory.Put(step - 1, _snapshot.sight);
+                m_movementHistory.Put(_step, _snapshot.simulation);
+                m_movementHistory.Put(_step, _snapshot.sight);
             }
 
         }

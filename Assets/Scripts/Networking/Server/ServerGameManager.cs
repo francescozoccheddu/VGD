@@ -93,14 +93,9 @@ namespace Wheeled.Networking.Server
                 {
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
-                        _reader.ReadMovementNotifyMessage(out int firstStep, out int inputStepCount, m_inputStepBuffer, out Snapshot snapshot);
-                        if (inputStepCount > m_inputStepBuffer.Length)
-                        {
-                            firstStep += inputStepCount - m_inputStepBuffer.Length;
-                            inputStepCount = m_inputStepBuffer.Length;
-                        }
-                        netPlayer.Sight(firstStep + inputStepCount - 1, snapshot.sight);
-                        netPlayer.Move(firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), snapshot.simulation);
+                        _reader.ReadMovementNotifyMessage(out int step, out int inputStepCount, m_inputStepBuffer, out Snapshot snapshot);
+                        netPlayer.Sight(step, snapshot.sight);
+                        netPlayer.Move(step, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), snapshot.simulation);
                     }
                 }
                 break;

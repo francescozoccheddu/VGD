@@ -40,10 +40,9 @@ namespace Wheeled.Networking.Server
                 m_localLastSentStep = m_movementController.Time.Step;
                 if (c_sendInputReplication)
                 {
-                    int firstStep = Math.Max(m_localLastSentStep + 1, m_movementController.Time.Step - m_inputStepBuffer.Length + 1);
-                    m_movementController.PullInputBuffer(ref firstStep, m_inputStepBuffer, out int inputStepCount);
+                    m_movementController.PullReversedInputBuffer(m_inputStepBuffer, out int inputStepCount);
                     int step = m_movementController.Time.Step - inputStepCount + 1;
-                    Serializer.WriteMovementAndInputReplicationMessage(0, firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), m_movementController.RawSnapshot);
+                    Serializer.WriteMovementAndInputReplicationMessage(0, m_movementController.Time.Step, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), m_movementController.RawSnapshot);
                 }
                 else
                 {

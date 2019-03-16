@@ -188,19 +188,14 @@ namespace Wheeled.Gameplay.Movement
             IsRunning = false;
         }
 
-        public void PullInputBuffer(ref int _firstStep, InputStep[] _target, out int _outCount)
+        public void PullReversedInputBuffer(InputStep[] _target, out int _outCount)
         {
-            if (m_oldestInputStep == -1)
+            _outCount = 0;
+            if (m_oldestInputStep != -1)
             {
-                _outCount = 0;
-            }
-            else
-            {
-                _firstStep = Mathf.Max(_firstStep, m_oldestInputStep);
-                _outCount = 0;
-                while (_firstStep + _outCount <= Time.Step)
+                while (_outCount < _target.Length && Time.Step - _outCount >= m_oldestInputStep)
                 {
-                    _target[_outCount] = m_inputBuffer[(_firstStep + _outCount) % InputBufferSize];
+                    _target[_outCount] = m_inputBuffer[(Time.Step - _outCount) % InputBufferSize];
                     _outCount++;
                 }
             }

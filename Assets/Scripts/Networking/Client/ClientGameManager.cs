@@ -95,11 +95,6 @@ namespace Wheeled.Networking.Client
                 case Message.MovementAndInputReplication:
                 {
                     _reader.ReadMovementAndInputReplicationMessage(out byte id, out int step, out int inputStepCount, m_inputBuffer, out Snapshot snapshot);
-                    if (inputStepCount > m_inputBuffer.Length)
-                    {
-                        step += inputStepCount - m_inputBuffer.Length;
-                        inputStepCount = m_inputBuffer.Length;
-                    }
                     GetOrCreatePlayer(id).Move(step, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepCount), snapshot);
                 }
                 break;

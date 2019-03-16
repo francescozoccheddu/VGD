@@ -48,9 +48,9 @@ namespace Wheeled.Networking.Server
                 }
             }
 
-            public void Move(int _firstStep, IEnumerable<InputStep> _inputSteps, in SimulationStep _simulation)
+            public void Move(int _step, IEnumerable<InputStep> _reversedInputSteps, in SimulationStep _simulation)
             {
-                m_movementValidator.Put(_firstStep, _inputSteps, _simulation);
+                m_movementValidator.Put(_step, _reversedInputSteps, _simulation);
             }
 
             public void Sight(int _step, in Sight _sight)

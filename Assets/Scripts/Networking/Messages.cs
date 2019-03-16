@@ -128,12 +128,12 @@ namespace Wheeled.Networking
             writer.Put(_snapshot);
         }
 
-        public static void WriteMovementAndInputReplicationMessage(byte _id, int _firstStep, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
+        public static void WriteMovementAndInputReplicationMessage(byte _id, int _step, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
         {
             writer.Reset();
             writer.Put(Message.MovementAndInputReplication);
             writer.Put(_id);
-            writer.Put(_firstStep);
+            writer.Put(_step);
             writer.Put(_snapshot);
             writer.Put((byte) _inputSteps.Count);
             foreach (InputStep inputStep in _inputSteps)
@@ -305,19 +305,14 @@ namespace Wheeled.Networking
             }
         }
 
-        public void ReadMovementNotifyMessage(out int _outFirstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
+        public void ReadMovementNotifyMessage(out int _outStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
         {
-            _outFirstStep = ReadInt();
+            _outStep = ReadInt();
             _outSnapshot = ReadSnapshot();
             _outInputStepCount = ReadByte();
-            int j = 0;
-            for (int i = 0; i < _outInputStepCount; i++)
+            for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
             {
-                InputStep inputStep = ReadInputStep();
-                if (i >= _outInputStepCount - _inputStepBuffer.Length)
-                {
-                    _inputStepBuffer[j++] = inputStep;
-                }
+                _inputStepBuffer[i] = ReadInputStep();
             }
         }
 
@@ -334,20 +329,15 @@ namespace Wheeled.Networking
             _snapshot = ReadSnapshot();
         }
 
-        public void ReadMovementAndInputReplicationMessage(out byte _id, out int _firstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
+        public void ReadMovementAndInputReplicationMessage(out byte _outId, out int _outStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
         {
-            _id = ReadByte();
-            _firstStep = ReadInt();
+            _outId = ReadByte();
+            _outStep = ReadInt();
             _snapshot = ReadSnapshot();
             _outInputStepCount = ReadByte();
-            int j = 0;
-            for (int i = 0; i < _outInputStepCount; i++)
+            for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
             {
-                InputStep inputStep = ReadInputStep();
-                if (i >= _outInputStepCount - _inputStepBuffer.Length)
-                {
-                    _inputStepBuffer[j++] = inputStep;
-                }
+                _inputStepBuffer[i] = ReadInputStep();
             }
         }
 
