@@ -15,7 +15,6 @@ namespace Wheeled.Networking.Client
         private readonly PlayerView m_view;
         private int m_lastSendStep;
         private float m_timeSinceLastSend;
-        private readonly InputStep[] m_inputBuffer;
 
         private void ScheduleLocalPlayerSend()
         {
@@ -34,7 +33,7 @@ namespace Wheeled.Networking.Client
                 m_lastSendStep = m_movementController.Time.Step;
                 m_movementController.PullInputBuffer(m_inputBuffer, out int inputStepsCount);
                 Serializer.WriteMovementNotifyMessage(m_lastSendStep - inputStepsCount + 1, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepsCount), m_movementController.RawSnapshot);
-                m_server.Send(false);
+                m_server.Send(NetworkManager.SendMethod.Unreliable);
             }
         }
 

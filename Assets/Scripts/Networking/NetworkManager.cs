@@ -17,6 +17,15 @@ namespace Wheeled.Networking
         public static readonly NetworkManager instance = new NetworkManager();
 #endif
 
+        public enum SendMethod
+        {
+            Unreliable = LiteNetLib.DeliveryMethod.Unreliable,
+            Sequenced = LiteNetLib.DeliveryMethod.Sequenced,
+            ReliableUnordered = LiteNetLib.DeliveryMethod.ReliableUnordered,
+            ReliableSequenced = LiteNetLib.DeliveryMethod.ReliableSequenced,
+            ReliableOrdered = LiteNetLib.DeliveryMethod.ReliableOrdered
+        }
+
         private const bool c_simulateBadNetwork = true;
 
         public readonly struct Peer : IEquatable<Peer>
@@ -67,9 +76,9 @@ namespace Wheeled.Networking
                 return (m_peer?.Id)?.GetHashCode() ?? 0;
             }
 
-            public void Send(bool _reliable)
+            public void Send(NetworkManager.SendMethod _method)
             {
-                m_peer?.Send(Serializer.writer, _reliable ? DeliveryMethod.ReliableUnordered : DeliveryMethod.Unreliable);
+                m_peer?.Send(Serializer.writer, (DeliveryMethod) _method);
             }
 
         }

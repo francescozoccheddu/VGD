@@ -305,14 +305,19 @@ namespace Wheeled.Networking
             }
         }
 
-        public void ReadMovementNotifyMessage(out int _outFirstStep, InputStep[] _inputStepBuffer, out int _outInputStepCount, out Snapshot _outSnapshot)
+        public void ReadMovementNotifyMessage(out int _outFirstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
         {
             _outFirstStep = ReadInt();
             _outSnapshot = ReadSnapshot();
             _outInputStepCount = ReadByte();
-            for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
+            int j = 0;
+            for (int i = 0; i < _outInputStepCount; i++)
             {
-                _inputStepBuffer[i] = ReadInputStep();
+                InputStep inputStep = ReadInputStep();
+                if (i >= _outInputStepCount - _inputStepBuffer.Length)
+                {
+                    _inputStepBuffer[j++] = inputStep;
+                }
             }
         }
 
@@ -337,9 +342,14 @@ namespace Wheeled.Networking
             _snapshot.sight = ReadSight();
             _snapshot.simulation = ReadSimulationStep();
             _outInputStepCount = ReadByte();
-            for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
+            int j = 0;
+            for (int i = 0; i < _outInputStepCount; i++)
             {
-                _inputStepBuffer[i] = ReadInputStep();
+                InputStep inputStep = ReadInputStep();
+                if (i >= _outInputStepCount - _inputStepBuffer.Length)
+                {
+                    _inputStepBuffer[j++] = inputStep;
+                }
             }
         }
 

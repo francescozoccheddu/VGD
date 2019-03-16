@@ -9,16 +9,16 @@ namespace Wheeled.Networking.Client
         public interface IServer
         {
             float Ping { get; }
-            void Send(bool _reliable);
+            void Send(NetworkManager.SendMethod _method);
         }
 
         #region Client.IServer
 
         float IServer.Ping => m_server.Ping;
 
-        void IServer.Send(bool _reliable)
+        void IServer.Send(NetworkManager.SendMethod _method)
         {
-            m_server.Send(_reliable);
+            m_server.Send(_method);
         }
 
         #endregion

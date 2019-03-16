@@ -86,7 +86,12 @@ namespace Wheeled.Networking.Server
                 {
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
-                        _reader.ReadMovementNotifyMessage(out int firstStep, m_inputStepBuffer, out int inputStepCount, out Snapshot snapshot);
+                        _reader.ReadMovementNotifyMessage(out int firstStep, out int inputStepCount, m_inputStepBuffer, out Snapshot snapshot);
+                        if (inputStepCount > m_inputStepBuffer.Length)
+                        {
+                            firstStep += inputStepCount - m_inputStepBuffer.Length;
+                            inputStepCount = m_inputStepBuffer.Length;
+                        }
                         netPlayer.Sight(firstStep + inputStepCount - 1, snapshot.sight);
                         netPlayer.Move(firstStep, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), snapshot.simulation);
                     }
@@ -98,7 +103,7 @@ namespace Wheeled.Networking.Server
                     {
                         netPlayer.Start();
                         PrepareRoomUpdateMessage();
-                        _peer.Send(false);
+                        _peer.Send(NetworkManager.SendMethod.Sequenced);
                     }
                 }
                 break;
@@ -141,7 +146,7 @@ namespace Wheeled.Networking.Server
             PrepareRoomUpdateMessage();
             foreach (NetPlayer netPlayer in m_netPlayers)
             {
-                netPlayer.peer.Send(false);
+                netPlayer.peer.Send(NetworkManager.SendMethod.Sequenced);
             }
         }
 
@@ -163,21 +168,21 @@ namespace Wheeled.Networking.Server
             }
         }
 
-        private void SendAll(bool _reliable)
+        private void SendAll(NetworkManager.SendMethod _method)
         {
             foreach (NetPlayer netPlayer in m_netPlayers)
             {
-                netPlayer.peer.Send(_reliable);
+                netPlayer.peer.Send(_method);
             }
         }
 
-        private void SendAllBut(NetworkManager.Peer _peer, bool _reliable)
+        private void SendAllBut(NetworkManager.Peer _peer, NetworkManager.SendMethod _method)
         {
             foreach (NetPlayer netPlayer in m_netPlayers)
             {
                 if (netPlayer.peer != _peer)
                 {
-                    netPlayer.peer.Send(_reliable);
+                    netPlayer.peer.Send(_method);
                 }
             }
         }

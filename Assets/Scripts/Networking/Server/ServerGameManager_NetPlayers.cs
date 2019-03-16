@@ -89,7 +89,7 @@ namespace Wheeled.Networking.Server
                 {
                     m_timeSinceLastCorrection = 0.0f;
                     Serializer.WriteSimulationCorrectionMessage(_step, _simulation);
-                    peer.Send(false);
+                    peer.Send(NetworkManager.SendMethod.Unreliable);
                 }
             }
 

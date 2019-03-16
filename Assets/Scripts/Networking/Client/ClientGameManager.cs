@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Core;
 using Wheeled.Gameplay;
@@ -10,6 +11,9 @@ namespace Wheeled.Networking.Client
     internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager
     {
 
+        private const int c_maxReplicationInputStepCount = 10;
+
+        private readonly InputStep[] m_inputBuffer;
         private readonly Updatable m_updatable;
         private readonly Client.IServer m_server;
         private readonly Dictionary<int, NetPlayer> m_netPlayers;
@@ -43,12 +47,12 @@ namespace Wheeled.Networking.Client
             };
             m_view = new PlayerView();
             ScheduleLocalPlayerSend();
-            m_inputBuffer = new InputStep[maxInputStepCount];
+            m_inputBuffer = new InputStep[Math.Max(maxInputStepCount, c_maxReplicationInputStepCount)];
             // Net players
             m_netPlayers = new Dictionary<int, NetPlayer>();
             // Ready notify
             Serializer.WriteReadyMessage();
-            m_server.Send(false);
+            m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
         }
 
         #region Client.IGameManager
@@ -88,6 +92,17 @@ namespace Wheeled.Networking.Client
                     GetOrCreatePlayer(id).Move(step, snapshot);
                 }
                 break;
+                case Message.MovementAndInputReplication:
+                {
+                    _reader.ReadMovementAndInputReplicationMessage(out byte id, out int step, out int inputStepCount, m_inputBuffer, out Snapshot snapshot);
+                    if (inputStepCount > m_inputBuffer.Length)
+                    {
+                        step += inputStepCount - m_inputBuffer.Length;
+                        inputStepCount = m_inputBuffer.Length;
+                    }
+                    GetOrCreatePlayer(id).Move(step, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepCount), snapshot);
+                }
+                break;
             }
         }
 
@@ -98,7 +113,6 @@ namespace Wheeled.Networking.Client
         }
 
         #endregion
-
 
         void Updatable.ITarget.Update()
         {
