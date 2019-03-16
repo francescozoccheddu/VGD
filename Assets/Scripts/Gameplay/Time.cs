@@ -75,7 +75,7 @@ namespace Wheeled.Gameplay
             m_remainder %= c_simulationStep;
             if (m_remainder < 0.0f)
             {
-                m_remainder = c_simulationStep - m_remainder;
+                m_remainder = c_simulationStep + m_remainder;
             }
         }
 

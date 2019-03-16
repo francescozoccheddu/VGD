@@ -11,7 +11,7 @@ namespace Wheeled.Networking.Client
     internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager
     {
 
-        private const int c_maxReplicationInputStepCount = 10;
+        private const int c_maxReplicationInputStepCount = 20;
 
         private readonly InputStep[] m_inputBuffer;
         private readonly Updatable m_updatable;
@@ -63,11 +63,11 @@ namespace Wheeled.Networking.Client
 
         void Client.IGameManager.Received(Deserializer _reader)
         {
+            // TODO Catch exception
             switch (_reader.ReadMessageType())
             {
                 case Message.RoomUpdate:
                 {
-                    // TODO Check if time is corrupted
                     _reader.ReadRoomUpdateMessage(out TimeStep time);
                     Debug.LogFormat("RoomUpdate at {0} (oldTime={1}, diff={2})", time, RoomTime.Now, time - RoomTime.Now);
                     RoomTime.Manager.Set(time + m_server.Ping / 2.0f, RoomTime.IsRunning);
@@ -118,6 +118,10 @@ namespace Wheeled.Networking.Client
         {
             RoomTime.Manager.Update();
             UpdateLocalPlayer();
+            foreach (NetPlayer netPlayer in m_netPlayers.Values)
+            {
+                netPlayer.Update();
+            }
         }
 
     }

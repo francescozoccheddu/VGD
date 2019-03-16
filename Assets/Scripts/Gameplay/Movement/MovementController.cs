@@ -188,7 +188,7 @@ namespace Wheeled.Gameplay.Movement
             IsRunning = false;
         }
 
-        public void PullInputBuffer(InputStep[] _target, out int _outCount, int _maxSteps)
+        public void PullInputBuffer(ref int _firstStep, InputStep[] _target, out int _outCount)
         {
             if (m_oldestInputStep == -1)
             {
@@ -196,20 +196,14 @@ namespace Wheeled.Gameplay.Movement
             }
             else
             {
-                int step = Mathf.Max(Time.Step - _maxSteps + 1, m_oldestInputStep);
-                int i = 0;
-                while (step <= Time.Step)
+                _firstStep = Mathf.Max(_firstStep, m_oldestInputStep);
+                _outCount = 0;
+                while (_firstStep + _outCount <= Time.Step)
                 {
-                    _target[i++] = m_inputBuffer[step % InputBufferSize];
-                    step++;
+                    _target[_outCount] = m_inputBuffer[(_firstStep + _outCount) % InputBufferSize];
+                    _outCount++;
                 }
-                _outCount = i;
             }
-        }
-
-        public void PullInputBuffer(InputStep[] _target, out int _outCount)
-        {
-            PullInputBuffer(_target, out _outCount, _target.Length);
         }
 
         public void UpdateUntil(TimeStep _time)

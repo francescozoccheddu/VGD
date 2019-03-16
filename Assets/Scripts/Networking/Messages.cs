@@ -331,16 +331,14 @@ namespace Wheeled.Networking
         {
             _id = ReadByte();
             _step = ReadInt();
-            _snapshot.sight = ReadSight();
-            _snapshot.simulation = ReadSimulationStep();
+            _snapshot = ReadSnapshot();
         }
 
         public void ReadMovementAndInputReplicationMessage(out byte _id, out int _firstStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
         {
             _id = ReadByte();
             _firstStep = ReadInt();
-            _snapshot.sight = ReadSight();
-            _snapshot.simulation = ReadSimulationStep();
+            _snapshot = ReadSnapshot();
             _outInputStepCount = ReadByte();
             int j = 0;
             for (int i = 0; i < _outInputStepCount; i++)

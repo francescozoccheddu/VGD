@@ -1,6 +1,5 @@
-﻿#define ENABLE_PARTIAL_SIMULATION
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Wheeled.Debugging;
 
 namespace Wheeled.Gameplay.Movement
 {
@@ -184,8 +183,9 @@ namespace Wheeled.Gameplay.Movement
                 if (next != null)
                 {
                     // Prev & next
-                    if (next.Value.step - prev.Value.step > 1)
+                    if (next.Value.step - prev.Value.step == 1)
                     {
+                        Printer.Debug("History", "Consecutive");
                         // Consecutive prev & next
                         if (isPartialSimulationEnabled)
                         {
@@ -203,6 +203,7 @@ namespace Wheeled.Gameplay.Movement
                     }
                     else
                     {
+                        Printer.Debug("History", "Holes");
                         // History holes
                         SimulationStep a = prev.Value.value;
                         SimulationStep b = next.Value.value;
@@ -219,13 +220,14 @@ namespace Wheeled.Gameplay.Movement
                         }
                         else
                         {
-                            float elapsed = (_time - new TimeStep(prev.Value.step, 0.0f)).Seconds;
+                            float elapsed = (_time - TimeStep.FromSteps(prev.Value.step)).Seconds;
                             _outSimulation = SimulationStep.Lerp(a, b, elapsed / period);
                         }
                     }
                 }
                 else
                 {
+                    Printer.Debug("History", "Prev Only");
                     // Prev only
                     History<SimulationStep>.Node node = prev.Value;
                     if (isPartialSimulationEnabled)
@@ -244,6 +246,7 @@ namespace Wheeled.Gameplay.Movement
             }
             else
             {
+                Printer.Debug("History", "None");
                 // No prev
                 _outSimulation = null;
             }
@@ -257,8 +260,9 @@ namespace Wheeled.Gameplay.Movement
                 if (next != null)
                 {
                     // Prev & next
-                    float progress = (next.Value.step - prev.Value.step) * TimeStep.c_simulationStep;
-                    _outSight = Sight.Lerp(prev.Value.value, next.Value.value, progress);
+                    float period = (next.Value.step - prev.Value.step) * TimeStep.c_simulationStep;
+                    float elapsed = (_time - TimeStep.FromSteps(prev.Value.step)).Seconds;
+                    _outSight = Sight.Lerp(prev.Value.value, next.Value.value, elapsed / period);
                 }
                 else
                 {

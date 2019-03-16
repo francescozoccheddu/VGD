@@ -12,6 +12,7 @@ namespace Wheeled.Networking.Client
         private sealed class NetPlayer
         {
 
+            private const float c_historyOffset = 0.5f;
             public readonly int id;
             private readonly MovementHistory m_movementHistory;
             private readonly PlayerView m_playerView;
@@ -19,24 +20,27 @@ namespace Wheeled.Networking.Client
             public NetPlayer(int _id)
             {
                 id = _id;
-                m_movementHistory = new MovementHistory(false);
-                m_playerView = new PlayerView();
+                m_movementHistory = new MovementHistory(true);
+                m_playerView = new PlayerView
+                {
+                    isSightInterpolationEnabled = false
+                };
             }
 
             public void Update()
             {
                 Snapshot snapshot = new Snapshot();
-                m_movementHistory.GetSimulation(RoomTime.Now, out SimulationStep? simulation);
+                m_movementHistory.GetSimulation(RoomTime.Now - c_historyOffset, out SimulationStep? simulation);
                 if (simulation != null)
                 {
                     snapshot.simulation = simulation.Value;
                 }
-                m_movementHistory.GetSight(RoomTime.Now, out Sight? sight);
+                m_movementHistory.GetSight(RoomTime.Now - c_historyOffset, out Sight? sight);
                 if (sight != null)
                 {
                     snapshot.sight = sight.Value;
                 }
-                m_movementHistory.TrimOlder(RoomTime.Now.Step - 100, true);
+                m_movementHistory.TrimOlder(RoomTime.Now.Step - 500, true);
                 m_playerView.Move(snapshot);
                 m_playerView.Update(Time.deltaTime);
             }

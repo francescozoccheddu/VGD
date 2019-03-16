@@ -11,6 +11,10 @@ namespace Wheeled.Networking.Server
     internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget
     {
 
+        private const int c_replicationRate = 10;
+        private const bool c_sendInputReplication = true;
+        private const int c_maxInputSteps = 20;
+
         private readonly Updatable m_updatable;
         private readonly List<NetPlayer> m_netPlayers;
         private byte m_nextPlayerId;
@@ -23,12 +27,14 @@ namespace Wheeled.Networking.Server
             };
             RoomTime.Manager.Set(TimeStep.zero, false);
             RoomTime.Manager.Start();
+            // Net players
             m_netPlayers = new List<NetPlayer>();
             m_nextPlayerId = 1;
-
+            // Local player
             m_movementController = new MovementController(3.0f);
             m_view = new PlayerView();
             StartLocalPlayer();
+            ScheduleLocalPlayerReplication();
         }
 
         private NetPlayer GetNetPlayerByPeer(NetworkManager.Peer _peer)
@@ -76,10 +82,11 @@ namespace Wheeled.Networking.Server
         {
         }
 
-        private readonly InputStep[] m_inputStepBuffer = new InputStep[12];
+        private readonly InputStep[] m_inputStepBuffer = new InputStep[c_maxInputSteps];
 
         void Server.IGameManager.ReceivedFrom(NetworkManager.Peer _peer, Deserializer _reader)
         {
+            // TODO Catch exception
             switch (_reader.ReadMessageType())
             {
                 case Message.MovementNotify:
@@ -166,6 +173,7 @@ namespace Wheeled.Networking.Server
             {
                 player.Update();
             }
+            ReplicateLocalPlayer();
         }
 
         private void SendAll(NetworkManager.SendMethod _method)
