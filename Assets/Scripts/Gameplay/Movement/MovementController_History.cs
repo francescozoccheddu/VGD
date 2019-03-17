@@ -12,14 +12,14 @@ namespace Wheeled.Gameplay.Movement
         private sealed class History
         {
 
-            private readonly SimulationStepInfo?[] m_history;
-            private int m_Lenght => m_history.Length;
+            private readonly InputStep?[] m_history;
+            public int Length => m_history.Length;
             public int Oldest { get; private set; }
             public int Newest { get; private set; }
 
             public History(int _length)
             {
-                m_history = new SimulationStepInfo?[_length];
+                m_history = new InputStep?[_length];
             }
 
             private int GetIndex(int _step)
@@ -27,19 +27,19 @@ namespace Wheeled.Gameplay.Movement
                 return _step % m_history.Length;
             }
 
-            public void Append(int _step, SimulationStepInfo _simulationInfo)
+            public void Append(int _step, InputStep _input)
             {
                 if (_step >= Oldest)
                 {
-                    int step = Mathf.Max(Oldest, Newest + 1, _step - m_Lenght + 1);
+                    int step = Mathf.Max(Oldest, Newest + 1, _step - Length + 1);
                     while (step < _step)
                     {
                         m_history[GetIndex(step)] = null;
                         step++;
                     }
                     Newest = _step;
-                    m_history[GetIndex(Newest)] = _simulationInfo;
-                    Oldest = Mathf.Max(Oldest, Newest - m_Lenght + 1);
+                    m_history[GetIndex(Newest)] = _input;
+                    Oldest = Mathf.Max(Oldest, Newest - Length + 1);
                 }
             }
 
@@ -47,16 +47,15 @@ namespace Wheeled.Gameplay.Movement
             {
                 if (_step >= Oldest && _step <= Newest)
                 {
-                    m_history[GetIndex(_step)] = _simulation;
+                    m_history[GetIndex(_step)] = _simulation.input;
                     SimulationStepInfo simulation = _simulation;
                     for (int i = _step + 1; i <= Newest; i++)
                     {
                         int step = GetIndex(i);
                         if (m_history[step] != null)
                         {
-                            simulation.input = m_history[step].Value.input;
+                            simulation.input = m_history[step].Value;
                             simulation.simulation = simulation.simulation.Simulate(simulation.input, TimeConstants.c_simulationStep);
-                            m_history[step] = simulation;
                         }
                         else
                         {
@@ -70,6 +69,11 @@ namespace Wheeled.Gameplay.Movement
                 {
                     return null;
                 }
+            }
+
+            public InputStep? Get(int _step)
+            {
+                return _step >= Oldest && _step <= Newest ? m_history[GetIndex(_step)] : null;
             }
 
             public void Cut(int _step)

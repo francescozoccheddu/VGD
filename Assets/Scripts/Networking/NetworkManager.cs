@@ -3,6 +3,7 @@ using LiteNetLib;
 using LiteNetLib.Utils;
 using System;
 using System.Net;
+using UnityEngine;
 
 namespace Wheeled.Networking
 {
@@ -223,14 +224,15 @@ namespace Wheeled.Networking
 
         public void Update()
         {
-#if UNITY_EDITOR
-            if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.F8))
+            if (Debug.isDebugBuild)
             {
-                m_netManager.SimulatePacketLoss = m_netManager.SimulateLatency = !m_netManager.SimulateLatency;
-                UnityEngine.Debug.LogFormat("NetworkManager bad network simulation = {0}", m_netManager.SimulatePacketLoss);
-                Debugging.Printer.Print("BadNetwork", m_netManager.SimulatePacketLoss);
+                if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.F8))
+                {
+                    m_netManager.SimulatePacketLoss = m_netManager.SimulateLatency = !m_netManager.SimulateLatency;
+                    UnityEngine.Debug.LogFormat("NetworkManager bad network simulation = {0}", m_netManager.SimulatePacketLoss);
+                    Debugging.Printer.Print("BadNetwork", m_netManager.SimulatePacketLoss);
+                }
             }
-#endif
             m_netManager.PollEvents();
             NotifyIfNotRunning();
         }

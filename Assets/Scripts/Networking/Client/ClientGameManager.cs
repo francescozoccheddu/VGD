@@ -47,10 +47,7 @@ namespace Wheeled.Networking.Client
             m_server = _server;
             // Local player
             int maxInputStepCount = (1.0 / c_controllerSendFrequency).CeilingSimulationSteps() + 1;
-            m_movementController = new MovementController(3.0f)
-            {
-                InputBufferSize = maxInputStepCount
-            };
+            m_movementController = new MovementController((3.0).CeilingSimulationSteps());
             m_view = new PlayerView();
             ScheduleLocalPlayerSend();
             m_inputBuffer = new InputStep[Math.Max(maxInputStepCount, c_maxReplicationInputStepCount)];
