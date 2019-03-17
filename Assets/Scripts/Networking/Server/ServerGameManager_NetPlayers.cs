@@ -78,7 +78,7 @@ namespace Wheeled.Networking.Server
                     }
                     m_manager.SendAllBut(peer, NetworkManager.SendMethod.Unreliable);
                     m_lastSendStep = m_movementValidator.Step;
-                    m_movementHistory.TrimOlder(m_lastSendStep, true);
+                    m_movementHistory.ForgetOlder(m_lastSendStep, true);
                 }
             }
 

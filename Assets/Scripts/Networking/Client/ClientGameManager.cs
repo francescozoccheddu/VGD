@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Wheeled.Core;
+using Wheeled.Core.Utils;
 using Wheeled.Debugging;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Movement;

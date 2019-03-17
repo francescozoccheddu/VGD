@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Wheeled.Core
+namespace Wheeled.Core.Utils
 {
 
     internal sealed class Updatable

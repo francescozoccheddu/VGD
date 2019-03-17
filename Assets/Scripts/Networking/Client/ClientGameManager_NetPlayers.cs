@@ -44,7 +44,7 @@ namespace Wheeled.Networking.Client
                 {
                     snapshot.sight = sight.Value;
                 }
-                m_movementHistory.TrimOlder((m_manager.m_time - c_historyCache).SimulationSteps(), true);
+                m_movementHistory.ForgetOlder((m_manager.m_time - c_historyCache).SimulationSteps(), true);
                 m_playerView.Move(snapshot);
                 m_playerView.Update(Time.deltaTime);
             }
