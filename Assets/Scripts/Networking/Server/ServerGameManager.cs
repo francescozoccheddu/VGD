@@ -33,7 +33,8 @@ namespace Wheeled.Networking.Server
             m_netPlayers = new List<NetPlayer>();
             m_nextPlayerId = 1;
             // Local player
-            m_movementController = new MovementController((3.0).CeilingSimulationSteps());
+            m_movementController = new MovementController();
+            m_inputHistory = new InputHistory();
             m_view = new PlayerView();
             StartLocalPlayer();
         }

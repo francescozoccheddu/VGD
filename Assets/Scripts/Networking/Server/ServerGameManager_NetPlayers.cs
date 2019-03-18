@@ -19,6 +19,7 @@ namespace Wheeled.Networking.Server
 
             private readonly ServerGameManager m_manager;
             private readonly MovementValidator m_movementValidator;
+            private readonly InputHistory m_inputHistory;
             private readonly MovementHistory m_movementHistory;
             private readonly PlayerView m_view;
             private float m_timeSinceLastCorrection;
@@ -33,6 +34,7 @@ namespace Wheeled.Networking.Server
                 m_manager = _manager;
                 id = _id;
                 peer = _peer;
+                m_inputHistory = new InputHistory();
                 m_movementValidator = new MovementValidator(3.0f)
                 {
                     correctionTarget = this,
@@ -57,7 +59,7 @@ namespace Wheeled.Networking.Server
                 if (_force || m_lastSendStep < m_movementValidator.Step)
                 {
                     Snapshot snapshot = new Snapshot();
-                    m_movementHistory.GetSimulation(m_movementValidator.Step.SimulationPeriod(), out SimulationStep? simulation, true);
+                    m_movementHistory.GetSimulation(m_movementValidator.Step.SimulationPeriod(), out SimulationStep? simulation, m_inputHistory);
                     if (simulation != null)
                     {
                         snapshot.simulation = simulation.Value;
@@ -69,7 +71,7 @@ namespace Wheeled.Networking.Server
                     }
                     if (_includeInput)
                     {
-                        m_movementHistory.PullReverseInputBuffer(m_movementValidator.Step, m_manager.m_inputStepBuffer, out int count);
+                        m_inputHistory.PullReverseInputBuffer(m_movementValidator.Step, m_manager.m_inputStepBuffer, out int count);
                         Serializer.WriteMovementAndInputReplicationMessage(id, m_movementValidator.Step, new ArraySegment<InputStep>(m_manager.m_inputStepBuffer, 0, count), snapshot);
                     }
                     else
@@ -79,6 +81,7 @@ namespace Wheeled.Networking.Server
                     m_manager.SendAllBut(peer, NetworkManager.SendMethod.Unreliable);
                     m_lastSendStep = m_movementValidator.Step;
                     m_movementHistory.ForgetOlder(m_lastSendStep, true);
+                    m_inputHistory.Cut(m_lastSendStep);
                 }
             }
 
@@ -94,7 +97,7 @@ namespace Wheeled.Networking.Server
                 m_timeSinceLastCorrection += Time.deltaTime;
                 m_movementValidator.UpdateUntil(m_manager.m_time.SimulationSteps());
                 Snapshot snapshot = new Snapshot();
-                m_movementHistory.GetSimulation(m_manager.m_time, out SimulationStep? simulation, true);
+                m_movementHistory.GetSimulation(m_manager.m_time, out SimulationStep? simulation, m_inputHistory);
                 if (simulation != null)
                 {
                     snapshot.simulation = simulation.Value;
@@ -106,6 +109,8 @@ namespace Wheeled.Networking.Server
                 }
                 m_view.Move(snapshot);
                 m_view.Update(Time.deltaTime);
+                m_movementHistory.ForgetOlder((m_manager.m_time - 100).SimulationSteps(), true);
+                m_inputHistory.Cut((m_manager.m_time - 100).SimulationSteps());
             }
 
             public void Destroy()
@@ -129,7 +134,7 @@ namespace Wheeled.Networking.Server
 
             void MovementValidator.IValidationTarget.Validated(int _step, in InputStep _input, in SimulationStep _simulation)
             {
-                m_movementHistory.Put(_step, _input);
+                m_inputHistory.Put(_step, _input);
                 m_movementHistory.Put(_step, _simulation);
             }
 

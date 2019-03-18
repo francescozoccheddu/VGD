@@ -53,8 +53,9 @@ namespace Wheeled.Core.Utils
         IEnumerable<HistoryNode<TTime, TValue>> GetReversedSequence(TTime _minStartingTime);
 
         TTime? OldestTime { get; }
-
         TTime? NewestTime { get; }
+        TValue? Newest { get; }
+        TValue? Oldest { get; }
 
     }
 
