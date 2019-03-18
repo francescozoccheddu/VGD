@@ -9,8 +9,9 @@ namespace Wheeled.Core.Utils
         private readonly LinkedList<HistoryNode<TTime, TValue>> m_list = new LinkedList<HistoryNode<TTime, TValue>>();
 
         public TTime? OldestTime => m_list.First?.Value.time;
-
         public TTime? NewestTime => m_list.Last?.Value.time;
+        public TValue? Oldest => m_list.First?.Value.entry;
+        public TValue? Newest => m_list.Last?.Value.entry;
 
         private LinkedListNode<HistoryNode<TTime, TValue>> GetNodeOrPrevious(TTime _time)
         {
