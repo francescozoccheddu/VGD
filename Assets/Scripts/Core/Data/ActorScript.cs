@@ -8,6 +8,7 @@ namespace Wheeled.Core.Data
     {
 
         public GameObject player;
+        public GameObject corpse;
 
     }
 
