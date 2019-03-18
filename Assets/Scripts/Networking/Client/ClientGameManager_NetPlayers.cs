@@ -16,6 +16,7 @@ namespace Wheeled.Networking.Client
             private const float c_historyCache = 2.0f;
             public readonly int id;
             private readonly MovementHistory m_movementHistory;
+            private readonly InputHistory m_inputHistory;
             private readonly PlayerView m_playerView;
             private readonly ClientGameManager m_manager;
 
@@ -24,6 +25,7 @@ namespace Wheeled.Networking.Client
                 m_manager = _manager;
                 id = _id;
                 m_movementHistory = new MovementHistory();
+                m_inputHistory = new InputHistory();
                 m_playerView = new PlayerView
                 {
                     isSightInterpolationEnabled = false
@@ -34,7 +36,7 @@ namespace Wheeled.Networking.Client
             public void Update()
             {
                 Snapshot snapshot = new Snapshot();
-                m_movementHistory.GetSimulation(m_manager.m_time - c_historyOffset, out SimulationStep? simulation, true);
+                m_movementHistory.GetSimulation(m_manager.m_time - c_historyOffset, out SimulationStep? simulation, m_inputHistory);
                 if (simulation != null)
                 {
                     snapshot.simulation = simulation.Value;
@@ -44,7 +46,9 @@ namespace Wheeled.Networking.Client
                 {
                     snapshot.sight = sight.Value;
                 }
-                m_movementHistory.ForgetOlder((m_manager.m_time - c_historyCache).SimulationSteps(), true);
+                int forgetStep = (m_manager.m_time - c_historyCache).SimulationSteps();
+                m_movementHistory.ForgetOlder(forgetStep, true);
+                m_inputHistory.Trim(forgetStep);
                 m_playerView.Move(snapshot);
                 m_playerView.Update(Time.deltaTime);
             }
@@ -60,7 +64,7 @@ namespace Wheeled.Networking.Client
                 int step = _step;
                 foreach (InputStep inputStep in _reversedInputSteps)
                 {
-                    m_movementHistory.Put(step, inputStep);
+                    m_inputHistory.Put(step, inputStep);
                     step--;
                 }
                 m_movementHistory.Put(_step, _snapshot.simulation);

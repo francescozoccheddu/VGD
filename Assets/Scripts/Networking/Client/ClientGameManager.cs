@@ -46,8 +46,12 @@ namespace Wheeled.Networking.Client
             };
             m_server = _server;
             // Local player
+            m_inputHistory = new InputHistory();
             int maxInputStepCount = (1.0 / c_controllerSendFrequency).CeilingSimulationSteps() + 1;
-            m_movementController = new MovementController((3.0).CeilingSimulationSteps());
+            m_movementController = new MovementController
+            {
+                target = this
+            };
             m_view = new PlayerView();
             ScheduleLocalPlayerSend();
             m_inputBuffer = new InputStep[Math.Max(maxInputStepCount, c_maxReplicationInputStepCount)];
@@ -90,7 +94,9 @@ namespace Wheeled.Networking.Client
                 {
                     _reader.ReadSimulationCorrectionMessage(out int step, out SimulationStepInfo _simulation);
                     Debug.LogFormat("Reconciliation {0}", step);
-                    m_movementController.Correct(step, _simulation);
+                    m_inputHistory.Put(step, _simulation.input);
+                    SimulationStep correctedSimulation = m_inputHistory.SimulateFrom(step, _simulation.simulation);
+                    m_movementController.Teleport(new Snapshot { sight = m_movementController.RawSnapshot.sight, simulation = correctedSimulation }, false);
                 }
                 break;
                 case Message.MovementReplication:

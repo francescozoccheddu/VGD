@@ -1,4 +1,5 @@
-﻿using Wheeled.Core.Utils;
+﻿using System.Collections.Generic;
+using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Movement
 {
@@ -15,6 +16,11 @@ namespace Wheeled.Gameplay.Movement
         public void Put(int _step, InputStep _inputStep)
         {
             m_history.Set(_step, _inputStep);
+        }
+
+        public IEnumerable<HistoryNode<int, InputStep>> GetSequence(int _step)
+        {
+            return m_history.GetSequence(_step);
         }
 
         public SimulationStep SimulateFrom(int _step, SimulationStep _simulation)
@@ -47,6 +53,11 @@ namespace Wheeled.Gameplay.Movement
                 }
                 _dstBuffer[_outCount++] = node.entry;
             }
+        }
+
+        internal void Clear()
+        {
+            m_history.Clear();
         }
 
         public void Trim(int _oldest)

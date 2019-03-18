@@ -8,12 +8,18 @@ namespace Wheeled.Gameplay.Movement
     internal sealed partial class MovementController
     {
 
+        public interface ICommitTarget
+        {
+
+            void Commit(int _step, InputStep _input);
+            void Cut(int _oldest);
+
+        }
+
         private SimulationStep m_lastSimulation;
-        private readonly History m_history;
         private InputStep m_accumulatedInput;
         private double m_accumulatedTime;
         private Snapshot m_snapshot;
-        private int m_oldestInputStep;
 
         public bool m_isPartialSimulationEnabled;
 
@@ -32,7 +38,7 @@ namespace Wheeled.Gameplay.Movement
         public bool IsRunning { get; private set; }
         public Snapshot RawSnapshot => m_snapshot;
         public Snapshot ViewSnapshot { get; private set; }
-        public int HistoryLength => m_history.Length;
+        public ICommitTarget target;
 
         private static void ClampMovement(ref float _refX, ref float _refZ)
         {
@@ -67,14 +73,10 @@ namespace Wheeled.Gameplay.Movement
 
         private void CommitInput()
         {
-            if (m_oldestInputStep == -1)
-            {
-                m_oldestInputStep = Step;
-            }
             InputStep input = GetAccumulatedInput();
             m_lastSimulation = m_snapshot.simulation;
             m_snapshot.simulation = m_snapshot.simulation.Simulate(input, TimeConstants.c_simulationStep);
-            m_history.Append(Step, input);
+            target?.Commit(Step, input);
             m_accumulatedInput = new InputStep();
             m_accumulatedTime = 0.0f;
         }
@@ -139,16 +141,13 @@ namespace Wheeled.Gameplay.Movement
             ViewSnapshot = viewSnapshot;
         }
 
-        public MovementController(int _historyLength)
+        public MovementController()
         {
-            m_history = new History(_historyLength);
             m_isPartialSimulationEnabled = true;
-            m_oldestInputStep = -1;
         }
 
         public void StartAt(double _time)
         {
-            ClearInputBuffer();
             Time = _time;
             Step = _time.SimulationSteps();
             m_accumulatedInput = new InputStep();
@@ -156,7 +155,7 @@ namespace Wheeled.Gameplay.Movement
             IsRunning = true;
         }
 
-        public void Teleport(Snapshot _snapshot, bool _resetInput = false, bool _clearInputBuffer = false)
+        public void Teleport(Snapshot _snapshot, bool _resetInput = false)
         {
             m_snapshot = _snapshot;
             m_lastSimulation = _snapshot.simulation;
@@ -165,11 +164,6 @@ namespace Wheeled.Gameplay.Movement
                 m_accumulatedInput = new InputStep();
                 m_accumulatedTime = 0.0f;
             }
-            if (_clearInputBuffer)
-            {
-                ClearInputBuffer();
-            }
-            m_history.Cut(Time.SimulationSteps());
             UpdateView();
         }
 
@@ -178,44 +172,11 @@ namespace Wheeled.Gameplay.Movement
             IsRunning = false;
         }
 
-        public void PullReversedInputBuffer(InputStep[] _target, out int _outCount)
-        {
-            _outCount = 0;
-            if (m_oldestInputStep != -1)
-            {
-                InputStep? node = m_history.Get(Step);
-                while (node != null && Step - _outCount >= m_oldestInputStep && _outCount < _target.Length)
-                {
-                    _target[_outCount++] = node.Value;
-                    node = m_history.Get(Step - _outCount);
-                }
-            }
-        }
-
         public void UpdateUntil(double _time)
         {
             if (IsRunning)
             {
                 ProcessInput(_time);
-            }
-            UpdateView();
-        }
-
-        public void ClearInputBuffer()
-        {
-            m_oldestInputStep = -1;
-        }
-
-        public void Correct(int _step, SimulationStepInfo _simulation)
-        {
-            if (_step > m_oldestInputStep)
-            {
-                m_oldestInputStep = _step + 1;
-            }
-            SimulationStep? correctedSimulation = m_history.Correct(_step, _simulation);
-            if (correctedSimulation != null)
-            {
-                m_snapshot.simulation = correctedSimulation.Value;
             }
             UpdateView();
         }
