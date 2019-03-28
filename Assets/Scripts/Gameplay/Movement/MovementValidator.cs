@@ -24,7 +24,7 @@ namespace Wheeled.Gameplay.Movement
         }
 
         public int Step { get; private set; }
-        public bool IsRunning { get; private set; }
+        public bool IsRunning { get; set; }
 
         public IValidationTarget validationTarget;
         public ICorrectionTarget correctionTarget;
@@ -80,7 +80,7 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        public void StartAt(int _step, bool _clearBuffer)
+        public void SkipTo(int _step, bool _clearBuffer)
         {
             if (_clearBuffer)
             {
@@ -123,18 +123,12 @@ namespace Wheeled.Gameplay.Movement
                     ClearBuffer();
                 }
             }
-            IsRunning = true;
             Step = _step;
         }
 
         public void Teleport(in SimulationStep _simulation)
         {
             m_last.simulation = _simulation;
-        }
-
-        public void Pause()
-        {
-            IsRunning = false;
         }
 
         public void Put(int _step, IEnumerable<InputStep> _reversedInputSteps, in SimulationStep _simulation)

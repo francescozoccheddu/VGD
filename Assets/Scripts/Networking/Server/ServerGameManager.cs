@@ -13,6 +13,7 @@ namespace Wheeled.Networking.Server
     {
 
         private const double c_respawnWaitTime = 2.0;
+        private const double c_spawnDelay = 0.5;
 
         private const int c_replicationRate = 10;
         private const bool c_sendInputReplication = true;

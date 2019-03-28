@@ -53,7 +53,8 @@ namespace Wheeled.Networking.Server
                 if (!IsStarted)
                 {
                     IsStarted = true;
-                    m_movementValidator.StartAt(m_manager.m_time.SimulationSteps(), false);
+                    m_movementValidator.SkipTo(m_manager.m_time.SimulationSteps(), false);
+                    m_movementValidator.IsRunning = true;
                 }
             }
 
