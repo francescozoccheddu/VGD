@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Wheeled.Core.Utils
 {
-    internal static class IComparableHelpers
+    internal static class IHistoryHelpers
     {
 
         public static bool IsGreaterThan<T>(this IComparable<T> _item, T _other) where T : struct
@@ -29,7 +29,7 @@ namespace Wheeled.Core.Utils
         public TValue entry;
     }
 
-    internal interface IHistory<TTime, TValue> where TTime : struct, IComparable<TTime> where TValue : struct
+    internal interface IHistory<TTime, TValue> where TTime : struct, IComparable<TTime>
     {
 
         void Clear();
@@ -44,18 +44,20 @@ namespace Wheeled.Core.Utils
 
         void Set(TTime _time, TValue _value);
 
-        TValue? Get(TTime _time);
+        HistoryNode<TTime, TValue>? Get(TTime _time);
 
         void Query(TTime _time, out HistoryNode<TTime, TValue>? _outA, out HistoryNode<TTime, TValue>? _outB);
 
-        IEnumerable<HistoryNode<TTime, TValue>> GetSequence(TTime _maxStartingTime);
+        IEnumerable<HistoryNode<TTime, TValue>> GetFullSequence();
 
-        IEnumerable<HistoryNode<TTime, TValue>> GetReversedSequence(TTime _minStartingTime);
+        IEnumerable<HistoryNode<TTime, TValue>> GetFullReversedSequence();
+
+        IEnumerable<HistoryNode<TTime, TValue>> GetSequenceSince(TTime _time, bool _allowBefore = true, bool _allowAfter = false);
+
+        IEnumerable<HistoryNode<TTime, TValue>> GetReversedSequenceSince(TTime _time, bool _allowAfter = true, bool _allowBefore = false);
 
         TTime? OldestTime { get; }
         TTime? NewestTime { get; }
-        TValue? Newest { get; }
-        TValue? Oldest { get; }
 
     }
 

@@ -29,7 +29,7 @@ namespace Wheeled.Gameplay.Movement
         private void PartialSimulate(InputHistory _inputHistory, ref SimulationStep _refSimulationStep, ref int _refStep, ref double _refDeltaTime, bool _canPredict)
         {
             InputStep input = new InputStep();
-            foreach (HistoryNode<int, InputStep> node in _inputHistory.GetSequence(_refStep))
+            foreach (HistoryNode<int, InputStep> node in _inputHistory.GetSequenceSince(_refStep, true, false))
             {
                 if (_refDeltaTime <= 0.0)
                 {

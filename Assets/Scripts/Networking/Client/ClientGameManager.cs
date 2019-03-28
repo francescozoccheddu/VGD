@@ -73,7 +73,7 @@ namespace Wheeled.Networking.Client
             // TODO Catch exception
             switch (_reader.ReadMessageType())
             {
-                case Message.RoomUpdate:
+                case Message.RoomSync:
                 {
                     _reader.ReadRoomUpdateMessage(out double time);
                     Debug.LogFormat("RoomUpdate at {0} (oldTime={1}, diff={2})", time, m_time, time - m_time);
@@ -90,7 +90,7 @@ namespace Wheeled.Networking.Client
                     }
                 }
                 break;
-                case Message.SimulationCorrection:
+                case Message.SimulationOrder:
                 {
                     _reader.ReadSimulationCorrectionMessage(out int step, out SimulationStepInfo _simulation);
                     Debug.LogFormat("Reconciliation {0}", step);

@@ -18,15 +18,15 @@ namespace Wheeled.Gameplay.Movement
             m_history.Set(_step, _inputStep);
         }
 
-        public IEnumerable<HistoryNode<int, InputStep>> GetSequence(int _step)
+        public IEnumerable<HistoryNode<int, InputStep>> GetSequenceSince(int _step, bool _allowBefore, bool _allowAfter)
         {
-            return m_history.GetSequence(_step);
+            return m_history.GetSequenceSince(_step, _allowBefore, _allowAfter);
         }
 
         public SimulationStep SimulateFrom(int _step, SimulationStep _simulation)
         {
             InputStep? input = null;
-            foreach (HistoryNode<int, InputStep> node in m_history.GetSequence(_step))
+            foreach (HistoryNode<int, InputStep> node in m_history.GetSequenceSince(_step))
             {
                 input = input?.Predicted ?? node.entry;
                 while (_step <= node.time)
@@ -45,7 +45,7 @@ namespace Wheeled.Gameplay.Movement
         public void PullReverseInputBuffer(int _step, InputStep[] _dstBuffer, out int _outCount)
         {
             _outCount = 0;
-            foreach (HistoryNode<int, InputStep> node in m_history.GetReversedSequence(_step))
+            foreach (HistoryNode<int, InputStep> node in m_history.GetReversedSequenceSince(_step, false, false))
             {
                 if (node.time != _step - _outCount)
                 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using Wheeled.Gameplay;
+using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Server
@@ -12,6 +13,7 @@ namespace Wheeled.Networking.Server
         private readonly MovementController m_movementController;
         private readonly InputHistory m_inputHistory;
         private readonly PlayerView m_view;
+        private readonly ActionHistory m_actionHistory;
         private int m_localLastSentStep;
 
         private void StartLocalPlayer()
@@ -22,10 +24,21 @@ namespace Wheeled.Networking.Server
 
         private void UpdateLocalPlayer()
         {
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                m_actionHistory.Put(m_time + 1.0, new DieAction());
+            }
+            m_actionHistory.GetSpawnState(m_time, out bool isAlive, out double timeSinceLastStateChange);
+            if (!isAlive && timeSinceLastStateChange > c_respawnWaitTime && !m_actionHistory.IsSpawnScheduled(m_time))
+            {
+                m_actionHistory.Put(m_time + 1.0, new SpawnAction());
+            }
             m_movementController.UpdateUntil(m_time);
+            m_view.isAlive = isAlive;
             m_view.Move(m_movementController.ViewSnapshot);
             m_view.Update(Time.deltaTime);
             m_inputHistory.Trim((m_time - 100).SimulationSteps());
+            m_actionHistory.Trim(m_time - 100);
         }
 
         private void ReplicateLocalPlayer(bool _force, bool _sendInput)

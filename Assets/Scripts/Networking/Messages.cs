@@ -7,14 +7,18 @@ using Wheeled.Gameplay.Movement;
 namespace Wheeled.Networking
 {
 
+    // Notify: Client tells Server
+    // Replication: Server tells Client about someone else
+    // Order: Server tells Client about itself
+    // Sync: Server tells Client about the room
     internal enum Message
     {
         // Movement
-        MovementNotify, SimulationCorrection, MovementReplication, MovementAndInputReplication,
+        MovementNotify, SimulationOrder, MovementReplication, MovementAndInputReplication,
         // Room
-        RoomUpdate, Ready,
+        RoomSync, ReadyNotify,
         // Actions
-        SpawnOrder, DeathOrder, ShootNotify, ShootReplication, HitFeedback, HitNotify, Kaze
+        SpawnOrder, DeathOrder, SpawnReplication, DeathReplication, ShootNotify, ShootReplication, HitOrder, HitReplication, KazeNotify
     }
 
     internal static class Serializer
@@ -86,7 +90,7 @@ namespace Wheeled.Networking
         public static void WriteSimulationCorrectionMessage(int _step, in SimulationStepInfo _simulationStepInfo)
         {
             writer.Reset();
-            writer.Put(Message.SimulationCorrection);
+            writer.Put(Message.SimulationOrder);
             writer.Put(_step);
             writer.Put(_simulationStepInfo);
         }
@@ -96,7 +100,7 @@ namespace Wheeled.Networking
         public static void WriteRoomUpdateMessage(double _time /* Player stats and status */)
         {
             writer.Reset();
-            writer.Put(Message.RoomUpdate);
+            writer.Put(Message.RoomSync);
             writer.Put(_time);
             {
                 FastBitConverter.GetBytes(s_timeChecksumBuffer, 0, _time);
@@ -108,7 +112,7 @@ namespace Wheeled.Networking
         public static void WriteReadyMessage()
         {
             writer.Reset();
-            writer.Put(Message.Ready);
+            writer.Put(Message.ReadyNotify);
         }
 
         public static void WriteMovementReplicationMessage(byte _id, int _step, in Snapshot _snapshot)
@@ -132,6 +136,20 @@ namespace Wheeled.Networking
             {
                 writer.Put(inputStep);
             }
+        }
+
+        public static void WriteSpawnOrderMessage(double _time)
+        {
+            writer.Reset();
+            writer.Put(Message.SpawnOrder);
+            writer.Put(_time);
+        }
+
+        public static void WriteDeathOrderMessage(double _time)
+        {
+            writer.Reset();
+            writer.Put(Message.DeathOrder);
+            writer.Put(_time);
         }
 
     }
@@ -294,7 +312,6 @@ namespace Wheeled.Networking
             }
         }
 
-
         public void ReadMovementNotifyMessage(out int _outStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
         {
             _outStep = ReadInt();
@@ -329,6 +346,16 @@ namespace Wheeled.Networking
             {
                 _inputStepBuffer[i] = ReadInputStep();
             }
+        }
+
+        public void ReadSpawnOrderMessage(out double _outTime)
+        {
+            _outTime = ReadDouble();
+        }
+
+        public void ReadDeathOrderMessage(out double _outTime)
+        {
+            _outTime = ReadDouble();
         }
 
         #endregion

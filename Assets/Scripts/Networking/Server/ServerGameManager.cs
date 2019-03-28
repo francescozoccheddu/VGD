@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay;
+using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Server
@@ -10,6 +11,8 @@ namespace Wheeled.Networking.Server
 
     internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget
     {
+
+        private const double c_respawnWaitTime = 2.0;
 
         private const int c_replicationRate = 10;
         private const bool c_sendInputReplication = true;
@@ -35,6 +38,7 @@ namespace Wheeled.Networking.Server
             // Local player
             m_movementController = new MovementController();
             m_inputHistory = new InputHistory();
+            m_actionHistory = new ActionHistory();
             m_view = new PlayerView();
             StartLocalPlayer();
         }
@@ -100,7 +104,7 @@ namespace Wheeled.Networking.Server
                     }
                 }
                 break;
-                case Message.Ready:
+                case Message.ReadyNotify:
                 {
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
@@ -164,6 +168,7 @@ namespace Wheeled.Networking.Server
                 m_lastRoomUpdateTime = m_time;
                 RoomUpdate();
             }
+
             UpdateLocalPlayer();
             foreach (NetPlayer player in m_netPlayers)
             {

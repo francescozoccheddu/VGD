@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Gameplay;
+using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Server
@@ -22,6 +23,7 @@ namespace Wheeled.Networking.Server
             private readonly InputHistory m_inputHistory;
             private readonly MovementHistory m_movementHistory;
             private readonly PlayerView m_view;
+            private readonly ActionHistory m_actionHistory;
             private float m_timeSinceLastCorrection;
             private int m_lastSendStep;
 
@@ -42,6 +44,7 @@ namespace Wheeled.Networking.Server
                     MaxTrustedSteps = 10,
                 };
                 m_movementHistory = new MovementHistory();
+                m_actionHistory = new ActionHistory();
                 m_view = new PlayerView();
             }
 
@@ -94,6 +97,11 @@ namespace Wheeled.Networking.Server
 
             public void Update()
             {
+                m_actionHistory.GetSpawnState(m_manager.m_time, out bool isAlive, out double timeSinceLastStateChange);
+                if (!isAlive && IsStarted && timeSinceLastStateChange > c_respawnWaitTime && !m_actionHistory.IsSpawnScheduled(m_manager.m_time))
+                {
+                    m_actionHistory.Put(m_manager.m_time + 1.0, new SpawnAction());
+                }
                 m_timeSinceLastCorrection += Time.deltaTime;
                 m_movementValidator.UpdateUntil(m_manager.m_time.SimulationSteps());
                 Snapshot snapshot = new Snapshot();
@@ -107,10 +115,12 @@ namespace Wheeled.Networking.Server
                 {
                     snapshot.sight = sight.Value;
                 }
+                m_view.isAlive = isAlive;
                 m_view.Move(snapshot);
                 m_view.Update(Time.deltaTime);
                 m_movementHistory.ForgetOlder((m_manager.m_time - 100).SimulationSteps(), true);
                 m_inputHistory.Cut((m_manager.m_time - 100).SimulationSteps());
+                m_actionHistory.Trim(m_manager.m_time - 100);
             }
 
             public void Destroy()
