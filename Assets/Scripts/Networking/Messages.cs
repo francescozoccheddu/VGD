@@ -97,8 +97,8 @@ namespace Wheeled.Networking
         private static void Put(this NetDataWriter _netDataWriter, in PlayerSyncInfo _value)
         {
             _netDataWriter.Put(_value.id);
-            _netDataWriter.Put(_value.kills);
-            _netDataWriter.Put(_value.deaths);
+            _netDataWriter.Put((byte)_value.kills);
+            _netDataWriter.Put((byte)_value.deaths);
             _netDataWriter.Put(_value.health);
             _netDataWriter.Put(_value.ping);
             _netDataWriter.Put(_value.info);
