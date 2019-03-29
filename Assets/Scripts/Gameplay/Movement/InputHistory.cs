@@ -47,7 +47,7 @@ namespace Wheeled.Gameplay.Movement
             _outCount = 0;
             foreach (HistoryNode<int, InputStep> node in m_history.GetReversedSequenceSince(_step, false, false))
             {
-                if (node.time != _step - _outCount)
+                if (node.time != _step - _outCount || _outCount >= _dstBuffer.Length)
                 {
                     break;
                 }

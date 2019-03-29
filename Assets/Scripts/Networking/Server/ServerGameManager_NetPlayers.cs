@@ -14,7 +14,7 @@ namespace Wheeled.Networking.Server
         private sealed class NetPlayer : MovementValidator.ICorrectionTarget, MovementValidator.IValidationTarget
         {
 
-            private const int c_maxCorrectionFrequency = 2;
+            private const int c_maxCorrectionFrequency = 10;
             private const int c_historyCacheSteps = 100;
             private const int c_maxReplicationInputSteps = 10;
 

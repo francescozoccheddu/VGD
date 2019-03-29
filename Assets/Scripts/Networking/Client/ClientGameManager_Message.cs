@@ -73,7 +73,7 @@ namespace Wheeled.Networking.Client
                     _reader.ReadPlayerSyncMessage(out double time, out IEnumerable<PlayerSyncInfo> infos);
                     foreach (PlayerSyncInfo info in infos)
                     {
-                        GetOrCreatePlayer(info.id).Sync(time, info.info, info.kills, info.deaths, info.deaths);
+                        GetOrCreatePlayer(info.id).Sync(time, info.info, info.kills, info.deaths, info.health);
                     }
                 }
                 break;
