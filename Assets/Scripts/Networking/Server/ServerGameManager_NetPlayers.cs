@@ -18,18 +18,21 @@ namespace Wheeled.Networking.Server
             private const int c_historyCacheSteps = 100;
             private const int c_maxReplicationInputSteps = 10;
 
+            public readonly byte id;
+            public readonly NetworkManager.Peer peer;
             private readonly ServerGameManager m_manager;
+            public PlayerStats stats;
+            public PlayerInfo info;
+            public bool IsStarted { get; private set; }
+            // Components
             private readonly MovementValidator m_movementValidator;
             private readonly InputHistory m_inputHistory;
             private readonly MovementHistory m_movementHistory;
             private readonly PlayerView m_view;
             private readonly ActionHistory m_actionHistory;
+            // Replication
             private float m_timeSinceLastCorrection;
             private int m_lastSendStep;
-
-            public readonly byte id;
-            public readonly NetworkManager.Peer peer;
-            public bool IsStarted { get; private set; }
 
             public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer)
             {
@@ -46,6 +49,11 @@ namespace Wheeled.Networking.Server
                 m_movementHistory = new MovementHistory();
                 m_actionHistory = new ActionHistory();
                 m_view = new PlayerView();
+            }
+
+            public int GetHealth()
+            {
+                return m_actionHistory.Health;
             }
 
             public void Start()
@@ -89,7 +97,6 @@ namespace Wheeled.Networking.Server
                 }
             }
 
-
             public void Move(int _step, IEnumerable<InputStep> _reversedInputSteps, in Snapshot _snapshot)
             {
                 m_movementValidator.Put(_step, _reversedInputSteps, _snapshot.simulation);
@@ -98,13 +105,19 @@ namespace Wheeled.Networking.Server
 
             public void Update()
             {
-                m_actionHistory.GetSpawnState(m_manager.m_time, out bool isAlive, out double timeSinceLastStateChange);
-                if (!isAlive && IsStarted && timeSinceLastStateChange > c_respawnWaitTime && !m_actionHistory.IsSpawnScheduled(m_manager.m_time))
+                // Respawn
+                m_actionHistory.Update(m_manager.m_time);
+                if (m_actionHistory.ShouldSpawn)
                 {
-                    m_actionHistory.Put(m_manager.m_time + 1.0, new SpawnAction());
+                    double spawnTime = m_manager.m_time + c_spawnDelay;
+                    m_actionHistory.PutSpawn(spawnTime);
+                    Serializer.WriteSpawnOrderMessage(spawnTime, 0);
+                    peer.Send(NetworkManager.SendMethod.ReliableSequenced);
                 }
+                // Components
                 m_timeSinceLastCorrection += Time.deltaTime;
                 m_movementValidator.UpdateUntil(m_manager.m_time.SimulationSteps());
+                // View
                 Snapshot snapshot = new Snapshot();
                 m_movementHistory.GetSimulation(m_manager.m_time, out SimulationStep? simulation, m_inputHistory);
                 if (simulation != null)
@@ -116,9 +129,10 @@ namespace Wheeled.Networking.Server
                 {
                     snapshot.sight = sight.Value;
                 }
-                m_view.isAlive = isAlive;
+                m_view.isAlive = m_actionHistory.IsAlive;
                 m_view.Move(snapshot);
                 m_view.Update(Time.deltaTime);
+                // Trim
                 m_movementHistory.ForgetOlder((m_manager.m_time - 100).SimulationSteps(), true);
                 m_inputHistory.Cut((m_manager.m_time - 100).SimulationSteps());
                 m_actionHistory.Trim(m_manager.m_time - 100);
@@ -128,6 +142,8 @@ namespace Wheeled.Networking.Server
             {
                 m_view.Destroy();
             }
+
+            #region MovementValidator.ICorrectionTarget and MovementValidator.IValidationTarget
 
             void MovementValidator.ICorrectionTarget.Corrected(int _step, in SimulationStepInfo _simulation)
             {
@@ -149,6 +165,7 @@ namespace Wheeled.Networking.Server
                 m_movementHistory.Put(_step, _simulation);
             }
 
+            #endregion
         }
 
     }

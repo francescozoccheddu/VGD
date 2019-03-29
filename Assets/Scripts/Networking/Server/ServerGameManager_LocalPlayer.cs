@@ -26,15 +26,15 @@ namespace Wheeled.Networking.Server
         {
             if (Input.GetKeyDown(KeyCode.Q))
             {
-                m_actionHistory.Put(m_time + 1.0, new DieAction());
+                m_actionHistory.PutDeath(m_time + 1.0);
             }
-            m_actionHistory.GetSpawnState(m_time, out bool isAlive, out double timeSinceLastStateChange);
-            if (!isAlive && timeSinceLastStateChange > c_respawnWaitTime && !m_actionHistory.IsSpawnScheduled(m_time))
+            m_actionHistory.Update(m_time);
+            if (m_actionHistory.ShouldSpawn)
             {
-                m_actionHistory.Put(m_time + 1.0, new SpawnAction());
+                m_actionHistory.PutSpawn(m_time + 1.0);
             }
             m_movementController.UpdateUntil(m_time);
-            m_view.isAlive = isAlive;
+            m_view.isAlive = m_actionHistory.IsAlive;
             m_view.Move(m_movementController.ViewSnapshot);
             m_view.Update(Time.deltaTime);
             m_inputHistory.Trim((m_time - 100).SimulationSteps());

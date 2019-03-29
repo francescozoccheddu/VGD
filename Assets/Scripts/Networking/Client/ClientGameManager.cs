@@ -4,6 +4,7 @@ using UnityEngine;
 using Wheeled.Core.Utils;
 using Wheeled.Debugging;
 using Wheeled.Gameplay;
+using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Client
@@ -46,15 +47,17 @@ namespace Wheeled.Networking.Client
             };
             m_server = _server;
             // Local player
-            m_inputHistory = new InputHistory();
+            m_localInputHistory = new InputHistory();
             int maxInputStepCount = (1.0 / c_controllerSendFrequency).CeilingSimulationSteps() + 1;
-            m_movementController = new MovementController
+            m_localMovementController = new MovementController
             {
                 target = this
             };
-            m_view = new PlayerView();
+            m_localPlayerView = new PlayerView();
             ScheduleLocalPlayerSend();
             m_inputBuffer = new InputStep[Math.Max(maxInputStepCount, c_maxReplicationInputStepCount)];
+            m_localActionHistory = new ActionHistory();
+            m_localStatsHistory = new LinkedListHistory<double, PlayerStats>();
             // Net players
             m_netPlayers = new Dictionary<int, NetPlayer>();
             // Ready notify
@@ -66,52 +69,6 @@ namespace Wheeled.Networking.Client
 
         void Client.IGameManager.LatencyUpdated(float _latency)
         {
-        }
-
-        void Client.IGameManager.Received(Deserializer _reader)
-        {
-            // TODO Catch exception
-            switch (_reader.ReadMessageType())
-            {
-                case Message.RoomSync:
-                {
-                    _reader.ReadRoomUpdateMessage(out double time);
-                    Debug.LogFormat("RoomUpdate at {0} (oldTime={1}, diff={2})", time, m_time, time - m_time);
-                    m_targetTime = time + m_server.Ping / 2.0;
-                    if (!m_isRunning)
-                    {
-                        m_isRunning = true;
-                        m_time = m_targetTime;
-                    }
-                    if (!m_movementController.IsRunning)
-                    {
-                        ScheduleLocalPlayerSend();
-                        m_movementController.StartAt(m_time);
-                    }
-                }
-                break;
-                case Message.SimulationOrder:
-                {
-                    _reader.ReadSimulationCorrectionMessage(out int step, out SimulationStepInfo _simulation);
-                    Debug.LogFormat("Reconciliation {0}", step);
-                    m_inputHistory.Put(step, _simulation.input);
-                    SimulationStep correctedSimulation = m_inputHistory.SimulateFrom(step, _simulation.simulation);
-                    m_movementController.Teleport(new Snapshot { sight = m_movementController.RawSnapshot.sight, simulation = correctedSimulation }, false);
-                }
-                break;
-                case Message.MovementReplication:
-                {
-                    _reader.ReadMovementReplicationMessage(out byte id, out int step, out Snapshot snapshot);
-                    GetOrCreatePlayer(id).Move(step, snapshot);
-                }
-                break;
-                case Message.MovementAndInputReplication:
-                {
-                    _reader.ReadMovementAndInputReplicationMessage(out byte id, out int step, out int inputStepCount, m_inputBuffer, out Snapshot snapshot);
-                    GetOrCreatePlayer(id).Move(step, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepCount), snapshot);
-                }
-                break;
-            }
         }
 
         void Client.IGameManager.Stopped()

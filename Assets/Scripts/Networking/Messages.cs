@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Wheeled.Gameplay;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking
@@ -16,7 +17,7 @@ namespace Wheeled.Networking
         // Movement
         MovementNotify, SimulationOrder, MovementReplication, MovementAndInputReplication,
         // Room
-        RoomSync, ReadyNotify,
+        RoomSync, PlayerSync, ReadyNotify,
         // Actions
         SpawnOrder, DeathOrder, SpawnReplication, DeathReplication, ShootNotify, ShootReplication, HitOrder, HitReplication, KazeNotify
     }
@@ -72,6 +73,17 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.simulation);
         }
 
+        private static void Put(this NetDataWriter _netDataWriter, in PlayerStats _value)
+        {
+            _netDataWriter.Put(_value.kills);
+            _netDataWriter.Put(_value.deaths);
+        }
+
+        private static void Put(this NetDataWriter _netDataWriter, in PlayerInfo _value)
+        {
+            _netDataWriter.Put(_value.name);
+        }
+
         #endregion
 
         public static void WriteMovementNotifyMessage(int _firstStep, IReadOnlyList<InputStep> _steps, in Snapshot _snapshot)
@@ -97,7 +109,7 @@ namespace Wheeled.Networking
 
         private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double)];
 
-        public static void WriteRoomUpdateMessage(double _time /* Player stats and status */)
+        public static void WriteRoomSyncMessage(double _time, PlayerStats _stats, byte _health)
         {
             writer.Reset();
             writer.Put(Message.RoomSync);
@@ -107,6 +119,8 @@ namespace Wheeled.Networking
                 ushort crc = CRC16.Compute(s_timeChecksumBuffer);
                 writer.Put(crc);
             }
+            writer.Put(_stats);
+            writer.Put(_health);
         }
 
         public static void WriteReadyMessage()
@@ -138,11 +152,12 @@ namespace Wheeled.Networking
             }
         }
 
-        public static void WriteSpawnOrderMessage(double _time)
+        public static void WriteSpawnOrderMessage(double _time, byte _spawnPoint)
         {
             writer.Reset();
             writer.Put(Message.SpawnOrder);
             writer.Put(_time);
+            writer.Put(_spawnPoint);
         }
 
         public static void WriteDeathOrderMessage(double _time)
@@ -150,6 +165,26 @@ namespace Wheeled.Networking
             writer.Reset();
             writer.Put(Message.DeathOrder);
             writer.Put(_time);
+        }
+
+        public static void WritePlayerSync(double _time, byte _id, in PlayerInfo _info, in PlayerStats _stats, int _health)
+        {
+            writer.Reset();
+            writer.Put(Message.PlayerSync);
+            writer.Put(_time);
+            writer.Put(_id);
+            writer.Put(_info);
+            writer.Put(_stats);
+            writer.Put(_health);
+        }
+
+        public static void WriteSpawnReplicationMessage(double _time, byte _id, byte _spawnPoint)
+        {
+            writer.Reset();
+            writer.Put(Message.SpawnReplication);
+            writer.Put(_time);
+            writer.Put(_id);
+            writer.Put(_spawnPoint);
         }
 
     }
@@ -290,6 +325,23 @@ namespace Wheeled.Networking
             };
         }
 
+        private PlayerInfo ReadPlayerInfo()
+        {
+            return new PlayerInfo
+            {
+                name = ReadString(),
+            };
+        }
+
+        private PlayerStats ReadPlayerStats()
+        {
+            return new PlayerStats
+            {
+                kills = ReadByte(),
+                deaths = ReadByte(),
+            };
+        }
+
         public Message ReadMessageType()
         {
             return ReadEnum<Message>();
@@ -301,7 +353,7 @@ namespace Wheeled.Networking
 
         private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double) + sizeof(ushort)];
 
-        public void ReadRoomUpdateMessage(out double _time)
+        public void ReadRoomSyncMessage(out double _time, out PlayerStats _outStats, out byte _outHealth)
         {
             _time = ReadDouble();
             {
@@ -310,6 +362,8 @@ namespace Wheeled.Networking
                 FastBitConverter.GetBytes(s_timeChecksumBuffer, sizeof(double), crc);
                 EnsureRead(CRC16.Compute(s_timeChecksumBuffer) == 0);
             }
+            _outStats = ReadPlayerStats();
+            _outHealth = ReadByte();
         }
 
         public void ReadMovementNotifyMessage(out int _outStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
@@ -348,14 +402,31 @@ namespace Wheeled.Networking
             }
         }
 
-        public void ReadSpawnOrderMessage(out double _outTime)
+        public void ReadSpawnOrderMessage(out double _outTime, out byte _outSpawnPoint)
         {
             _outTime = ReadDouble();
+            _outSpawnPoint = ReadByte();
         }
 
         public void ReadDeathOrderMessage(out double _outTime)
         {
             _outTime = ReadDouble();
+        }
+
+        public void ReadPlayerSyncMessage(out double _outTime, out byte _outId, out PlayerInfo _outInfo, out PlayerStats _outStats, out byte _outHealth)
+        {
+            _outTime = ReadDouble();
+            _outId = ReadByte();
+            _outInfo = ReadPlayerInfo();
+            _outStats = ReadPlayerStats();
+            _outHealth = ReadByte();
+        }
+
+        public void ReadSpawnReplicationMessage(out double _outTime, out byte _outId, out byte _outSpawnPoint)
+        {
+            _outTime = ReadDouble();
+            _outId = ReadByte();
+            _outSpawnPoint = ReadByte();
         }
 
         #endregion

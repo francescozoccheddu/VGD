@@ -110,8 +110,16 @@ namespace Wheeled.Networking.Server
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
                         netPlayer.Start();
-                        PrepareRoomUpdateMessage();
+                        PrepareRoomSyncMessage(netPlayer);
                         _peer.Send(NetworkManager.SendMethod.Sequenced);
+                        foreach (NetPlayer player in m_netPlayers)
+                        {
+                            if (player != netPlayer)
+                            {
+                                PreparePlayerSyncMessage(player);
+                                _peer.Send(NetworkManager.SendMethod.Unreliable);
+                            }
+                        }
                     }
                 }
                 break;
@@ -143,16 +151,21 @@ namespace Wheeled.Networking.Server
         private const double c_roomUpdatePeriod = 2.0f;
         private double m_lastRoomUpdateTime;
 
-        private void PrepareRoomUpdateMessage()
+        private void PrepareRoomSyncMessage(NetPlayer _player)
         {
-            Serializer.WriteRoomUpdateMessage(m_time);
+            Serializer.WriteRoomSyncMessage(m_time, _player.stats, (byte) _player.GetHealth());
+        }
+
+        private void PreparePlayerSyncMessage(NetPlayer _player)
+        {
+            Serializer.WritePlayerSync(m_time, _player.id, _player.info, _player.stats, _player.GetHealth());
         }
 
         private void RoomUpdate()
         {
-            PrepareRoomUpdateMessage();
             foreach (NetPlayer netPlayer in m_netPlayers)
             {
+                PrepareRoomSyncMessage(netPlayer);
                 netPlayer.peer.Send(NetworkManager.SendMethod.Sequenced);
             }
         }
