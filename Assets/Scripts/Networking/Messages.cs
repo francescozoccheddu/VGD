@@ -22,6 +22,16 @@ namespace Wheeled.Networking
         SpawnOrder, DeathOrder, SpawnReplication, DeathReplication, ShootNotify, ShootReplication, HitOrder, HitReplication, KazeNotify
     }
 
+    internal struct PlayerSyncInfo
+    {
+        public byte id;
+        public int kills;
+        public int deaths;
+        public byte health;
+        public byte ping;
+        public PlayerInfo info;
+    }
+
     internal static class Serializer
     {
 
@@ -82,6 +92,16 @@ namespace Wheeled.Networking
         private static void Put(this NetDataWriter _netDataWriter, in PlayerInfo _value)
         {
             _netDataWriter.Put(_value.name);
+        }
+
+        private static void Put(this NetDataWriter _netDataWriter, in PlayerSyncInfo _value)
+        {
+            _netDataWriter.Put(_value.id);
+            _netDataWriter.Put(_value.kills);
+            _netDataWriter.Put(_value.deaths);
+            _netDataWriter.Put(_value.health);
+            _netDataWriter.Put(_value.ping);
+            _netDataWriter.Put(_value.info);
         }
 
         #endregion
@@ -167,15 +187,21 @@ namespace Wheeled.Networking
             writer.Put(_time);
         }
 
-        public static void WritePlayerSync(double _time, byte _id, in PlayerInfo _info, in PlayerStats _stats, int _health)
+        public static void WritePlayerSync(double _time, int _count, IEnumerable<PlayerSyncInfo> _infos)
         {
             writer.Reset();
             writer.Put(Message.PlayerSync);
             writer.Put(_time);
-            writer.Put(_id);
-            writer.Put(_info);
-            writer.Put(_stats);
-            writer.Put(_health);
+            writer.Put((byte) _count);
+            int count = 0;
+            foreach (PlayerSyncInfo info in _infos)
+            {
+                if (count++ >= _count)
+                {
+                    break;
+                }
+                writer.Put(info);
+            }
         }
 
         public static void WriteSpawnReplicationMessage(double _time, byte _id, byte _spawnPoint)
@@ -342,6 +368,19 @@ namespace Wheeled.Networking
             };
         }
 
+        private PlayerSyncInfo ReadPlayerSyncInfo()
+        {
+            return new PlayerSyncInfo
+            {
+                id = ReadByte(),
+                kills = ReadByte(),
+                deaths = ReadByte(),
+                health = ReadByte(),
+                ping = ReadByte(),
+                info = ReadPlayerInfo()
+            };
+        }
+
         public Message ReadMessageType()
         {
             return ReadEnum<Message>();
@@ -413,13 +452,18 @@ namespace Wheeled.Networking
             _outTime = ReadDouble();
         }
 
-        public void ReadPlayerSyncMessage(out double _outTime, out byte _outId, out PlayerInfo _outInfo, out PlayerStats _outStats, out byte _outHealth)
+        public void ReadPlayerSyncMessage(out double _outTime, out IEnumerable<PlayerSyncInfo> _outInfos)
         {
             _outTime = ReadDouble();
-            _outId = ReadByte();
-            _outInfo = ReadPlayerInfo();
-            _outStats = ReadPlayerStats();
-            _outHealth = ReadByte();
+            int count = ReadByte();
+            IEnumerable<PlayerSyncInfo> GetInfos()
+            {
+                while (count-- > 0)
+                {
+                    yield return ReadPlayerSyncInfo();
+                }
+            };
+            _outInfos = GetInfos();
         }
 
         public void ReadSpawnReplicationMessage(out double _outTime, out byte _outId, out byte _outSpawnPoint)

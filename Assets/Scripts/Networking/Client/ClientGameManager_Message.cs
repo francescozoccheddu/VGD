@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Movement;
@@ -65,6 +66,15 @@ namespace Wheeled.Networking.Client
                 {
                     _reader.ReadSpawnReplicationMessage(out double time, out byte id, out byte spawnPoint);
                     GetOrCreatePlayer(id).Spawn(time);
+                }
+                break;
+                case Message.PlayerSync:
+                {
+                    _reader.ReadPlayerSyncMessage(out double time, out IEnumerable<PlayerSyncInfo> infos);
+                    foreach (PlayerSyncInfo info in infos)
+                    {
+                        GetOrCreatePlayer(info.id).Sync(time, info.info, info.kills, info.deaths, info.deaths);
+                    }
                 }
                 break;
             }

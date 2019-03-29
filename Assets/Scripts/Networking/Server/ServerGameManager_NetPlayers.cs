@@ -113,6 +113,8 @@ namespace Wheeled.Networking.Server
                     m_actionHistory.PutSpawn(spawnTime);
                     Serializer.WriteSpawnOrderMessage(spawnTime, 0);
                     peer.Send(NetworkManager.SendMethod.ReliableSequenced);
+                    Serializer.WriteSpawnReplicationMessage(spawnTime, id, 0);
+                    m_manager.SendAllBut(peer, NetworkManager.SendMethod.ReliableSequenced);
                 }
                 // Components
                 m_timeSinceLastCorrection += Time.deltaTime;

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using Wheeled.Core.Utils;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
@@ -21,7 +20,6 @@ namespace Wheeled.Networking.Client
             // Info
             public readonly int id;
             private PlayerInfo m_playerInfo;
-            private readonly LinkedListHistory<double, PlayerStats> m_statsHistory;
             // Components
             private readonly MovementHistory m_movementHistory;
             private readonly InputHistory m_inputHistory;
@@ -32,7 +30,6 @@ namespace Wheeled.Networking.Client
             {
                 m_manager = _manager;
                 id = _id;
-                m_statsHistory = new LinkedListHistory<double, PlayerStats>();
                 m_movementHistory = new MovementHistory();
                 m_inputHistory = new InputHistory();
                 m_actionHistory = new ActionHistory();
@@ -66,10 +63,10 @@ namespace Wheeled.Networking.Client
                 m_inputHistory.Trim(forgetStep);
             }
 
-            public void Sync(double _time, in PlayerInfo _info, in PlayerStats _stats, int _health)
+            public void Sync(double _time, in PlayerInfo _info, int _kills, int _deaths, int _health)
             {
                 m_playerInfo = _info;
-                m_statsHistory.Set(_time, _stats);
+                m_actionHistory.PutStats(_time, _kills, _deaths);
                 m_actionHistory.PutHealth(_time, _health);
             }
 
@@ -96,9 +93,7 @@ namespace Wheeled.Networking.Client
                 m_movementHistory.Put(_step, _snapshot.sight);
             }
 
-
         }
-
 
     }
 

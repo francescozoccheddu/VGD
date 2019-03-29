@@ -32,6 +32,8 @@ namespace Wheeled.Networking.Server
             if (m_actionHistory.ShouldSpawn)
             {
                 m_actionHistory.PutSpawn(m_time + 1.0);
+                Serializer.WriteSpawnReplicationMessage(m_time + 1.0, 0, 0);
+                SendAll(NetworkManager.SendMethod.ReliableSequenced);
             }
             m_movementController.UpdateUntil(m_time);
             m_view.isAlive = m_actionHistory.IsAlive;
