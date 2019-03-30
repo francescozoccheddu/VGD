@@ -18,7 +18,7 @@ namespace Wheeled.Networking.Client
                 #region Room messages
                 case Message.TimeSync:
                 {
-                    _reader.ReadTimeSyncMessage(out double time);
+                    _reader.ReadTimeSync(out double time);
                     // Time
                     m_targetTime = time + m_server.Ping / 2.0;
                     if (!m_isRunning)
@@ -36,7 +36,7 @@ namespace Wheeled.Networking.Client
                 break;
                 case Message.PlayerIntroductionSync:
                 {
-                    _reader.ReadPlayerIntroductionMessage(out byte id, out PlayerInfo info);
+                    _reader.ReadPlayerIntroduction(out byte id, out PlayerInfo info);
                     GetOrCreatePlayer(id).Introduce(info);
                 }
                 break;
@@ -67,7 +67,7 @@ namespace Wheeled.Networking.Client
                 #region Movement messages
                 case Message.SimulationOrder:
                 {
-                    _reader.ReadSimulationCorrectionMessage(out int step, out SimulationStepInfo _simulation);
+                    _reader.ReadSimulationCorrection(out int step, out SimulationStepInfo _simulation);
                     Debug.LogFormat("Reconciliation {0}", step);
                     m_localInputHistory.Put(step, _simulation.input);
                     SimulationStep correctedSimulation = m_localInputHistory.SimulateFrom(step, _simulation.simulation);
@@ -76,13 +76,13 @@ namespace Wheeled.Networking.Client
                 break;
                 case Message.MovementReplication:
                 {
-                    _reader.ReadMovementReplicationMessage(out byte id, out int step, out Snapshot snapshot);
+                    _reader.ReadMovementReplication(out byte id, out int step, out Snapshot snapshot);
                     GetOrCreatePlayer(id).Move(step, snapshot);
                 }
                 break;
                 case Message.MovementAndInputReplication:
                 {
-                    _reader.ReadMovementAndInputReplicationMessage(out byte id, out int step, out int inputStepCount, m_inputBuffer, out Snapshot snapshot);
+                    _reader.ReadMovementAndInputReplication(out byte id, out int step, out int inputStepCount, m_inputBuffer, out Snapshot snapshot);
                     GetOrCreatePlayer(id).Move(step, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepCount), snapshot);
                 }
                 break;
@@ -91,14 +91,14 @@ namespace Wheeled.Networking.Client
                 #region Action messages
                 case Message.SpawnOrder:
                 {
-                    _reader.ReadSpawnOrderMessage(out double time, out byte spawnPoint);
+                    _reader.ReadSpawnOrder(out double time, out byte spawnPoint);
                     m_localActionHistory.PutSpawn(time);
                     Debug.Log("Spawned");
                 }
                 break;
                 case Message.SpawnReplication:
                 {
-                    _reader.ReadSpawnReplicationMessage(out double time, out byte id, out byte spawnPoint);
+                    _reader.ReadSpawnReplication(out double time, out byte id, out byte spawnPoint);
                     GetOrCreatePlayer(id).Spawn(time);
                 }
                 break;

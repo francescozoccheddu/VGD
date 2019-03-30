@@ -73,19 +73,19 @@ namespace Wheeled.Networking.Server
             if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
             {
                 // Welcome
-                Serializer.WritePlayerWelcomeSyncMessage(netPlayer.id);
+                Serializer.WritePlayerWelcomeSync(netPlayer.id);
                 netPlayer.peer.Send(NetworkManager.SendMethod.ReliableUnordered);
                 // Introduction (so that he knows the others)
                 foreach (NetPlayer p in m_netPlayers)
                 {
                     if (p != netPlayer)
                     {
-                        Serializer.WritePlayerIntroductionSyncMessage(p.id, p.info);
+                        Serializer.WritePlayerIntroductionSync(p.id, p.info);
                         netPlayer.peer.Send(NetworkManager.SendMethod.ReliableUnordered);
                     }
                 }
                 // Introduction (so that the others know him)
-                Serializer.WritePlayerIntroductionSyncMessage(netPlayer.id, netPlayer.info);
+                Serializer.WritePlayerIntroductionSync(netPlayer.id, netPlayer.info);
                 SendAllBut(netPlayer.peer, NetworkManager.SendMethod.ReliableUnordered);
                 // Recap
                 PrepareRecapMessage();
@@ -121,7 +121,7 @@ namespace Wheeled.Networking.Server
                 {
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
-                        _reader.ReadMovementNotifyMessage(out int step, out int inputStepCount, m_inputStepBuffer, out Snapshot snapshot);
+                        _reader.ReadMovementNotify(out int step, out int inputStepCount, m_inputStepBuffer, out Snapshot snapshot);
                         netPlayer.Move(step, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), snapshot);
                     }
                 }
@@ -133,7 +133,7 @@ namespace Wheeled.Networking.Server
                         netPlayer.Start();
                         foreach (NetPlayer p in m_netPlayers)
                         {
-                            Serializer.WritePlayerIntroductionSyncMessage(p.id, p.info);
+                            Serializer.WritePlayerIntroductionSync(p.id, p.info);
                             netPlayer.peer.Send(NetworkManager.SendMethod.ReliableUnordered);
                         }
                         PrepareRecapMessage();
@@ -173,7 +173,7 @@ namespace Wheeled.Networking.Server
 
         private void SendRoomSync()
         {
-            Serializer.WriteTimeSyncMessage(m_time);
+            Serializer.WriteTimeSync(m_time);
             SendAll(NetworkManager.SendMethod.Sequenced);
         }
 

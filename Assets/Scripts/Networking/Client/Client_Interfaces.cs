@@ -71,7 +71,7 @@ namespace Wheeled.Networking.Client
                     {
                         if (_reader.ReadMessageType() == Message.PlayerWelcomeSync)
                         {
-                            _reader.ReadPlayerWelcomeSyncMessage(out byte id);
+                            _reader.ReadPlayerWelcomeSync(out byte id);
                             m_localPlayerId = id;
                             IsConnected = true;
                             GameRoomInfo roomInfo = new GameRoomInfo(null, "", 0);

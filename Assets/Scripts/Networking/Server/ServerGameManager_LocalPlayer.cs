@@ -32,7 +32,7 @@ namespace Wheeled.Networking.Server
             if (m_actionHistory.ShouldSpawn)
             {
                 m_actionHistory.PutSpawn(m_time + 1.0);
-                Serializer.WriteSpawnReplicationMessage(m_time + 1.0, 0, 0);
+                Serializer.WriteSpawnReplication(m_time + 1.0, 0, 0);
                 SendAll(NetworkManager.SendMethod.ReliableSequenced);
             }
             m_movementController.UpdateUntil(m_time);
@@ -51,12 +51,12 @@ namespace Wheeled.Networking.Server
                 if (_sendInput)
                 {
                     m_inputHistory.PullReverseInputBuffer(m_movementController.Step, m_inputStepBuffer, out int inputStepCount);
-                    Serializer.WriteMovementAndInputReplicationMessage(0, m_movementController.Step, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), m_movementController.RawSnapshot);
+                    Serializer.WriteMovementAndInputReplication(0, m_movementController.Step, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), m_movementController.RawSnapshot);
                     m_inputHistory.Clear();
                 }
                 else
                 {
-                    Serializer.WriteMovementReplicationMessage(0, m_movementController.Step, m_movementController.RawSnapshot);
+                    Serializer.WriteMovementReplication(0, m_movementController.Step, m_movementController.RawSnapshot);
                 }
                 SendAll(NetworkManager.SendMethod.Unreliable);
             }

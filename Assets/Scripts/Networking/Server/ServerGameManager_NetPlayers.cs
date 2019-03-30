@@ -84,11 +84,11 @@ namespace Wheeled.Networking.Server
                     if (_includeInput)
                     {
                         m_inputHistory.PullReverseInputBuffer(m_movementValidator.Step, m_manager.m_inputStepBuffer, out int count);
-                        Serializer.WriteMovementAndInputReplicationMessage(id, m_movementValidator.Step, new ArraySegment<InputStep>(m_manager.m_inputStepBuffer, 0, count), snapshot);
+                        Serializer.WriteMovementAndInputReplication(id, m_movementValidator.Step, new ArraySegment<InputStep>(m_manager.m_inputStepBuffer, 0, count), snapshot);
                     }
                     else
                     {
-                        Serializer.WriteMovementReplicationMessage(id, m_movementValidator.Step, snapshot);
+                        Serializer.WriteMovementReplication(id, m_movementValidator.Step, snapshot);
                     }
                     m_manager.SendAllBut(peer, NetworkManager.SendMethod.Unreliable);
                     m_lastSendStep = m_movementValidator.Step;
@@ -111,9 +111,9 @@ namespace Wheeled.Networking.Server
                 {
                     double spawnTime = m_manager.m_time + c_spawnDelay;
                     m_actionHistory.PutSpawn(spawnTime);
-                    Serializer.WriteSpawnOrderMessage(spawnTime, 0);
+                    Serializer.WriteSpawnOrder(spawnTime, 0);
                     peer.Send(NetworkManager.SendMethod.ReliableSequenced);
-                    Serializer.WriteSpawnReplicationMessage(spawnTime, id, 0);
+                    Serializer.WriteSpawnReplication(spawnTime, id, 0);
                     m_manager.SendAllBut(peer, NetworkManager.SendMethod.ReliableSequenced);
                 }
                 // Components
@@ -152,7 +152,7 @@ namespace Wheeled.Networking.Server
                 if (m_timeSinceLastCorrection >= 1.0f / c_maxCorrectionFrequency)
                 {
                     m_timeSinceLastCorrection = 0.0f;
-                    Serializer.WriteSimulationCorrectionMessage(_step, _simulation);
+                    Serializer.WriteSimulationCorrection(_step, _simulation);
                     peer.Send(NetworkManager.SendMethod.Unreliable);
                 }
             }

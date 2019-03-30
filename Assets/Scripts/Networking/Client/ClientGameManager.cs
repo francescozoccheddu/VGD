@@ -62,7 +62,7 @@ namespace Wheeled.Networking.Client
             // Net players
             m_netPlayers = new Dictionary<int, NetPlayer>();
             // Ready notify
-            Serializer.WriteReadyMessage();
+            Serializer.WriteReady();
             m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
         }
 

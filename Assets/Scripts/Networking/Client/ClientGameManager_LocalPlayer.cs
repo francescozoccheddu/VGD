@@ -63,7 +63,7 @@ namespace Wheeled.Networking.Client
                 m_timeSinceLastSend = 0.0f;
                 m_lastSendStep = m_localMovementController.Step;
                 m_localInputHistory.PullReverseInputBuffer(m_localMovementController.Step, m_inputBuffer, out int inputStepsCount);
-                Serializer.WriteMovementNotifyMessage(m_localMovementController.Step, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepsCount), m_localMovementController.RawSnapshot);
+                Serializer.WriteMovementNotify(m_localMovementController.Step, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepsCount), m_localMovementController.RawSnapshot);
                 m_server.Send(NetworkManager.SendMethod.Unreliable);
             }
             // Trim
