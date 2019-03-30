@@ -13,11 +13,6 @@ namespace Wheeled.Gameplay.Action
         private const float c_riflePowerUpTime = 3.0f;
         private const int c_fullHealth = 100;
 
-        private enum StatsEventType
-        {
-            Death, Kill
-        }
-
         private readonly LinkedListHistory<double, int> m_healthHistory = new LinkedListHistory<double, int>();
         private readonly LinkedListHistory<double, int> m_killCountHistory = new LinkedListHistory<double, int>();
         private readonly LinkedListHistory<double, int> m_deathCountHistory = new LinkedListHistory<double, int>();

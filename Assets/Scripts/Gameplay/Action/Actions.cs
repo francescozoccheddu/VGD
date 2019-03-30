@@ -1,91 +1,62 @@
 ﻿using UnityEngine;
+using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Gameplay.Action
 {
 
-    internal interface IAction { }
-
-    internal interface IHealthAction : IAction
+    internal enum DeathCause
     {
-        int Health { get; }
+        Rifle, Rocket, Kaze
     }
 
-    internal struct HitAction : IHealthAction
+    internal interface IFarce
     {
-        public Vector3 offensePosition;
-        public int Health { get; }
+
     }
 
-    internal struct ShotFeedbackAction : IAction
+    internal struct KazeInfo
     {
-        public bool hit;
+        public Vector3 position;
+    }
+
+    internal struct GunShotInfo : IFarce
+    {
+        public byte id;
+        public Vector3 position;
+        public Sight sight;
         public bool rocket;
-        public Vector3 position;
-        public Vector3 direction;
-    }
-
-    internal struct KillAction : IAction
-    {
-
-    }
-
-    internal struct SpawnAction : IHealthAction
-    {
-        public const int c_spawnHealth = 100;
-        public byte spawnPoint;
-        public int Health => c_spawnHealth;
-    }
-
-    internal struct RocketShootAction : IAction
-    {
-        public int id;
-        public Vector3 position;
-        public float turn;
-        public float lookUp;
-    }
-
-    internal struct RifleShootAction : IAction
-    {
-        public int id;
-        public Vector3 position;
-        public float turn;
-        public float lookUp;
         public float power;
     }
 
-    internal struct ShotInfo
+    internal struct DeathInfo : IFarce
     {
-        public bool rocket;
+        public byte deadId;
+        public byte killerId;
+        public DeathCause cause;
         public Vector3 position;
-        public Vector3 direction;
+        public bool explosion;
     }
 
-    internal struct DeathInfo
+    internal struct SpawnInfo : IFarce
     {
-        public bool exploded;
+        public int spawnPoint;
     }
 
-    internal struct SpawnInfo
+    internal struct LocalDamageInfo : IFarce
     {
-        public byte spawnPoint;
-    }
-
-    internal struct HitInfo
-    {
-        public byte shotId;
         public Vector3 offensePosition;
     }
 
-    internal struct LifeUpdateAction : IHealthAction
+    internal struct LocalHitConfirmInfo : IFarce
     {
-        public int Health { get; set; }
+
     }
 
-    internal struct PlayerStatus
+    internal struct GunHitInfo : IFarce
     {
-
-        public int deaths;
-        public int kills;
+        public byte id;
+        public Vector3 position;
+        public Vector3 normal;
     }
 
 }

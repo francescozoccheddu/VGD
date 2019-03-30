@@ -70,6 +70,8 @@ namespace Wheeled.Gameplay.Movement
     internal struct Sight
     {
 
+        public Vector3 Direction => Quaternion.Euler(m_lookUp, m_turn, 0.0f) * Vector3.forward;
+
         private float m_turn;
         private float m_lookUp;
 
