@@ -25,12 +25,12 @@ public sealed class MenuHelper : MonoBehaviour
     {
         string ipText = customClientIPText.text;
         IPEndPoint ip = new IPEndPoint(IPAddress.Parse(ipText), 9050);
-        GameLauncher.Instance.StartGameAsClient(new GameRoomInfo(ip, "", 0));
+        GameLauncher.Instance.StartGameAsClient(ip);
     }
 
     private void GameRoomDiscovered(GameRoomInfo _room)
     {
-        GameLauncher.Instance.StartGameAsClient(_room);
+        GameLauncher.Instance.StartGameAsClient(_room.endPoint);
         GameLauncher.Instance.OnGameRoomDiscovered -= GameRoomDiscovered;
     }
 

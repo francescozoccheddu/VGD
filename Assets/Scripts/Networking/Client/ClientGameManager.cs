@@ -39,8 +39,9 @@ namespace Wheeled.Networking.Client
             }
         }
 
-        public ClientGameManager(Client.IServer _server)
+        public ClientGameManager(Client.IServer _server, byte _id)
         {
+            Debug.Log("ClientGameManager started");
             m_updatable = new Updatable(this, false)
             {
                 IsRunning = true
@@ -57,7 +58,7 @@ namespace Wheeled.Networking.Client
             ScheduleLocalPlayerSend();
             m_inputBuffer = new InputStep[Math.Max(maxInputStepCount, c_maxReplicationInputStepCount)];
             m_localActionHistory = new ActionHistory();
-            m_localStatsHistory = new LinkedListHistory<double, PlayerStats>();
+            m_localPlayerId = _id;
             // Net players
             m_netPlayers = new Dictionary<int, NetPlayer>();
             // Ready notify

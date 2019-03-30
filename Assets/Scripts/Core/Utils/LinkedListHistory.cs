@@ -3,53 +3,52 @@ using System.Collections.Generic;
 
 namespace Wheeled.Core.Utils
 {
-    internal sealed class LinkedListHistory<TTime, TValue> : IHistory<TTime, TValue> where TTime : struct, IComparable<TTime>
+
+    internal class LinkedListSimpleHistory<TNode, TComparer> : ISimpleHistory<TNode, TComparer> where TNode : struct, IComparable<TComparer> where TComparer : struct
     {
 
-        private readonly LinkedList<HistoryNode<TTime, TValue>> m_list = new LinkedList<HistoryNode<TTime, TValue>>();
+        private readonly LinkedList<TNode> m_list = new LinkedList<TNode>();
 
-        public TTime? OldestTime => m_list.First?.Value.time;
-        public TTime? NewestTime => m_list.Last?.Value.time;
-        public HistoryNode<TTime, TValue>? Oldest => m_list.First?.Value;
-        public HistoryNode<TTime, TValue>? Newest => m_list.Last?.Value;
+        public TNode? Oldest => m_list.First?.Value;
+        public TNode? Newest => m_list.Last?.Value;
 
-        private LinkedListNode<HistoryNode<TTime, TValue>> GetNodeOrPrevious(TTime _time)
+        private LinkedListNode<TNode> GetNodeOrPrevious(TComparer _time)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> node = m_list.Last;
-            while (node?.Value.time.IsGreaterThan(_time) == true)
+            LinkedListNode<TNode> node = m_list.Last;
+            while (node?.Value.IsGreaterThan(_time) == true)
             {
                 node = node.Previous;
             }
             return node;
         }
 
-        private LinkedListNode<HistoryNode<TTime, TValue>> GetNodeOrNext(TTime _time)
+        private LinkedListNode<TNode> GetNodeOrNext(TComparer _time)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> node = m_list.Last;
-            if (node?.Value.time.IsLessThan(_time) != false)
+            LinkedListNode<TNode> node = m_list.Last;
+            if (node?.Value.IsLessThan(_time) != false)
             {
                 return null;
             }
-            while (node.Previous?.Value.time.IsLessThan(_time) == false)
+            while (node.Previous?.Value.IsLessThan(_time) == false)
             {
                 node = node.Previous;
             }
             return node;
         }
 
-        private LinkedListNode<HistoryNode<TTime, TValue>> GetNodeOrPreviousOrNext(TTime _time)
+        private LinkedListNode<TNode> GetNodeOrPreviousOrNext(TComparer _time)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> node = m_list.First;
-            while (node?.Next?.Value.time.IsGreaterThan(_time) == false)
+            LinkedListNode<TNode> node = m_list.First;
+            while (node?.Next?.Value.IsGreaterThan(_time) == false)
             {
                 node = node.Next;
             }
             return node;
         }
 
-        private LinkedListNode<HistoryNode<TTime, TValue>> GetNode(TTime _time, bool _allowBefore, bool _allowAfter)
+        private LinkedListNode<TNode> GetNode(TComparer _time, bool _allowBefore, bool _allowAfter)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> listNode;
+            LinkedListNode<TNode> listNode;
             if (_allowAfter && _allowBefore)
             {
                 listNode = GetNodeOrPreviousOrNext(_time);
@@ -61,7 +60,7 @@ namespace Wheeled.Core.Utils
             else
             {
                 listNode = GetNodeOrPrevious(_time);
-                if (!_allowBefore && listNode?.Value.time.IsEqualTo(_time) != true)
+                if (!_allowBefore && listNode?.Value.IsEqualTo(_time) != true)
                 {
                     listNode = null;
                 }
@@ -74,32 +73,32 @@ namespace Wheeled.Core.Utils
             m_list.Clear();
         }
 
-        public void ForgetAndNewer(TTime _time)
+        public void ForgetAndNewer(TComparer _time)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> node = m_list.Last;
-            while (node?.Value.time.IsLessThan(_time) == false)
+            LinkedListNode<TNode> node = m_list.Last;
+            while (node?.Value.IsLessThan(_time) == false)
             {
                 m_list.RemoveLast();
                 node = node.Previous;
             }
         }
 
-        public void ForgetAndOlder(TTime _time)
+        public void ForgetAndOlder(TComparer _time)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> node = m_list.First;
-            while (node?.Value.time.IsGreaterThan(_time) == false)
+            LinkedListNode<TNode> node = m_list.First;
+            while (node?.Value.IsGreaterThan(_time) == false)
             {
                 m_list.RemoveFirst();
                 node = node.Next;
             }
         }
 
-        public void ForgetNewer(TTime _time, bool _keepNewest)
+        public void ForgetNewer(TComparer _time, bool _keepNewest)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> node = m_list.Last;
+            LinkedListNode<TNode> node = m_list.Last;
             if (_keepNewest)
             {
-                while (node?.Next?.Value.time.IsLessThan(_time) == false)
+                while (node?.Next?.Value.IsLessThan(_time) == false)
                 {
                     m_list.RemoveLast();
                     node = node.Previous;
@@ -107,7 +106,7 @@ namespace Wheeled.Core.Utils
             }
             else
             {
-                while (node?.Value.time.IsGreaterThan(_time) == true)
+                while (node?.Value.IsGreaterThan(_time) == true)
                 {
                     m_list.RemoveLast();
                     node = node.Previous;
@@ -115,12 +114,12 @@ namespace Wheeled.Core.Utils
             }
         }
 
-        public void ForgetOlder(TTime _time, bool _keepOldest)
+        public void ForgetOlder(TComparer _time, bool _keepOldest)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> node = m_list.First;
+            LinkedListNode<TNode> node = m_list.First;
             if (_keepOldest)
             {
-                while (node?.Next?.Value.time.IsGreaterThan(_time) == false)
+                while (node?.Next?.Value.IsGreaterThan(_time) == false)
                 {
                     m_list.RemoveFirst();
                     node = node.Next;
@@ -128,7 +127,7 @@ namespace Wheeled.Core.Utils
             }
             else
             {
-                while (node?.Value.time.IsLessThan(_time) == true)
+                while (node?.Value.IsLessThan(_time) == true)
                 {
                     m_list.RemoveFirst();
                     node = node.Next;
@@ -136,24 +135,11 @@ namespace Wheeled.Core.Utils
             }
         }
 
-        public HistoryNode<TTime, TValue>? Get(TTime _time)
+        public void Query(TComparer _time, out TNode? _outA, out TNode? _outB)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> node = GetNodeOrPrevious(_time);
-            if (node?.Value.time.IsEqualTo(_time) == true)
-            {
-                return node.Value;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public void Query(TTime _time, out HistoryNode<TTime, TValue>? _outA, out HistoryNode<TTime, TValue>? _outB)
-        {
-            LinkedListNode<HistoryNode<TTime, TValue>> node = m_list.Last;
-            LinkedListNode<HistoryNode<TTime, TValue>> lastNode = null;
-            while (node?.Value.time.IsGreaterThan(_time) == true)
+            LinkedListNode<TNode> node = m_list.Last;
+            LinkedListNode<TNode> lastNode = null;
+            while (node?.Value.IsGreaterThan(_time) == true)
             {
                 lastNode = node;
                 node = node.Previous;
@@ -162,79 +148,137 @@ namespace Wheeled.Core.Utils
             _outB = lastNode?.Value;
         }
 
-        public void Set(TTime _time, TValue _value)
+        public void Set(TComparer _time, TNode _value)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> listNode = GetNodeOrPrevious(_time);
-            HistoryNode<TTime, TValue> node = new HistoryNode<TTime, TValue> { time = _time, entry = _value };
+            LinkedListNode<TNode> listNode = GetNodeOrPrevious(_time);
             if (listNode == null)
             {
-                m_list.AddFirst(node);
+                m_list.AddFirst(_value);
             }
-            else if (listNode.Value.time.IsEqualTo(_time))
+            else if (listNode.Value.IsEqualTo(_time))
             {
-                listNode.Value = node;
+                listNode.Value = _value;
             }
             else
             {
-                m_list.AddAfter(listNode, node);
+                m_list.AddAfter(listNode, _value);
             }
         }
+
+        public void Add(TComparer _time, TNode _value)
+        {
+            LinkedListNode<TNode> listNode = GetNodeOrPrevious(_time);
+            if (listNode == null)
+            {
+                m_list.AddFirst(_value);
+            }
+            else
+            {
+                m_list.AddAfter(listNode, _value);
+            }
+        }
+
+        public IEnumerable<TNode> GetFullSequence()
+        {
+            LinkedListNode<TNode> listNode = m_list.First;
+            while (listNode != null)
+            {
+                yield return listNode.Value;
+                listNode = listNode.Next;
+
+            }
+        }
+
+        public IEnumerable<TNode> GetFullReversedSequence()
+        {
+            LinkedListNode<TNode> listNode = m_list.Last;
+            while (listNode != null)
+            {
+                yield return listNode.Value;
+                listNode = listNode.Previous;
+
+            }
+        }
+
+        public IEnumerable<TNode> GetSequenceSince(TComparer _time, bool _allowBefore = true, bool _allowAfter = false)
+        {
+            LinkedListNode<TNode> listNode = GetNode(_time, _allowBefore, _allowAfter);
+            while (listNode != null)
+            {
+                yield return listNode.Value;
+                listNode = listNode.Next;
+            }
+        }
+
+        public IEnumerable<TNode> GetReversedSequenceSince(TComparer _time, bool _allowAfter = true, bool _allowBefore = false)
+        {
+            LinkedListNode<TNode> listNode = GetNode(_time, _allowBefore, _allowAfter);
+            while (listNode != null)
+            {
+                yield return listNode.Value;
+                listNode = listNode.Previous;
+            }
+        }
+
+        public bool Has(TComparer _time)
+        {
+            LinkedListNode<TNode> node = GetNodeOrPrevious(_time);
+            return node != null && node.Value.IsEqualTo(_time);
+        }
+
+        public TNode? Get(TComparer _time)
+        {
+            LinkedListNode<TNode> node = GetNodeOrPrevious(_time);
+            return node?.Value.IsEqualTo(_time) == true ? node.Value : (TNode?) null;
+        }
+
+        public TNode? GetOrPrevious(TComparer _time)
+        {
+            return GetNodeOrPrevious(_time)?.Value;
+        }
+
+        public TNode? GetOrNext(TComparer _time)
+        {
+            return GetNodeOrNext(_time)?.Value;
+        }
+
+        public TNode? GetOrPreviousOrNext(TComparer _time)
+        {
+            return GetNodeOrPreviousOrNext(_time)?.Value;
+        }
+    }
+
+    internal class LinkedListSimpleHistory<T> : LinkedListSimpleHistory<T, T> where T : struct, IComparable<T>
+    {
+
+        public void Set(T _node)
+        {
+            Set(_node, _node);
+        }
+
+        public void Add(T _node)
+        {
+            Add(_node, _node);
+        }
+
+    }
+
+    internal sealed class LinkedListHistory<TTime, TValue> : LinkedListSimpleHistory<HistoryNode<TTime, TValue>, TTime>, IHistory<TTime, TValue> where TTime : struct, IComparable<TTime>
+    {
+
+        public TTime? OldestTime => Oldest?.time;
+        public TTime? NewestTime => Oldest?.time;
 
         public void Add(TTime _time, TValue _value)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> listNode = GetNodeOrPrevious(_time);
-            HistoryNode<TTime, TValue> node = new HistoryNode<TTime, TValue> { time = _time, entry = _value };
-            if (listNode == null)
-            {
-                m_list.AddFirst(node);
-            }
-            else
-            {
-                m_list.AddAfter(listNode, node);
-            }
+            Add(_time, new HistoryNode<TTime, TValue> { time = _time, value = _value });
         }
 
-        public IEnumerable<HistoryNode<TTime, TValue>> GetFullSequence()
+        public void Set(TTime _time, TValue _value)
         {
-            LinkedListNode<HistoryNode<TTime, TValue>> listNode = m_list.First;
-            while (listNode != null)
-            {
-                yield return listNode.Value;
-                listNode = listNode.Next;
-
-            }
+            Set(_time, new HistoryNode<TTime, TValue> { time = _time, value = _value });
         }
 
-        public IEnumerable<HistoryNode<TTime, TValue>> GetFullReversedSequence()
-        {
-            LinkedListNode<HistoryNode<TTime, TValue>> listNode = m_list.Last;
-            while (listNode != null)
-            {
-                yield return listNode.Value;
-                listNode = listNode.Previous;
-
-            }
-        }
-
-        public IEnumerable<HistoryNode<TTime, TValue>> GetSequenceSince(TTime _time, bool _allowBefore = true, bool _allowAfter = false)
-        {
-            LinkedListNode<HistoryNode<TTime, TValue>> listNode = GetNode(_time, _allowBefore, _allowAfter);
-            while (listNode != null)
-            {
-                yield return listNode.Value;
-                listNode = listNode.Next;
-            }
-        }
-
-        public IEnumerable<HistoryNode<TTime, TValue>> GetReversedSequenceSince(TTime _time, bool _allowAfter = true, bool _allowBefore = false)
-        {
-            LinkedListNode<HistoryNode<TTime, TValue>> listNode = GetNode(_time, _allowBefore, _allowAfter);
-            while (listNode != null)
-            {
-                yield return listNode.Value;
-                listNode = listNode.Previous;
-            }
-        }
     }
 
 }

@@ -28,12 +28,12 @@ namespace Wheeled.Gameplay.Movement
             InputStep? input = null;
             foreach (HistoryNode<int, InputStep> node in m_history.GetSequenceSince(_step))
             {
-                input = input?.Predicted ?? node.entry;
+                input = input?.Predicted ?? node.value;
                 while (_step <= node.time)
                 {
                     if (_step == node.time)
                     {
-                        input = node.entry;
+                        input = node.value;
                     }
                     _simulation = _simulation.Simulate(input.Value, TimeConstants.c_simulationStep);
                     _step++;
@@ -51,7 +51,7 @@ namespace Wheeled.Gameplay.Movement
                 {
                     break;
                 }
-                _dstBuffer[_outCount++] = node.entry;
+                _dstBuffer[_outCount++] = node.value;
             }
         }
 

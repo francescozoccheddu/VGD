@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using Wheeled.Core.Utils;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
@@ -18,9 +17,9 @@ namespace Wheeled.Networking.Client
         private readonly MovementController m_localMovementController;
         private readonly InputHistory m_localInputHistory;
         private readonly PlayerView m_localPlayerView;
-        private readonly LinkedListHistory<double, PlayerStats> m_localStatsHistory;
         private readonly ActionHistory m_localActionHistory;
         // Replication
+        private readonly byte m_localPlayerId;
         private int m_lastSendStep;
         private float m_timeSinceLastSend;
 
@@ -43,10 +42,11 @@ namespace Wheeled.Networking.Client
             m_lastSendStep = -1;
         }
 
-        private void SyncLocalPlayer(double _time, PlayerStats _stats, int _health)
+        private void SyncLocalPlayer(double _time, int _kills, int _deaths, int _health)
         {
-            m_localStatsHistory.Set(_time, _stats);
             m_localActionHistory.PutHealth(_time, _health);
+            m_localActionHistory.PutKills(_time, _kills);
+            m_localActionHistory.PutDeaths(_time, _deaths);
         }
 
         private void UpdateLocalPlayer()

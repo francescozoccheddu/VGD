@@ -17,19 +17,18 @@ namespace Wheeled.Networking
         // Movement
         MovementNotify, SimulationOrder, MovementReplication, MovementAndInputReplication,
         // Room
-        RoomSync, PlayerSync, ReadyNotify,
+        TimeSync, ReadyNotify, PlayerIntroductionSync, PlayerWelcomeSync, RecapSync,
         // Actions
         SpawnOrder, DeathOrder, SpawnReplication, DeathReplication, ShootNotify, ShootReplication, HitOrder, HitReplication, KazeNotify
     }
 
-    internal struct PlayerSyncInfo
+    internal struct PlayerRecapInfo
     {
         public byte id;
         public int kills;
         public int deaths;
         public byte health;
         public byte ping;
-        public PlayerInfo info;
     }
 
     internal static class Serializer
@@ -83,28 +82,23 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.simulation);
         }
 
-        private static void Put(this NetDataWriter _netDataWriter, in PlayerStats _value)
-        {
-            _netDataWriter.Put(_value.kills);
-            _netDataWriter.Put(_value.deaths);
-        }
-
         private static void Put(this NetDataWriter _netDataWriter, in PlayerInfo _value)
         {
             _netDataWriter.Put(_value.name);
         }
 
-        private static void Put(this NetDataWriter _netDataWriter, in PlayerSyncInfo _value)
+        private static void Put(this NetDataWriter _netDataWriter, in PlayerRecapInfo _value)
         {
             _netDataWriter.Put(_value.id);
-            _netDataWriter.Put((byte)_value.kills);
-            _netDataWriter.Put((byte)_value.deaths);
+            _netDataWriter.Put((byte) _value.kills);
+            _netDataWriter.Put((byte) _value.deaths);
             _netDataWriter.Put(_value.health);
             _netDataWriter.Put(_value.ping);
-            _netDataWriter.Put(_value.info);
         }
 
         #endregion
+
+        #region Movement messages
 
         public static void WriteMovementNotifyMessage(int _firstStep, IReadOnlyList<InputStep> _steps, in Snapshot _snapshot)
         {
@@ -125,28 +119,6 @@ namespace Wheeled.Networking
             writer.Put(Message.SimulationOrder);
             writer.Put(_step);
             writer.Put(_simulationStepInfo);
-        }
-
-        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double)];
-
-        public static void WriteRoomSyncMessage(double _time, PlayerStats _stats, byte _health)
-        {
-            writer.Reset();
-            writer.Put(Message.RoomSync);
-            writer.Put(_time);
-            {
-                FastBitConverter.GetBytes(s_timeChecksumBuffer, 0, _time);
-                ushort crc = CRC16.Compute(s_timeChecksumBuffer);
-                writer.Put(crc);
-            }
-            writer.Put(_stats);
-            writer.Put(_health);
-        }
-
-        public static void WriteReadyMessage()
-        {
-            writer.Reset();
-            writer.Put(Message.ReadyNotify);
         }
 
         public static void WriteMovementReplicationMessage(byte _id, int _step, in Snapshot _snapshot)
@@ -172,6 +144,10 @@ namespace Wheeled.Networking
             }
         }
 
+        #endregion
+
+        #region Action messages
+
         public static void WriteSpawnOrderMessage(double _time, byte _spawnPoint)
         {
             writer.Reset();
@@ -187,23 +163,6 @@ namespace Wheeled.Networking
             writer.Put(_time);
         }
 
-        public static void WritePlayerSync(double _time, int _count, IEnumerable<PlayerSyncInfo> _infos)
-        {
-            writer.Reset();
-            writer.Put(Message.PlayerSync);
-            writer.Put(_time);
-            writer.Put((byte) _count);
-            int count = 0;
-            foreach (PlayerSyncInfo info in _infos)
-            {
-                if (count++ >= _count)
-                {
-                    break;
-                }
-                writer.Put(info);
-            }
-        }
-
         public static void WriteSpawnReplicationMessage(double _time, byte _id, byte _spawnPoint)
         {
             writer.Reset();
@@ -213,10 +172,67 @@ namespace Wheeled.Networking
             writer.Put(_spawnPoint);
         }
 
+        #endregion
+
+        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double)];
+
+        public static void WriteTimeSyncMessage(double _time)
+        {
+            writer.Reset();
+            writer.Put(Message.TimeSync);
+            writer.Put(_time);
+            // Checksum
+            ulong bytes = Convert.ToUInt64(_time);
+            writer.Put(~bytes);
+        }
+
+        public static void WriteReadyMessage()
+        {
+            writer.Reset();
+            writer.Put(Message.ReadyNotify);
+        }
+
+        public static void WritePlayerIntroductionSyncMessage(byte _id, PlayerInfo _info)
+        {
+            writer.Reset();
+            writer.Put(Message.PlayerIntroductionSync);
+            writer.Put(_id);
+            writer.Put(_info);
+        }
+
+        public static void WritePlayerWelcomeSyncMessage(byte _id)
+        {
+            writer.Reset();
+            writer.Put(Message.PlayerWelcomeSync);
+            writer.Put(_id);
+            // Checksum
+            writer.Put((byte) (255 - _id));
+            writer.Put(_id);
+            writer.Put((byte) (255 - _id));
+        }
+
+        public static void WriteRecapSync(double _time, IEnumerable<PlayerRecapInfo> _recaps)
+        {
+            writer.Reset();
+            writer.Put(Message.RecapSync);
+            writer.Put(_time);
+            int countPosition = writer.Length;
+            writer.Put(0);
+            int count = 0;
+            foreach (PlayerRecapInfo recap in _recaps)
+            {
+                writer.Put(recap);
+                count++;
+            }
+            writer.Data[countPosition] = (byte) count;
+        }
+
     }
 
     internal sealed class Deserializer
     {
+
+        #region Logic and Data
 
         private readonly NetDataReader m_netDataReader;
 
@@ -235,6 +251,13 @@ namespace Wheeled.Networking
             }
         }
 
+        private void EnsureReadEnd()
+        {
+            EnsureRead(m_netDataReader.EndOfData);
+        }
+
+        #endregion
+
         #region Primitive read methods
 
         private bool ReadBool()
@@ -249,10 +272,15 @@ namespace Wheeled.Networking
             return value;
         }
 
-
         private double ReadDouble()
         {
             EnsureRead(m_netDataReader.TryGetDouble(out double value));
+            return value;
+        }
+
+        private ulong ReadULong()
+        {
+            EnsureRead(m_netDataReader.TryGetULong(out ulong value));
             return value;
         }
 
@@ -268,7 +296,7 @@ namespace Wheeled.Networking
             return value;
         }
 
-        private ushort ReadUshort()
+        private ushort ReadUShort()
         {
             EnsureRead(m_netDataReader.TryGetUShort(out ushort value));
             return value;
@@ -359,25 +387,15 @@ namespace Wheeled.Networking
             };
         }
 
-        private PlayerStats ReadPlayerStats()
+        private PlayerRecapInfo ReadPlayerRecapInfo()
         {
-            return new PlayerStats
-            {
-                kills = ReadByte(),
-                deaths = ReadByte(),
-            };
-        }
-
-        private PlayerSyncInfo ReadPlayerSyncInfo()
-        {
-            return new PlayerSyncInfo
+            return new PlayerRecapInfo
             {
                 id = ReadByte(),
                 kills = ReadByte(),
                 deaths = ReadByte(),
                 health = ReadByte(),
                 ping = ReadByte(),
-                info = ReadPlayerInfo()
             };
         }
 
@@ -388,22 +406,7 @@ namespace Wheeled.Networking
 
         #endregion
 
-        #region Message read methods
-
-        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double) + sizeof(ushort)];
-
-        public void ReadRoomSyncMessage(out double _time, out PlayerStats _outStats, out byte _outHealth)
-        {
-            _time = ReadDouble();
-            {
-                ushort crc = ReadUshort();
-                FastBitConverter.GetBytes(s_timeChecksumBuffer, 0, _time);
-                FastBitConverter.GetBytes(s_timeChecksumBuffer, sizeof(double), crc);
-                EnsureRead(CRC16.Compute(s_timeChecksumBuffer) == 0);
-            }
-            _outStats = ReadPlayerStats();
-            _outHealth = ReadByte();
-        }
+        #region Movement messages
 
         public void ReadMovementNotifyMessage(out int _outStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
         {
@@ -441,6 +444,10 @@ namespace Wheeled.Networking
             }
         }
 
+        #endregion
+
+        #region Action messages
+
         public void ReadSpawnOrderMessage(out double _outTime, out byte _outSpawnPoint)
         {
             _outTime = ReadDouble();
@@ -452,25 +459,72 @@ namespace Wheeled.Networking
             _outTime = ReadDouble();
         }
 
-        public void ReadPlayerSyncMessage(out double _outTime, out IEnumerable<PlayerSyncInfo> _outInfos)
-        {
-            _outTime = ReadDouble();
-            int count = ReadByte();
-            IEnumerable<PlayerSyncInfo> GetInfos()
-            {
-                while (count-- > 0)
-                {
-                    yield return ReadPlayerSyncInfo();
-                }
-            };
-            _outInfos = GetInfos();
-        }
-
         public void ReadSpawnReplicationMessage(out double _outTime, out byte _outId, out byte _outSpawnPoint)
         {
             _outTime = ReadDouble();
             _outId = ReadByte();
             _outSpawnPoint = ReadByte();
+            EnsureReadEnd();
+        }
+
+        #endregion
+
+        #region Room messages
+
+        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double) + sizeof(ushort)];
+
+        public void ReadTimeSyncMessage(out double _time)
+        {
+            _time = ReadDouble();
+            // Checksum
+            ulong bytes = Convert.ToUInt64(_time);
+            EnsureRead(bytes == ~ReadULong());
+            EnsureReadEnd();
+        }
+
+        public void ReadPlayerSyncMessage(out double _outTime, out IEnumerable<PlayerRecapInfo> _outInfos)
+        {
+            _outTime = ReadDouble();
+            int count = ReadByte();
+            IEnumerable<PlayerRecapInfo> GetInfos()
+            {
+                while (count-- > 0)
+                {
+                    yield return ReadPlayerRecapInfo();
+                }
+            };
+            _outInfos = GetInfos();
+        }
+
+
+        public void ReadPlayerWelcomeSyncMessage(out byte _outId)
+        {
+            _outId = ReadByte();
+            // Checksum
+            EnsureRead(ReadByte() == 255 - _outId);
+            EnsureRead(ReadByte() == _outId);
+            EnsureRead(ReadByte() == 255 - _outId);
+            EnsureReadEnd();
+        }
+
+        public void ReadPlayerIntroductionMessage(out byte _outId, out PlayerInfo _outInfo)
+        {
+            _outId = ReadByte();
+            _outInfo = ReadPlayerInfo();
+        }
+
+        public void ReadRecapSync(out double _outTime, out IEnumerable<PlayerRecapInfo> _outInfos)
+        {
+            _outTime = ReadDouble();
+            IEnumerable<PlayerRecapInfo> GetInfos()
+            {
+                int count = ReadByte();
+                while (count-- > 0)
+                {
+                    yield return ReadPlayerRecapInfo();
+                }
+            }
+            _outInfos = GetInfos();
         }
 
         #endregion

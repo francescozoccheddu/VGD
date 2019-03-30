@@ -19,7 +19,10 @@ namespace Wheeled.Networking.Client
             private readonly ClientGameManager m_manager;
             // Info
             public readonly int id;
-            private PlayerInfo m_playerInfo;
+            public PlayerInfo Info { get; private set; }
+            public bool IsIntroduced { get; private set; }
+            public int Ping { get; private set; }
+            private double m_lastSyncTime = double.NegativeInfinity;
             // Components
             private readonly MovementHistory m_movementHistory;
             private readonly InputHistory m_inputHistory;
@@ -63,11 +66,27 @@ namespace Wheeled.Networking.Client
                 m_inputHistory.Trim(forgetStep);
             }
 
-            public void Sync(double _time, in PlayerInfo _info, int _kills, int _deaths, int _health)
+            public void Sync(double _time, int _kills, int _deaths, int _health, int _ping)
             {
-                m_playerInfo = _info;
-                m_actionHistory.PutStats(_time, _kills, _deaths);
+                m_actionHistory.PutKills(_time, _kills);
+                m_actionHistory.PutDeaths(_time, _deaths);
                 m_actionHistory.PutHealth(_time, _health);
+                if (_time > m_lastSyncTime)
+                {
+                    m_lastSyncTime = _time;
+                    Ping = _ping;
+                }
+            }
+
+            public void Quit(double _time)
+            {
+                m_actionHistory.PutQuit(_time);
+            }
+
+            public void Introduce(PlayerInfo _info)
+            {
+                IsIntroduced = true;
+                Info = _info;
             }
 
             public void Move(int _step, Snapshot _snapshot)

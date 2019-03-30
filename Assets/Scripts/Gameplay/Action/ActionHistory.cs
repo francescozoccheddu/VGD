@@ -13,22 +13,19 @@ namespace Wheeled.Gameplay.Action
         private const float c_riflePowerUpTime = 3.0f;
         private const int c_fullHealth = 100;
 
-        private struct Stats
-        {
-            public int kills;
-            public int deaths;
-        }
-
         private enum StatsEventType
         {
             Death, Kill
         }
 
         private readonly LinkedListHistory<double, int> m_healthHistory = new LinkedListHistory<double, int>();
-        private readonly LinkedListHistory<double, Stats> m_statsHistory = new LinkedListHistory<double, Stats>();
-        private readonly LinkedListHistory<double, StatsEventType> m_statsEventsHistory = new LinkedListHistory<double, StatsEventType>();
-        private readonly LinkedListHistory<double, object> m_rifleShootHistory = new LinkedListHistory<double, object>();
-        private readonly LinkedListHistory<double, object> m_rocketShootHistory = new LinkedListHistory<double, object>();
+        private readonly LinkedListHistory<double, int> m_killCountHistory = new LinkedListHistory<double, int>();
+        private readonly LinkedListHistory<double, int> m_deathCountHistory = new LinkedListHistory<double, int>();
+        private readonly LinkedListSimpleHistory<double> m_rifleShootHistory = new LinkedListSimpleHistory<double>();
+        private readonly LinkedListSimpleHistory<double> m_rocketShootHistory = new LinkedListSimpleHistory<double>();
+        private readonly LinkedListSimpleHistory<double> m_killsHistory = new LinkedListSimpleHistory<double>();
+        private readonly LinkedListSimpleHistory<double> m_deathsHistory = new LinkedListSimpleHistory<double>();
+        private double? m_quitTime;
 
         public int Kills { get; private set; }
         public int Deaths { get; private set; }
@@ -38,11 +35,7 @@ namespace Wheeled.Gameplay.Action
         public bool CanShootRifle { get; private set; }
         public float RiflePower { get; private set; }
         public bool IsAlive => Health > 0;
-
-        public void PutStats(double _time, int _kills, int _deaths)
-        {
-            m_statsHistory.Set(_time, new Stats { kills = _kills, deaths = _deaths });
-        }
+        public bool IsQuit { get; private set; }
 
         public void PutSpawn(double _time)
         {
@@ -59,23 +52,41 @@ namespace Wheeled.Gameplay.Action
             m_healthHistory.Set(_time, _health);
             if (_health <= 0)
             {
-                m_statsEventsHistory.Set(_time, StatsEventType.Death);
+                m_deathsHistory.Set(_time);
             }
         }
 
         public void PutKill(double _time)
         {
-            m_statsEventsHistory.Set(_time, StatsEventType.Kill);
+            m_killsHistory.Set(_time);
+        }
+
+        public void PutDeaths(double _time, int _deaths)
+        {
+            m_deathCountHistory.Set(_time, _deaths);
+        }
+
+        public void PutKills(double _time, int _kills)
+        {
+            m_killCountHistory.Set(_time, _kills);
         }
 
         public void PutRifleShot(double _time)
         {
-            m_rifleShootHistory.Add(_time, null);
+            m_rifleShootHistory.Add(_time);
         }
 
         public void PutRocketShot(double _time)
         {
-            m_rocketShootHistory.Add(_time, null);
+            m_rocketShootHistory.Add(_time);
+        }
+
+        public void PutQuit(double _time)
+        {
+            if (!(m_quitTime < _time))
+            {
+                m_quitTime = _time;
+            }
         }
 
         public void Update(double _time)
@@ -92,10 +103,10 @@ namespace Wheeled.Gameplay.Action
                     {
                         if (!found)
                         {
-                            Health = node.entry;
+                            Health = node.value;
                             found = true;
                         }
-                        if (node.entry == 0)
+                        if (node.value == 0)
                         {
                             lastTime = node.time;
                         }
@@ -106,51 +117,65 @@ namespace Wheeled.Gameplay.Action
                     }
                     else
                     {
-                        willSpawn |= node.entry > 0;
+                        willSpawn |= node.value > 0;
                     }
                 }
                 ShouldSpawn = Health == 0 && (_time - lastTime) >= c_respawnWaitTime && !willSpawn;
             }
             // Stats
-            foreach (HistoryNode<double, Stats> node in m_statsHistory.GetReversedSequenceSince(_time, false, true))
             {
-                Kills = node.entry.kills;
-                Deaths = node.entry.deaths;
-                foreach (HistoryNode<double, StatsEventType> eventNode in m_statsEventsHistory.GetReversedSequenceSince(_time, false, true))
+                HistoryNode<double, int>? node = m_killCountHistory.GetOrPrevious(_time);
+                Kills = node?.value ?? 0;
+                foreach (double time in m_killsHistory.GetReversedSequenceSince(_time, false, true))
                 {
-                    if (eventNode.time <= node.time)
+                    if (node?.time >= time)
                     {
                         break;
                     }
-                    switch (eventNode.entry)
-                    {
-                        case StatsEventType.Death:
-                        Deaths++;
-                        break;
-                        case StatsEventType.Kill:
-                        Kills++;
-                        break;
-                    }
+                    Kills++;
                 }
-                break;
+            }
+            {
+                HistoryNode<double, int>? node = m_deathCountHistory.GetOrPrevious(_time);
+                Deaths = node?.value ?? 0;
+                foreach (double time in m_deathsHistory.GetReversedSequenceSince(_time, false, true))
+                {
+                    if (node?.time >= time)
+                    {
+                        break;
+                    }
+                    Deaths++;
+                }
             }
             // Shoots
-            CanShootRocket = true;
-            foreach (HistoryNode<double, object> node in m_rocketShootHistory.GetReversedSequenceSince(_time, false, true))
             {
-                double elapsed = _time - node.time;
-                CanShootRocket = elapsed >= c_rocketCooldown;
-                break;
+                double? lastRocketShot = m_rocketShootHistory.GetOrPrevious(_time);
+                if (lastRocketShot != null)
+                {
+                    double elapsed = _time - lastRocketShot.Value;
+                    CanShootRocket = elapsed >= c_rocketCooldown;
+                }
+                else
+                {
+                    CanShootRocket = true;
+                }
             }
-            CanShootRifle = true;
-            RiflePower = 1.0f;
-            foreach (HistoryNode<double, object> node in m_rifleShootHistory.GetReversedSequenceSince(_time, false, true))
             {
-                double elapsed = _time - node.time;
-                CanShootRifle = elapsed >= c_rifleCooldown;
-                RiflePower = Mathf.Clamp01((float) (elapsed / c_riflePowerUpTime));
-                break;
+                double? lastRifleShot = m_rocketShootHistory.GetOrPrevious(_time);
+                if (lastRifleShot != null)
+                {
+                    double elapsed = _time - lastRifleShot.Value;
+                    CanShootRifle = elapsed >= c_rifleCooldown;
+                    RiflePower = Mathf.Clamp01((float) (elapsed / c_riflePowerUpTime));
+                }
+                else
+                {
+                    CanShootRifle = true;
+                    RiflePower = 1.0f;
+                }
             }
+            // Quit
+            IsQuit = m_quitTime <= _time;
         }
 
         public void Trim(double _time)
@@ -158,8 +183,8 @@ namespace Wheeled.Gameplay.Action
             m_healthHistory.ForgetOlder(_time, true);
             m_rifleShootHistory.ForgetOlder(_time, true);
             m_rocketShootHistory.ForgetOlder(_time, true);
-            m_statsEventsHistory.ForgetOlder(_time, true);
-            m_statsHistory.ForgetOlder(_time, true);
+            m_killCountHistory.ForgetOlder(_time, true);
+            m_deathCountHistory.ForgetOlder(_time, true);
         }
 
     }

@@ -21,8 +21,7 @@ namespace Wheeled.Networking.Server
             public readonly byte id;
             public readonly NetworkManager.Peer peer;
             private readonly ServerGameManager m_manager;
-            public PlayerStats stats;
-            public PlayerInfo info;
+            public readonly PlayerInfo info;
             public bool IsStarted { get; private set; }
             // Components
             private readonly MovementValidator m_movementValidator;
@@ -34,12 +33,13 @@ namespace Wheeled.Networking.Server
             private float m_timeSinceLastCorrection;
             private int m_lastSendStep;
 
-            public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer)
+            public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer, PlayerInfo _info)
             {
                 m_manager = _manager;
                 id = _id;
                 peer = _peer;
                 m_inputHistory = new InputHistory();
+                info = _info;
                 m_movementValidator = new MovementValidator(3.0f)
                 {
                     correctionTarget = this,

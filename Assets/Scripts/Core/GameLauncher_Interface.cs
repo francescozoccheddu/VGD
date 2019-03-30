@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Net;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using Wheeled.Core.Data;
 using Wheeled.Networking;
@@ -76,11 +77,11 @@ namespace Wheeled.Core
             }
         }
 
-        public void StartGameAsClient(GameRoomInfo _room)
+        public void StartGameAsClient(IPEndPoint _endPoint)
         {
             if (!IsBusy)
             {
-                EnsureClient().Start(_room);
+                EnsureClient().Start(_endPoint);
             }
             else
             {

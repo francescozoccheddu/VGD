@@ -23,38 +23,61 @@ namespace Wheeled.Core.Utils
 
     }
 
-    internal struct HistoryNode<TTime, TValue>
+    internal struct HistoryNode<TTime, TValue> : IComparable<TTime> where TTime : struct, IComparable<TTime>
     {
         public TTime time;
-        public TValue entry;
+        public TValue value;
+
+        public int CompareTo(TTime _time)
+        {
+            return time.CompareTo(_time);
+        }
     }
 
-    internal interface IHistory<TTime, TValue> where TTime : struct, IComparable<TTime>
+    internal interface ISimpleHistory<TNode, TComparer> where TNode : struct, IComparable<TComparer> where TComparer : struct
     {
 
         void Clear();
 
-        void ForgetOlder(TTime _time, bool _keepOldest);
+        void ForgetOlder(TComparer _time, bool _keepOldest);
 
-        void ForgetNewer(TTime _time, bool _keepNewest);
+        void ForgetNewer(TComparer _time, bool _keepNewest);
 
-        void ForgetAndOlder(TTime _time);
+        void ForgetAndOlder(TComparer _time);
 
-        void ForgetAndNewer(TTime _time);
+        void ForgetAndNewer(TComparer _time);
+
+        void Set(TComparer _time, TNode _value);
+
+        bool Has(TComparer _time);
+
+        void Query(TComparer _time, out TNode? _outA, out TNode? _outB);
+
+        IEnumerable<TNode> GetFullSequence();
+
+        IEnumerable<TNode> GetFullReversedSequence();
+
+        IEnumerable<TNode> GetSequenceSince(TComparer _time, bool _allowBefore = true, bool _allowAfter = false);
+
+        IEnumerable<TNode> GetReversedSequenceSince(TComparer _time, bool _allowAfter = true, bool _allowBefore = false);
+
+        TNode? Get(TComparer _time);
+
+        TNode? GetOrPrevious(TComparer _time);
+
+        TNode? GetOrNext(TComparer _time);
+
+        TNode? GetOrPreviousOrNext(TComparer _time);
+
+        TNode? Oldest { get; }
+        TNode? Newest { get; }
+
+    }
+
+    internal interface IHistory<TTime, TValue> : ISimpleHistory<HistoryNode<TTime, TValue>, TTime> where TTime : struct, IComparable<TTime>
+    {
 
         void Set(TTime _time, TValue _value);
-
-        HistoryNode<TTime, TValue>? Get(TTime _time);
-
-        void Query(TTime _time, out HistoryNode<TTime, TValue>? _outA, out HistoryNode<TTime, TValue>? _outB);
-
-        IEnumerable<HistoryNode<TTime, TValue>> GetFullSequence();
-
-        IEnumerable<HistoryNode<TTime, TValue>> GetFullReversedSequence();
-
-        IEnumerable<HistoryNode<TTime, TValue>> GetSequenceSince(TTime _time, bool _allowBefore = true, bool _allowAfter = false);
-
-        IEnumerable<HistoryNode<TTime, TValue>> GetReversedSequenceSince(TTime _time, bool _allowAfter = true, bool _allowBefore = false);
 
         TTime? OldestTime { get; }
         TTime? NewestTime { get; }

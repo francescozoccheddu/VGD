@@ -1,4 +1,6 @@
-﻿namespace Wheeled.Networking.Client
+﻿using System.Net;
+
+namespace Wheeled.Networking.Client
 {
 
     internal sealed partial class Client : IGameHost
@@ -20,6 +22,7 @@
         private NetworkManager.Peer m_server;
         private bool m_wasStarted;
         private IGameManager m_game;
+        private byte m_localPlayerId;
 
         public bool IsStarted => m_server.IsValid;
         public bool IsPlaying => m_game != null;
@@ -48,16 +51,15 @@
             RoomInfo = null;
         }
 
-        public void Start(GameRoomInfo _room)
+        public void Start(IPEndPoint _endPoint)
         {
             if (IsPlaying)
             {
                 ((IGameHost) this).Stop();
             }
-            RoomInfo = _room;
             NetworkManager.instance.listener = this;
             NetworkManager.instance.StartOnAvailablePort();
-            m_server = NetworkManager.instance.ConnectTo(_room.endPoint, false);
+            m_server = NetworkManager.instance.ConnectTo(_endPoint, false);
             m_wasStarted = true;
         }
 
@@ -88,7 +90,7 @@
         {
             if (m_game == null && IsStarted)
             {
-                m_game = new ClientGameManager(this);
+                m_game = new ClientGameManager(this, m_localPlayerId);
             }
         }
 

@@ -70,6 +70,27 @@ namespace Wheeled.Networking.Server
 
         void Server.IGameManager.ConnectedTo(NetworkManager.Peer _peer)
         {
+            if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
+            {
+                // Welcome
+                Serializer.WritePlayerWelcomeSyncMessage(netPlayer.id);
+                netPlayer.peer.Send(NetworkManager.SendMethod.ReliableUnordered);
+                // Introduction (so that he knows the others)
+                foreach (NetPlayer p in m_netPlayers)
+                {
+                    if (p != netPlayer)
+                    {
+                        Serializer.WritePlayerIntroductionSyncMessage(p.id, p.info);
+                        netPlayer.peer.Send(NetworkManager.SendMethod.ReliableUnordered);
+                    }
+                }
+                // Introduction (so that the others know him)
+                Serializer.WritePlayerIntroductionSyncMessage(netPlayer.id, netPlayer.info);
+                SendAllBut(netPlayer.peer, NetworkManager.SendMethod.ReliableUnordered);
+                // Recap
+                PrepareRecapMessage();
+                netPlayer.peer.Send(NetworkManager.SendMethod.Unreliable);
+            }
         }
 
         void Server.IGameManager.DisconnectedFrom(NetworkManager.Peer _peer)
@@ -110,21 +131,13 @@ namespace Wheeled.Networking.Server
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
                         netPlayer.Start();
-                        PrepareRoomSyncMessage(netPlayer);
-                        _peer.Send(NetworkManager.SendMethod.Sequenced);
-                        IEnumerable<PlayerSyncInfo> GetInfos()
+                        foreach (NetPlayer p in m_netPlayers)
                         {
-                            yield return GetLocalPlayerSyncInfo();
-                            foreach (NetPlayer p in m_netPlayers)
-                            {
-                                if (p != netPlayer)
-                                {
-                                    yield return GetPlayerSyncInfo(p);
-                                }
-                            }
+                            Serializer.WritePlayerIntroductionSyncMessage(p.id, p.info);
+                            netPlayer.peer.Send(NetworkManager.SendMethod.ReliableUnordered);
                         }
-                        Serializer.WritePlayerSync(m_time, m_netPlayers.Count, GetInfos());
-                        _peer.Send(NetworkManager.SendMethod.Sequenced);
+                        PrepareRecapMessage();
+                        netPlayer.peer.Send(NetworkManager.SendMethod.Sequenced);
                     }
                 }
                 break;
@@ -134,7 +147,7 @@ namespace Wheeled.Networking.Server
         bool Server.IGameManager.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, Deserializer _reader)
         {
             // TODO decide whether accept it or not
-            NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer);
+            NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer, new PlayerInfo());
             m_netPlayers.Add(netPlayer);
             return true;
         }
@@ -154,59 +167,41 @@ namespace Wheeled.Networking.Server
         #region Room Update
 
         private const double c_roomUpdatePeriod = 2.0f;
-        private double m_lastRoomUpdateTime;
-
-        private void PrepareRoomSyncMessage(NetPlayer _player)
-        {
-            Serializer.WriteRoomSyncMessage(m_time, _player.stats, (byte) _player.GetHealth());
-        }
-
-        private PlayerSyncInfo GetLocalPlayerSyncInfo()
-        {
-            return new PlayerSyncInfo
-            {
-                id = 0,
-                kills = 0,
-                deaths = 0,
-                health = (byte) m_actionHistory.Health,
-                ping = 0,
-                info = new PlayerInfo()
-            };
-        }
-
-        private PlayerSyncInfo GetPlayerSyncInfo(NetPlayer _netPlayer)
-        {
-            return new PlayerSyncInfo
-            {
-                id = _netPlayer.id,
-                kills = 0,
-                deaths = 0,
-                health = (byte) _netPlayer.GetHealth(),
-                ping = (byte) Mathf.Min(Mathf.RoundToInt(_netPlayer.peer.Ping * 1000.0f), 255),
-                info = _netPlayer.info
-            };
-        }
+        private const double c_recapSyncPeriod = 5.0f;
+        private double m_lastTimeSyncTime;
+        private double m_lastRecapSyncTime;
 
         private void SendRoomSync()
         {
-            foreach (NetPlayer netPlayer in m_netPlayers)
+            Serializer.WriteTimeSyncMessage(m_time);
+            SendAll(NetworkManager.SendMethod.Sequenced);
+        }
+
+        private void PrepareRecapMessage()
+        {
+            IEnumerable<PlayerRecapInfo> GetRecaps()
             {
-                PrepareRoomSyncMessage(netPlayer);
-                netPlayer.peer.Send(NetworkManager.SendMethod.Sequenced);
-                IEnumerable<PlayerSyncInfo> GetInfos()
+                yield return new PlayerRecapInfo
                 {
-                    yield return GetLocalPlayerSyncInfo();
-                    foreach (NetPlayer p in m_netPlayers)
+                    id = 0,
+                    kills = 0,
+                    deaths = 0,
+                    health = (byte) m_actionHistory.Health,
+                    ping = 0,
+                };
+                foreach (NetPlayer p in m_netPlayers)
+                {
+                    yield return new PlayerRecapInfo
                     {
-                        if (p != netPlayer)
-                        {
-                            yield return GetPlayerSyncInfo(p);
-                        }
-                    }
+                        id = p.id,
+                        kills = 0,
+                        deaths = 0,
+                        health = (byte) p.GetHealth(),
+                        ping = (byte) Mathf.Min(Mathf.RoundToInt(p.peer.Ping * 1000.0f), 255),
+                    };
                 }
-                Serializer.WritePlayerSync(m_time, m_netPlayers.Count, GetInfos());
-                netPlayer.peer.Send(NetworkManager.SendMethod.Sequenced);
             }
+            Serializer.WriteRecapSync(m_time, GetRecaps());
         }
 
         #endregion
@@ -215,13 +210,18 @@ namespace Wheeled.Networking.Server
         {
             m_time += Time.deltaTime;
             m_timeSinceLastReplication += Time.deltaTime;
-            if (m_lastRoomUpdateTime + c_roomUpdatePeriod <= m_time)
+            if (m_lastTimeSyncTime + c_roomUpdatePeriod <= m_time)
             {
                 Debug.LogFormat("Room Update at time {0}", m_time);
-                m_lastRoomUpdateTime = m_time;
+                m_lastTimeSyncTime = m_time;
                 SendRoomSync();
             }
-
+            if (m_lastRecapSyncTime + c_recapSyncPeriod <= m_time)
+            {
+                m_lastRecapSyncTime = m_time;
+                PrepareRecapMessage();
+                SendAll(NetworkManager.SendMethod.Sequenced);
+            }
             UpdateLocalPlayer();
             foreach (NetPlayer player in m_netPlayers)
             {

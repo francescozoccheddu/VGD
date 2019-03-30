@@ -27,12 +27,7 @@ namespace Wheeled.Networking.Client
 
         void NetworkManager.IEventListener.ConnectedTo(NetworkManager.Peer _peer)
         {
-            if (_peer == m_server)
-            {
-                IsConnected = true;
-                OnConnected?.Invoke(RoomInfo.Value);
-            }
-            else
+            if (_peer != m_server)
             {
                 _peer.Disconnect();
             }
@@ -70,7 +65,30 @@ namespace Wheeled.Networking.Client
         {
             if (_peer == m_server)
             {
-                m_game?.Received(_reader);
+                if (!IsConnected)
+                {
+                    try
+                    {
+                        if (_reader.ReadMessageType() == Message.PlayerWelcomeSync)
+                        {
+                            _reader.ReadPlayerWelcomeSyncMessage(out byte id);
+                            m_localPlayerId = id;
+                            IsConnected = true;
+                            GameRoomInfo roomInfo = new GameRoomInfo(null, "", 0);
+                            RoomInfo = roomInfo;
+                            OnConnected?.Invoke(roomInfo);
+                        }
+                    }
+                    catch (Deserializer.DeserializationException)
+                    {
+                        Cleanup();
+                        NotifyStopped(GameHostStopCause.UnableToConnect);
+                    }
+                }
+                else
+                {
+                    m_game?.Received(_reader);
+                }
             }
             else
             {

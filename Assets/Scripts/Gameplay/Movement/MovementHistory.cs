@@ -37,11 +37,11 @@ namespace Wheeled.Gameplay.Movement
                 }
                 if (node.time < _refStep && _canPredict)
                 {
-                    input = node.entry.Predicted;
+                    input = node.value.Predicted;
                 }
                 else if (node.time == _refStep)
                 {
-                    input = node.entry;
+                    input = node.value;
                 }
                 else if (_canPredict)
                 {
@@ -72,18 +72,18 @@ namespace Wheeled.Gameplay.Movement
                 if (next != null)
                 {
                     // Prev & next
-                    SimulationStep a = prev.Value.entry;
-                    SimulationStep b = next.Value.entry;
+                    SimulationStep a = prev.Value.value;
+                    SimulationStep b = next.Value.value;
                     double period = (next.Value.time - prev.Value.time).SimulationPeriod();
                     double progress = _time - (prev.Value.time).SimulationPeriod();
                     if (_inputHistory != null)
                     {
-                        SimulationStep simulation = prev.Value.entry;
+                        SimulationStep simulation = prev.Value.value;
                         int step = prev.Value.time;
                         double partialSimulationProgress = progress;
                         PartialSimulate(_inputHistory, ref simulation, ref step, ref partialSimulationProgress, false);
                         float lerpAlpha = (float) (partialSimulationProgress / (period - progress + partialSimulationProgress));
-                        _outSimulation = SimulationStep.Lerp(simulation, next.Value.entry, lerpAlpha);
+                        _outSimulation = SimulationStep.Lerp(simulation, next.Value.value, lerpAlpha);
                     }
                     else
                     {
@@ -97,7 +97,7 @@ namespace Wheeled.Gameplay.Movement
                     if (_inputHistory != null)
                     {
                         const double c_maxPrevision = 1.0f;
-                        SimulationStep simulation = node.entry;
+                        SimulationStep simulation = node.value;
                         int step = node.time;
                         double partialSimulationProgress = Math.Min(_time - step.SimulationPeriod(), c_maxPrevision);
                         PartialSimulate(_inputHistory, ref simulation, ref step, ref partialSimulationProgress, true);
@@ -105,7 +105,7 @@ namespace Wheeled.Gameplay.Movement
                     }
                     else
                     {
-                        _outSimulation = node.entry;
+                        _outSimulation = node.value;
                     }
                 }
             }
@@ -126,12 +126,12 @@ namespace Wheeled.Gameplay.Movement
                     // Prev & next
                     double period = (next.Value.time - prev.Value.time).SimulationPeriod();
                     double elapsed = _time - prev.Value.time.SimulationPeriod();
-                    _outSight = Sight.Lerp(prev.Value.entry, next.Value.entry, (float) (elapsed / period));
+                    _outSight = Sight.Lerp(prev.Value.value, next.Value.value, (float) (elapsed / period));
                 }
                 else
                 {
                     // Prev only
-                    _outSight = prev.Value.entry;
+                    _outSight = prev.Value.value;
                 }
             }
             else

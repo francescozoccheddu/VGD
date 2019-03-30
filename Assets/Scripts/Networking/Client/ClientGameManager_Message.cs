@@ -15,9 +15,10 @@ namespace Wheeled.Networking.Client
             // TODO Catch exception
             switch (_reader.ReadMessageType())
             {
-                case Message.RoomSync:
+                #region Room messages
+                case Message.TimeSync:
                 {
-                    _reader.ReadRoomSyncMessage(out double time, out PlayerStats stats, out byte health);
+                    _reader.ReadTimeSyncMessage(out double time);
                     // Time
                     m_targetTime = time + m_server.Ping / 2.0;
                     if (!m_isRunning)
@@ -26,7 +27,6 @@ namespace Wheeled.Networking.Client
                         m_time = m_targetTime;
                     }
                     // Controllers
-                    SyncLocalPlayer(time, stats, health);
                     if (!m_localMovementController.IsRunning)
                     {
                         ScheduleLocalPlayerSend();
@@ -34,6 +34,37 @@ namespace Wheeled.Networking.Client
                     }
                 }
                 break;
+                case Message.PlayerIntroductionSync:
+                {
+                    _reader.ReadPlayerIntroductionMessage(out byte id, out PlayerInfo info);
+                    GetOrCreatePlayer(id).Introduce(info);
+                }
+                break;
+                case Message.RecapSync:
+                {
+                    _reader.ReadRecapSync(out double time, out IEnumerable<PlayerRecapInfo> infos);
+                    Dictionary<int, NetPlayer> oldPlayers = new Dictionary<int, NetPlayer>(m_netPlayers);
+                    foreach (PlayerRecapInfo info in infos)
+                    {
+                        if (info.id == m_localPlayerId)
+                        {
+                            SyncLocalPlayer(time, info.kills, info.deaths, info.health);
+                        }
+                        else
+                        {
+                            GetOrCreatePlayer(info.id).Sync(time, info.kills, info.deaths, info.health, info.ping);
+                        }
+                        oldPlayers.Remove(info.id);
+                    }
+                    foreach (NetPlayer oldPlayer in oldPlayers.Values)
+                    {
+                        oldPlayer.Quit(time);
+                    }
+                }
+                break;
+                #endregion
+
+                #region Movement messages
                 case Message.SimulationOrder:
                 {
                     _reader.ReadSimulationCorrectionMessage(out int step, out SimulationStepInfo _simulation);
@@ -55,6 +86,9 @@ namespace Wheeled.Networking.Client
                     GetOrCreatePlayer(id).Move(step, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepCount), snapshot);
                 }
                 break;
+                #endregion
+
+                #region Action messages
                 case Message.SpawnOrder:
                 {
                     _reader.ReadSpawnOrderMessage(out double time, out byte spawnPoint);
@@ -68,15 +102,7 @@ namespace Wheeled.Networking.Client
                     GetOrCreatePlayer(id).Spawn(time);
                 }
                 break;
-                case Message.PlayerSync:
-                {
-                    _reader.ReadPlayerSyncMessage(out double time, out IEnumerable<PlayerSyncInfo> infos);
-                    foreach (PlayerSyncInfo info in infos)
-                    {
-                        GetOrCreatePlayer(info.id).Sync(time, info.info, info.kills, info.deaths, info.health);
-                    }
-                }
-                break;
+                #endregion
             }
         }
 
