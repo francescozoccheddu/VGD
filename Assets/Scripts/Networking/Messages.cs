@@ -538,7 +538,7 @@ namespace Wheeled.Networking
                 spawnPoint = ReadInt()
             };
         }
-        
+
         private GunShotInfo ReadGunShotInfo()
         {
             return new GunShotInfo
@@ -549,8 +549,8 @@ namespace Wheeled.Networking
                 rocket = ReadBool(),
                 power = ReadFloat()
             };
-        }  
-        
+        }
+
         private GunHitInfo ReadGunHitInfo()
         {
             return new GunHitInfo
@@ -634,7 +634,7 @@ namespace Wheeled.Networking
         {
             _outTime = ReadDouble();
             _outPosition = ReadVector3();
-            _outSight= ReadSight();
+            _outSight = ReadSight();
             _outIsRocket = ReadBool();
         }
 

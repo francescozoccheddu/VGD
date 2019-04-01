@@ -20,6 +20,7 @@ namespace Wheeled.Gameplay.Action
         private readonly LinkedListSimpleHistory<double> m_rocketShootHistory = new LinkedListSimpleHistory<double>();
         private readonly LinkedListSimpleHistory<double> m_killsHistory = new LinkedListSimpleHistory<double>();
         private readonly LinkedListSimpleHistory<double> m_deathsHistory = new LinkedListSimpleHistory<double>();
+        private readonly LinkedListSimpleHistory<double> m_kazeHistory = new LinkedListSimpleHistory<double>();
         private double? m_quitTime;
 
         public int Kills { get; private set; }
