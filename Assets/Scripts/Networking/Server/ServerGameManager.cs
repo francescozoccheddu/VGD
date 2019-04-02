@@ -44,21 +44,15 @@ namespace Wheeled.Networking.Server
         {
             m_time += Time.deltaTime;
             m_timeSinceLastReplication += Time.deltaTime;
+            foreach (Player player in m_players)
+            {
+                player.Update();
+            }
             if (m_lastTimeSyncTime + c_roomUpdatePeriod <= m_time)
             {
                 Debug.LogFormat("Room Update at time {0}", m_time);
                 m_lastTimeSyncTime = m_time;
                 SendRoomSync();
-            }
-            if (m_lastRecapSyncTime + c_recapSyncPeriod <= m_time)
-            {
-                m_lastRecapSyncTime = m_time;
-                Serializer.WriteRecapSync(m_time, from p in m_players select p.RecapInfo);
-                SendAll(NetworkManager.SendMethod.Sequenced);
-            }
-            foreach (Player player in m_players)
-            {
-                player.Update();
             }
             if (m_timeSinceLastReplication > 1.0f / c_replicationRate)
             {
@@ -67,6 +61,12 @@ namespace Wheeled.Networking.Server
                 {
                     player.Replicate();
                 }
+            }
+            if (m_lastRecapSyncTime + c_recapSyncPeriod <= m_time)
+            {
+                m_lastRecapSyncTime = m_time;
+                Serializer.WriteRecapSync(m_time, from p in m_players select p.RecapInfo);
+                SendAll(NetworkManager.SendMethod.Sequenced);
             }
         }
 
@@ -154,13 +154,15 @@ namespace Wheeled.Networking.Server
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
                         netPlayer.Start();
+                        Serializer.WriteTimeSync(m_time);
+                        netPlayer.Peer.Send(NetworkManager.SendMethod.Sequenced);
                         foreach (NetPlayer p in m_NetPlayers)
                         {
                             Serializer.WritePlayerIntroductionSync(p.Id, p.Info.Value);
                             netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
                         }
                         Serializer.WriteRecapSync(m_time, from p in m_players select p.RecapInfo);
-                        netPlayer.Peer.Send(NetworkManager.SendMethod.Sequenced);
+                        netPlayer.Peer.Send(NetworkManager.SendMethod.Unreliable);
                     }
                 }
                 break;

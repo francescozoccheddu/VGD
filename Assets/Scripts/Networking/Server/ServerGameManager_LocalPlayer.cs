@@ -1,18 +1,25 @@
-﻿using Wheeled.Gameplay.Movement;
+﻿using UnityEngine;
+using Wheeled.Gameplay.Action;
+using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Server
 {
     internal sealed partial class ServerGameManager
     {
-        private sealed class LocalPlayer : Player, MovementController.ICommitTarget
+        private sealed class LocalPlayer : Player, MovementController.ICommitTarget, ActionController.ITarget
         {
             private readonly MovementController m_movementController;
+            private readonly ActionController m_actionController;
 
             public LocalPlayer(ServerGameManager _manager, byte _id) : base(_manager, _id)
             {
                 m_movementController = new MovementController()
                 {
                     target = this
+                };
+                m_actionController = new ActionController(m_actionHistory)
+                {
+                    Target = this
                 };
             }
 
@@ -26,6 +33,7 @@ namespace Wheeled.Networking.Server
                 m_movementController.UpdateUntil(m_manager.m_time);
                 UpdateView(m_manager.m_time, m_movementController.ViewSnapshot);
                 HandleRespawn();
+                m_actionController.Update();
                 Trim();
             }
 
@@ -44,6 +52,21 @@ namespace Wheeled.Networking.Server
             protected override void SendReplication()
             {
                 m_manager.SendAll(NetworkManager.SendMethod.Unreliable);
+            }
+
+            void ActionController.ITarget.Kaze()
+            {
+                Debug.Log("Kaze");
+            }
+
+            void ActionController.ITarget.ShootRifle(float _power)
+            {
+                Debug.Log("Rifle");
+            }
+
+            void ActionController.ITarget.ShootRocket()
+            {
+                Debug.Log("Rocket");
             }
         }
     }

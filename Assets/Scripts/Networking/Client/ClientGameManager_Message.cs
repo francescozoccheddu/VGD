@@ -88,7 +88,7 @@ namespace Wheeled.Networking.Client
                 case Message.DeathOrderOrReplication:
                 {
                     _reader.ReadDeathOrderOrReplication(out double time, out DeathInfo deathInfo);
-                    GetOrCreatePlayer(deathInfo.deadId).Die(time);
+                    GetOrCreatePlayer(deathInfo.deadId).Die(time, deathInfo.explosion);
                 }
                 break;
 

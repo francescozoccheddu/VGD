@@ -26,9 +26,9 @@ namespace Wheeled.Networking
         public PlayerInfo? Info { get; private set; }
         public int Ping { get; private set; }
 
-        public void Die(double _time)
+        public void Die(double _time, bool _explode)
         {
-            m_actionHistory.PutDeath(_time);
+            m_actionHistory.PutDeath(_time, _explode);
         }
 
         public void Introduce(PlayerInfo _info)

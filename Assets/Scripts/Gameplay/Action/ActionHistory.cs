@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 using Wheeled.Core.Utils;
 
@@ -12,9 +13,8 @@ namespace Wheeled.Gameplay.Action
         private const float c_riflePowerUpTime = 3.0f;
         private const float c_rocketCooldown = 1.0f;
         private readonly LinkedListHistory<double, int> m_deathCountHistory = new LinkedListHistory<double, int>();
-        private readonly LinkedListSimpleHistory<double> m_deathsHistory = new LinkedListSimpleHistory<double>();
         private readonly LinkedListHistory<double, int> m_healthHistory = new LinkedListHistory<double, int>();
-        private readonly LinkedListSimpleHistory<double> m_kazeHistory = new LinkedListSimpleHistory<double>();
+        private readonly LinkedListSimpleHistory<double> m_explosionHistory = new LinkedListSimpleHistory<double>();
         private readonly LinkedListHistory<double, int> m_killCountHistory = new LinkedListHistory<double, int>();
         private readonly LinkedListSimpleHistory<double> m_killsHistory = new LinkedListSimpleHistory<double>();
         private readonly LinkedListSimpleHistory<double> m_rifleShootHistory = new LinkedListSimpleHistory<double>();
@@ -23,6 +23,7 @@ namespace Wheeled.Gameplay.Action
 
         public bool CanShootRifle { get; private set; }
         public bool CanShootRocket { get; private set; }
+        public bool CanKaze { get; private set; }
         public int Deaths { get; private set; }
         public int Health { get; private set; }
         public bool IsAlive => Health > 0;
@@ -31,9 +32,13 @@ namespace Wheeled.Gameplay.Action
         public float RiflePower { get; private set; }
         public bool ShouldSpawn { get; private set; }
 
-        public void PutDeath(double _time)
+        public void PutDeath(double _time, bool _explosion)
         {
             PutHealth(_time, 0);
+            if (_explosion)
+            {
+                m_explosionHistory.Set(_time);
+            }
         }
 
         public void PutDeaths(double _time, int _deaths)
@@ -44,15 +49,11 @@ namespace Wheeled.Gameplay.Action
         public void PutHealth(double _time, int _health)
         {
             m_healthHistory.Set(_time, _health);
-            if (_health <= 0)
-            {
-                m_deathsHistory.Set(_time);
-            }
         }
 
         public void PutKill(double _time)
         {
-            m_killsHistory.Set(_time);
+            m_killsHistory.Add(_time);
         }
 
         public void PutKills(double _time, int _kills)
@@ -86,6 +87,7 @@ namespace Wheeled.Gameplay.Action
         public void Trim(double _time)
         {
             m_healthHistory.ForgetOlder(_time, true);
+            m_explosionHistory.ForgetOlder(_time, true);
             m_rifleShootHistory.ForgetOlder(_time, true);
             m_rocketShootHistory.ForgetOlder(_time, true);
             m_killCountHistory.ForgetOlder(_time, true);
@@ -100,6 +102,7 @@ namespace Wheeled.Gameplay.Action
                 double lastTime = 0.0;
                 bool found = false;
                 bool willSpawn = false;
+                double lastAliveTime = _time;
                 foreach (HistoryNode<double, int> node in m_healthHistory.GetFullReversedSequence())
                 {
                     if (node.time <= _time)
@@ -115,6 +118,7 @@ namespace Wheeled.Gameplay.Action
                         }
                         else
                         {
+                            lastAliveTime = node.time;
                             break;
                         }
                     }
@@ -124,6 +128,7 @@ namespace Wheeled.Gameplay.Action
                     }
                 }
                 ShouldSpawn = Health == 0 && (_time - lastTime) >= c_respawnWaitTime && !willSpawn;
+                CanKaze = IsAlive || m_explosionHistory.GetOrPrevious(_time) < lastAliveTime != true;
             }
             // Stats
             {
@@ -141,13 +146,19 @@ namespace Wheeled.Gameplay.Action
             {
                 HistoryNode<double, int>? node = m_deathCountHistory.GetOrPrevious(_time);
                 Deaths = node?.value ?? 0;
-                foreach (double time in m_deathsHistory.GetReversedSequenceSince(_time, false, true))
+                IEnumerable<HistoryNode<double, int>> sequence = node != null ? m_healthHistory.GetSequenceSince(node.Value.time, true, true) : m_healthHistory.GetFullSequence();
+                bool alive = false;
+                foreach (HistoryNode<double, int> healthNode in sequence)
                 {
-                    if (node?.time >= time)
+                    if (healthNode.time > _time)
                     {
                         break;
                     }
-                    Deaths++;
+                    if (alive && healthNode.value <= 0 && node?.time >= healthNode.time != true)
+                    {
+                        Deaths++;
+                    }
+                    alive = healthNode.value > 0;
                 }
             }
             // Shoots
@@ -180,5 +191,6 @@ namespace Wheeled.Gameplay.Action
             // Quit
             IsQuit = m_quitTime <= _time;
         }
+
     }
 }

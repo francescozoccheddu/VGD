@@ -2,8 +2,18 @@
 
 namespace Wheeled.Gameplay.Action
 {
-    internal static class ActionController
+    internal sealed class ActionController
     {
+
+        private readonly ActionHistory m_actionHistory;
+
+        public ActionController(ActionHistory _actionHistory)
+        {
+            m_actionHistory = _actionHistory;
+        }
+
+        public ITarget Target { get; set; }
+
         public interface ITarget
         {
             void Kaze();
@@ -13,24 +23,22 @@ namespace Wheeled.Gameplay.Action
             void ShootRocket();
         }
 
-        public static void Process(ActionHistory _actionHistory, ITarget _target)
+        public void Update()
         {
-            if (Input.GetButtonDown("ShootRifle"))
+            if (Target != null)
             {
-                if (_actionHistory.CanShootRifle)
+                if (Input.GetButtonDown("ShootRifle") && m_actionHistory.CanShootRifle)
                 {
-                    _target.ShootRifle(_actionHistory.RiflePower);
+                    Target.ShootRifle(m_actionHistory.RiflePower);
                 }
-            }
-            if (Input.GetButtonDown("ShootRocket"))
-            {
-                if (_actionHistory.CanShootRocket)
+                if (Input.GetButtonDown("ShootRocket") && m_actionHistory.CanShootRocket)
                 {
-                    _target.ShootRocket();
+                    Target.ShootRocket();
                 }
-            }
-            if (Input.GetButtonDown("Kaze"))
-            {
+                if (Input.GetButtonDown("Kaze") && m_actionHistory.CanKaze)
+                {
+                    Target.Kaze();
+                }
             }
         }
     }
