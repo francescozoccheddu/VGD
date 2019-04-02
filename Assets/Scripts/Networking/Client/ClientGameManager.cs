@@ -29,7 +29,10 @@ namespace Wheeled.Networking.Client
             m_server = _server;
             m_localPlayer = new LocalPlayer(this, _id)
             {
-                ControllerOffset = 0.5
+                ControllerOffset = 0.5,
+                HistoryDuration = 5.0,
+                MaxMovementInputStepsNotifyCount = 5,
+                MaxMovementNotifyFrequency = 5
             };
             m_players = new Dictionary<byte, Player>
             {
@@ -63,7 +66,11 @@ namespace Wheeled.Networking.Client
             }
             else
             {
-                NetPlayer newNetPlayer = new NetPlayer(this, _id);
+                NetPlayer newNetPlayer = new NetPlayer(this, _id)
+                {
+                    HistoryDuration = 5.0,
+                    HistoryOffset = 0.5,
+                };
                 m_players.Add(_id, newNetPlayer);
                 return newNetPlayer;
             }

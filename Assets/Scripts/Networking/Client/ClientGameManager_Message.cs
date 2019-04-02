@@ -68,15 +68,7 @@ namespace Wheeled.Networking.Client
 
                 case Message.MovementReplication:
                 {
-                    _reader.ReadMovementReplication(out byte id, out int step, out Snapshot snapshot);
-                    NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
-                    player?.Move(step, snapshot);
-                }
-                break;
-
-                case Message.MovementAndInputReplication:
-                {
-                    _reader.ReadMovementAndInputReplication(out byte id, out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
+                    _reader.ReadMovementReplication(out byte id, out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
                     NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
                     player?.Move(step, inputSteps, snapshot);
                 }

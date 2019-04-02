@@ -23,12 +23,6 @@ namespace Wheeled.Networking.Client
 
             public double HistoryOffset { get => m_historyOffset; set { Debug.Assert(value >= 0.0); m_historyOffset = value; } }
 
-            public void Move(int _step, Snapshot _snapshot)
-            {
-                m_movementHistory.Put(_step, _snapshot.simulation);
-                m_movementHistory.Put(_step, _snapshot.sight);
-            }
-
             public void Move(int _step, IEnumerable<InputStep> _reversedInputSteps, Snapshot _snapshot)
             {
                 int step = _step;

@@ -27,8 +27,7 @@ namespace Wheeled.Networking.Server
             }
 
             public double HistoryDuration { get => m_historyDuration; set { Debug.Assert(value >= 0.0); m_historyDuration = value; } }
-            public bool IsMovementInputReplicationEnabled { get; set; }
-            public int MaxMovementInputStepsNotifyCount { get => m_maxMovementInputStepsSendCount; set { Debug.Assert(value >= 0); m_maxMovementInputStepsSendCount = value; } }
+            public int MaxMovementInputStepsReplicationCount { get => m_maxMovementInputStepsSendCount; set { Debug.Assert(value >= 0); m_maxMovementInputStepsSendCount = value; } }
             public double SpawnDelay { get => m_spawnDelay; set { Debug.Assert(value >= 0.0); m_spawnDelay = value; } }
 
             public void Replicate()
@@ -48,20 +47,13 @@ namespace Wheeled.Networking.Server
                     {
                         snapshot.sight = sight.Value;
                     }
-                    if (IsMovementInputReplicationEnabled)
+                    int maxStepsCount = MaxMovementInputStepsReplicationCount;
+                    if (m_lastReplicatedMovementStep != null)
                     {
-                        int maxStepsCount = MaxMovementInputStepsNotifyCount;
-                        if (m_lastReplicatedMovementStep != null)
-                        {
-                            maxStepsCount = Math.Min(maxStepsCount, lastMovementStep - m_lastReplicatedMovementStep.Value);
-                        }
-                        IEnumerable<InputStep> inputSequence = m_inputHistory.GetReversedInputSequence(lastMovementStep, maxStepsCount);
-                        Serializer.WriteMovementAndInputReplication(Id, lastMovementStep, inputSequence, snapshot);
+                        maxStepsCount = Math.Min(maxStepsCount, lastMovementStep - m_lastReplicatedMovementStep.Value);
                     }
-                    else
-                    {
-                        Serializer.WriteMovementReplication(Id, lastMovementStep, snapshot);
-                    }
+                    IEnumerable<InputStep> inputSequence = m_inputHistory.GetReversedInputSequence(lastMovementStep, maxStepsCount);
+                    Serializer.WriteMovementAndInputReplication(Id, lastMovementStep, inputSequence, snapshot);
                     SendReplication();
                 }
             }

@@ -18,7 +18,7 @@ namespace Wheeled.Networking
     internal enum Message
     {
         // Movement
-        MovementNotify, SimulationOrder, MovementReplication, MovementAndInputReplication,
+        MovementNotify, SimulationOrder, MovementReplication,
 
         // Room
         TimeSync, ReadyNotify, PlayerIntroductionSync, PlayerWelcomeSync, RecapSync, QuitReplication,
@@ -159,7 +159,7 @@ namespace Wheeled.Networking
         public static void WriteMovementAndInputReplication(byte _id, int _step, IEnumerable<InputStep> _inputSteps, in Snapshot _snapshot)
         {
             writer.Reset();
-            writer.Put(Message.MovementAndInputReplication);
+            writer.Put(Message.MovementReplication);
             writer.Put(_id);
             writer.Put(_step);
             writer.Put(_snapshot);
@@ -173,15 +173,6 @@ namespace Wheeled.Networking
             writer.Put(_firstStep);
             writer.Put(_snapshot);
             writer.Put(_steps, (_writer, _item) => _writer.Put(_item));
-        }
-
-        public static void WriteMovementReplication(byte _id, int _step, in Snapshot _snapshot)
-        {
-            writer.Reset();
-            writer.Put(Message.MovementReplication);
-            writer.Put(_id);
-            writer.Put(_step);
-            writer.Put(_snapshot);
         }
 
         public static void WriteSimulationCorrection(int _step, in SimulationStepInfo _simulationStepInfo)
@@ -552,7 +543,7 @@ namespace Wheeled.Networking
 
         #region Movement messages
 
-        public void ReadMovementAndInputReplication(out byte _outId, out int _outStep, out IEnumerable<InputStep> _outInputSteps, out Snapshot _snapshot)
+        public void ReadMovementReplication(out byte _outId, out int _outStep, out IEnumerable<InputStep> _outInputSteps, out Snapshot _snapshot)
         {
             _outId = ReadByte();
             _outStep = ReadInt();
@@ -565,13 +556,6 @@ namespace Wheeled.Networking
             _outStep = ReadInt();
             _outSnapshot = ReadSnapshot();
             _outInputSteps = ReadArray(ReadInputStep);
-        }
-
-        public void ReadMovementReplication(out byte _id, out int _step, out Snapshot _snapshot)
-        {
-            _id = ReadByte();
-            _step = ReadInt();
-            _snapshot = ReadSnapshot();
         }
 
         public void ReadSimulationCorrection(out int _outStep, out SimulationStepInfo _outSimulation)

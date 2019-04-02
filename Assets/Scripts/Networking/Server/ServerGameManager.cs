@@ -25,7 +25,12 @@ namespace Wheeled.Networking.Server
                 IsRunning = true
             };
             m_time = 0.0;
-            m_localPlayer = new LocalPlayer(this, 0);
+            m_localPlayer = new LocalPlayer(this, 0)
+            {
+                HistoryDuration = 5.0,
+                MaxMovementInputStepsReplicationCount = 5,
+                SpawnDelay = 0.5
+            };
             m_localPlayer.Introduce(new PlayerInfo());
             m_nextPlayerId = 1;
             m_players = new List<Player>
@@ -165,7 +170,12 @@ namespace Wheeled.Networking.Server
         bool Server.IGameManager.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, Deserializer _reader)
         {
             // TODO decide whether accept it or not
-            NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer);
+            NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer)
+            {
+                HistoryDuration = 5.0,
+                MaxMovementInputStepsReplicationCount = 5,
+                SpawnDelay = 0.5,
+            };
             netPlayer.Introduce(new PlayerInfo());
             m_players.Add(netPlayer);
             return true;
