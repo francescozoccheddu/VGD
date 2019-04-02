@@ -1,46 +1,44 @@
 ﻿using UnityEngine;
+
 using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Action
 {
-
     internal sealed class ActionHistory
     {
-
-        private const float c_rifleCooldown = 1.0f;
-        private const float c_rocketCooldown = 1.0f;
-        private const float c_respawnWaitTime = 2.0f;
-        private const float c_riflePowerUpTime = 3.0f;
         private const int c_fullHealth = 100;
-
-        private readonly LinkedListHistory<double, int> m_healthHistory = new LinkedListHistory<double, int>();
-        private readonly LinkedListHistory<double, int> m_killCountHistory = new LinkedListHistory<double, int>();
+        private const float c_respawnWaitTime = 2.0f;
+        private const float c_rifleCooldown = 1.0f;
+        private const float c_riflePowerUpTime = 3.0f;
+        private const float c_rocketCooldown = 1.0f;
         private readonly LinkedListHistory<double, int> m_deathCountHistory = new LinkedListHistory<double, int>();
+        private readonly LinkedListSimpleHistory<double> m_deathsHistory = new LinkedListSimpleHistory<double>();
+        private readonly LinkedListHistory<double, int> m_healthHistory = new LinkedListHistory<double, int>();
+        private readonly LinkedListSimpleHistory<double> m_kazeHistory = new LinkedListSimpleHistory<double>();
+        private readonly LinkedListHistory<double, int> m_killCountHistory = new LinkedListHistory<double, int>();
+        private readonly LinkedListSimpleHistory<double> m_killsHistory = new LinkedListSimpleHistory<double>();
         private readonly LinkedListSimpleHistory<double> m_rifleShootHistory = new LinkedListSimpleHistory<double>();
         private readonly LinkedListSimpleHistory<double> m_rocketShootHistory = new LinkedListSimpleHistory<double>();
-        private readonly LinkedListSimpleHistory<double> m_killsHistory = new LinkedListSimpleHistory<double>();
-        private readonly LinkedListSimpleHistory<double> m_deathsHistory = new LinkedListSimpleHistory<double>();
-        private readonly LinkedListSimpleHistory<double> m_kazeHistory = new LinkedListSimpleHistory<double>();
         private double? m_quitTime;
 
-        public int Kills { get; private set; }
+        public bool CanShootRifle { get; private set; }
+        public bool CanShootRocket { get; private set; }
         public int Deaths { get; private set; }
         public int Health { get; private set; }
-        public bool ShouldSpawn { get; private set; }
-        public bool CanShootRocket { get; private set; }
-        public bool CanShootRifle { get; private set; }
-        public float RiflePower { get; private set; }
         public bool IsAlive => Health > 0;
         public bool IsQuit { get; private set; }
-
-        public void PutSpawn(double _time)
-        {
-            PutHealth(_time, c_fullHealth);
-        }
+        public int Kills { get; private set; }
+        public float RiflePower { get; private set; }
+        public bool ShouldSpawn { get; private set; }
 
         public void PutDeath(double _time)
         {
             PutHealth(_time, 0);
+        }
+
+        public void PutDeaths(double _time, int _deaths)
+        {
+            m_deathCountHistory.Set(_time, _deaths);
         }
 
         public void PutHealth(double _time, int _health)
@@ -57,14 +55,17 @@ namespace Wheeled.Gameplay.Action
             m_killsHistory.Set(_time);
         }
 
-        public void PutDeaths(double _time, int _deaths)
-        {
-            m_deathCountHistory.Set(_time, _deaths);
-        }
-
         public void PutKills(double _time, int _kills)
         {
             m_killCountHistory.Set(_time, _kills);
+        }
+
+        public void PutQuit(double _time)
+        {
+            if (!(m_quitTime < _time))
+            {
+                m_quitTime = _time;
+            }
         }
 
         public void PutRifleShot(double _time)
@@ -77,12 +78,18 @@ namespace Wheeled.Gameplay.Action
             m_rocketShootHistory.Add(_time);
         }
 
-        public void PutQuit(double _time)
+        public void PutSpawn(double _time)
         {
-            if (!(m_quitTime < _time))
-            {
-                m_quitTime = _time;
-            }
+            PutHealth(_time, c_fullHealth);
+        }
+
+        public void Trim(double _time)
+        {
+            m_healthHistory.ForgetOlder(_time, true);
+            m_rifleShootHistory.ForgetOlder(_time, true);
+            m_rocketShootHistory.ForgetOlder(_time, true);
+            m_killCountHistory.ForgetOlder(_time, true);
+            m_deathCountHistory.ForgetOlder(_time, true);
         }
 
         public void Update(double _time)
@@ -173,16 +180,5 @@ namespace Wheeled.Gameplay.Action
             // Quit
             IsQuit = m_quitTime <= _time;
         }
-
-        public void Trim(double _time)
-        {
-            m_healthHistory.ForgetOlder(_time, true);
-            m_rifleShootHistory.ForgetOlder(_time, true);
-            m_rocketShootHistory.ForgetOlder(_time, true);
-            m_killCountHistory.ForgetOlder(_time, true);
-            m_deathCountHistory.ForgetOlder(_time, true);
-        }
-
     }
-
 }

@@ -1,6 +1,8 @@
 ﻿using System.Net;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
 using Wheeled.Core.Data;
 using Wheeled.Networking;
 using Wheeled.Networking.Client;
@@ -8,27 +10,74 @@ using Wheeled.Networking.Server;
 
 namespace Wheeled.Core
 {
-
     public sealed partial class GameLauncher
     {
-
-        public bool IsBusy => m_host?.IsStarted == true;
-        public bool IsServer { get; private set; }
         private IGameHost m_host;
+        private bool m_isQuitting = false;
 
         public event GameRoomDiscoverEventHandler OnGameRoomDiscovered;
 
-        private void UnregisterHostEvents()
+        public bool IsBusy => m_host?.IsStarted == true;
+        public bool IsServer { get; private set; }
+
+        public void QuitGame()
         {
             if (m_host != null)
             {
-                m_host.OnStopped -= GameStopped;
-                if (m_host is Client client)
+                m_host.Stop();
+                if (!m_isQuitting)
                 {
-                    client.OnConnected -= RoomJoined;
-                    client.OnRoomDiscovered -= RoomDiscovered;
+                    LoadScene(ScriptManager.Scenes.menu);
                 }
             }
+            else
+            {
+                Debug.LogWarning("QuitGame has been ignored because no game is running or a loading is in progress");
+            }
+        }
+
+        public void StartGameAsClient(IPEndPoint _endPoint)
+        {
+            if (!IsBusy)
+            {
+                EnsureClient().Start(_endPoint);
+            }
+            else
+            {
+                Debug.LogWarning("StartGameAsClient has been ignored because a game is running or loading");
+            }
+        }
+
+        public void StartGameAsServer(GameRoomInfo _room)
+        {
+            if (!IsBusy)
+            {
+                EnsureServer().Start(_room);
+                LoadScene(ScriptManager.Scenes.game[0]);
+            }
+            else
+            {
+                Debug.LogWarning("StartGameAsServer has been ignored because a game is running or loading");
+            }
+        }
+
+        public void StartServerDiscovery(int _port)
+        {
+            if (!IsBusy)
+            {
+                EnsureClient().StartRoomDiscovery(_port);
+            }
+            else
+            {
+                Debug.LogWarning("DiscoveryServers has been ignored because a game is running or loading");
+            }
+        }
+
+        private void DestroyHost()
+        {
+            UnregisterHostEvents();
+            m_host?.Stop();
+            m_host = null;
         }
 
         private Client EnsureClient()
@@ -64,64 +113,9 @@ namespace Wheeled.Core
             }
         }
 
-        public void StartGameAsServer(GameRoomInfo _room)
+        private void GameStopped(GameHostStopCause _cause)
         {
-            if (!IsBusy)
-            {
-                EnsureServer().Start(_room);
-                LoadScene(ScriptManager.Scenes.game[0]);
-            }
-            else
-            {
-                Debug.LogWarning("StartGameAsServer has been ignored because a game is running or loading");
-            }
-        }
-
-        public void StartGameAsClient(IPEndPoint _endPoint)
-        {
-            if (!IsBusy)
-            {
-                EnsureClient().Start(_endPoint);
-            }
-            else
-            {
-                Debug.LogWarning("StartGameAsClient has been ignored because a game is running or loading");
-            }
-        }
-
-        public void StartServerDiscovery(int _port)
-        {
-            if (!IsBusy)
-            {
-                EnsureClient().StartRoomDiscovery(_port);
-            }
-            else
-            {
-                Debug.LogWarning("DiscoveryServers has been ignored because a game is running or loading");
-            }
-        }
-
-        private bool m_isQuitting = false;
-
-        private void OnApplicationQuit()
-        {
-            m_isQuitting = true;
-        }
-
-        public void QuitGame()
-        {
-            if (m_host != null)
-            {
-                m_host.Stop();
-                if (!m_isQuitting)
-                {
-                    LoadScene(ScriptManager.Scenes.menu);
-                }
-            }
-            else
-            {
-                Debug.LogWarning("QuitGame has been ignored because no game is running or a loading is in progress");
-            }
+            QuitGame();
         }
 
         private void LoadScene(int _scene)
@@ -129,16 +123,9 @@ namespace Wheeled.Core
             SceneManager.LoadSceneAsync(_scene, LoadSceneMode.Single).completed += SceneLoaded;
         }
 
-        private void DestroyHost()
+        private void OnApplicationQuit()
         {
-            UnregisterHostEvents();
-            m_host?.Stop();
-            m_host = null;
-        }
-
-        private void SceneLoaded(AsyncOperation _operation)
-        {
-            m_host?.GameReady();
+            m_isQuitting = true;
         }
 
         private void RoomDiscovered(GameRoomInfo _room)
@@ -151,11 +138,22 @@ namespace Wheeled.Core
             LoadScene(ScriptManager.Scenes.game[_room.map]);
         }
 
-        private void GameStopped(GameHostStopCause _cause)
+        private void SceneLoaded(AsyncOperation _operation)
         {
-            QuitGame();
+            m_host?.GameReady();
         }
 
+        private void UnregisterHostEvents()
+        {
+            if (m_host != null)
+            {
+                m_host.OnStopped -= GameStopped;
+                if (m_host is Client client)
+                {
+                    client.OnConnected -= RoomJoined;
+                    client.OnRoomDiscovered -= RoomDiscovered;
+                }
+            }
+        }
     }
-
 }

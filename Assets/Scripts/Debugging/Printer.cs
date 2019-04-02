@@ -1,46 +1,17 @@
 ﻿using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace Wheeled.Debugging
 {
     public static class Printer
     {
-
         private static Helper s_printer;
 
-        private sealed class Helper : MonoBehaviour
+        public static void Clear()
         {
-            private const float c_positionX = 5;
-            private const float c_positionY = 5;
-            private const float c_height = 22;
-            private const float c_width = 200;
-
-            public readonly Dictionary<string, object> values = new Dictionary<string, object>();
-
-            private void OnGUI()
-            {
-                int i = 0;
-                foreach (KeyValuePair<string, object> entry in values)
-                {
-                    float y = c_positionY + c_height * i++;
-                    string text = string.Format("{0} = {1}", entry.Key, entry.Value);
-                    GUI.Label(new Rect(c_positionX, y, c_width, c_height), text);
-                }
-            }
-
-        }
-
-        private static void EnsureCreated()
-        {
-            if (s_printer == null)
-            {
-                GameObject gameObject = new GameObject
-                {
-                    name = "Debug printer"
-                };
-                Object.DontDestroyOnLoad(gameObject);
-                s_printer = gameObject.AddComponent<Helper>();
-            }
+            EnsureCreated();
+            s_printer.values.Clear();
         }
 
         public static void Print(string _name, object _value)
@@ -62,11 +33,37 @@ namespace Wheeled.Debugging
             }
         }
 
-        public static void Clear()
+        private static void EnsureCreated()
         {
-            EnsureCreated();
-            s_printer.values.Clear();
+            if (s_printer == null)
+            {
+                GameObject gameObject = new GameObject
+                {
+                    name = "Debug printer"
+                };
+                Object.DontDestroyOnLoad(gameObject);
+                s_printer = gameObject.AddComponent<Helper>();
+            }
         }
 
+        private sealed class Helper : MonoBehaviour
+        {
+            public readonly Dictionary<string, object> values = new Dictionary<string, object>();
+            private const float c_height = 22;
+            private const float c_positionX = 5;
+            private const float c_positionY = 5;
+            private const float c_width = 200;
+
+            private void OnGUI()
+            {
+                int i = 0;
+                foreach (KeyValuePair<string, object> entry in values)
+                {
+                    float y = c_positionY + c_height * i++;
+                    string text = string.Format("{0} = {1}", entry.Key, entry.Value);
+                    GUI.Label(new Rect(c_positionX, y, c_width, c_height), text);
+                }
+            }
+        }
     }
 }

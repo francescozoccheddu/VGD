@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
+
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Gameplay.Action
 {
-
     internal enum DeathCause
     {
         Rifle, Rocket, Kaze
@@ -11,11 +11,21 @@ namespace Wheeled.Gameplay.Action
 
     internal interface IFarce
     {
-
     }
 
-    internal struct KazeInfo
+    internal struct DeathInfo : IFarce
     {
+        public DeathCause cause;
+        public byte deadId;
+        public bool explosion;
+        public byte killerId;
+        public Vector3 position;
+    }
+
+    internal struct GunHitInfo : IFarce
+    {
+        public byte id;
+        public Vector3 normal;
         public Vector3 position;
     }
 
@@ -23,23 +33,14 @@ namespace Wheeled.Gameplay.Action
     {
         public byte id;
         public Vector3 position;
-        public Sight sight;
-        public bool rocket;
         public float power;
+        public bool rocket;
+        public Sight sight;
     }
 
-    internal struct DeathInfo : IFarce
+    internal struct KazeInfo
     {
-        public byte deadId;
-        public byte killerId;
-        public DeathCause cause;
         public Vector3 position;
-        public bool explosion;
-    }
-
-    internal struct SpawnInfo : IFarce
-    {
-        public int spawnPoint;
     }
 
     internal struct LocalDamageInfo : IFarce
@@ -49,14 +50,10 @@ namespace Wheeled.Gameplay.Action
 
     internal struct LocalHitConfirmInfo : IFarce
     {
-
     }
 
-    internal struct GunHitInfo : IFarce
+    internal struct SpawnInfo : IFarce
     {
-        public byte id;
-        public Vector3 position;
-        public Vector3 normal;
+        public int spawnPoint;
     }
-
 }

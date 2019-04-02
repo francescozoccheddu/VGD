@@ -1,30 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay;
-using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Server
 {
-
     internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget
     {
-
-        private const double c_respawnWaitTime = 2.0;
-        private const double c_spawnDelay = 0.5;
-
         private const int c_replicationRate = 10;
-        private const bool c_sendInputReplication = true;
-        private const int c_maxInputSteps = 20;
-
+        private IEnumerable<NetPlayer> m_NetPlayers => m_players.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
+        private readonly List<Player> m_players;
+        private readonly LocalPlayer m_localPlayer;
         private readonly Updatable m_updatable;
-        private readonly List<NetPlayer> m_netPlayers;
         private byte m_nextPlayerId;
-        private float m_timeSinceLastReplication;
-
         private double m_time;
+        private float m_timeSinceLastReplication;
 
         public ServerGameManager()
         {
@@ -33,178 +25,15 @@ namespace Wheeled.Networking.Server
                 IsRunning = true
             };
             m_time = 0.0;
-            // Net players
-            m_netPlayers = new List<NetPlayer>();
+            m_localPlayer = new LocalPlayer(this, 0);
+            m_localPlayer.Introduce(new PlayerInfo());
             m_nextPlayerId = 1;
-            // Local player
-            m_movementController = new MovementController();
-            m_inputHistory = new InputHistory();
-            m_actionHistory = new ActionHistory();
-            m_view = new PlayerView();
-            StartLocalPlayer();
-        }
-
-        private NetPlayer GetNetPlayerByPeer(NetworkManager.Peer _peer)
-        {
-            foreach (NetPlayer player in m_netPlayers)
+            m_players = new List<Player>
             {
-                if (player.peer == _peer)
-                {
-                    return player;
-                }
-            }
-            return null;
+                m_localPlayer
+            };
+            m_localPlayer.Start();
         }
-
-        private bool ProcessPlayerMessage(NetworkManager.Peer _peer, out NetPlayer _outNetPlayer)
-        {
-            _outNetPlayer = GetNetPlayerByPeer(_peer);
-            if (_outNetPlayer == null)
-            {
-                _peer.Disconnect();
-            }
-            return _outNetPlayer != null;
-        }
-
-        #region Server.IGameManager
-
-        void Server.IGameManager.ConnectedTo(NetworkManager.Peer _peer)
-        {
-            if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
-            {
-                // Welcome
-                Serializer.WritePlayerWelcomeSync(netPlayer.id);
-                netPlayer.peer.Send(NetworkManager.SendMethod.ReliableUnordered);
-                // Introduction (so that he knows the others)
-                foreach (NetPlayer p in m_netPlayers)
-                {
-                    if (p != netPlayer)
-                    {
-                        Serializer.WritePlayerIntroductionSync(p.id, p.info);
-                        netPlayer.peer.Send(NetworkManager.SendMethod.ReliableUnordered);
-                    }
-                }
-                // Introduction (so that the others know him)
-                Serializer.WritePlayerIntroductionSync(netPlayer.id, netPlayer.info);
-                SendAllBut(netPlayer.peer, NetworkManager.SendMethod.ReliableUnordered);
-                // Recap
-                PrepareRecapMessage();
-                netPlayer.peer.Send(NetworkManager.SendMethod.Unreliable);
-            }
-        }
-
-        void Server.IGameManager.DisconnectedFrom(NetworkManager.Peer _peer)
-        {
-            for (int i = 0; i < m_netPlayers.Count; i++)
-            {
-                if (m_netPlayers[i].peer == _peer)
-                {
-                    m_netPlayers[i].Destroy();
-                    m_netPlayers.RemoveAt(i);
-                    return;
-                }
-            }
-        }
-
-        void Server.IGameManager.LatencyUpdated(NetworkManager.Peer _peer, float _latency)
-        {
-        }
-
-        private readonly InputStep[] m_inputStepBuffer = new InputStep[c_maxInputSteps];
-
-        void Server.IGameManager.ReceivedFrom(NetworkManager.Peer _peer, Deserializer _reader)
-        {
-            // TODO Catch exception
-            switch (_reader.ReadMessageType())
-            {
-                case Message.MovementNotify:
-                {
-                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
-                    {
-                        _reader.ReadMovementNotify(out int step, out int inputStepCount, m_inputStepBuffer, out Snapshot snapshot);
-                        netPlayer.Move(step, new ArraySegment<InputStep>(m_inputStepBuffer, 0, inputStepCount), snapshot);
-                    }
-                }
-                break;
-                case Message.ReadyNotify:
-                {
-                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
-                    {
-                        netPlayer.Start();
-                        foreach (NetPlayer p in m_netPlayers)
-                        {
-                            Serializer.WritePlayerIntroductionSync(p.id, p.info);
-                            netPlayer.peer.Send(NetworkManager.SendMethod.ReliableUnordered);
-                        }
-                        PrepareRecapMessage();
-                        netPlayer.peer.Send(NetworkManager.SendMethod.Sequenced);
-                    }
-                }
-                break;
-            }
-        }
-
-        bool Server.IGameManager.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, Deserializer _reader)
-        {
-            // TODO decide whether accept it or not
-            NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer, new PlayerInfo());
-            m_netPlayers.Add(netPlayer);
-            return true;
-        }
-
-        bool Server.IGameManager.ShouldReplyToDiscoveryRequest()
-        {
-            return true;
-        }
-
-        void Server.IGameManager.Stopped()
-        {
-            m_updatable.IsRunning = false;
-        }
-
-        #endregion
-
-        #region Room Update
-
-        private const double c_roomUpdatePeriod = 2.0f;
-        private const double c_recapSyncPeriod = 5.0f;
-        private double m_lastTimeSyncTime;
-        private double m_lastRecapSyncTime;
-
-        private void SendRoomSync()
-        {
-            Serializer.WriteTimeSync(m_time);
-            SendAll(NetworkManager.SendMethod.Sequenced);
-        }
-
-        private void PrepareRecapMessage()
-        {
-            IEnumerable<PlayerRecapInfo> GetRecaps()
-            {
-                yield return new PlayerRecapInfo
-                {
-                    id = 0,
-                    kills = 0,
-                    deaths = 0,
-                    health = (byte) m_actionHistory.Health,
-                    ping = 0,
-                };
-                foreach (NetPlayer p in m_netPlayers)
-                {
-                    yield return new PlayerRecapInfo
-                    {
-                        id = p.id,
-                        kills = 0,
-                        deaths = 0,
-                        health = (byte) p.GetHealth(),
-                        ping = (byte) Mathf.Min(Mathf.RoundToInt(p.peer.Ping * 1000.0f), 255),
-                    };
-                }
-            }
-            Serializer.WriteRecapSync(m_time, GetRecaps());
-        }
-
-        #endregion
 
         void Updatable.ITarget.Update()
         {
@@ -219,44 +48,154 @@ namespace Wheeled.Networking.Server
             if (m_lastRecapSyncTime + c_recapSyncPeriod <= m_time)
             {
                 m_lastRecapSyncTime = m_time;
-                PrepareRecapMessage();
+                Serializer.WriteRecapSync(m_time, from p in m_players select p.RecapInfo);
                 SendAll(NetworkManager.SendMethod.Sequenced);
             }
-            UpdateLocalPlayer();
-            foreach (NetPlayer player in m_netPlayers)
+            foreach (Player player in m_players)
             {
                 player.Update();
             }
             if (m_timeSinceLastReplication > 1.0f / c_replicationRate)
             {
                 m_timeSinceLastReplication = 0.0f;
-                ReplicateLocalPlayer(false, true);
-                foreach (NetPlayer player in m_netPlayers)
+                foreach (Player player in m_players)
                 {
-                    player.SendReplication(true, false);
+                    player.Replicate();
                 }
             }
         }
 
+        private NetPlayer GetNetPlayerByPeer(NetworkManager.Peer _peer)
+        {
+            return m_NetPlayers.FirstOrDefault(_p => _p.Peer == _peer);
+        }
+
+        private bool ProcessPlayerMessage(NetworkManager.Peer _peer, out NetPlayer _outNetPlayer)
+        {
+            _outNetPlayer = GetNetPlayerByPeer(_peer);
+            if (_outNetPlayer == null)
+            {
+                _peer.Disconnect();
+            }
+            return _outNetPlayer != null;
+        }
+
         private void SendAll(NetworkManager.SendMethod _method)
         {
-            foreach (NetPlayer netPlayer in m_netPlayers)
+            foreach (NetPlayer netPlayer in m_NetPlayers)
             {
-                netPlayer.peer.Send(_method);
+                netPlayer.Peer.Send(_method);
             }
         }
 
         private void SendAllBut(NetworkManager.Peer _peer, NetworkManager.SendMethod _method)
         {
-            foreach (NetPlayer netPlayer in m_netPlayers)
+            foreach (NetPlayer netPlayer in m_NetPlayers.Where(_p => _p.Peer != _peer))
             {
-                if (netPlayer.peer != _peer)
-                {
-                    netPlayer.peer.Send(_method);
-                }
+                netPlayer.Peer.Send(_method);
             }
         }
 
-    }
+        #region Server.IGameManager
 
+        void Server.IGameManager.ConnectedTo(NetworkManager.Peer _peer)
+        {
+            if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
+            {
+                // Welcome
+                Serializer.WritePlayerWelcomeSync(netPlayer.Id);
+                netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
+                // Introduction (so that he knows the others)
+                foreach (Player p in m_players.Where(_p => _p != netPlayer))
+                {
+                    Serializer.WritePlayerIntroductionSync(p.Id, p.Info.Value);
+                    netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
+                }
+                // Introduction (so that the others know him)
+                Serializer.WritePlayerIntroductionSync(netPlayer.Id, netPlayer.Info.Value);
+                SendAllBut(netPlayer.Peer, NetworkManager.SendMethod.ReliableUnordered);
+                // Recap
+                Serializer.WriteRecapSync(m_time, from p in m_players select p.RecapInfo);
+                netPlayer.Peer.Send(NetworkManager.SendMethod.Unreliable);
+            }
+        }
+
+        void Server.IGameManager.DisconnectedFrom(NetworkManager.Peer _peer)
+        {
+            GetNetPlayerByPeer(_peer)?.Quit(m_time);
+        }
+
+        void Server.IGameManager.LatencyUpdated(NetworkManager.Peer _peer, float _latency)
+        {
+        }
+
+        void Server.IGameManager.ReceivedFrom(NetworkManager.Peer _peer, Deserializer _reader)
+        {
+            // TODO Catch exception
+            switch (_reader.ReadMessageType())
+            {
+                case Message.MovementNotify:
+                {
+                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
+                    {
+                        _reader.ReadMovementNotify(out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
+                        netPlayer.Move(step, inputSteps, snapshot);
+                    }
+                }
+                break;
+
+                case Message.ReadyNotify:
+                {
+                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
+                    {
+                        netPlayer.Start();
+                        foreach (NetPlayer p in m_NetPlayers)
+                        {
+                            Serializer.WritePlayerIntroductionSync(p.Id, p.Info.Value);
+                            netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
+                        }
+                        Serializer.WriteRecapSync(m_time, from p in m_players select p.RecapInfo);
+                        netPlayer.Peer.Send(NetworkManager.SendMethod.Sequenced);
+                    }
+                }
+                break;
+            }
+        }
+
+        bool Server.IGameManager.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, Deserializer _reader)
+        {
+            // TODO decide whether accept it or not
+            NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer);
+            netPlayer.Introduce(new PlayerInfo());
+            m_players.Add(netPlayer);
+            return true;
+        }
+
+        bool Server.IGameManager.ShouldReplyToDiscoveryRequest()
+        {
+            return true;
+        }
+
+        void Server.IGameManager.Stopped()
+        {
+            m_updatable.IsRunning = false;
+        }
+
+        #endregion Server.IGameManager
+
+        #region Room Update
+
+        private const double c_recapSyncPeriod = 5.0f;
+        private const double c_roomUpdatePeriod = 2.0f;
+        private double m_lastRecapSyncTime;
+        private double m_lastTimeSyncTime;
+
+        private void SendRoomSync()
+        {
+            Serializer.WriteTimeSync(m_time);
+            SendAll(NetworkManager.SendMethod.Sequenced);
+        }
+
+        #endregion Room Update
+    }
 }

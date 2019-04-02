@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
+
 using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Movement
 {
     internal sealed class InputHistory
     {
-
         private readonly LinkedListHistory<int, InputStep> m_history;
 
         public InputHistory()
@@ -13,14 +13,33 @@ namespace Wheeled.Gameplay.Movement
             m_history = new LinkedListHistory<int, InputStep>();
         }
 
-        public void Put(int _step, InputStep _inputStep)
+        public void Cut(int _oldest)
         {
-            m_history.Set(_step, _inputStep);
+            m_history.ForgetAndOlder(_oldest);
+        }
+
+        public IEnumerable<InputStep> GetReversedInputSequence(int _step, int _maxLength)
+        {
+            int count = 0;
+            foreach (HistoryNode<int, InputStep> node in m_history.GetReversedSequenceSince(_step, false, false))
+            {
+                if (node.time != _step - count || count >= _maxLength)
+                {
+                    break;
+                }
+                yield return node.value;
+                count++;
+            }
         }
 
         public IEnumerable<HistoryNode<int, InputStep>> GetSequenceSince(int _step, bool _allowBefore, bool _allowAfter)
         {
             return m_history.GetSequenceSince(_step, _allowBefore, _allowAfter);
+        }
+
+        public void Put(int _step, InputStep _inputStep)
+        {
+            m_history.Set(_step, _inputStep);
         }
 
         public SimulationStep SimulateFrom(int _step, SimulationStep _simulation)
@@ -42,33 +61,14 @@ namespace Wheeled.Gameplay.Movement
             return _simulation;
         }
 
-        public void PullReverseInputBuffer(int _step, InputStep[] _dstBuffer, out int _outCount)
+        public void Trim(int _oldest)
         {
-            _outCount = 0;
-            foreach (HistoryNode<int, InputStep> node in m_history.GetReversedSequenceSince(_step, false, false))
-            {
-                if (node.time != _step - _outCount || _outCount >= _dstBuffer.Length)
-                {
-                    break;
-                }
-                _dstBuffer[_outCount++] = node.value;
-            }
+            m_history.ForgetOlder(_oldest, true);
         }
 
         internal void Clear()
         {
             m_history.Clear();
         }
-
-        public void Trim(int _oldest)
-        {
-            m_history.ForgetOlder(_oldest, true);
-        }
-
-        public void Cut(int _oldest)
-        {
-            m_history.ForgetAndOlder(_oldest);
-        }
-
     }
 }

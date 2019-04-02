@@ -2,13 +2,12 @@
 
 namespace Wheeled.Networking.Client
 {
-
     internal sealed partial class Client : Client.IServer, NetworkManager.IEventListener, IGameHost
     {
-
         public interface IServer
         {
             float Ping { get; }
+
             void Send(NetworkManager.SendMethod _method);
         }
 
@@ -21,7 +20,7 @@ namespace Wheeled.Networking.Client
             m_server.Send(_method);
         }
 
-        #endregion
+        #endregion Client.IServer
 
         #region NetworkManager.IEventListener
 
@@ -47,6 +46,11 @@ namespace Wheeled.Networking.Client
         {
             // TODO Parse info
             OnRoomDiscovered?.Invoke(new GameRoomInfo(_endPoint, "", 0));
+        }
+
+        NetworkManager.DiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(Deserializer _reader)
+        {
+            return NetworkManager.DiscoveryRequestAction.Ignore;
         }
 
         void NetworkManager.IEventListener.LatencyUpdated(NetworkManager.Peer _peer, float _latency)
@@ -101,18 +105,11 @@ namespace Wheeled.Networking.Client
             return false;
         }
 
-        NetworkManager.DiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(Deserializer _reader)
-        {
-            return NetworkManager.DiscoveryRequestAction.Ignore;
-        }
-
         void NetworkManager.IEventListener.Stopped(NetworkManager.StopCause _cause)
         {
             NotifyStopped(GameHostStopCause.NetworkError);
         }
 
-        #endregion
-
+        #endregion NetworkManager.IEventListener
     }
-
 }

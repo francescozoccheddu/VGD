@@ -4,24 +4,31 @@ using UnityEngine;
 
 namespace Wheeled.Gameplay.Movement
 {
-
     internal sealed partial class MovementController
     {
+        public bool m_isPartialSimulationEnabled;
+
+        public ICommitTarget target;
+
+        private InputStep m_accumulatedInput;
+
+        private double m_accumulatedTime;
+
+        private SimulationStep m_lastSimulation;
+
+        private Snapshot m_snapshot;
+
+        public MovementController()
+        {
+            m_isPartialSimulationEnabled = true;
+        }
 
         public interface ICommitTarget
         {
+            void Commit(int _step, InputStep _input, Snapshot _snapshot);
 
-            void Commit(int _step, InputStep _input);
             void Cut(int _oldest);
-
         }
-
-        private SimulationStep m_lastSimulation;
-        private InputStep m_accumulatedInput;
-        private double m_accumulatedTime;
-        private Snapshot m_snapshot;
-
-        public bool m_isPartialSimulationEnabled;
 
         public bool IsPartialSimulationEnabled
         {
@@ -33,12 +40,46 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        public double Time { get; private set; }
-        public int Step { get; private set; }
         public bool IsRunning { get; private set; }
         public Snapshot RawSnapshot => m_snapshot;
+        public int Step { get; private set; }
+        public double Time { get; private set; }
         public Snapshot ViewSnapshot { get; private set; }
-        public ICommitTarget target;
+
+        public void Pause()
+        {
+            IsRunning = false;
+        }
+
+        public void StartAt(double _time)
+        {
+            Time = _time;
+            Step = _time.SimulationSteps();
+            m_accumulatedInput = new InputStep();
+            m_accumulatedTime = 0.0f;
+            IsRunning = true;
+        }
+
+        public void Teleport(Snapshot _snapshot, bool _resetInput = false)
+        {
+            m_snapshot = _snapshot;
+            m_lastSimulation = _snapshot.simulation;
+            if (_resetInput)
+            {
+                m_accumulatedInput = new InputStep();
+                m_accumulatedTime = 0.0f;
+            }
+            UpdateView();
+        }
+
+        public void UpdateUntil(double _time)
+        {
+            if (IsRunning)
+            {
+                ProcessInput(_time);
+            }
+            UpdateView();
+        }
 
         private static void ClampMovement(ref float _refX, ref float _refZ)
         {
@@ -59,6 +100,16 @@ namespace Wheeled.Gameplay.Movement
             _outZ = (cos * _forward) - (sin * _right);
         }
 
+        private void CommitInput()
+        {
+            InputStep input = GetAccumulatedInput();
+            m_lastSimulation = m_snapshot.simulation;
+            m_snapshot.simulation = m_snapshot.simulation.Simulate(input, TimeConstants.c_simulationStep);
+            target?.Commit(Step, input, m_snapshot);
+            m_accumulatedInput = new InputStep();
+            m_accumulatedTime = 0.0f;
+        }
+
         private InputStep GetAccumulatedInput()
         {
             InputStep input = m_accumulatedInput;
@@ -69,16 +120,6 @@ namespace Wheeled.Gameplay.Movement
             }
             ClampMovement(ref input.movementX, ref input.movementZ);
             return input;
-        }
-
-        private void CommitInput()
-        {
-            InputStep input = GetAccumulatedInput();
-            m_lastSimulation = m_snapshot.simulation;
-            m_snapshot.simulation = m_snapshot.simulation.Simulate(input, TimeConstants.c_simulationStep);
-            target?.Commit(Step, input);
-            m_accumulatedInput = new InputStep();
-            m_accumulatedTime = 0.0f;
         }
 
         private void ProcessInput(double _now)
@@ -140,47 +181,5 @@ namespace Wheeled.Gameplay.Movement
             }
             ViewSnapshot = viewSnapshot;
         }
-
-        public MovementController()
-        {
-            m_isPartialSimulationEnabled = true;
-        }
-
-        public void StartAt(double _time)
-        {
-            Time = _time;
-            Step = _time.SimulationSteps();
-            m_accumulatedInput = new InputStep();
-            m_accumulatedTime = 0.0f;
-            IsRunning = true;
-        }
-
-        public void Teleport(Snapshot _snapshot, bool _resetInput = false)
-        {
-            m_snapshot = _snapshot;
-            m_lastSimulation = _snapshot.simulation;
-            if (_resetInput)
-            {
-                m_accumulatedInput = new InputStep();
-                m_accumulatedTime = 0.0f;
-            }
-            UpdateView();
-        }
-
-        public void Pause()
-        {
-            IsRunning = false;
-        }
-
-        public void UpdateUntil(double _time)
-        {
-            if (IsRunning)
-            {
-                ProcessInput(_time);
-            }
-            UpdateView();
-        }
-
     }
-
 }

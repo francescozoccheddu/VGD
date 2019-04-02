@@ -1,4 +1,5 @@
 ﻿using LiteNetLib;
+
 using System.Net;
 using System.Net.Sockets;
 
@@ -6,7 +7,6 @@ namespace Wheeled.Networking
 {
     internal sealed partial class NetworkManager : INetEventListener
     {
-
         #region INetEventListener
 
         void INetEventListener.OnConnectionRequest(ConnectionRequest _request)
@@ -49,6 +49,7 @@ namespace Wheeled.Networking
                     case DiscoveryRequestAction.Reply:
                     m_netManager.SendDiscoveryResponse(new byte[0], _remoteEndPoint);
                     break;
+
                     case DiscoveryRequestAction.ReplyWithData:
                     m_netManager.SendDiscoveryResponse(Serializer.writer, _remoteEndPoint);
                     break;
@@ -71,7 +72,5 @@ namespace Wheeled.Networking
         }
     }
 
-    #endregion
-
+    #endregion INetEventListener
 }
-

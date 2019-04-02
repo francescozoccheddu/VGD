@@ -1,45 +1,42 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace Wheeled.Gameplay.Movement
 {
-
     internal sealed class MovementValidator
     {
+        public ICorrectionTarget correctionTarget;
 
-        public interface IValidationTarget
+        public IValidationTarget validationTarget;
+
+        private readonly Node[] m_buffer;
+
+        private SimulationStepInfo m_last;
+
+        private int m_maxTrustedSteps;
+
+        private int m_trustedSteps;
+
+        public MovementValidator(double _duration)
         {
-
-            void Validated(int _step, in InputStep _input, in SimulationStep _simulation);
-
+            m_buffer = new Node[_duration.CeilingSimulationSteps()];
+            MaxTrustedSteps = 2;
         }
 
         public interface ICorrectionTarget
         {
-
             void Corrected(int _step, in SimulationStepInfo _simulation);
+
             void Rejected(int _step, bool _newer);
-
         }
 
-        public int Step { get; private set; }
-        public bool IsRunning { get; set; }
-
-        public IValidationTarget validationTarget;
-        public ICorrectionTarget correctionTarget;
-
-        private struct Node
+        public interface IValidationTarget
         {
-            public InputStep? input;
-            public SimulationStep? simulation;
+            void Validated(int _step, in InputStep _input, in SimulationStep _simulation);
         }
 
-        private readonly Node[] m_buffer;
-        private int m_Length => m_buffer.Length;
-        private SimulationStepInfo m_last;
-        private int m_trustedSteps;
-        private int m_maxTrustedSteps;
+        public bool IsRunning { get; set; }
 
         public int MaxTrustedSteps
         {
@@ -55,22 +52,8 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        private int GetStep(int _step)
-        {
-            return _step % m_Length;
-        }
-
-        public MovementValidator(double _duration)
-        {
-            m_buffer = new Node[_duration.CeilingSimulationSteps()];
-            MaxTrustedSteps = 2;
-        }
-
-        public void SendCorrection()
-        {
-            m_trustedSteps = 0;
-            correctionTarget?.Corrected(Step, m_last);
-        }
+        public int Step { get; private set; }
+        private int m_Length => m_buffer.Length;
 
         public void ClearBuffer()
         {
@@ -78,6 +61,37 @@ namespace Wheeled.Gameplay.Movement
             {
                 m_buffer[i] = new Node();
             }
+        }
+
+        public void Put(int _step, IEnumerable<InputStep> _reversedInputSteps, in SimulationStep _simulation)
+        {
+            int step = _step;
+            foreach (InputStep inputStep in _reversedInputSteps)
+            {
+                if (step < Step)
+                {
+                    correctionTarget?.Rejected(step, false);
+                }
+                else if (step >= Step + m_Length)
+                {
+                    correctionTarget?.Rejected(step, true);
+                }
+                else
+                {
+                    m_buffer[GetStep(step)].input = inputStep;
+                }
+                step--;
+            }
+            if (_step < Step + m_Length)
+            {
+                m_buffer[GetStep(_step)].simulation = _simulation;
+            }
+        }
+
+        public void SendCorrection()
+        {
+            m_trustedSteps = 0;
+            correctionTarget?.Corrected(Step, m_last);
         }
 
         public void SkipTo(int _step, bool _clearBuffer)
@@ -131,29 +145,24 @@ namespace Wheeled.Gameplay.Movement
             m_last.simulation = _simulation;
         }
 
-        public void Put(int _step, IEnumerable<InputStep> _reversedInputSteps, in SimulationStep _simulation)
+        public void UpdateUntil(int _step)
         {
-            int step = _step;
-            foreach (InputStep inputStep in _reversedInputSteps)
+            if (IsRunning)
             {
-                if (step < Step)
+                while (m_buffer[GetStep(Step)].input != null)
                 {
-                    correctionTarget?.Rejected(step, false);
+                    Validate();
                 }
-                else if (step >= Step + m_Length)
+                while (Step < _step)
                 {
-                    correctionTarget?.Rejected(step, true);
+                    Validate();
                 }
-                else
-                {
-                    m_buffer[GetStep(step)].input = inputStep;
-                }
-                step--;
             }
-            if (_step < Step + m_Length)
-            {
-                m_buffer[GetStep(_step)].simulation = _simulation;
-            }
+        }
+
+        private int GetStep(int _step)
+        {
+            return _step % m_Length;
         }
 
         private void Validate()
@@ -184,21 +193,10 @@ namespace Wheeled.Gameplay.Movement
             Step++;
         }
 
-        public void UpdateUntil(int _step)
+        private struct Node
         {
-            if (IsRunning)
-            {
-                while (m_buffer[GetStep(Step)].input != null)
-                {
-                    Validate();
-                }
-                while (Step < _step)
-                {
-                    Validate();
-                }
-            }
+            public InputStep? input;
+            public SimulationStep? simulation;
         }
-
     }
-
 }

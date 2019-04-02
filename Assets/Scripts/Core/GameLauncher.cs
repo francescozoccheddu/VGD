@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
+
 using Wheeled.Networking;
 
 namespace Wheeled.Core
 {
-
     public sealed partial class GameLauncher : MonoBehaviour
     {
-
         private static GameLauncher s_instance;
+
+        private GameLauncher()
+        {
+        }
 
         public static GameLauncher Instance
         {
@@ -25,10 +28,6 @@ namespace Wheeled.Core
             }
         }
 
-        private GameLauncher()
-        {
-        }
-
         public void OnEnable()
         {
             DontDestroyOnLoad(gameObject);
@@ -43,7 +42,5 @@ namespace Wheeled.Core
         {
             NetworkManager.instance.Stop();
         }
-
     }
-
 }

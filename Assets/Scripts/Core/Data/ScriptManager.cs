@@ -2,10 +2,8 @@
 
 namespace Wheeled.Core.Data
 {
-
     internal static class ScriptManager
     {
-
         private static ActorScript s_actors;
         private static SceneScript s_scenes;
 
@@ -32,7 +30,5 @@ namespace Wheeled.Core.Data
                 return s_scenes;
             }
         }
-
     }
-
 }

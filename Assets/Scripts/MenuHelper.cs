@@ -1,17 +1,20 @@
 ﻿using System.Net;
+
 using UnityEngine;
 using UnityEngine.UI;
+
 using Wheeled.Core;
 using Wheeled.Networking;
 
 public sealed class MenuHelper : MonoBehaviour
 {
-
     public Text customClientIPText;
 
-    public void StartServer()
+    public void StartCustomClient()
     {
-        GameLauncher.Instance.StartGameAsServer(new GameRoomInfo(new IPEndPoint(IPAddress.Loopback, 9050), "", 0));
+        string ipText = customClientIPText.text;
+        IPEndPoint ip = new IPEndPoint(IPAddress.Parse(ipText), 9050);
+        GameLauncher.Instance.StartGameAsClient(ip);
     }
 
     public void StartFirstClient()
@@ -21,11 +24,9 @@ public sealed class MenuHelper : MonoBehaviour
         GameLauncher.Instance.StartServerDiscovery(9050);
     }
 
-    public void StartCustomClient()
+    public void StartServer()
     {
-        string ipText = customClientIPText.text;
-        IPEndPoint ip = new IPEndPoint(IPAddress.Parse(ipText), 9050);
-        GameLauncher.Instance.StartGameAsClient(ip);
+        GameLauncher.Instance.StartGameAsServer(new GameRoomInfo(new IPEndPoint(IPAddress.Loopback, 9050), "", 0));
     }
 
     private void GameRoomDiscovered(GameRoomInfo _room)
@@ -33,5 +34,4 @@ public sealed class MenuHelper : MonoBehaviour
         GameLauncher.Instance.StartGameAsClient(_room.endPoint);
         GameLauncher.Instance.OnGameRoomDiscovered -= GameRoomDiscovered;
     }
-
 }

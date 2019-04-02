@@ -2,45 +2,15 @@
 
 namespace Wheeled.Networking.Client
 {
-
     internal sealed partial class Client : IGameHost
     {
-
-        public interface IGameManager
-        {
-
-            void LatencyUpdated(float _latency);
-
-            void Received(Deserializer _reader);
-
-            void Stopped();
-
-        }
-
-        public delegate void ConnectEventHandler(GameRoomInfo _room);
-
-        private NetworkManager.Peer m_server;
-        private bool m_wasStarted;
         private IGameManager m_game;
+
         private byte m_localPlayerId;
 
-        public bool IsStarted => m_server.IsValid;
-        public bool IsPlaying => m_game != null;
-        public bool IsConnected { get; private set; }
-        public GameRoomInfo? RoomInfo { get; private set; }
+        private NetworkManager.Peer m_server;
 
-        public event GameRoomDiscoverEventHandler OnRoomDiscovered;
-        public event ConnectEventHandler OnConnected;
-        public event GameHostStopped OnStopped;
-
-        private void NotifyStopped(GameHostStopCause _cause)
-        {
-            if (m_wasStarted)
-            {
-                m_wasStarted = false;
-                OnStopped?.Invoke(_cause);
-            }
-        }
+        private bool m_wasStarted;
 
         public Client()
         {
@@ -50,6 +20,28 @@ namespace Wheeled.Networking.Client
             IsConnected = false;
             RoomInfo = null;
         }
+
+        public delegate void ConnectEventHandler(GameRoomInfo _room);
+
+        public event ConnectEventHandler OnConnected;
+
+        public event GameRoomDiscoverEventHandler OnRoomDiscovered;
+
+        public event GameHostStopped OnStopped;
+
+        public interface IGameManager
+        {
+            void LatencyUpdated(float _latency);
+
+            void Received(Deserializer _reader);
+
+            void Stopped();
+        }
+
+        public bool IsConnected { get; private set; }
+        public bool IsPlaying => m_game != null;
+        public bool IsStarted => m_server.IsValid;
+        public GameRoomInfo? RoomInfo { get; private set; }
 
         public void Start(IPEndPoint _endPoint)
         {
@@ -63,27 +55,11 @@ namespace Wheeled.Networking.Client
             m_wasStarted = true;
         }
 
-        private void Cleanup()
-        {
-            m_server.Disconnect();
-            m_server = new NetworkManager.Peer();
-            m_game?.Stopped();
-            m_game = null;
-            IsConnected = false;
-            RoomInfo = null;
-        }
-
         public void StartRoomDiscovery(int _port)
         {
             NetworkManager.instance.listener = this;
             NetworkManager.instance.StartOnAvailablePort();
             NetworkManager.instance.StartDiscovery(_port, false);
-        }
-
-        void IGameHost.Stop()
-        {
-            Cleanup();
-            NotifyStopped(GameHostStopCause.Programmatically);
         }
 
         void IGameHost.GameReady()
@@ -94,6 +70,29 @@ namespace Wheeled.Networking.Client
             }
         }
 
-    }
+        void IGameHost.Stop()
+        {
+            Cleanup();
+            NotifyStopped(GameHostStopCause.Programmatically);
+        }
 
+        private void Cleanup()
+        {
+            m_server.Disconnect();
+            m_server = new NetworkManager.Peer();
+            m_game?.Stopped();
+            m_game = null;
+            IsConnected = false;
+            RoomInfo = null;
+        }
+
+        private void NotifyStopped(GameHostStopCause _cause)
+        {
+            if (m_wasStarted)
+            {
+                m_wasStarted = false;
+                OnStopped?.Invoke(_cause);
+            }
+        }
+    }
 }

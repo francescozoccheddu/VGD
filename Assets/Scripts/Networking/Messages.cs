@@ -1,14 +1,16 @@
 ﻿using LiteNetLib.Utils;
+
 using System;
 using System.Collections.Generic;
+
 using UnityEngine;
+
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking
 {
-
     // Notify: Client tells Server
     // Replication: Server tells Client about someone else
     // Order: Server tells Client about itself
@@ -17,24 +19,25 @@ namespace Wheeled.Networking
     {
         // Movement
         MovementNotify, SimulationOrder, MovementReplication, MovementAndInputReplication,
+
         // Room
         TimeSync, ReadyNotify, PlayerIntroductionSync, PlayerWelcomeSync, RecapSync, QuitReplication,
+
         // Actions
-        SpawnOrder, DeathOrder, SpawnReplication, KazeNotify, GunShotNotify, DeathOrderOrReplication, SpawnOrderOrReplication, GunShotReplication, GunHitOrderOrReplication, HitConfirmOrder
+        KazeNotify, GunShotNotify, DeathOrderOrReplication, SpawnOrderOrReplication, GunShotReplication, GunHitOrderOrReplication, HitConfirmOrder
     }
 
     internal struct PlayerRecapInfo
     {
-        public byte id;
-        public int kills;
         public int deaths;
         public byte health;
+        public byte id;
+        public int kills;
         public byte ping;
     }
 
     internal static class Serializer
     {
-
         public static readonly NetDataWriter writer = new NetDataWriter(true, 128);
 
         #region Primitive put extension methods
@@ -132,29 +135,44 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.normal);
         }
 
-        #endregion
+        private static void Put<T>(this NetDataWriter _netDataWriter, IEnumerable<T> _value, Action<NetDataWriter, T> _put)
+        {
+            int countPosition = _netDataWriter.Length;
+            _netDataWriter.Put((byte) 0);
+            int count = 0;
+            foreach (T item in _value)
+            {
+                count++;
+                _put(_netDataWriter, item);
+                if (count >= 255)
+                {
+                    break;
+                }
+            }
+            writer.Data[countPosition] = (byte) count;
+        }
+
+        #endregion Primitive put extension methods
 
         #region Movement messages
 
-        public static void WriteMovementNotify(int _firstStep, IReadOnlyList<InputStep> _steps, in Snapshot _snapshot)
+        public static void WriteMovementAndInputReplication(byte _id, int _step, IEnumerable<InputStep> _inputSteps, in Snapshot _snapshot)
+        {
+            writer.Reset();
+            writer.Put(Message.MovementAndInputReplication);
+            writer.Put(_id);
+            writer.Put(_step);
+            writer.Put(_snapshot);
+            writer.Put(_inputSteps, (_writer, _item) => _writer.Put(_item));
+        }
+
+        public static void WriteMovementNotify(int _firstStep, IEnumerable<InputStep> _steps, in Snapshot _snapshot)
         {
             writer.Reset();
             writer.Put(Message.MovementNotify);
             writer.Put(_firstStep);
             writer.Put(_snapshot);
-            writer.Put((byte) _steps.Count);
-            foreach (InputStep inputStep in _steps)
-            {
-                writer.Put(inputStep);
-            }
-        }
-
-        public static void WriteSimulationCorrection(int _step, in SimulationStepInfo _simulationStepInfo)
-        {
-            writer.Reset();
-            writer.Put(Message.SimulationOrder);
-            writer.Put(_step);
-            writer.Put(_simulationStepInfo);
+            writer.Put(_steps, (_writer, _item) => _writer.Put(_item));
         }
 
         public static void WriteMovementReplication(byte _id, int _step, in Snapshot _snapshot)
@@ -166,86 +184,22 @@ namespace Wheeled.Networking
             writer.Put(_snapshot);
         }
 
-        public static void WriteMovementAndInputReplication(byte _id, int _step, IReadOnlyList<InputStep> _inputSteps, in Snapshot _snapshot)
+        public static void WriteSimulationCorrection(int _step, in SimulationStepInfo _simulationStepInfo)
         {
             writer.Reset();
-            writer.Put(Message.MovementAndInputReplication);
-            writer.Put(_id);
+            writer.Put(Message.SimulationOrder);
             writer.Put(_step);
-            writer.Put(_snapshot);
-            writer.Put((byte) _inputSteps.Count);
-            foreach (InputStep inputStep in _inputSteps)
-            {
-                writer.Put(inputStep);
-            }
+            writer.Put(_simulationStepInfo);
         }
 
-        #endregion
+        #endregion Movement messages
 
         #region Action messages
-        public static void WriteSpawnOrder(double _time, byte _spawnPoint)
-        {
-            writer.Reset();
-            writer.Put(Message.SpawnOrder);
-            writer.Put(_time);
-            writer.Put(_spawnPoint);
-        }
-
-        public static void WriteDeathOrder(double _time)
-        {
-            writer.Reset();
-            writer.Put(Message.DeathOrder);
-            writer.Put(_time);
-        }
-
-        public static void WriteSpawnReplication(double _time, byte _id, byte _spawnPoint)
-        {
-            writer.Reset();
-            writer.Put(Message.SpawnReplication);
-            writer.Put(_time);
-            writer.Put(_id);
-            writer.Put(_spawnPoint);
-        }
-
-        public static void WriteKazeNotify(double _time, KazeInfo _info)
-        {
-            writer.Reset();
-            writer.Put(Message.KazeNotify);
-            writer.Put(_time);
-            writer.Put(_info);
-        }
-
-        public static void WriteGunShotNotify(double _time, Vector3 _position, Sight _sight, bool _isRocket)
-        {
-            writer.Reset();
-            writer.Put(Message.GunShotNotify);
-            writer.Put(_time);
-            writer.Put(_position);
-            writer.Put(_sight);
-            writer.Put(_isRocket);
-        }
 
         public static void WriteDeathOrderOrReplication(double _time, DeathInfo _info)
         {
             writer.Reset();
             writer.Put(Message.DeathOrderOrReplication);
-            writer.Put(_time);
-            writer.Put(_info);
-        }
-
-        public static void WriteSpawnOrderOrReplication(double _time, byte _id, SpawnInfo _info)
-        {
-            writer.Reset();
-            writer.Put(Message.SpawnOrderOrReplication);
-            writer.Put(_time);
-            writer.Put(_id);
-            writer.Put(_info);
-        }
-
-        public static void WriteGunShotReplication(double _time, GunShotInfo _info)
-        {
-            writer.Reset();
-            writer.Put(Message.GunShotReplication);
             writer.Put(_time);
             writer.Put(_info);
         }
@@ -259,32 +213,53 @@ namespace Wheeled.Networking
             writer.Put(_info);
         }
 
+        public static void WriteGunShotNotify(double _time, Vector3 _position, Sight _sight, bool _isRocket)
+        {
+            writer.Reset();
+            writer.Put(Message.GunShotNotify);
+            writer.Put(_time);
+            writer.Put(_position);
+            writer.Put(_sight);
+            writer.Put(_isRocket);
+        }
+
+        public static void WriteGunShotReplication(double _time, GunShotInfo _info)
+        {
+            writer.Reset();
+            writer.Put(Message.GunShotReplication);
+            writer.Put(_time);
+            writer.Put(_info);
+        }
+
         public static void WriteHitConfirmOrder(double _time)
         {
             writer.Reset();
             writer.Put(Message.HitConfirmOrder);
             writer.Put(_time);
         }
-        #endregion
+
+        public static void WriteKazeNotify(double _time, KazeInfo _info)
+        {
+            writer.Reset();
+            writer.Put(Message.KazeNotify);
+            writer.Put(_time);
+            writer.Put(_info);
+        }
+
+        public static void WriteSpawnOrderOrReplication(double _time, byte _id, SpawnInfo _info)
+        {
+            writer.Reset();
+            writer.Put(Message.SpawnOrderOrReplication);
+            writer.Put(_time);
+            writer.Put(_id);
+            writer.Put(_info);
+        }
+
+        #endregion Action messages
 
         #region Room messages
+
         private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double)];
-
-        public static void WriteTimeSync(double _time)
-        {
-            writer.Reset();
-            writer.Put(Message.TimeSync);
-            writer.Put(_time);
-            // Checksum
-            ulong bytes = Convert.ToUInt64(_time);
-            writer.Put(~bytes);
-        }
-
-        public static void WriteReady()
-        {
-            writer.Reset();
-            writer.Put(Message.ReadyNotify);
-        }
 
         public static void WritePlayerIntroductionSync(byte _id, PlayerInfo _info)
         {
@@ -305,22 +280,6 @@ namespace Wheeled.Networking
             writer.Put((byte) (255 - _id));
         }
 
-        public static void WriteRecapSync(double _time, IEnumerable<PlayerRecapInfo> _recaps)
-        {
-            writer.Reset();
-            writer.Put(Message.RecapSync);
-            writer.Put(_time);
-            int countPosition = writer.Length;
-            writer.Put(0);
-            int count = 0;
-            foreach (PlayerRecapInfo recap in _recaps)
-            {
-                writer.Put(recap);
-                count++;
-            }
-            writer.Data[countPosition] = (byte) count;
-        }
-
         public static void WriteQuitReplication(double _time, byte _id)
         {
             writer.Reset();
@@ -328,12 +287,36 @@ namespace Wheeled.Networking
             writer.Put(_time);
             writer.Put(_id);
         }
-        #endregion
+
+        public static void WriteReady()
+        {
+            writer.Reset();
+            writer.Put(Message.ReadyNotify);
+        }
+
+        public static void WriteRecapSync(double _time, IEnumerable<PlayerRecapInfo> _recaps)
+        {
+            writer.Reset();
+            writer.Put(Message.RecapSync);
+            writer.Put(_time);
+            writer.Put(_recaps, (_writer, _item) => _writer.Put(_item));
+        }
+
+        public static void WriteTimeSync(double _time)
+        {
+            writer.Reset();
+            writer.Put(Message.TimeSync);
+            writer.Put(_time);
+            // Checksum
+            ulong bytes = Convert.ToUInt64(_time);
+            writer.Put(~bytes);
+        }
+
+        #endregion Room messages
     }
 
     internal sealed class Deserializer
     {
-
         #region Logic and Data
 
         private readonly NetDataReader m_netDataReader;
@@ -342,8 +325,6 @@ namespace Wheeled.Networking
         {
             m_netDataReader = _netDataReader;
         }
-
-        public sealed class DeserializationException : Exception { }
 
         private static void EnsureRead(bool _read)
         {
@@ -358,49 +339,29 @@ namespace Wheeled.Networking
             EnsureRead(m_netDataReader.EndOfData);
         }
 
-        #endregion
+        public sealed class DeserializationException : Exception { }
+
+        #endregion Logic and Data
 
         #region Primitive read methods
+
+        public Message ReadMessageType()
+        {
+            return ReadEnum<Message>();
+        }
+
+        private IEnumerable<T> ReadArray<T>(Func<T> _read)
+        {
+            int count = ReadByte();
+            while (count-- > 0)
+            {
+                yield return _read();
+            }
+        }
 
         private bool ReadBool()
         {
             EnsureRead(m_netDataReader.TryGetBool(out bool value));
-            return value;
-        }
-
-        private float ReadFloat()
-        {
-            EnsureRead(m_netDataReader.TryGetFloat(out float value));
-            return value;
-        }
-
-        private double ReadDouble()
-        {
-            EnsureRead(m_netDataReader.TryGetDouble(out double value));
-            return value;
-        }
-
-        private ulong ReadULong()
-        {
-            EnsureRead(m_netDataReader.TryGetULong(out ulong value));
-            return value;
-        }
-
-        private uint ReadUint()
-        {
-            EnsureRead(m_netDataReader.TryGetUInt(out uint value));
-            return value;
-        }
-
-        private int ReadInt()
-        {
-            EnsureRead(m_netDataReader.TryGetInt(out int value));
-            return value;
-        }
-
-        private ushort ReadUShort()
-        {
-            EnsureRead(m_netDataReader.TryGetUShort(out ushort value));
             return value;
         }
 
@@ -410,9 +371,21 @@ namespace Wheeled.Networking
             return value;
         }
 
-        private string ReadString()
+        private DeathInfo ReadDeathInfo()
         {
-            EnsureRead(m_netDataReader.TryGetString(out string value));
+            return new DeathInfo
+            {
+                deadId = ReadByte(),
+                killerId = ReadByte(),
+                cause = ReadEnum<DeathCause>(),
+                position = ReadVector3(),
+                explosion = ReadBool()
+            };
+        }
+
+        private double ReadDouble()
+        {
+            EnsureRead(m_netDataReader.TryGetDouble(out double value));
             return value;
         }
 
@@ -424,13 +397,31 @@ namespace Wheeled.Networking
             return (T) value;
         }
 
-        private Vector3 ReadVector3()
+        private float ReadFloat()
         {
-            return new Vector3
+            EnsureRead(m_netDataReader.TryGetFloat(out float value));
+            return value;
+        }
+
+        private GunHitInfo ReadGunHitInfo()
+        {
+            return new GunHitInfo
             {
-                x = ReadFloat(),
-                y = ReadFloat(),
-                z = ReadFloat()
+                id = ReadByte(),
+                position = ReadVector3(),
+                normal = ReadVector3()
+            };
+        }
+
+        private GunShotInfo ReadGunShotInfo()
+        {
+            return new GunShotInfo
+            {
+                id = ReadByte(),
+                position = ReadVector3(),
+                sight = ReadSight(),
+                rocket = ReadBool(),
+                power = ReadFloat()
             };
         }
 
@@ -445,39 +436,17 @@ namespace Wheeled.Networking
             };
         }
 
-        private SimulationStep ReadSimulationStep()
+        private int ReadInt()
         {
-            return new SimulationStep
+            EnsureRead(m_netDataReader.TryGetInt(out int value));
+            return value;
+        }
+
+        private KazeInfo ReadKazeInfo()
+        {
+            return new KazeInfo
             {
-                velocity = ReadVector3(),
                 position = ReadVector3()
-            };
-        }
-
-        private SimulationStepInfo ReadSimulationStepInfo()
-        {
-            return new SimulationStepInfo
-            {
-                input = ReadInputStep(),
-                simulation = ReadSimulationStep()
-            };
-        }
-
-        private Sight ReadSight()
-        {
-            return new Sight
-            {
-                Turn = ReadFloat(),
-                LookUp = ReadFloat(),
-            };
-        }
-
-        private Snapshot ReadSnapshot()
-        {
-            return new Snapshot
-            {
-                simulation = ReadSimulationStep(),
-                sight = ReadSight()
             };
         }
 
@@ -501,33 +470,39 @@ namespace Wheeled.Networking
             };
         }
 
-        public Message ReadMessageType()
+        private Sight ReadSight()
         {
-            return ReadEnum<Message>();
-        }
-
-        public DeathCause ReadDeathCauseType()
-        {
-            return ReadEnum<DeathCause>();
-        }
-
-        private KazeInfo ReadKazeInfo()
-        {
-            return new KazeInfo
+            return new Sight
             {
+                Turn = ReadFloat(),
+                LookUp = ReadFloat(),
+            };
+        }
+
+        private SimulationStep ReadSimulationStep()
+        {
+            return new SimulationStep
+            {
+                velocity = ReadVector3(),
                 position = ReadVector3()
             };
         }
 
-        private DeathInfo ReadDeathInfo()
+        private SimulationStepInfo ReadSimulationStepInfo()
         {
-            return new DeathInfo
+            return new SimulationStepInfo
             {
-                deadId = ReadByte(),
-                killerId = ReadByte(),
-                cause = ReadDeathCauseType(),
-                position = ReadVector3(),
-                explosion = ReadBool()
+                input = ReadInputStep(),
+                simulation = ReadSimulationStep()
+            };
+        }
+
+        private Snapshot ReadSnapshot()
+        {
+            return new Snapshot
+            {
+                simulation = ReadSimulationStep(),
+                sight = ReadSight()
             };
         }
 
@@ -539,47 +514,57 @@ namespace Wheeled.Networking
             };
         }
 
-        private GunShotInfo ReadGunShotInfo()
+        private string ReadString()
         {
-            return new GunShotInfo
+            EnsureRead(m_netDataReader.TryGetString(out string value));
+            return value;
+        }
+
+        private uint ReadUint()
+        {
+            EnsureRead(m_netDataReader.TryGetUInt(out uint value));
+            return value;
+        }
+
+        private ulong ReadULong()
+        {
+            EnsureRead(m_netDataReader.TryGetULong(out ulong value));
+            return value;
+        }
+
+        private ushort ReadUShort()
+        {
+            EnsureRead(m_netDataReader.TryGetUShort(out ushort value));
+            return value;
+        }
+
+        private Vector3 ReadVector3()
+        {
+            return new Vector3
             {
-                id = ReadByte(),
-                position = ReadVector3(),
-                sight = ReadSight(),
-                rocket = ReadBool(),
-                power = ReadFloat()
+                x = ReadFloat(),
+                y = ReadFloat(),
+                z = ReadFloat()
             };
         }
 
-        private GunHitInfo ReadGunHitInfo()
-        {
-            return new GunHitInfo
-            {
-                id = ReadByte(),
-                position = ReadVector3(),
-                normal = ReadVector3()
-            };
-        }
-
-        #endregion
+        #endregion Primitive read methods
 
         #region Movement messages
 
-        public void ReadMovementNotify(out int _outStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _outSnapshot)
+        public void ReadMovementAndInputReplication(out byte _outId, out int _outStep, out IEnumerable<InputStep> _outInputSteps, out Snapshot _snapshot)
+        {
+            _outId = ReadByte();
+            _outStep = ReadInt();
+            _snapshot = ReadSnapshot();
+            _outInputSteps = ReadArray(ReadInputStep);
+        }
+
+        public void ReadMovementNotify(out int _outStep, out IEnumerable<InputStep> _outInputSteps, out Snapshot _outSnapshot)
         {
             _outStep = ReadInt();
             _outSnapshot = ReadSnapshot();
-            _outInputStepCount = ReadByte();
-            for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
-            {
-                _inputStepBuffer[i] = ReadInputStep();
-            }
-        }
-
-        public void ReadSimulationCorrection(out int _outStep, out SimulationStepInfo _outSimulation)
-        {
-            _outStep = ReadInt();
-            _outSimulation = ReadSimulationStepInfo();
+            _outInputSteps = ReadArray(ReadInputStep);
         }
 
         public void ReadMovementReplication(out byte _id, out int _step, out Snapshot _snapshot)
@@ -589,45 +574,32 @@ namespace Wheeled.Networking
             _snapshot = ReadSnapshot();
         }
 
-        public void ReadMovementAndInputReplication(out byte _outId, out int _outStep, out int _outInputStepCount, InputStep[] _inputStepBuffer, out Snapshot _snapshot)
+        public void ReadSimulationCorrection(out int _outStep, out SimulationStepInfo _outSimulation)
         {
-            _outId = ReadByte();
             _outStep = ReadInt();
-            _snapshot = ReadSnapshot();
-            _outInputStepCount = ReadByte();
-            for (int i = 0; i < _outInputStepCount && i < _inputStepBuffer.Length; i++)
-            {
-                _inputStepBuffer[i] = ReadInputStep();
-            }
+            _outSimulation = ReadSimulationStepInfo();
         }
 
-        #endregion
+        #endregion Movement messages
 
         #region Action messages
-
-        public void ReadSpawnOrder(out double _outTime, out byte _outSpawnPoint)
-        {
-            _outTime = ReadDouble();
-            _outSpawnPoint = ReadByte();
-        }
 
         public void ReadDeathOrder(out double _outTime)
         {
             _outTime = ReadDouble();
         }
 
-        public void ReadSpawnReplication(out double _outTime, out byte _outId, out byte _outSpawnPoint)
+        public void ReadDeathOrderOrReplication(out double _outTime, out DeathInfo _outDeathInfo)
         {
             _outTime = ReadDouble();
-            _outId = ReadByte();
-            _outSpawnPoint = ReadByte();
-            EnsureReadEnd();
+            _outDeathInfo = ReadDeathInfo();
         }
 
-        public void ReadKazeNotify(out double _outTime, out KazeInfo _outKazeInfo)
+        public void ReadGunHitOrderOrReplication(out double _outTime, out bool _outIsOrder, out GunHitInfo _outGunHitInfo)
         {
             _outTime = ReadDouble();
-            _outKazeInfo = ReadKazeInfo();
+            _outIsOrder = ReadBool();
+            _outGunHitInfo = ReadGunHitInfo();
         }
 
         public void ReadGunShotNotify(out double _outTime, out Vector3 _outPosition, out Sight _outSight, out bool _outIsRocket)
@@ -638,10 +610,27 @@ namespace Wheeled.Networking
             _outIsRocket = ReadBool();
         }
 
-        public void ReadDeathOrderOrReplication(out double _outTime, out DeathInfo _outDeathInfo)
+        public void ReadGunShotReplication(out double _outTime, out GunShotInfo _outGunShotInfo)
         {
             _outTime = ReadDouble();
-            _outDeathInfo = ReadDeathInfo();
+            _outGunShotInfo = ReadGunShotInfo();
+        }
+
+        public void ReadHitConfirmOrder(out double _outTime)
+        {
+            _outTime = ReadDouble();
+        }
+
+        public void ReadKazeNotify(out double _outTime, out KazeInfo _outKazeInfo)
+        {
+            _outTime = ReadDouble();
+            _outKazeInfo = ReadKazeInfo();
+        }
+
+        public void ReadSpawnOrder(out double _outTime, out byte _outSpawnPoint)
+        {
+            _outTime = ReadDouble();
+            _outSpawnPoint = ReadByte();
         }
 
         public void ReadSpawnOrderOrReplication(out double _outTime, out byte _outId, out SpawnInfo _outSpawnInfo)
@@ -651,52 +640,31 @@ namespace Wheeled.Networking
             _outSpawnInfo = ReadSpawnInfo();
         }
 
-        public void ReadGunShotReplication(out double _outTime, out GunShotInfo _outGunShotInfo)
+        public void ReadSpawnReplication(out double _outTime, out byte _outId, out byte _outSpawnPoint)
         {
             _outTime = ReadDouble();
-            _outGunShotInfo = ReadGunShotInfo();
+            _outId = ReadByte();
+            _outSpawnPoint = ReadByte();
+            EnsureReadEnd();
         }
 
-        public void ReadGunHitOrderOrReplication(out double _outTime, out bool _outIsOrder, out GunHitInfo _outGunHitInfo)
-        {
-            _outTime = ReadDouble();
-            _outIsOrder = ReadBool();
-            _outGunHitInfo = ReadGunHitInfo();
-        }
-
-        public void ReadHitConfirmOrder(out double _outTime)
-        {
-            _outTime = ReadDouble();
-        }
-        #endregion
+        #endregion Action messages
 
         #region Room messages
 
         private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double) + sizeof(ushort)];
 
-        public void ReadTimeSync(out double _time)
+        public void ReadPlayerIntroduction(out byte _outId, out PlayerInfo _outInfo)
         {
-            _time = ReadDouble();
-            // Checksum
-            ulong bytes = Convert.ToUInt64(_time);
-            EnsureRead(bytes == ~ReadULong());
-            EnsureReadEnd();
+            _outId = ReadByte();
+            _outInfo = ReadPlayerInfo();
         }
 
         public void ReadPlayerSync(out double _outTime, out IEnumerable<PlayerRecapInfo> _outInfos)
         {
             _outTime = ReadDouble();
-            int count = ReadByte();
-            IEnumerable<PlayerRecapInfo> GetInfos()
-            {
-                while (count-- > 0)
-                {
-                    yield return ReadPlayerRecapInfo();
-                }
-            };
-            _outInfos = GetInfos();
+            _outInfos = ReadArray(ReadPlayerRecapInfo);
         }
-
 
         public void ReadPlayerWelcomeSync(out byte _outId)
         {
@@ -708,34 +676,27 @@ namespace Wheeled.Networking
             EnsureReadEnd();
         }
 
-        public void ReadPlayerIntroduction(out byte _outId, out PlayerInfo _outInfo)
-        {
-            _outId = ReadByte();
-            _outInfo = ReadPlayerInfo();
-        }
-
-        public void ReadRecapSync(out double _outTime, out IEnumerable<PlayerRecapInfo> _outInfos)
-        {
-            _outTime = ReadDouble();
-            IEnumerable<PlayerRecapInfo> GetInfos()
-            {
-                int count = ReadByte();
-                while (count-- > 0)
-                {
-                    yield return ReadPlayerRecapInfo();
-                }
-            }
-            _outInfos = GetInfos();
-        }
-
         public void ReadQuitReplication(out double _outTime, out byte _outId)
         {
             _outTime = ReadDouble();
             _outId = ReadByte();
         }
 
-        #endregion
+        public void ReadRecapSync(out double _outTime, out IEnumerable<PlayerRecapInfo> _outInfos)
+        {
+            _outTime = ReadDouble();
+            _outInfos = ReadArray(ReadPlayerRecapInfo);
+        }
 
+        public void ReadTimeSync(out double _time)
+        {
+            _time = ReadDouble();
+            // Checksum
+            ulong bytes = Convert.ToUInt64(_time);
+            EnsureRead(bytes == ~ReadULong());
+            EnsureReadEnd();
+        }
+
+        #endregion Room messages
     }
-
 }

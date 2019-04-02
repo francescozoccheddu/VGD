@@ -1,76 +1,85 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
-using Wheeled.Gameplay;
-using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Client
 {
-
-    internal sealed partial class ClientGameManager : MovementController.ICommitTarget
+    internal sealed partial class ClientGameManager
     {
-
-        private const float c_controllerOffset = 0.5f;
-        private const int c_controllerSendFrequency = 10;
-
-        // Components
-        private readonly MovementController m_localMovementController;
-        private readonly InputHistory m_localInputHistory;
-        private readonly PlayerView m_localPlayerView;
-        private readonly ActionHistory m_localActionHistory;
-        // Replication
-        private readonly byte m_localPlayerId;
-        private int m_lastSendStep;
-        private float m_timeSinceLastSend;
-
-        #region MovementController.ICommitTarget
-
-        void MovementController.ICommitTarget.Commit(int _step, InputStep _input)
+        private sealed class LocalPlayer : Player, MovementController.ICommitTarget
         {
-            m_localInputHistory.Put(_step, _input);
-        }
+            private readonly MovementController m_movementController;
+            private double m_controllerOffset;
+            private int? m_lastNotifiedMovementStep;
+            private int m_maxMovementInputStepsSendCount;
+            private int m_movementSendRate;
+            private float m_timeSinceLastMovementNotify;
 
-        void MovementController.ICommitTarget.Cut(int _oldest)
-        {
-            m_localInputHistory.Cut(_oldest);
-        }
-
-        #endregion
-
-        private void ScheduleLocalPlayerSend()
-        {
-            m_lastSendStep = -1;
-        }
-
-        private void SyncLocalPlayer(double _time, int _kills, int _deaths, int _health)
-        {
-            m_localActionHistory.PutHealth(_time, _health);
-            m_localActionHistory.PutKills(_time, _kills);
-            m_localActionHistory.PutDeaths(_time, _deaths);
-        }
-
-        private void UpdateLocalPlayer()
-        {
-            m_localActionHistory.Update(m_time + c_controllerOffset);
-            m_localMovementController.UpdateUntil(m_time + c_controllerOffset);
-            m_localPlayerView.Move(m_localMovementController.ViewSnapshot);
-            m_localPlayerView.isAlive = m_localActionHistory.IsAlive;
-            m_localPlayerView.Update(Time.deltaTime);
-            // Replicate
-            m_timeSinceLastSend += Time.deltaTime;
-            if (m_lastSendStep == -1 || (m_lastSendStep < m_localMovementController.Step && m_timeSinceLastSend >= 1.0f / c_controllerSendFrequency))
+            public LocalPlayer(ClientGameManager _manager, byte _id) : base(_manager, _id)
             {
-                m_timeSinceLastSend = 0.0f;
-                m_lastSendStep = m_localMovementController.Step;
-                m_localInputHistory.PullReverseInputBuffer(m_localMovementController.Step, m_inputBuffer, out int inputStepsCount);
-                Serializer.WriteMovementNotify(m_localMovementController.Step, new ArraySegment<InputStep>(m_inputBuffer, 0, inputStepsCount), m_localMovementController.RawSnapshot);
-                m_server.Send(NetworkManager.SendMethod.Unreliable);
+                m_movementController = new MovementController()
+                {
+                    target = this
+                };
             }
-            // Trim
-            m_localInputHistory.Trim((m_time - 100).SimulationSteps());
-            m_localActionHistory.Trim(m_time - 1.0);
+
+            public double ControllerOffset { get => m_controllerOffset; set { Debug.Assert(value >= 0.0); m_controllerOffset = value; } }
+
+            public void EnsureStarted()
+            {
+                if (!m_movementController.IsRunning)
+                {
+                    m_movementController.StartAt(m_manager.m_time + m_controllerOffset);
+                }
+            }
+
+            public int MaxMovementInputStepsNotifyCount { get => m_maxMovementInputStepsSendCount; set { Debug.Assert(value >= 0); m_maxMovementInputStepsSendCount = value; } }
+            public int MaxMovementNotifyFrequency { get => m_movementSendRate; set { Debug.Assert(value >= 0); m_movementSendRate = value; } }
+
+            public void Correct(int _step, SimulationStepInfo _info)
+            {
+                m_inputHistory.Put(_step, _info.input);
+                SimulationStep correctedSimulation = m_inputHistory.SimulateFrom(_step, _info.simulation);
+                m_movementController.Teleport(new Snapshot { sight = m_movementController.RawSnapshot.sight, simulation = correctedSimulation }, false);
+            }
+
+            public override void Update()
+            {
+                double localTime = m_manager.m_time + m_controllerOffset;
+                m_movementController.UpdateUntil(localTime);
+                UpdateView(localTime, m_movementController.ViewSnapshot);
+                m_timeSinceLastMovementNotify += Time.deltaTime;
+                if (m_lastNotifiedMovementStep == null || (m_lastNotifiedMovementStep < m_movementController.Step && m_timeSinceLastMovementNotify >= 1.0f / m_movementSendRate))
+                {
+                    NotifyMovement();
+                }
+                Trim();
+            }
+
+            void MovementController.ICommitTarget.Commit(int _step, InputStep _input, Snapshot _snapshot)
+            {
+                m_inputHistory.Put(_step, _input);
+            }
+
+            void MovementController.ICommitTarget.Cut(int _oldest)
+            {
+                m_inputHistory.Cut(_oldest);
+            }
+
+            private void NotifyMovement()
+            {
+                m_timeSinceLastMovementNotify = 0.0f;
+                int maxStepsCount = MaxMovementInputStepsNotifyCount;
+                if (m_lastNotifiedMovementStep != null)
+                {
+                    maxStepsCount = Math.Min(maxStepsCount, m_movementController.Step - m_lastNotifiedMovementStep.Value);
+                }
+                m_lastNotifiedMovementStep = m_movementController.Step;
+                IEnumerable<InputStep> inputSteps = m_inputHistory.GetReversedInputSequence(m_movementController.Step, maxStepsCount);
+                Serializer.WriteMovementNotify(m_movementController.Step, inputSteps, m_movementController.RawSnapshot);
+                m_manager.m_server.Send(NetworkManager.SendMethod.Unreliable);
+            }
         }
-
     }
-
 }

@@ -4,8 +4,8 @@ namespace Wheeled.Gameplay
 {
     public class CorpseBehaviour : MonoBehaviour
     {
-        private const float c_opacqueLifeTime = 5.0f;
         private const float c_fadeOutTime = 3.0f;
+        private const float c_opacqueLifeTime = 5.0f;
         private float m_timeSinceSpawn;
 
         private void Start()

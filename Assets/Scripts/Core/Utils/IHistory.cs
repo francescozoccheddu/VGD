@@ -3,24 +3,52 @@ using System.Collections.Generic;
 
 namespace Wheeled.Core.Utils
 {
-    internal static class IHistoryHelpers
+    internal interface IHistory<TTime, TValue> : ISimpleHistory<HistoryNode<TTime, TValue>, TTime> where TTime : struct, IComparable<TTime>
     {
+        TTime? NewestTime { get; }
 
-        public static bool IsGreaterThan<T>(this IComparable<T> _item, T _other) where T : struct
-        {
-            return _item.CompareTo(_other) > 0;
-        }
+        TTime? OldestTime { get; }
 
-        public static bool IsLessThan<T>(this IComparable<T> _item, T _other) where T : struct
-        {
-            return _item.CompareTo(_other) < 0;
-        }
+        void Set(TTime _time, TValue _value);
+    }
 
-        public static bool IsEqualTo<T>(this IComparable<T> _item, T _other) where T : struct
-        {
-            return _item.CompareTo(_other) == 0;
-        }
+    internal interface ISimpleHistory<TNode, TComparer> where TNode : struct, IComparable<TComparer> where TComparer : struct
+    {
+        TNode? Newest { get; }
 
+        TNode? Oldest { get; }
+
+        void Clear();
+
+        void ForgetAndNewer(TComparer _time);
+
+        void ForgetAndOlder(TComparer _time);
+
+        void ForgetNewer(TComparer _time, bool _keepNewest);
+
+        void ForgetOlder(TComparer _time, bool _keepOldest);
+
+        TNode? Get(TComparer _time);
+
+        IEnumerable<TNode> GetFullReversedSequence();
+
+        IEnumerable<TNode> GetFullSequence();
+
+        TNode? GetOrNext(TComparer _time);
+
+        TNode? GetOrPrevious(TComparer _time);
+
+        TNode? GetOrPreviousOrNext(TComparer _time);
+
+        IEnumerable<TNode> GetReversedSequenceSince(TComparer _time, bool _allowAfter = true, bool _allowBefore = false);
+
+        IEnumerable<TNode> GetSequenceSince(TComparer _time, bool _allowBefore = true, bool _allowAfter = false);
+
+        bool Has(TComparer _time);
+
+        void Query(TComparer _time, out TNode? _outA, out TNode? _outB);
+
+        void Set(TComparer _time, TNode _value);
     }
 
     internal struct HistoryNode<TTime, TValue> : IComparable<TTime> where TTime : struct, IComparable<TTime>
@@ -34,54 +62,21 @@ namespace Wheeled.Core.Utils
         }
     }
 
-    internal interface ISimpleHistory<TNode, TComparer> where TNode : struct, IComparable<TComparer> where TComparer : struct
+    internal static class IHistoryHelpers
     {
+        public static bool IsEqualTo<T>(this IComparable<T> _item, T _other) where T : struct
+        {
+            return _item.CompareTo(_other) == 0;
+        }
 
-        void Clear();
+        public static bool IsGreaterThan<T>(this IComparable<T> _item, T _other) where T : struct
+        {
+            return _item.CompareTo(_other) > 0;
+        }
 
-        void ForgetOlder(TComparer _time, bool _keepOldest);
-
-        void ForgetNewer(TComparer _time, bool _keepNewest);
-
-        void ForgetAndOlder(TComparer _time);
-
-        void ForgetAndNewer(TComparer _time);
-
-        void Set(TComparer _time, TNode _value);
-
-        bool Has(TComparer _time);
-
-        void Query(TComparer _time, out TNode? _outA, out TNode? _outB);
-
-        IEnumerable<TNode> GetFullSequence();
-
-        IEnumerable<TNode> GetFullReversedSequence();
-
-        IEnumerable<TNode> GetSequenceSince(TComparer _time, bool _allowBefore = true, bool _allowAfter = false);
-
-        IEnumerable<TNode> GetReversedSequenceSince(TComparer _time, bool _allowAfter = true, bool _allowBefore = false);
-
-        TNode? Get(TComparer _time);
-
-        TNode? GetOrPrevious(TComparer _time);
-
-        TNode? GetOrNext(TComparer _time);
-
-        TNode? GetOrPreviousOrNext(TComparer _time);
-
-        TNode? Oldest { get; }
-        TNode? Newest { get; }
-
+        public static bool IsLessThan<T>(this IComparable<T> _item, T _other) where T : struct
+        {
+            return _item.CompareTo(_other) < 0;
+        }
     }
-
-    internal interface IHistory<TTime, TValue> : ISimpleHistory<HistoryNode<TTime, TValue>, TTime> where TTime : struct, IComparable<TTime>
-    {
-
-        void Set(TTime _time, TValue _value);
-
-        TTime? OldestTime { get; }
-        TTime? NewestTime { get; }
-
-    }
-
 }

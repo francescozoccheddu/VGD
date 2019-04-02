@@ -2,19 +2,15 @@
 
 namespace Wheeled.Gameplay.Action
 {
-
     internal static class ActionController
     {
-
         public interface ITarget
         {
+            void Kaze();
 
             void ShootRifle(float _power);
 
             void ShootRocket();
-
-            void Kaze();
-
         }
 
         public static void Process(ActionHistory _actionHistory, ITarget _target)
@@ -37,7 +33,5 @@ namespace Wheeled.Gameplay.Action
             {
             }
         }
-
     }
-
 }

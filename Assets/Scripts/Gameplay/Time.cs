@@ -2,16 +2,9 @@
 
 namespace Wheeled.Gameplay
 {
-
     internal static class TimeConstants
     {
-
         public const double c_simulationStep = 1 / 30.0f;
-
-        public static int SimulationSteps(this double _period)
-        {
-            return (int) Math.Floor(_period / c_simulationStep);
-        }
 
         public static int CeilingSimulationSteps(this double _period)
         {
@@ -23,7 +16,9 @@ namespace Wheeled.Gameplay
             return _step * c_simulationStep;
         }
 
+        public static int SimulationSteps(this double _period)
+        {
+            return (int) Math.Floor(_period / c_simulationStep);
+        }
     }
-
-
 }
