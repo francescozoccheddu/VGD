@@ -4,55 +4,37 @@ using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Gameplay.Action
 {
-    internal enum DeathCause
+    internal enum OffenseType
     {
         Rifle, Rocket, Kaze
     }
 
-    internal interface IFarce
+    internal struct DamageInfo
     {
+        public Vector3 offensePosition;
+        public OffenseType offenseType;
     }
 
-    internal struct DeathInfo : IFarce
+    internal struct DeathInfo
     {
-        public DeathCause cause;
-        public byte deadId;
-        public bool explosion;
+        public bool isExploded;
         public byte killerId;
-        public Vector3 position;
+        public OffenseType offenseType;
     }
 
-    internal struct GunHitInfo : IFarce
+    internal struct HitConfirmInfo
     {
-        public byte id;
-        public Vector3 normal;
-        public Vector3 position;
+        public OffenseType offenseType;
     }
 
-    internal struct GunShotInfo : IFarce
+    internal struct ShotInfo
     {
-        public byte id;
+        public bool isRocket;
         public Vector3 position;
-        public float power;
-        public bool rocket;
         public Sight sight;
     }
 
-    internal struct KazeInfo
-    {
-        public Vector3 position;
-    }
-
-    internal struct LocalDamageInfo : IFarce
-    {
-        public Vector3 offensePosition;
-    }
-
-    internal struct LocalHitConfirmInfo : IFarce
-    {
-    }
-
-    internal struct SpawnInfo : IFarce
+    internal struct SpawnInfo
     {
         public int spawnPoint;
     }

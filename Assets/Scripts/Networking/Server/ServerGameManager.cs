@@ -144,7 +144,7 @@ namespace Wheeled.Networking.Server
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
                         _reader.ReadMovementNotify(out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
-                        netPlayer.Move(step, inputSteps, snapshot);
+                        netPlayer.TryMove(step, inputSteps, snapshot);
                     }
                 }
                 break;

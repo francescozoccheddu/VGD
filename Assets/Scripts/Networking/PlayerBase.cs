@@ -26,9 +26,9 @@ namespace Wheeled.Networking
         public PlayerInfo? Info { get; private set; }
         public int Ping { get; private set; }
 
-        public void Die(double _time, bool _explode)
+        public void Die(double _time, DeathInfo _info)
         {
-            m_actionHistory.PutDeath(_time, _explode);
+            m_actionHistory.PutDeath(_time, _info);
         }
 
         public void Introduce(PlayerInfo _info)
@@ -50,26 +50,6 @@ namespace Wheeled.Networking
             m_actionHistory.PutQuit(_time);
         }
 
-        public void ScoreKill(double _time)
-        {
-            m_actionHistory.PutKill(_time);
-        }
-
-        public void ShootRifle(double _time)
-        {
-            m_actionHistory.PutRifleShot(_time);
-        }
-
-        public void ShootRocket(double _time)
-        {
-            m_actionHistory.PutRocketShot(_time);
-        }
-
-        public void Spawn(double _time)
-        {
-            m_actionHistory.PutSpawn(_time);
-        }
-
         public void Sync(double _time, int _kills, int _deaths, int _health)
         {
             m_actionHistory.PutHealth(_time, _health);
@@ -85,10 +65,8 @@ namespace Wheeled.Networking
             m_actionHistory.Trim(_oldestTime);
         }
 
-        protected void UpdateView(double _time, in Snapshot _snapshot)
+        protected void UpdateView(in Snapshot _snapshot)
         {
-            // Update actions
-            m_actionHistory.Update(_time);
             // Update view
             if (m_actionHistory.IsQuit)
             {

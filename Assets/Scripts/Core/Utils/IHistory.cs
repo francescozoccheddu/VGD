@@ -60,6 +60,12 @@ namespace Wheeled.Core.Utils
         {
             return time.CompareTo(_time);
         }
+
+        public void Deconstruct(out TTime _outTime, out TValue _outValue)
+        {
+            _outTime = time;
+            _outValue = value;
+        }
     }
 
     internal static class IHistoryHelpers

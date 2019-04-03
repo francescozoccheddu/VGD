@@ -60,7 +60,7 @@ namespace Wheeled.Networking.Client
 
                 case Message.SimulationOrder:
                 {
-                    _reader.ReadSimulationCorrection(out int step, out SimulationStepInfo simulation);
+                    _reader.ReadSimulationOrder(out int step, out SimulationStepInfo simulation);
                     Debug.LogFormat("Reconciliation {0}", step);
                     m_localPlayer.Correct(step, simulation);
                 }
@@ -81,14 +81,36 @@ namespace Wheeled.Networking.Client
                 case Message.SpawnOrderOrReplication:
                 {
                     _reader.ReadSpawnOrderOrReplication(out double time, out byte id, out SpawnInfo spawnInfo);
-                    GetOrCreatePlayer(id).Spawn(time);
+                    GetOrCreatePlayer(id).Spawn(time, spawnInfo);
                 }
                 break;
 
                 case Message.DeathOrderOrReplication:
                 {
-                    _reader.ReadDeathOrderOrReplication(out double time, out DeathInfo deathInfo);
-                    GetOrCreatePlayer(deathInfo.deadId).Die(time, deathInfo.explosion);
+                    _reader.ReadDeathOrderOrReplication(out double time, out byte id, out DeathInfo deathInfo, out byte deaths);
+                    GetOrCreatePlayer(id).Die(time, deathInfo, deaths);
+                }
+                break;
+
+                case Message.HitConfirmOrder:
+                {
+                    _reader.ReadHitConfirmOrder(out double time, out HitConfirmInfo info, out byte kills);
+                    m_localPlayer.ConfirmHit(time, info, kills);
+                }
+                break;
+
+                case Message.DamageOrder:
+                {
+                    _reader.ReadDamageOrder(out double time, out DamageInfo info, out byte health);
+                    m_localPlayer.Damage(time, info, health);
+                }
+                break;
+
+                case Message.ShootReplication:
+                {
+                    _reader.ReadShotReplication(out double time, out byte id, out ShotInfo info);
+                    NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
+                    player?.Shoot(time, info);
                 }
                 break;
 

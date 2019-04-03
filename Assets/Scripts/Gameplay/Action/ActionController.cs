@@ -1,41 +1,42 @@
 ﻿using UnityEngine;
+using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Gameplay.Action
 {
     internal sealed class ActionController
     {
-
-        private readonly ActionHistory m_actionHistory;
-
-        public ActionController(ActionHistory _actionHistory)
-        {
-            m_actionHistory = _actionHistory;
-        }
-
-        public ITarget Target { get; set; }
-
         public interface ITarget
         {
             void Kaze();
 
-            void ShootRifle(float _power);
-
-            void ShootRocket();
+            void Shoot(ShotInfo _info);
         }
 
-        public void Update()
+        public ITarget Target { get; set; }
+
+        public void Update(ActionHistory _actionHistory, in Snapshot _snapshot)
         {
             if (Target != null)
             {
-                if (Input.GetButtonDown("ShootRifle") && m_actionHistory.CanShootRifle)
+                if (Input.GetButtonDown("ShootRifle") && _actionHistory.CanShootRifle)
                 {
-                    Target.ShootRifle(m_actionHistory.RiflePower);
+                    Target.Shoot(new ShotInfo
+                    {
+                        position = _snapshot.simulation.position,
+                        sight = _snapshot.sight,
+                        isRocket = false
+                    });
                 }
-                if (Input.GetButtonDown("ShootRocket") && m_actionHistory.CanShootRocket)
+                if (Input.GetButtonDown("ShootRocket") && _actionHistory.CanShootRocket)
                 {
-                    Target.ShootRocket();
+                    Target.Shoot(new ShotInfo
+                    {
+                        position = _snapshot.simulation.position,
+                        sight = _snapshot.sight,
+                        isRocket = true
+                    });
                 }
-                if (Input.GetButtonDown("Kaze") && m_actionHistory.CanKaze)
+                if (Input.GetButtonDown("Kaze") && _actionHistory.CanKaze)
                 {
                     Target.Kaze();
                 }

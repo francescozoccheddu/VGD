@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using Wheeled.Gameplay.Action;
+﻿using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Server
@@ -8,8 +7,8 @@ namespace Wheeled.Networking.Server
     {
         private sealed class LocalPlayer : Player, MovementController.ICommitTarget, ActionController.ITarget
         {
-            private readonly MovementController m_movementController;
             private readonly ActionController m_actionController;
+            private readonly MovementController m_movementController;
 
             public LocalPlayer(ServerGameManager _manager, byte _id) : base(_manager, _id)
             {
@@ -17,7 +16,7 @@ namespace Wheeled.Networking.Server
                 {
                     target = this
                 };
-                m_actionController = new ActionController(m_actionHistory)
+                m_actionController = new ActionController()
                 {
                     Target = this
                 };
@@ -30,10 +29,12 @@ namespace Wheeled.Networking.Server
 
             public override void Update()
             {
+                m_actionHistory.Update(m_manager.m_time);
                 m_movementController.UpdateUntil(m_manager.m_time);
-                UpdateView(m_manager.m_time, m_movementController.ViewSnapshot);
+                UpdateView(m_movementController.ViewSnapshot);
+                m_actionHistory.Perform();
                 HandleRespawn();
-                m_actionController.Update();
+                m_actionController.Update(m_actionHistory, m_movementController.ViewSnapshot);
                 Trim();
             }
 
@@ -49,24 +50,24 @@ namespace Wheeled.Networking.Server
                 m_inputHistory.Cut(_oldest);
             }
 
+            void ActionController.ITarget.Kaze()
+            {
+                m_actionHistory.PutDeath(m_manager.m_time, new DeathInfo
+                {
+                    isExploded = true,
+                    killerId = Id,
+                    offenseType = OffenseType.Kaze
+                });
+            }
+
+            void ActionController.ITarget.Shoot(ShotInfo _info)
+            {
+                m_actionHistory.PutShot(m_manager.m_time, _info);
+            }
+
             protected override void SendReplication()
             {
                 m_manager.SendAll(NetworkManager.SendMethod.Unreliable);
-            }
-
-            void ActionController.ITarget.Kaze()
-            {
-                Debug.Log("Kaze");
-            }
-
-            void ActionController.ITarget.ShootRifle(float _power)
-            {
-                Debug.Log("Rifle");
-            }
-
-            void ActionController.ITarget.ShootRocket()
-            {
-                Debug.Log("Rocket");
             }
         }
     }

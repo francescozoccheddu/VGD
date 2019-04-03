@@ -76,24 +76,6 @@ namespace Wheeled.Networking.Client
             }
         }
 
-        private abstract class Player : PlayerBase
-        {
-            protected readonly ClientGameManager m_manager;
-            private double m_historyDuration;
-
-            protected Player(ClientGameManager _manager, byte _id) : base(_id)
-            {
-                m_manager = _manager;
-            }
-
-            public double HistoryDuration { get => m_historyDuration; set { Debug.Assert(value >= 0.0); m_historyDuration = value; } }
-
-            protected void Trim()
-            {
-                Trim(m_manager.m_time - m_historyDuration);
-            }
-        }
-
         #region Client.IGameManager
 
         void Client.IGameManager.LatencyUpdated(float _latency)

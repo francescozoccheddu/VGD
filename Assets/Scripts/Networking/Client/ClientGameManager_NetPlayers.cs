@@ -3,6 +3,7 @@
 using UnityEngine;
 
 using Wheeled.Gameplay;
+using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Client
@@ -35,22 +36,29 @@ namespace Wheeled.Networking.Client
                 m_movementHistory.Put(_step, _snapshot.sight);
             }
 
+            public void Shoot(double _time, ShotInfo _info)
+            {
+                m_actionHistory.PutShot(_time, _info);
+            }
+
             public override void Update()
             {
+                double localTime = m_manager.m_time - m_historyOffset;
+                m_actionHistory.Update(localTime);
                 Snapshot snapshot = new Snapshot();
-                m_movementHistory.GetSimulation(m_manager.m_time - m_historyOffset, out SimulationStep? simulation, m_inputHistory);
+                m_movementHistory.GetSimulation(localTime, out SimulationStep? simulation, m_inputHistory);
                 if (simulation != null)
                 {
                     snapshot.simulation = simulation.Value;
                 }
-                m_movementHistory.GetSight(m_manager.m_time - m_historyOffset, out Sight? sight);
+                m_movementHistory.GetSight(localTime, out Sight? sight);
                 if (sight != null)
                 {
                     snapshot.sight = sight.Value;
                 }
-                UpdateView(m_manager.m_time - HistoryOffset, snapshot);
+                UpdateView(snapshot);
                 // Trim
-                m_movementHistory.ForgetOlder((m_manager.m_time - HistoryDuration).SimulationSteps(), true);
+                m_movementHistory.ForgetOlder((localTime - HistoryDuration).SimulationSteps(), true);
                 Trim();
             }
         }

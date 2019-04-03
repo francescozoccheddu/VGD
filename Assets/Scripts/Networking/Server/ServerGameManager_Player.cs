@@ -13,7 +13,7 @@ namespace Wheeled.Networking.Server
         private abstract class Player : PlayerBase
         {
             protected readonly ServerGameManager m_manager;
-            private readonly MovementHistory m_movementHistory;
+            protected readonly MovementHistory m_movementHistory;
             private double m_historyDuration;
             private int? m_lastReplicatedMovementStep;
             private int m_maxMovementInputStepsSendCount;
@@ -28,6 +28,16 @@ namespace Wheeled.Networking.Server
 
             public double HistoryDuration { get => m_historyDuration; set { Debug.Assert(value >= 0.0); m_historyDuration = value; } }
             public int MaxMovementInputStepsReplicationCount { get => m_maxMovementInputStepsSendCount; set { Debug.Assert(value >= 0); m_maxMovementInputStepsSendCount = value; } }
+
+            public PlayerRecapInfo RecapInfo => new PlayerRecapInfo
+            {
+                deaths = m_actionHistory.Deaths,
+                kills = m_actionHistory.Kills,
+                health = (byte) m_actionHistory.Health,
+                id = Id,
+                ping = (byte) Mathf.Clamp(Ping, 0, 255)
+            };
+
             public double SpawnDelay { get => m_spawnDelay; set { Debug.Assert(value >= 0.0); m_spawnDelay = value; } }
 
             public void Replicate()
@@ -58,21 +68,12 @@ namespace Wheeled.Networking.Server
                 }
             }
 
-            public PlayerRecapInfo RecapInfo => new PlayerRecapInfo
-            {
-                deaths = m_actionHistory.Deaths,
-                kills = m_actionHistory.Kills,
-                health = (byte) m_actionHistory.Health,
-                id = Id,
-                ping = (byte) Mathf.Clamp(Ping, 0, 255)
-            };
-
             protected void HandleRespawn()
             {
                 if (m_actionHistory.ShouldSpawn)
                 {
                     double spawnTime = m_manager.m_time + m_spawnDelay;
-                    m_actionHistory.PutSpawn(spawnTime);
+                    m_actionHistory.PutSpawn(spawnTime, new SpawnInfo { spawnPoint = 0 });
                     Serializer.WriteSpawnOrderOrReplication(spawnTime, Id, new SpawnInfo());
                     m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
                 }
@@ -110,7 +111,7 @@ namespace Wheeled.Networking.Server
                 {
                     snapshot.sight = sight.Value;
                 }
-                UpdateView(m_manager.m_time, snapshot);
+                UpdateView(snapshot);
             }
         }
     }
