@@ -1,24 +1,29 @@
 ﻿using UnityEngine;
-
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking
 {
-    internal abstract class PlayerBase
+    internal abstract class PlayerBase : ActionHistory.ITarget
     {
         protected readonly ActionHistory m_actionHistory;
         protected readonly InputHistory m_inputHistory;
         private const double c_historyDuration = 2.0;
+        private readonly ShootStage m_shootStage;
         private readonly PlayerView m_view;
         private double m_lastPingTime = double.NegativeInfinity;
 
-        protected PlayerBase(byte _id)
+        protected PlayerBase(byte _id, ShootStage _shootStage)
         {
             Id = _id;
+            m_shootStage = _shootStage;
             m_inputHistory = new InputHistory();
-            m_actionHistory = new ActionHistory();
+            m_actionHistory = new ActionHistory
+            {
+                Target = this
+            };
             m_view = new PlayerView();
         }
 
@@ -58,6 +63,32 @@ namespace Wheeled.Networking
         }
 
         public abstract void Update();
+
+        void ActionHistory.ITarget.PerformDamage(double _time, DamageInfo _info)
+        {
+        }
+
+        void ActionHistory.ITarget.PerformDeath(double _time, DeathInfo _info)
+        {
+        }
+
+        void ActionHistory.ITarget.PerformHitConfirm(double _time, HitConfirmInfo _info)
+        {
+        }
+
+        void ActionHistory.ITarget.PerformRifleShoot(double _time, ShotInfo _info, float _power)
+        {
+            m_shootStage.ShootRifle(_time, _info.position, _info.sight.Direction, Id, _power);
+        }
+
+        void ActionHistory.ITarget.PerformRocketShoot(double _time, ShotInfo _info)
+        {
+            Debug.Log("Rocket");
+        }
+
+        void ActionHistory.ITarget.PerformSpawn(double _time, SpawnInfo _info)
+        {
+        }
 
         protected void Trim(double _oldestTime)
         {

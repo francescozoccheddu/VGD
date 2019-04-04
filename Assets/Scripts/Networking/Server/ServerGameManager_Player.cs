@@ -19,7 +19,7 @@ namespace Wheeled.Networking.Server
             private int m_maxMovementInputStepsSendCount;
             private double m_spawnDelay;
 
-            protected Player(ServerGameManager _manager, byte _id) : base(_id)
+            protected Player(ServerGameManager _manager, byte _id) : base(_id, _manager.m_shootStage)
             {
                 m_manager = _manager;
                 m_movementHistory = new MovementHistory();

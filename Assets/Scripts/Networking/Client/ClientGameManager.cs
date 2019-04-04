@@ -4,6 +4,7 @@ using UnityEngine;
 
 using Wheeled.Core.Utils;
 using Wheeled.Debugging;
+using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Client
 {
@@ -14,6 +15,7 @@ namespace Wheeled.Networking.Client
         private readonly LocalPlayer m_localPlayer;
         private readonly Dictionary<byte, Player> m_players;
         private readonly Client.IServer m_server;
+        private readonly ShootStage m_shootStage;
         private readonly Updatable m_updatable;
         private bool m_isRunning;
         private double m_targetTime;
@@ -22,6 +24,7 @@ namespace Wheeled.Networking.Client
         public ClientGameManager(Client.IServer _server, byte _id)
         {
             Debug.Log("ClientGameManager started");
+            m_shootStage = new ShootStage();
             m_updatable = new Updatable(this, false)
             {
                 IsRunning = true
@@ -56,6 +59,7 @@ namespace Wheeled.Networking.Client
             {
                 p.Update();
             }
+            m_shootStage.Update(m_time);
         }
 
         private Player GetOrCreatePlayer(byte _id)

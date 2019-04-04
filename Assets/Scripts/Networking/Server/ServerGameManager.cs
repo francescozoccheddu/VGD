@@ -4,15 +4,16 @@ using UnityEngine;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Server
 {
     internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget
     {
         private const int c_replicationRate = 10;
-        private IEnumerable<NetPlayer> m_NetPlayers => m_players.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
-        private readonly List<Player> m_players;
         private readonly LocalPlayer m_localPlayer;
+        private readonly List<Player> m_players;
+        private readonly ShootStage m_shootStage;
         private readonly Updatable m_updatable;
         private byte m_nextPlayerId;
         private double m_time;
@@ -20,6 +21,7 @@ namespace Wheeled.Networking.Server
 
         public ServerGameManager()
         {
+            m_shootStage = new ShootStage();
             m_updatable = new Updatable(this, false)
             {
                 IsRunning = true
@@ -40,6 +42,8 @@ namespace Wheeled.Networking.Server
             m_localPlayer.Start();
         }
 
+        private IEnumerable<NetPlayer> m_NetPlayers => m_players.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
+
         void Updatable.ITarget.Update()
         {
             m_time += Time.deltaTime;
@@ -48,6 +52,7 @@ namespace Wheeled.Networking.Server
             {
                 player.Update();
             }
+            m_shootStage.Update(m_time);
             if (m_lastTimeSyncTime + c_roomUpdatePeriod <= m_time)
             {
                 Debug.LogFormat("Room Update at time {0}", m_time);

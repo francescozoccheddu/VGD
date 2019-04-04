@@ -26,20 +26,22 @@ namespace Wheeled.Gameplay.Action
 
         public interface ITarget
         {
-            void PerformDamage(DamageInfo _info);
+            void PerformDamage(double _time, DamageInfo _info);
 
-            void PerformDeath(DeathInfo _info);
+            void PerformDeath(double _time, DeathInfo _info);
 
-            void PerformHitConfirm(HitConfirmInfo _info);
+            void PerformHitConfirm(double _time, HitConfirmInfo _info);
 
-            void PerformShoot(ShotInfo _info);
+            void PerformRifleShoot(double _time, ShotInfo _info, float _power);
 
-            void PerformSpawn(SpawnInfo _info);
+            void PerformRocketShoot(double _time, ShotInfo _info);
+
+            void PerformSpawn(double _time, SpawnInfo _info);
         }
 
         private interface IAction
         {
-            void Perform(ITarget _target);
+            void Perform(double _time, ITarget _target);
         }
 
         public bool CanKaze { get; private set; }
@@ -58,7 +60,7 @@ namespace Wheeled.Gameplay.Action
         {
             foreach ((double time, IAction action) in m_actionHistory.GetFullSequence().Where(_n => _n.time <= m_time))
             {
-                action.Perform(Target);
+                action.Perform(time, Target);
             }
             if (m_time != null)
             {
@@ -116,7 +118,7 @@ namespace Wheeled.Gameplay.Action
 
         public void PutShot(double _time, ShotInfo _info)
         {
-            m_actionHistory.Add(_time, new ShootAction { info = _info });
+            m_actionHistory.Add(_time, new ShootAction(this) { info = _info });
             if (_info.isRocket)
             {
                 m_rocketShootHistory.Add(_time);
@@ -253,9 +255,9 @@ namespace Wheeled.Gameplay.Action
         {
             public DamageInfo info;
 
-            void IAction.Perform(ITarget _target)
+            void IAction.Perform(double _time, ITarget _target)
             {
-                _target?.PerformDamage(info);
+                _target?.PerformDamage(_time, info);
             }
         }
 
@@ -263,9 +265,9 @@ namespace Wheeled.Gameplay.Action
         {
             public DeathInfo info;
 
-            void IAction.Perform(ITarget _target)
+            void IAction.Perform(double _time, ITarget _target)
             {
-                _target?.PerformDeath(info);
+                _target?.PerformDeath(_time, info);
             }
         }
 
@@ -273,19 +275,45 @@ namespace Wheeled.Gameplay.Action
         {
             public HitConfirmInfo info;
 
-            void IAction.Perform(ITarget _target)
+            void IAction.Perform(double _time, ITarget _target)
             {
-                _target?.PerformHitConfirm(info);
+                _target?.PerformHitConfirm(_time, info);
             }
         }
 
         private struct ShootAction : IAction
         {
             public ShotInfo info;
+            private readonly ActionHistory m_actionHistory;
 
-            void IAction.Perform(ITarget _target)
+            public ShootAction(ActionHistory _actionHistory)
             {
-                _target?.PerformShoot(info);
+                m_actionHistory = _actionHistory;
+                info = default;
+            }
+
+            void IAction.Perform(double _time, ITarget _target)
+            {
+                if (info.isRocket)
+                {
+                    _target?.PerformRocketShoot(_time, info);
+                }
+                else
+                {
+                    float power;
+                    {
+                        double? lastShotTime = m_actionHistory.m_rifleShootHistory.GetOrPrevious(_time);
+                        if (lastShotTime != null)
+                        {
+                            power = Mathf.Clamp01((float) ((_time - lastShotTime.Value) / c_riflePowerUpTime));
+                        }
+                        else
+                        {
+                            power = 1.0f;
+                        }
+                    }
+                    _target?.PerformRifleShoot(_time, info, power);
+                }
             }
         }
 
@@ -293,9 +321,9 @@ namespace Wheeled.Gameplay.Action
         {
             public SpawnInfo info;
 
-            void IAction.Perform(ITarget _target)
+            void IAction.Perform(double _time, ITarget _target)
             {
-                _target?.PerformSpawn(info);
+                _target?.PerformSpawn(_time, info);
             }
         }
     }

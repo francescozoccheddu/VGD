@@ -10,7 +10,7 @@ namespace Wheeled.Networking.Client
             protected readonly ClientGameManager m_manager;
             private double m_historyDuration;
 
-            protected Player(ClientGameManager _manager, byte _id) : base(_id)
+            protected Player(ClientGameManager _manager, byte _id) : base(_id, _manager.m_shootStage)
             {
                 m_manager = _manager;
             }
