@@ -54,6 +54,16 @@ namespace Wheeled.Networking.Client
                 }
                 break;
 
+                case Message.QuitReplication:
+                {
+                    _reader.ReadQuitReplication(out double time, out byte id);
+                    if (m_players.TryGetValue(id, out Player player))
+                    {
+                        player.Quit(time);
+                    }
+                }
+                break;
+
                 #endregion Room messages
 
                 #region Movement messages

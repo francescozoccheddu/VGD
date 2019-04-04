@@ -31,14 +31,14 @@ namespace Wheeled.Networking
         public PlayerInfo? Info { get; private set; }
         public int Ping { get; private set; }
 
-        public void Die(double _time, DeathInfo _info)
-        {
-            m_actionHistory.PutDeath(_time, _info);
-        }
-
         public void Introduce(PlayerInfo _info)
         {
             Info = _info;
+        }
+
+        public void PutDeath(double _time, DeathInfo _info)
+        {
+            m_actionHistory.PutDeath(_time, _info);
         }
 
         public void PutPing(double _time, int _ping)
@@ -50,7 +50,7 @@ namespace Wheeled.Networking
             }
         }
 
-        public void Quit(double _time)
+        public virtual void Quit(double _time)
         {
             m_actionHistory.PutQuit(_time);
         }
@@ -70,6 +70,7 @@ namespace Wheeled.Networking
 
         void ActionHistory.ITarget.PerformDeath(double _time, DeathInfo _info)
         {
+            OnDeath(_time, _info);
         }
 
         void ActionHistory.ITarget.PerformHitConfirm(double _time, HitConfirmInfo _info)
@@ -79,14 +80,24 @@ namespace Wheeled.Networking
         void ActionHistory.ITarget.PerformRifleShoot(double _time, ShotInfo _info, float _power)
         {
             m_shootStage.ShootRifle(_time, _info.position, _info.sight.Direction, Id, _power);
+            OnShoot(_time, _info);
         }
 
         void ActionHistory.ITarget.PerformRocketShoot(double _time, ShotInfo _info)
         {
             Debug.Log("Rocket");
+            OnShoot(_time, _info);
         }
 
         void ActionHistory.ITarget.PerformSpawn(double _time, SpawnInfo _info)
+        {
+        }
+
+        protected virtual void OnDeath(double _time, DeathInfo _info)
+        {
+        }
+
+        protected virtual void OnShoot(double _time, ShotInfo _info)
         {
         }
 

@@ -73,6 +73,7 @@ namespace Wheeled.Networking.Client
                 {
                     NotifyMovement();
                 }
+                m_actionHistory.Perform();
                 Trim();
             }
 
@@ -88,11 +89,17 @@ namespace Wheeled.Networking.Client
 
             void ActionController.ITarget.Kaze()
             {
+                m_actionHistory.PutDeath(m_manager.m_time, new DeathInfo
+                {
+                    isExploded = true,
+                    killerId = Id,
+                    offenseType = OffenseType.Kaze
+                });
             }
 
             void ActionController.ITarget.Shoot(ShotInfo _info)
             {
-                m_actionHistory.PutShot(m_LocalTime, _info);
+                m_actionHistory.PutShot(m_manager.m_time, _info);
             }
 
             private void NotifyMovement()

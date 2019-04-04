@@ -87,7 +87,8 @@ namespace Wheeled.Networking.Server
 
             void ActionValidator.ITarget.Kaze(double _time)
             {
-                m_actionHistory.PutDeath(m_manager.m_time, new DeathInfo { isExploded = true, killerId = Id, offenseType = OffenseType.Kaze });
+                DeathInfo deathInfo = new DeathInfo { isExploded = true, killerId = Id, offenseType = OffenseType.Kaze };
+                m_actionHistory.PutDeath(m_manager.m_time, deathInfo);
             }
 
             void MovementValidator.ICorrectionTarget.Rejected(int _step, bool _newer)

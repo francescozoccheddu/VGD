@@ -52,17 +52,22 @@ namespace Wheeled.Networking.Server
 
             void ActionController.ITarget.Kaze()
             {
-                m_actionHistory.PutDeath(m_manager.m_time, new DeathInfo
+                DeathInfo deathInfo = new DeathInfo
                 {
                     isExploded = true,
                     killerId = Id,
                     offenseType = OffenseType.Kaze
-                });
+                };
+                m_actionHistory.PutDeath(m_manager.m_time, deathInfo);
+                Serializer.WriteDeathOrderOrReplication(m_manager.m_time, Id, deathInfo, (byte) (m_actionHistory.Deaths + 1));
+                m_manager.SendAll(NetworkManager.SendMethod.ReliableOrdered);
             }
 
             void ActionController.ITarget.Shoot(ShotInfo _info)
             {
                 m_actionHistory.PutShot(m_manager.m_time, _info);
+                Serializer.WriteShootReplication(m_manager.m_time, Id, _info);
+                m_manager.SendAll(NetworkManager.SendMethod.ReliableOrdered);
             }
 
             protected override void SendReplication()

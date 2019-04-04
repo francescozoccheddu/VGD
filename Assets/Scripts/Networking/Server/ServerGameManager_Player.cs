@@ -40,6 +40,13 @@ namespace Wheeled.Networking.Server
 
             public double SpawnDelay { get => m_spawnDelay; set { Debug.Assert(value >= 0.0); m_spawnDelay = value; } }
 
+            public override void Quit(double _time)
+            {
+                base.Quit(_time);
+                Serializer.WriteQuitReplication(_time, Id);
+                m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
+            }
+
             public void Replicate()
             {
                 int lastMovementStep = m_manager.m_time.SimulationSteps();
@@ -77,6 +84,18 @@ namespace Wheeled.Networking.Server
                     Serializer.WriteSpawnOrderOrReplication(spawnTime, Id, new SpawnInfo());
                     m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
                 }
+            }
+
+            protected override void OnDeath(double _time, DeathInfo _info)
+            {
+                Serializer.WriteDeathOrderOrReplication(_time, Id, _info, (byte) m_actionHistory.Deaths);
+                m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
+            }
+
+            protected override void OnShoot(double _time, ShotInfo _info)
+            {
+                Serializer.WriteShootReplication(_time, Id, _info);
+                m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
             }
 
             protected void PutSight(int _step, Sight _sight)

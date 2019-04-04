@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay;
+using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Stage;
 
@@ -150,6 +151,26 @@ namespace Wheeled.Networking.Server
                     {
                         _reader.ReadMovementNotify(out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
                         netPlayer.TryMove(step, inputSteps, snapshot);
+                    }
+                }
+                break;
+
+                case Message.ShootNotify:
+                {
+                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
+                    {
+                        _reader.ReadShotNotify(out double time, out ShotInfo info);
+                        netPlayer.TryShoot(time, info);
+                    }
+                }
+                break;
+
+                case Message.KazeNotify:
+                {
+                    if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
+                    {
+                        _reader.ReadKazeNotify(out double time);
+                        netPlayer.TryKaze(time);
                     }
                 }
                 break;

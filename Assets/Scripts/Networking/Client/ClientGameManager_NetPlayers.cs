@@ -57,6 +57,7 @@ namespace Wheeled.Networking.Client
                     snapshot.sight = sight.Value;
                 }
                 UpdateView(snapshot);
+                m_actionHistory.Perform();
                 // Trim
                 m_movementHistory.ForgetOlder((localTime - HistoryDuration).SimulationSteps(), true);
                 Trim();

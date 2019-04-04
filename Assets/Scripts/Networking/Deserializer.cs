@@ -155,9 +155,9 @@ namespace Wheeled.Networking
         {
             return new ShotInfo
             {
-                isRocket = ReadBool(),
                 position = ReadVector3(),
-                sight = ReadSight()
+                sight = ReadSight(),
+                isRocket = ReadBool()
             };
         }
 
