@@ -58,7 +58,6 @@ namespace Wheeled.Networking.Server
             m_shootStage.Update(m_time);
             if (m_lastTimeSyncTime + c_roomUpdatePeriod <= m_time)
             {
-                Debug.LogFormat("Room Update at time {0}", m_time);
                 m_lastTimeSyncTime = m_time;
                 SendRoomSync();
             }

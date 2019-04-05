@@ -12,6 +12,8 @@ namespace Wheeled.Networking.Client
     internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IGameManager
     {
         private const int c_expectedMovementReplicationFrequency = 10;
+        private const double c_localOffset = 0.5;
+        private const double c_netOffset = -0.25;
         private const double c_timeSmoothQuickness = 0.1;
         private readonly LocalPlayer m_localPlayer;
         private readonly Dictionary<byte, Player> m_players;
@@ -53,7 +55,7 @@ namespace Wheeled.Networking.Client
         void Updatable.ITarget.Update()
         {
             double owd = m_server.Ping / 2.0;
-            m_localPlayer.TimeOffset = LerpTime(m_localPlayer.TimeOffset, owd + 1.0 / m_localPlayer.MaxMovementNotifyFrequency + 0.2, Time.deltaTime);
+            m_localPlayer.TimeOffset = LerpTime(m_localPlayer.TimeOffset, owd + 1.0 / m_localPlayer.MaxMovementNotifyFrequency + c_localOffset, Time.deltaTime);
             if (m_isRunning)
             {
                 m_time += Time.deltaTime;
@@ -63,7 +65,7 @@ namespace Wheeled.Networking.Client
             }
             foreach (Player p in m_players.Values)
             {
-                p.TimeOffset = LerpTime(p.TimeOffset, -(owd + 1.0 / c_expectedMovementReplicationFrequency), Time.deltaTime);
+                p.TimeOffset = LerpTime(p.TimeOffset, -(owd + 1.0 / c_expectedMovementReplicationFrequency) + c_netOffset, Time.deltaTime);
                 p.Update();
             }
             m_shootStage.Update(m_time);
