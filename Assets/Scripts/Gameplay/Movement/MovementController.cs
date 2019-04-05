@@ -26,8 +26,6 @@ namespace Wheeled.Gameplay.Movement
         public interface ICommitTarget
         {
             void Commit(int _step, InputStep _input, Snapshot _snapshot);
-
-            void Cut(int _oldest);
         }
 
         public bool IsPartialSimulationEnabled

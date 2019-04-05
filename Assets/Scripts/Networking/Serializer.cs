@@ -176,13 +176,12 @@ namespace Wheeled.Networking
             writer.Put(_deaths);
         }
 
-        public static void WriteHitConfirmOrder(double _time, HitConfirmInfo _info, byte _kills)
+        public static void WriteHitConfirmOrder(double _time, HitConfirmInfo _info)
         {
             writer.Reset();
             writer.Put(Message.HitConfirmOrder);
             writer.Put(_time);
             writer.Put(_info);
-            writer.Put(_kills);
         }
 
         public static void WriteKazeNotify(double _time)

@@ -8,7 +8,7 @@ namespace Wheeled.Networking.Server
 {
     internal sealed partial class ServerGameManager
     {
-        private sealed class NetPlayer : Player, MovementValidator.ICorrectionTarget, MovementValidator.IValidationTarget, ActionValidator.ITarget
+        private sealed class NetPlayer : Player, MovementValidator.ITarget, ActionValidator.ITarget
         {
             private const int c_maxCorrectionFrequency = 5;
             private const double c_movementValidatorDuration = 2.0f;
@@ -20,10 +20,9 @@ namespace Wheeled.Networking.Server
             public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer) : base(_manager, _id)
             {
                 Peer = _peer;
-                m_movementValidator = new MovementValidator(2.0)
+                m_movementValidator = new MovementValidator(c_movementValidatorDuration)
                 {
-                    correctionTarget = this,
-                    validationTarget = this,
+                    Target = this,
                     MaxTrustedSteps = 10
                 };
                 m_actionValidator = new ActionValidator
@@ -31,8 +30,10 @@ namespace Wheeled.Networking.Server
                     Target = this,
                     MaxAnticipation = 1.0
                 };
+                IsStarted = false;
             }
 
+            public override bool IsLocal => false;
             public bool IsStarted { get; private set; }
 
             public NetworkManager.Peer Peer { get; }
@@ -63,19 +64,43 @@ namespace Wheeled.Networking.Server
                 m_actionValidator.PutShot(_time, _info);
             }
 
-            public override void Update()
+            protected override void OnDamageScheduled(double _time, DamageInfo _info)
             {
-                m_timeSinceLastCorrection += Time.deltaTime;
-                m_actionHistory.Update(m_manager.m_time);
-                m_movementValidator.UpdateUntil(m_manager.m_time.SimulationSteps());
-                UpdateView();
-                m_actionHistory.Perform();
-                HandleRespawn();
-                m_actionValidator.ValidateUntil(m_manager.m_time, m_actionHistory, m_movementHistory, m_inputHistory, Id);
-                Trim();
+                Serializer.WriteDamageOrder(_time, _info, (byte) State.Health);
+                Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
             }
 
-            void MovementValidator.ICorrectionTarget.Corrected(int _step, in SimulationStepInfo _simulation)
+            protected override void OnHitConfirmScheduled(double _time, HitConfirmInfo _info)
+            {
+                Serializer.WriteHitConfirmOrder(_time, _info);
+                Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
+            }
+
+            protected override void OnUpdated()
+            {
+                m_timeSinceLastCorrection += Time.deltaTime;
+                m_movementValidator.UpdateUntil(m_LocalTime.SimulationSteps());
+                m_actionValidator.ValidateUntil(m_LocalTime, State, Snapshot);
+            }
+
+            #region ActionValidator.ITarget
+
+            void ActionValidator.ITarget.Kaze(double _time)
+            {
+                DeathInfo deathInfo = new DeathInfo { isExploded = true, killerId = Id, offenseType = OffenseType.Kaze };
+                PutDeath(m_manager.m_time, deathInfo);
+            }
+
+            void ActionValidator.ITarget.Shoot(double _time, ShotInfo _info)
+            {
+                PutShoot(m_manager.m_time, _info);
+            }
+
+            #endregion ActionValidator.ITarget
+
+            #region MovementValidator.ITarget
+
+            void MovementValidator.ITarget.Corrected(int _step, in SimulationStepInfo _simulation)
             {
                 if (m_timeSinceLastCorrection >= 1.0f / c_maxCorrectionFrequency)
                 {
@@ -85,30 +110,21 @@ namespace Wheeled.Networking.Server
                 }
             }
 
-            void ActionValidator.ITarget.Kaze(double _time)
-            {
-                DeathInfo deathInfo = new DeathInfo { isExploded = true, killerId = Id, offenseType = OffenseType.Kaze };
-                m_actionHistory.PutDeath(m_manager.m_time, deathInfo);
-            }
-
-            void MovementValidator.ICorrectionTarget.Rejected(int _step, bool _newer)
+            void MovementValidator.ITarget.Rejected(int _step, bool _newer)
             {
             }
 
-            void ActionValidator.ITarget.Shoot(double _time, ShotInfo _info)
+            void MovementValidator.ITarget.Validated(int _step, in InputStep _input, in SimulationStep _simulation)
             {
-                m_actionHistory.PutShot(m_manager.m_time, _info);
-            }
-
-            void MovementValidator.IValidationTarget.Validated(int _step, in InputStep _input, in SimulationStep _simulation)
-            {
-                m_inputHistory.Put(_step, _input);
+                PutInput(_step, _input);
                 PutSimulation(_step, _simulation);
             }
 
-            protected override void SendReplication()
+            #endregion MovementValidator.ITarget
+
+            protected override void SendReplication(NetworkManager.SendMethod _method)
             {
-                m_manager.SendAllBut(Peer, NetworkManager.SendMethod.Unreliable);
+                m_manager.SendAllBut(Peer, _method);
             }
         }
     }

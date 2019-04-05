@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using Wheeled.Gameplay.Action;
+﻿using Wheeled.Gameplay.Action;
 
 namespace Wheeled.Networking.Client
 {
@@ -7,30 +6,24 @@ namespace Wheeled.Networking.Client
     {
         private abstract class Player : PlayerBase
         {
-            protected readonly ClientGameManager m_manager;
-            private double m_historyDuration;
-
-            protected Player(ClientGameManager _manager, byte _id) : base(_id, _manager.m_shootStage)
+            protected Player(ClientGameManager _manager, byte _id) : base(_manager, _id)
             {
-                m_manager = _manager;
             }
 
-            public double HistoryDuration { get => m_historyDuration; set { Debug.Assert(value >= 0.0); m_historyDuration = value; } }
-
-            public void Die(double _time, DeathInfo _info, int _deaths)
+            public void PutDeath(double _time, DeathInfo _info, int _deaths)
             {
-                m_actionHistory.PutDeath(_time, _info);
-                m_actionHistory.PutDeaths(_time, _deaths);
+                PutDeath(_time, _info);
+                PutDeaths(_time, _deaths);
             }
 
-            public void Spawn(double _time, SpawnInfo _info)
+            public new void PutShoot(double _time, ShotInfo _info)
             {
-                m_actionHistory.PutSpawn(_time, _info);
+                base.PutShoot(_time, _info);
             }
 
-            protected void Trim()
+            public new void PutSpawn(double _time, SpawnInfo _info)
             {
-                Trim(m_manager.m_time - m_historyDuration);
+                base.PutSpawn(_time, _info);
             }
         }
     }

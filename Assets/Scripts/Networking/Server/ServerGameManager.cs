@@ -9,7 +9,7 @@ using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Server
 {
-    internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget
+    internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget, IGameManager
     {
         private const int c_replicationRate = 10;
         private readonly LocalPlayer m_localPlayer;
@@ -43,6 +43,8 @@ namespace Wheeled.Networking.Server
             m_localPlayer.Start();
         }
 
+        ShootStage IGameManager.ShootStage => m_shootStage;
+        double IGameManager.Time => m_time;
         private IEnumerable<NetPlayer> m_NetPlayers => m_players.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
 
         void Updatable.ITarget.Update()
@@ -133,7 +135,7 @@ namespace Wheeled.Networking.Server
 
         void Server.IGameManager.DisconnectedFrom(NetworkManager.Peer _peer)
         {
-            GetNetPlayerByPeer(_peer)?.Quit(m_time);
+            GetNetPlayerByPeer(_peer)?.PutQuit(m_time);
         }
 
         void Server.IGameManager.LatencyUpdated(NetworkManager.Peer _peer, float _latency)

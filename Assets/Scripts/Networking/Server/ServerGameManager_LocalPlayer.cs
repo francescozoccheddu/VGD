@@ -22,33 +22,25 @@ namespace Wheeled.Networking.Server
                 };
             }
 
+            public override bool IsLocal => true;
+
             public void Start()
             {
-                m_movementController.StartAt(m_manager.m_time);
+                m_movementController.StartAt(m_LocalTime);
             }
 
-            public override void Update()
-            {
-                m_actionHistory.Update(m_manager.m_time);
-                m_movementController.UpdateUntil(m_manager.m_time);
-                UpdateView(m_movementController.ViewSnapshot);
-                m_actionHistory.Perform();
-                HandleRespawn();
-                m_actionController.Update(m_actionHistory, m_movementController.ViewSnapshot);
-                Trim();
-            }
+            #region MovementController.ICommitTarget
 
             void MovementController.ICommitTarget.Commit(int _step, InputStep _input, Snapshot _snapshot)
             {
-                m_inputHistory.Put(_step, _input);
+                PutInput(_step, _input);
                 PutSimulation(_step, _snapshot.simulation);
                 PutSight(_step, _snapshot.sight);
             }
 
-            void MovementController.ICommitTarget.Cut(int _oldest)
-            {
-                m_inputHistory.Cut(_oldest);
-            }
+            #endregion MovementController.ICommitTarget
+
+            #region ActionController.ITarget
 
             void ActionController.ITarget.Kaze()
             {
@@ -58,21 +50,36 @@ namespace Wheeled.Networking.Server
                     killerId = Id,
                     offenseType = OffenseType.Kaze
                 };
-                m_actionHistory.PutDeath(m_manager.m_time, deathInfo);
-                Serializer.WriteDeathOrderOrReplication(m_manager.m_time, Id, deathInfo, (byte) (m_actionHistory.Deaths + 1));
-                m_manager.SendAll(NetworkManager.SendMethod.ReliableOrdered);
+                PutDeath(m_manager.m_time, deathInfo);
             }
 
             void ActionController.ITarget.Shoot(ShotInfo _info)
             {
-                m_actionHistory.PutShot(m_manager.m_time, _info);
-                Serializer.WriteShootReplication(m_manager.m_time, Id, _info);
-                m_manager.SendAll(NetworkManager.SendMethod.ReliableOrdered);
+                PutShoot(m_manager.m_time, _info);
             }
 
-            protected override void SendReplication()
+            #endregion ActionController.ITarget
+
+            protected override void OnUpdated()
             {
-                m_manager.SendAll(NetworkManager.SendMethod.Unreliable);
+                if (State.IsAlive)
+                {
+                    if (!m_movementController.IsRunning)
+                    {
+                        m_movementController.StartAt(m_LocalTime);
+                    }
+                }
+                else
+                {
+                    m_movementController.Pause();
+                }
+                m_movementController.UpdateUntil(m_LocalTime);
+                m_actionController.Update(State, Snapshot);
+            }
+
+            protected override void SendReplication(NetworkManager.SendMethod _method)
+            {
+                m_manager.SendAll(_method);
             }
         }
     }

@@ -6,16 +6,9 @@ namespace Wheeled.Gameplay.Movement
 {
     internal sealed class MovementValidator
     {
-        public ICorrectionTarget correctionTarget;
-
-        public IValidationTarget validationTarget;
-
         private readonly Node[] m_buffer;
-
         private SimulationStepInfo m_last;
-
         private int m_maxTrustedSteps;
-
         private int m_trustedSteps;
 
         public MovementValidator(double _duration)
@@ -24,15 +17,12 @@ namespace Wheeled.Gameplay.Movement
             MaxTrustedSteps = 2;
         }
 
-        public interface ICorrectionTarget
+        public interface ITarget
         {
             void Corrected(int _step, in SimulationStepInfo _simulation);
 
             void Rejected(int _step, bool _newer);
-        }
 
-        public interface IValidationTarget
-        {
             void Validated(int _step, in InputStep _input, in SimulationStep _simulation);
         }
 
@@ -53,6 +43,7 @@ namespace Wheeled.Gameplay.Movement
         }
 
         public int Step { get; private set; }
+        public ITarget Target { get; set; }
         private int m_Length => m_buffer.Length;
 
         public void ClearBuffer()
@@ -70,11 +61,11 @@ namespace Wheeled.Gameplay.Movement
             {
                 if (step < Step)
                 {
-                    correctionTarget?.Rejected(step, false);
+                    Target?.Rejected(step, false);
                 }
                 else if (step >= Step + m_Length)
                 {
-                    correctionTarget?.Rejected(step, true);
+                    Target?.Rejected(step, true);
                 }
                 else
                 {
@@ -91,7 +82,7 @@ namespace Wheeled.Gameplay.Movement
         public void SendCorrection()
         {
             m_trustedSteps = 0;
-            correctionTarget?.Corrected(Step, m_last);
+            Target?.Corrected(Step, m_last);
         }
 
         public void SkipTo(int _step, bool _clearBuffer)
@@ -170,7 +161,7 @@ namespace Wheeled.Gameplay.Movement
             int bufInd = GetStep(Step);
             m_last.input = m_buffer[bufInd].input ?? m_last.input.Predicted;
             m_last.simulation = m_last.simulation.Simulate(m_last.input, TimeConstants.c_simulationStep);
-            validationTarget?.Validated(Step, m_last.input, m_last.simulation);
+            Target?.Validated(Step, m_last.input, m_last.simulation);
             if (m_buffer[bufInd].simulation != null)
             {
                 m_trustedSteps = 0;

@@ -53,7 +53,7 @@ namespace Wheeled.Gameplay.Action
             m_time = _time;
         }
 
-        public void ValidateUntil(double _time, ActionHistory _actionHistory, MovementHistory _movementHistory, InputHistory _inputHistory, byte _id)
+        public void ValidateUntil(double _time, ActionHistory.IState _state, in Snapshot _snapshot)
         {
             m_time = _time;
             foreach ((double time, INode node) in m_history.GetFullSequence().Where(_n => _n.time <= _time))
@@ -61,7 +61,7 @@ namespace Wheeled.Gameplay.Action
                 switch (node)
                 {
                     case KazeNode kazeNode:
-                    if (_actionHistory.CanKaze)
+                    if (_state.CanKaze)
                     {
                         Target?.Kaze(time);
                     }
@@ -69,11 +69,10 @@ namespace Wheeled.Gameplay.Action
 
                     case ShotNode shotNode:
                     {
-                        _movementHistory.GetSimulation(time, out SimulationStep? simulation, _inputHistory);
-                        if (simulation != null && Vector3.Distance(simulation.Value.position, shotNode.info.position) <= c_maxShotPositionTolerance)
+                        if (Vector3.Distance(_snapshot.simulation.position, shotNode.info.position) <= c_maxShotPositionTolerance)
                         {
-                            if ((shotNode.info.isRocket && _actionHistory.CanShootRocket)
-                                || (!shotNode.info.isRocket && _actionHistory.CanShootRifle))
+                            if ((shotNode.info.isRocket && _state.CanShootRocket)
+                                || (!shotNode.info.isRocket && _state.CanShootRifle))
                             {
                                 Target.Shoot(time, shotNode.info);
                             }

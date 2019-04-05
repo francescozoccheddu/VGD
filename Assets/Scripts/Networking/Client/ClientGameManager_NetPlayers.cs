@@ -1,9 +1,4 @@
 ﻿using System.Collections.Generic;
-
-using UnityEngine;
-
-using Wheeled.Gameplay;
-using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Client
@@ -12,55 +7,22 @@ namespace Wheeled.Networking.Client
     {
         private sealed class NetPlayer : Player
         {
-            // Components
-            private readonly MovementHistory m_movementHistory;
-
-            private double m_historyOffset;
-
             public NetPlayer(ClientGameManager _manager, byte _id) : base(_manager, _id)
             {
-                m_movementHistory = new MovementHistory();
             }
 
-            public double HistoryOffset { get => m_historyOffset; set { Debug.Assert(value >= 0.0); m_historyOffset = value; } }
+            public override bool IsLocal => false;
 
             public void Move(int _step, IEnumerable<InputStep> _reversedInputSteps, Snapshot _snapshot)
             {
                 int step = _step;
                 foreach (InputStep inputStep in _reversedInputSteps)
                 {
-                    m_inputHistory.Put(step, inputStep);
+                    PutInput(step, inputStep);
                     step--;
                 }
-                m_movementHistory.Put(_step, _snapshot.simulation);
-                m_movementHistory.Put(_step, _snapshot.sight);
-            }
-
-            public void Shoot(double _time, ShotInfo _info)
-            {
-                m_actionHistory.PutShot(_time, _info);
-            }
-
-            public override void Update()
-            {
-                double localTime = m_manager.m_time - m_historyOffset;
-                m_actionHistory.Update(localTime);
-                Snapshot snapshot = new Snapshot();
-                m_movementHistory.GetSimulation(localTime, out SimulationStep? simulation, m_inputHistory);
-                if (simulation != null)
-                {
-                    snapshot.simulation = simulation.Value;
-                }
-                m_movementHistory.GetSight(localTime, out Sight? sight);
-                if (sight != null)
-                {
-                    snapshot.sight = sight.Value;
-                }
-                UpdateView(snapshot);
-                m_actionHistory.Perform();
-                // Trim
-                m_movementHistory.ForgetOlder((localTime - HistoryDuration).SimulationSteps(), true);
-                Trim();
+                PutSimulation(_step, _snapshot.simulation);
+                PutSight(_step, _snapshot.sight);
             }
         }
     }

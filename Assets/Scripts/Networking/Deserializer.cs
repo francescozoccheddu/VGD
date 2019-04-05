@@ -288,11 +288,10 @@ namespace Wheeled.Networking
             _outDeaths = ReadByte();
         }
 
-        public void ReadHitConfirmOrder(out double _outTime, out HitConfirmInfo _outInfo, out byte _outKills)
+        public void ReadHitConfirmOrder(out double _outTime, out HitConfirmInfo _outInfo)
         {
             _outTime = ReadDouble();
             _outInfo = ReadHitConfirmInfo();
-            _outKills = ReadByte();
         }
 
         public void ReadKazeNotify(out double _outTime)

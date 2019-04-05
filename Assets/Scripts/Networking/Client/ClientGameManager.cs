@@ -8,7 +8,7 @@ using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Client
 {
-    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager
+    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IGameManager
     {
         private const int c_maxReplicationInputStepCount = 20;
         private const double c_timeSmoothQuickness = 0.1;
@@ -32,7 +32,7 @@ namespace Wheeled.Networking.Client
             m_server = _server;
             m_localPlayer = new LocalPlayer(this, _id)
             {
-                ControllerOffset = 0.5,
+                TimeOffset = 0.5,
                 HistoryDuration = 5.0,
                 MaxMovementInputStepsNotifyCount = 5,
                 MaxMovementNotifyFrequency = 5
@@ -45,6 +45,10 @@ namespace Wheeled.Networking.Client
             Serializer.WriteReady();
             m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
         }
+
+        ShootStage IGameManager.ShootStage => m_shootStage;
+
+        double IGameManager.Time => m_time;
 
         void Updatable.ITarget.Update()
         {
@@ -73,7 +77,7 @@ namespace Wheeled.Networking.Client
                 NetPlayer newNetPlayer = new NetPlayer(this, _id)
                 {
                     HistoryDuration = 5.0,
-                    HistoryOffset = 0.5,
+                    TimeOffset = 0.5,
                 };
                 m_players.Add(_id, newNetPlayer);
                 return newNetPlayer;

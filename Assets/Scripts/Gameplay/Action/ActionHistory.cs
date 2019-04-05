@@ -6,7 +6,7 @@ using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Action
 {
-    internal sealed class ActionHistory
+    internal sealed class ActionHistory : ActionHistory.IState
     {
         private const int c_fullHealth = 100;
         private const float c_respawnWaitTime = 2.0f;
@@ -23,6 +23,25 @@ namespace Wheeled.Gameplay.Action
         private readonly LinkedListSimpleHistory<double> m_rocketShootHistory = new LinkedListSimpleHistory<double>();
         private double? m_quitTime;
         private double? m_time;
+
+        public ActionHistory()
+        {
+            State = new ReadonlyState(this);
+        }
+
+        public interface IState
+        {
+            bool CanKaze { get; }
+            bool CanShootRifle { get; }
+            bool CanShootRocket { get; }
+            int Deaths { get; }
+            int Health { get; }
+            bool IsAlive { get; }
+            bool IsQuit { get; }
+            int Kills { get; }
+            float RiflePower { get; }
+            bool ShouldSpawn { get; }
+        }
 
         public interface ITarget
         {
@@ -54,6 +73,7 @@ namespace Wheeled.Gameplay.Action
         public int Kills { get; private set; }
         public float RiflePower { get; private set; }
         public bool ShouldSpawn { get; private set; }
+        public IState State { get; }
         public ITarget Target { get; set; }
 
         public void Perform()
@@ -325,6 +345,27 @@ namespace Wheeled.Gameplay.Action
             {
                 _target?.PerformSpawn(_time, info);
             }
+        }
+
+        private sealed class ReadonlyState : IState
+        {
+            private readonly IState m_state;
+
+            public ReadonlyState(IState _state)
+            {
+                m_state = _state;
+            }
+
+            bool IState.CanKaze => m_state.CanKaze;
+            bool IState.CanShootRifle => m_state.CanShootRifle;
+            bool IState.CanShootRocket => m_state.CanShootRocket;
+            int IState.Deaths => m_state.Deaths;
+            int IState.Health => m_state.Health;
+            bool IState.IsAlive => m_state.IsAlive;
+            bool IState.IsQuit => m_state.IsQuit;
+            int IState.Kills => m_state.Kills;
+            float IState.RiflePower => m_state.RiflePower;
+            bool IState.ShouldSpawn => m_state.ShouldSpawn;
         }
     }
 }
