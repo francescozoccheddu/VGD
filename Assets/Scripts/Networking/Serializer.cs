@@ -202,7 +202,7 @@ namespace Wheeled.Networking
         public static void WriteShootReplication(double _time, byte _id, ShotInfo _info)
         {
             writer.Reset();
-            writer.Put(Message.ShootNotify);
+            writer.Put(Message.ShootReplication);
             writer.Put(_time);
             writer.Put(_id);
             writer.Put(_info);

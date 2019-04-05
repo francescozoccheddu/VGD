@@ -46,6 +46,7 @@ namespace Wheeled.Networking.Server
                     }
                     IEnumerable<InputStep> inputSequence = GetReversedInputSequence(lastMovementStep, maxStepsCount);
                     Serializer.WriteMovementAndInputReplication(Id, lastMovementStep, inputSequence, Snapshot);
+                    SendReplication(NetworkManager.SendMethod.Unreliable);
                 }
             }
 

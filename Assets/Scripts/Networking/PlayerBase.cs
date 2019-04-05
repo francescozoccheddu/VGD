@@ -117,6 +117,7 @@ namespace Wheeled.Networking
 
         void ActionHistory.ITarget.PerformRifleShoot(double _time, ShotInfo _info, float _power)
         {
+            m_manager.ShootStage.ShootRifle(_time, _info.position, _info.sight.Direction, Id, _power);
         }
 
         void ActionHistory.ITarget.PerformRocketShoot(double _time, ShotInfo _info)
