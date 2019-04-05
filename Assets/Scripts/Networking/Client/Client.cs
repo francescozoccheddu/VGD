@@ -31,7 +31,7 @@ namespace Wheeled.Networking.Client
 
         public interface IGameManager
         {
-            void LatencyUpdated(float _latency);
+            void LatencyUpdated(double _latency);
 
             void Received(Deserializer _reader);
 

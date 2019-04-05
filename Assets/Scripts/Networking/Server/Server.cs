@@ -24,7 +24,7 @@ namespace Wheeled.Networking.Server
 
             void DisconnectedFrom(NetworkManager.Peer _peer);
 
-            void LatencyUpdated(NetworkManager.Peer _peer, float _latency);
+            void LatencyUpdated(NetworkManager.Peer _peer, double _latency);
 
             void ReceivedFrom(NetworkManager.Peer _peer, Deserializer _reader);
 

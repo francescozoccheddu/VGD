@@ -33,7 +33,7 @@ namespace Wheeled.Networking.Server
             }
         }
 
-        void NetworkManager.IEventListener.LatencyUpdated(NetworkManager.Peer _peer, float _latency)
+        void NetworkManager.IEventListener.LatencyUpdated(NetworkManager.Peer _peer, double _latency)
         {
             m_game?.LatencyUpdated(_peer, _latency);
         }

@@ -60,7 +60,7 @@ namespace Wheeled.Networking
 
             DiscoveryRequestAction DiscoveryRequested(Deserializer _reader);
 
-            void LatencyUpdated(Peer _peer, float _latency);
+            void LatencyUpdated(Peer _peer, double _latency);
 
             void ReceivedFrom(Peer _peer, Deserializer _reader);
 
@@ -191,7 +191,7 @@ namespace Wheeled.Networking
             public bool IsValid => m_peer != null;
 
             public object UserData => m_peer?.Tag;
-            public float Ping => m_peer?.Ping / 1000.0f ?? 0;
+            public double Ping => m_peer?.Ping / 1000.0 ?? 0.0;
 
             public float TimeSinceLastPacket => m_peer?.TimeSinceLastPacket ?? 0.0f;
 

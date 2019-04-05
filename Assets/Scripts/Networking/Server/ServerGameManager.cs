@@ -30,7 +30,7 @@ namespace Wheeled.Networking.Server
             m_time = 0.0;
             m_localPlayer = new LocalPlayer(this, 0)
             {
-                HistoryDuration = 5.0,
+                HistoryDuration = 2.0,
                 MaxMovementInputStepsReplicationCount = 5,
                 SpawnDelay = 0.5
             };
@@ -138,7 +138,7 @@ namespace Wheeled.Networking.Server
             GetNetPlayerByPeer(_peer)?.PutQuit(m_time);
         }
 
-        void Server.IGameManager.LatencyUpdated(NetworkManager.Peer _peer, float _latency)
+        void Server.IGameManager.LatencyUpdated(NetworkManager.Peer _peer, double _latency)
         {
         }
 
@@ -202,7 +202,7 @@ namespace Wheeled.Networking.Server
             // TODO decide whether accept it or not
             NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer)
             {
-                HistoryDuration = 5.0,
+                HistoryDuration = 2.0,
                 MaxMovementInputStepsReplicationCount = 5,
                 SpawnDelay = 0.5,
             };

@@ -6,14 +6,14 @@ namespace Wheeled.Networking.Client
     {
         public interface IServer
         {
-            float Ping { get; }
+            double Ping { get; }
 
             void Send(NetworkManager.SendMethod _method);
         }
 
         #region Client.IServer
 
-        float IServer.Ping => m_server.Ping;
+        double IServer.Ping => m_server.Ping;
 
         void IServer.Send(NetworkManager.SendMethod _method)
         {
@@ -53,7 +53,7 @@ namespace Wheeled.Networking.Client
             return NetworkManager.DiscoveryRequestAction.Ignore;
         }
 
-        void NetworkManager.IEventListener.LatencyUpdated(NetworkManager.Peer _peer, float _latency)
+        void NetworkManager.IEventListener.LatencyUpdated(NetworkManager.Peer _peer, double _latency)
         {
             if (_peer == m_server)
             {

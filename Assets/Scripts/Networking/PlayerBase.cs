@@ -30,6 +30,7 @@ namespace Wheeled.Networking
             };
             m_view = new PlayerView();
             m_historyDuration = 1.0;
+            TimeOffset = 0.0;
             m_lastPingTime = double.NegativeInfinity;
             m_spawnDelay = 0.0;
             m_ShouldHandleRespawn = false;
