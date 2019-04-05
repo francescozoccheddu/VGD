@@ -89,17 +89,15 @@ namespace Wheeled.Networking.Client
 
             void ActionController.ITarget.Kaze()
             {
-                PutDeath(m_LocalTime, new DeathInfo
-                {
-                    isExploded = true,
-                    killerId = Id,
-                    offenseType = OffenseType.Kaze
-                });
+                Serializer.WriteKazeNotify(m_LocalTime);
+                m_manager.m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
             }
 
             void ActionController.ITarget.Shoot(ShotInfo _info)
             {
                 PutShoot(m_LocalTime, _info);
+                Serializer.WriteShootNotify(m_LocalTime, _info);
+                m_manager.m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
             }
 
             #endregion ActionController.ITarget

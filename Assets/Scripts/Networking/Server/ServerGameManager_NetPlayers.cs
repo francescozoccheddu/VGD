@@ -88,12 +88,12 @@ namespace Wheeled.Networking.Server
             void ActionValidator.ITarget.Kaze(double _time)
             {
                 DeathInfo deathInfo = new DeathInfo { isExploded = true, killerId = Id, offenseType = OffenseType.Kaze };
-                PutDeath(m_manager.m_time, deathInfo);
+                PutDeath(m_LocalTime, deathInfo);
             }
 
             void ActionValidator.ITarget.Shoot(double _time, ShotInfo _info)
             {
-                PutShoot(m_manager.m_time, _info);
+                PutShoot(m_LocalTime, _info);
             }
 
             #endregion ActionValidator.ITarget
