@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Core.Data;
+using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Gameplay.Stage
 {
     internal sealed class ShootStage
     {
+        private static readonly List<GameObject> s_probes = new List<GameObject>();
         private readonly List<Projectile> m_projectiles;
 
         public ShootStage()
@@ -15,7 +17,7 @@ namespace Wheeled.Gameplay.Stage
 
         public interface IValidationTarget
         {
-            void PrepareColliders();
+            IEnumerable<Snapshot> GetPlayersAt(double _time);
 
             void RifleHit(double _time, byte _id, Collider _collider, float _power);
 
@@ -70,8 +72,12 @@ namespace Wheeled.Gameplay.Stage
 
             protected static bool Raycast(Vector3 _start, Vector3 _end, out Hit _outHit)
             {
-                _outHit = default;
-                return false;
+                bool wasHit = Physics.Raycast(new Ray(_start, _end - _start), out RaycastHit hit, 500, ~0);
+                _outHit = new Hit
+                {
+                    position = hit.point
+                };
+                return wasHit;
             }
 
             protected void Dispose()
@@ -102,8 +108,34 @@ namespace Wheeled.Gameplay.Stage
             {
                 if (_time >= m_shootTime)
                 {
+                    IEnumerable<Snapshot> snapshots = _target?.GetPlayersAt(_time);
+                    if (snapshots != null)
+                    {
+                        int i = 0;
+                        foreach (Snapshot snapshot in snapshots)
+                        {
+                            if (i >= s_probes.Count)
+                            {
+                                s_probes.Add(Object.Instantiate(ScriptManager.Actors.collisionProbe, snapshot.simulation.position, Quaternion.identity));
+                            }
+                            else if (s_probes[i] == null)
+                            {
+                                s_probes[i] = Object.Instantiate(ScriptManager.Actors.collisionProbe, snapshot.simulation.position, Quaternion.identity);
+                            }
+                            else
+                            {
+                                s_probes[i].transform.position = snapshot.simulation.position;
+                            }
+                            i++;
+                        }
+                    }
+                    Vector3 end = m_origin + m_direction * 100;
+                    if (Raycast(m_origin, end, out Hit hit))
+                    {
+                        end = hit.position;
+                    }
                     GameObject gameObject = Object.Instantiate(ScriptManager.Actors.rifleProjectile);
-                    gameObject.GetComponent<RifleProjectileBehaviour>()?.Shoot(m_origin, m_origin + m_direction * 100);
+                    gameObject.GetComponent<RifleProjectileBehaviour>()?.Shoot(m_origin, end);
                     Dispose();
                 }
             }

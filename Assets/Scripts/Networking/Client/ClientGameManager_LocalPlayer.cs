@@ -90,14 +90,14 @@ namespace Wheeled.Networking.Client
             void ActionController.ITarget.Kaze()
             {
                 Serializer.WriteKazeNotify(m_LocalTime);
-                m_manager.m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
+                m_manager.m_server.Send(NetworkManager.SendMethod.Unreliable);
             }
 
             void ActionController.ITarget.Shoot(ShotInfo _info)
             {
                 PutShoot(m_LocalTime, _info);
                 Serializer.WriteShootNotify(m_LocalTime, _info);
-                m_manager.m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
+                m_manager.m_server.Send(NetworkManager.SendMethod.Unreliable);
             }
 
             #endregion ActionController.ITarget
@@ -114,19 +114,6 @@ namespace Wheeled.Networking.Client
                 IEnumerable<InputStep> inputSteps = GetReversedInputSequence(m_movementController.Step, maxStepsCount);
                 Serializer.WriteMovementNotify(m_movementController.Step, inputSteps, m_movementController.RawSnapshot);
                 m_manager.m_server.Send(NetworkManager.SendMethod.Unreliable);
-                // DELETEME
-                inputSteps = GetReversedInputSequence(m_movementController.Step, maxStepsCount);
-                int ci = 0;
-                foreach (InputStep i in inputSteps)
-                {
-                    if (ci >= maxStepsCount)
-                    {
-                        break;
-                    }
-                    Debug.LogFormat("QQ {0}: in.dir=<{1},{2}>", m_movementController.Step - ci, i.movementX, i.movementZ);
-                    ci++;
-                }
-                Debug.LogFormat("QQ {0}: sim.pos={1}", m_movementController.Step, m_movementController.RawSnapshot.simulation.position);
             }
         }
     }

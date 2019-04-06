@@ -9,7 +9,7 @@ using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Server
 {
-    internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget, IGameManager
+    internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget, IGameManager, ShootStage.IValidationTarget
     {
         private const int c_replicationRate = 10;
         private readonly LocalPlayer m_localPlayer;
@@ -22,7 +22,10 @@ namespace Wheeled.Networking.Server
 
         public ServerGameManager()
         {
-            m_shootStage = new ShootStage();
+            m_shootStage = new ShootStage
+            {
+                ValidationTarget = this
+            };
             m_updatable = new Updatable(this, false)
             {
                 IsRunning = true
@@ -46,6 +49,21 @@ namespace Wheeled.Networking.Server
         ShootStage IGameManager.ShootStage => m_shootStage;
         double IGameManager.Time => m_time;
         private IEnumerable<NetPlayer> m_NetPlayers => m_players.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
+
+        IEnumerable<Snapshot> ShootStage.IValidationTarget.GetPlayersAt(double _time)
+        {
+            return from p in m_NetPlayers select p.Snapshot;
+        }
+
+        void ShootStage.IValidationTarget.RifleHit(double _time, byte _id, Collider _collider, float _power)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        void ShootStage.IValidationTarget.RocketHit(double _time, byte _id, Collider _collider)
+        {
+            throw new System.NotImplementedException();
+        }
 
         void Updatable.ITarget.Update()
         {
