@@ -14,7 +14,7 @@ namespace Wheeled.Networking.Client
         private const int c_expectedMovementReplicationFrequency = 10;
         private const double c_localOffset = 0.5;
         private const double c_netOffset = -0.25;
-        private const double c_timeSmoothQuickness = 1;
+        private const double c_timeSmoothQuickness = 0.5;
         private readonly LocalPlayer m_localPlayer;
         private readonly Dictionary<byte, Player> m_players;
         private readonly Client.IServer m_server;

@@ -54,7 +54,7 @@ namespace Wheeled.Networking.Client
 
             protected override void OnUpdated()
             {
-                if (State.IsAlive)
+                if (ActionHistoryQuery.IsAlive(m_LocalTime))
                 {
                     if (!m_movementController.IsRunning)
                     {
@@ -66,7 +66,7 @@ namespace Wheeled.Networking.Client
                     m_movementController.Pause();
                 }
                 m_movementController.UpdateUntil(m_LocalTime);
-                m_actionController.Update(State, Snapshot);
+                m_actionController.Update(ActionHistoryLocalTimeQuery, GetSnapshot(m_LocalTime));
                 m_timeSinceLastMovementNotify += Time.deltaTime;
                 if (m_lastNotifiedMovementStep == null || (m_lastNotifiedMovementStep < m_movementController.Step && m_timeSinceLastMovementNotify >= 1.0f / m_movementSendRate))
                 {

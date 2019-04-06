@@ -13,11 +13,6 @@ namespace Wheeled.Gameplay.Movement
             m_history = new LinkedListHistory<int, InputStep>();
         }
 
-        public void Cut(int _oldest)
-        {
-            m_history.ForgetAndOlder(_oldest);
-        }
-
         public IEnumerable<InputStep> GetReversedInputSequence(int _step, int _maxLength)
         {
             int count = 0;
@@ -64,11 +59,6 @@ namespace Wheeled.Gameplay.Movement
         public void Trim(int _oldest)
         {
             m_history.ForgetOlder(_oldest, true);
-        }
-
-        internal void Clear()
-        {
-            m_history.Clear();
         }
     }
 }

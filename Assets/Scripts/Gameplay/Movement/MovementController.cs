@@ -6,8 +6,6 @@ namespace Wheeled.Gameplay.Movement
 {
     internal sealed partial class MovementController
     {
-        public bool m_isPartialSimulationEnabled;
-
         public ICommitTarget target;
 
         private InputStep m_accumulatedInput;
@@ -18,31 +16,15 @@ namespace Wheeled.Gameplay.Movement
 
         private Snapshot m_snapshot;
 
-        public MovementController()
-        {
-            m_isPartialSimulationEnabled = true;
-        }
-
         public interface ICommitTarget
         {
             void Commit(int _step, InputStep _input, Snapshot _snapshot);
-        }
-
-        public bool IsPartialSimulationEnabled
-        {
-            get => m_isPartialSimulationEnabled;
-            set
-            {
-                m_isPartialSimulationEnabled = value;
-                UpdateView();
-            }
         }
 
         public bool IsRunning { get; private set; }
         public Snapshot RawSnapshot => m_snapshot;
         public int Step { get; private set; }
         public double Time { get; private set; }
-        public Snapshot ViewSnapshot { get; private set; }
 
         public void Pause()
         {
@@ -67,7 +49,6 @@ namespace Wheeled.Gameplay.Movement
                 m_accumulatedInput = new InputStep();
                 m_accumulatedTime = 0.0f;
             }
-            UpdateView();
         }
 
         public void UpdateUntil(double _time)
@@ -76,7 +57,6 @@ namespace Wheeled.Gameplay.Movement
             {
                 ProcessInput(_time);
             }
-            UpdateView();
         }
 
         private static void ClampMovement(ref float _refX, ref float _refZ)
@@ -164,20 +144,6 @@ namespace Wheeled.Gameplay.Movement
                     CommitInput();
                 }
             }
-        }
-
-        private void UpdateView()
-        {
-            Snapshot viewSnapshot = m_snapshot;
-            if (m_isPartialSimulationEnabled)
-            {
-                viewSnapshot.simulation = viewSnapshot.simulation.Simulate(GetAccumulatedInput(), m_accumulatedTime);
-            }
-            else
-            {
-                viewSnapshot.simulation = SimulationStep.Lerp(m_lastSimulation, viewSnapshot.simulation, (float) (m_accumulatedTime / TimeConstants.c_simulationStep));
-            }
-            ViewSnapshot = viewSnapshot;
         }
     }
 }

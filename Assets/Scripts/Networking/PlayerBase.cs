@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
@@ -22,11 +21,14 @@ namespace Wheeled.Networking
         {
             Id = _id;
             m_manager = _manager;
-            m_movementHistory = new MovementHistory();
-            m_inputHistory = new InputHistory();
-            m_actionHistory = new ActionHistory
+            m_movementHistory = new MovementHistory
             {
-                Target = this
+                MaxPrevisionTime = 4.0
+            };
+            m_inputHistory = new InputHistory();
+            m_actionHistory = new ActionHistory(_id)
+            {
+                Target = this,
             };
             m_view = new PlayerView();
             m_historyDuration = 1.0;
@@ -36,21 +38,38 @@ namespace Wheeled.Networking
             m_ShouldHandleRespawn = false;
             Info = null;
             Ping = 0;
+            m_movementHistory.DebugMe = !IsLocal;
         }
 
+        public ActionHistory.StaticQuery ActionHistoryLocalTimeQuery { get; private set; }
+        public ActionHistory.ImmediateQuery ActionHistoryQuery => m_actionHistory.Query;
         public double HistoryDuration { get => m_historyDuration; set { Debug.Assert(value >= 0.0); m_historyDuration = value; } }
         public byte Id { get; }
         public PlayerInfo? Info { get; private set; }
         public abstract bool IsLocal { get; }
         public int Ping { get; private set; }
-        public Snapshot Snapshot { get; private set; }
         public double SpawnDelay { get => m_spawnDelay; set { Debug.Assert(value >= 0.0); m_spawnDelay = value; } }
         public double TimeOffset { get; set; }
-        public ActionHistory.IState State => m_actionHistory.State;
         protected double m_LocalTime => m_manager.Time + TimeOffset;
         protected bool m_ShouldHandleRespawn { get; set; }
 
         #region GameManager interface
+
+        public Snapshot GetSnapshot(double _time)
+        {
+            Snapshot snapshot = new Snapshot();
+            m_movementHistory.GetSimulation(_time, out SimulationStep? simulation, m_inputHistory);
+            if (simulation != null)
+            {
+                snapshot.simulation = simulation.Value;
+            }
+            m_movementHistory.GetSight(_time, out Sight? sight);
+            if (sight != null)
+            {
+                snapshot.sight = sight.Value;
+            }
+            return snapshot;
+        }
 
         public void Introduce(PlayerInfo _info)
         {
@@ -88,14 +107,13 @@ namespace Wheeled.Networking
 
         public void Update()
         {
-            m_actionHistory.Update(m_LocalTime);
+            ActionHistoryLocalTimeQuery = m_actionHistory.GetQuery(m_LocalTime);
             if (m_ShouldHandleRespawn)
             {
                 HandleRespawn();
             }
             OnUpdated();
-            UpdateSnapshot();
-            m_actionHistory.Perform();
+            m_actionHistory.PerformUntil(m_LocalTime);
             UpdateView();
             Trim();
         }
@@ -233,7 +251,7 @@ namespace Wheeled.Networking
 
         private void HandleRespawn()
         {
-            if (m_actionHistory.ShouldSpawn)
+            if (ActionHistoryLocalTimeQuery.ShouldSpawn)
             {
                 double spawnTime = m_LocalTime + m_spawnDelay;
                 SpawnInfo info = new SpawnInfo
@@ -254,38 +272,16 @@ namespace Wheeled.Networking
             m_movementHistory.ForgetOlder(lastStep, true);
         }
 
-        private void UpdateSnapshot()
-        {
-            m_movementHistory.GetSimulation(m_LocalTime, out SimulationStep? simulation, m_inputHistory);
-            if (simulation != null)
-            {
-                Snapshot = new Snapshot
-                {
-                    simulation = simulation.Value,
-                    sight = Snapshot.sight
-                };
-            }
-            m_movementHistory.GetSight(m_LocalTime, out Sight? sight);
-            if (sight != null)
-            {
-                Snapshot = new Snapshot
-                {
-                    simulation = Snapshot.simulation,
-                    sight = sight.Value
-                };
-            }
-        }
-
         private void UpdateView()
         {
-            if (m_actionHistory.IsQuit)
+            if (ActionHistoryLocalTimeQuery.IsQuit)
             {
                 m_view.Destroy();
             }
             else
             {
-                m_view.Move(Snapshot);
-                m_view.isAlive = m_actionHistory.IsAlive;
+                m_view.Move(GetSnapshot(m_LocalTime));
+                m_view.isAlive = ActionHistoryLocalTimeQuery.IsAlive;
                 m_view.Update(Time.deltaTime);
             }
         }

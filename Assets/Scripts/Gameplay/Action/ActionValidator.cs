@@ -10,6 +10,7 @@ namespace Wheeled.Gameplay.Action
         private const float c_maxShotPositionTolerance = 0.5f;
         private readonly LinkedListHistory<double, INode> m_history;
         private double m_maxAnticipation;
+        private double m_maxDelay;
         private double? m_time;
 
         public ActionValidator()
@@ -30,11 +31,12 @@ namespace Wheeled.Gameplay.Action
         }
 
         public double MaxAnticipation { get => m_maxAnticipation; set { Debug.Assert(value > 0.0); m_maxAnticipation = value; } }
+        public double MaxDelay { get => m_maxDelay; set { Debug.Assert(value >= 0.0); m_maxDelay = value; } }
         public ITarget Target { get; set; }
 
         public void PutKaze(double _time)
         {
-            if (_time >= m_time && _time <= m_time + MaxAnticipation)
+            if (_time >= m_time - MaxDelay && _time <= m_time + MaxAnticipation)
             {
                 m_history.Add(_time, new KazeNode());
             }
@@ -42,7 +44,7 @@ namespace Wheeled.Gameplay.Action
 
         public void PutShot(double _time, ShotInfo _info)
         {
-            if (_time >= m_time && _time <= m_time + MaxAnticipation)
+            if (_time >= m_time - MaxDelay && _time <= m_time + MaxAnticipation)
             {
                 m_history.Add(_time, new ShotNode { info = _info });
             }
@@ -53,7 +55,7 @@ namespace Wheeled.Gameplay.Action
             m_time = _time;
         }
 
-        public void ValidateUntil(double _time, ActionHistory.IState _state, in Snapshot _snapshot)
+        public void ValidateUntil(double _time, ActionHistory.ImmediateQuery _query, in Snapshot _snapshot)
         {
             m_time = _time;
             foreach ((double time, INode node) in m_history.GetFullSequence().Where(_n => _n.time <= _time))
@@ -61,7 +63,7 @@ namespace Wheeled.Gameplay.Action
                 switch (node)
                 {
                     case KazeNode kazeNode:
-                    if (_state.CanKaze)
+                    if (_query.CanKaze(time))
                     {
                         Target?.Kaze(time);
                     }
@@ -71,8 +73,8 @@ namespace Wheeled.Gameplay.Action
                     {
                         if (Vector3.Distance(_snapshot.simulation.position, shotNode.info.position) <= c_maxShotPositionTolerance)
                         {
-                            if ((shotNode.info.isRocket && _state.CanShootRocket)
-                                || (!shotNode.info.isRocket && _state.CanShootRifle))
+                            if ((shotNode.info.isRocket && _query.CanShootRocket(time))
+                                || (!shotNode.info.isRocket && _query.CanShootRifle(time)))
                             {
                                 Target.Shoot(time, shotNode.info);
                             }

@@ -11,16 +11,17 @@ namespace Wheeled.Networking.Server
         private sealed class NetPlayer : Player, MovementValidator.ITarget, ActionValidator.ITarget
         {
             private const int c_maxCorrectionFrequency = 5;
-            private const double c_movementValidatorDuration = 4.0f;
+            private const double c_maxValidationAnticipation = 4.0f;
 
             private readonly ActionValidator m_actionValidator;
             private readonly MovementValidator m_movementValidator;
+            private double m_maxValidationDelay;
             private float m_timeSinceLastCorrection;
 
             public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer) : base(_manager, _id)
             {
                 Peer = _peer;
-                m_movementValidator = new MovementValidator(c_movementValidatorDuration)
+                m_movementValidator = new MovementValidator(c_maxValidationAnticipation)
                 {
                     Target = this,
                     MaxTrustedSteps = 10
@@ -28,14 +29,15 @@ namespace Wheeled.Networking.Server
                 m_actionValidator = new ActionValidator
                 {
                     Target = this,
-                    MaxAnticipation = 1.0
+                    MaxAnticipation = c_maxValidationAnticipation
                 };
                 IsStarted = false;
+                MaxValidationDelay = 1.0;
             }
 
             public override bool IsLocal => false;
             public bool IsStarted { get; private set; }
-
+            public double MaxValidationDelay { get => m_maxValidationDelay; set { Debug.Assert(value >= 0.0); m_actionValidator.MaxDelay = value; m_maxValidationDelay = value; } }
             public NetworkManager.Peer Peer { get; }
 
             public void Start()
@@ -43,8 +45,8 @@ namespace Wheeled.Networking.Server
                 if (!IsStarted)
                 {
                     IsStarted = true;
-                    m_movementValidator.SkipTo(m_manager.m_time.SimulationSteps(), false);
-                    m_movementValidator.IsRunning = true;
+
+                    m_ShouldHandleRespawn = true;
                 }
             }
 
@@ -64,9 +66,14 @@ namespace Wheeled.Networking.Server
                 m_actionValidator.PutShot(_time, _info);
             }
 
+            protected override int GetLastValidMovementStep()
+            {
+                return m_movementValidator.Step;
+            }
+
             protected override void OnDamageScheduled(double _time, DamageInfo _info)
             {
-                Serializer.WriteDamageOrder(_time, _info, (byte) State.Health);
+                Serializer.WriteDamageOrder(_time, _info, (byte) ActionHistoryQuery.GetHealth(_time));
                 Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
             }
 
@@ -78,9 +85,24 @@ namespace Wheeled.Networking.Server
 
             protected override void OnUpdated()
             {
+                if (IsStarted)
+                {
+                    if (ActionHistoryLocalTimeQuery.IsAlive)
+                    {
+                        if (!m_movementValidator.IsRunning)
+                        {
+                            m_movementValidator.SkipTo((m_LocalTime - m_maxValidationDelay).SimulationSteps(), false);
+                            m_movementValidator.IsRunning = true;
+                        }
+                    }
+                    else
+                    {
+                        m_movementValidator.IsRunning = false;
+                    }
+                }
                 m_timeSinceLastCorrection += Time.deltaTime;
-                m_movementValidator.UpdateUntil(m_LocalTime.SimulationSteps());
-                m_actionValidator.ValidateUntil(m_LocalTime, State, Snapshot);
+                m_movementValidator.UpdateUntil((m_LocalTime - m_maxValidationDelay).SimulationSteps());
+                m_actionValidator.ValidateUntil(m_LocalTime, ActionHistoryQuery, GetSnapshot(m_LocalTime));
             }
 
             #region ActionValidator.ITarget

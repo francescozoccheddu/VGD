@@ -19,23 +19,25 @@ namespace Wheeled.Networking.Server
             protected Player(ServerGameManager _manager, byte _id) : base(_manager, _id)
             {
                 m_manager = _manager;
-                m_ShouldHandleRespawn = true;
             }
 
             public int MaxMovementInputStepsReplicationCount { get => m_maxMovementInputStepsSendCount; set { Debug.Assert(value >= 0); m_maxMovementInputStepsSendCount = value; } }
 
-            public PlayerRecapInfo RecapInfo => new PlayerRecapInfo
+            public PlayerRecapInfo RecapInfo(double _time)
             {
-                deaths = State.Deaths,
-                kills = State.Kills,
-                health = (byte) State.Health,
-                id = Id,
-                ping = (byte) Mathf.Clamp(Ping, 0, 255)
-            };
+                return new PlayerRecapInfo
+                {
+                    deaths = ActionHistoryQuery.GetDeaths(_time),
+                    health = (byte) ActionHistoryQuery.GetHealth(_time),
+                    id = Id,
+                    kills = ActionHistoryQuery.GetHealth(_time),
+                    ping = (byte) Mathf.Clamp(Ping, 0, 255)
+                };
+            }
 
             public void Replicate()
             {
-                int lastMovementStep = m_manager.m_time.SimulationSteps();
+                int lastMovementStep = GetLastValidMovementStep();
                 if (lastMovementStep <= m_lastReplicatedMovementStep == false)
                 {
                     m_lastReplicatedMovementStep = lastMovementStep;
@@ -45,14 +47,16 @@ namespace Wheeled.Networking.Server
                         maxStepsCount = Math.Min(maxStepsCount, lastMovementStep - m_lastReplicatedMovementStep.Value);
                     }
                     IEnumerable<InputStep> inputSequence = GetReversedInputSequence(lastMovementStep, maxStepsCount);
-                    Serializer.WriteMovementAndInputReplication(Id, lastMovementStep, inputSequence, Snapshot);
+                    Serializer.WriteMovementAndInputReplication(Id, lastMovementStep, inputSequence, GetSnapshot(lastMovementStep.SimulationPeriod()));
                     SendReplication(NetworkManager.SendMethod.Unreliable);
                 }
             }
 
+            protected abstract int GetLastValidMovementStep();
+
             protected override void OnDeathScheduled(double _time, DeathInfo _info)
             {
-                Serializer.WriteDeathOrderOrReplication(_time, Id, _info, (byte) State.Deaths);
+                Serializer.WriteDeathOrderOrReplication(_time, Id, _info, (byte) ActionHistoryQuery.GetDeaths(_time));
                 m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
             }
 

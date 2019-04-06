@@ -14,11 +14,11 @@ namespace Wheeled.Gameplay.Action
 
         public ITarget Target { get; set; }
 
-        public void Update(ActionHistory.IState _state, in Snapshot _snapshot)
+        public void Update(ActionHistory.StaticQuery _query, in Snapshot _snapshot)
         {
             if (Target != null)
             {
-                if (Input.GetButtonDown("ShootRifle") && _state.CanShootRifle)
+                if (Input.GetButtonDown("ShootRifle") && _query.CanShootRifle)
                 {
                     Target.Shoot(new ShotInfo
                     {
@@ -27,7 +27,7 @@ namespace Wheeled.Gameplay.Action
                         isRocket = false
                     });
                 }
-                if (Input.GetButtonDown("ShootRocket") && _state.CanShootRocket)
+                if (Input.GetButtonDown("ShootRocket") && _query.CanShootRocket)
                 {
                     Target.Shoot(new ShotInfo
                     {
@@ -36,7 +36,7 @@ namespace Wheeled.Gameplay.Action
                         isRocket = true
                     });
                 }
-                if (Input.GetButtonDown("Kaze") && _state.CanKaze)
+                if (Input.GetButtonDown("Kaze") && _query.CanKaze)
                 {
                     Target.Kaze();
                 }

@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 
-using UnityEngine;
-
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
@@ -73,7 +71,6 @@ namespace Wheeled.Networking.Client
                 case Message.SimulationOrder:
                 {
                     _reader.ReadSimulationOrder(out int step, out SimulationStepInfo simulation);
-                    Debug.LogFormat("Reconciliation {0}", step);
                     m_localPlayer.Correct(step, simulation);
                 }
                 break;

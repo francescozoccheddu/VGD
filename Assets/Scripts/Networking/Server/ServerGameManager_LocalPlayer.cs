@@ -1,4 +1,5 @@
-﻿using Wheeled.Gameplay.Action;
+﻿using Wheeled.Gameplay;
+using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Networking.Server
@@ -20,6 +21,7 @@ namespace Wheeled.Networking.Server
                 {
                     Target = this
                 };
+                m_ShouldHandleRespawn = true;
             }
 
             public override bool IsLocal => true;
@@ -60,9 +62,14 @@ namespace Wheeled.Networking.Server
 
             #endregion ActionController.ITarget
 
+            protected override int GetLastValidMovementStep()
+            {
+                return m_LocalTime.SimulationSteps();
+            }
+
             protected override void OnUpdated()
             {
-                if (State.IsAlive)
+                if (ActionHistoryLocalTimeQuery.IsAlive)
                 {
                     if (!m_movementController.IsRunning)
                     {
@@ -74,7 +81,7 @@ namespace Wheeled.Networking.Server
                     m_movementController.Pause();
                 }
                 m_movementController.UpdateUntil(m_LocalTime);
-                m_actionController.Update(State, Snapshot);
+                m_actionController.Update(ActionHistoryLocalTimeQuery, GetSnapshot(m_LocalTime));
             }
 
             protected override void SendReplication(NetworkManager.SendMethod _method)

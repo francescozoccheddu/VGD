@@ -12,6 +12,7 @@ namespace Wheeled.Networking.Server
     internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget, IGameManager, ShootStage.IValidationTarget
     {
         private const int c_replicationRate = 10;
+        private const double c_validationDelay = 1.0;
         private readonly LocalPlayer m_localPlayer;
         private readonly List<Player> m_players;
         private readonly ShootStage m_shootStage;
@@ -52,7 +53,7 @@ namespace Wheeled.Networking.Server
 
         IEnumerable<Snapshot> ShootStage.IValidationTarget.GetPlayersAt(double _time)
         {
-            return from p in m_NetPlayers select p.Snapshot;
+            return from p in m_NetPlayers select p.GetSnapshot(_time);
         }
 
         void ShootStage.IValidationTarget.RifleHit(double _time, byte _id, Collider _collider, float _power)
@@ -90,7 +91,8 @@ namespace Wheeled.Networking.Server
             if (m_lastRecapSyncTime + c_recapSyncPeriod <= m_time)
             {
                 m_lastRecapSyncTime = m_time;
-                Serializer.WriteRecapSync(m_time, from p in m_players select p.RecapInfo);
+                double recapTime = m_time - c_validationDelay;
+                Serializer.WriteRecapSync(recapTime, from p in m_players select p.RecapInfo(recapTime));
                 SendAll(NetworkManager.SendMethod.Sequenced);
             }
         }
@@ -145,7 +147,8 @@ namespace Wheeled.Networking.Server
                 Serializer.WritePlayerIntroductionSync(netPlayer.Id, netPlayer.Info.Value);
                 SendAllBut(netPlayer.Peer, NetworkManager.SendMethod.ReliableUnordered);
                 // Recap
-                Serializer.WriteRecapSync(m_time, from p in m_players select p.RecapInfo);
+                double recapTime = m_time - c_validationDelay;
+                Serializer.WriteRecapSync(recapTime, from p in m_players select p.RecapInfo(recapTime));
                 netPlayer.Peer.Send(NetworkManager.SendMethod.Unreliable);
             }
         }
@@ -206,7 +209,8 @@ namespace Wheeled.Networking.Server
                             Serializer.WritePlayerIntroductionSync(p.Id, p.Info.Value);
                             netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
                         }
-                        Serializer.WriteRecapSync(m_time, from p in m_players select p.RecapInfo);
+                        double recapTime = m_time - c_validationDelay;
+                        Serializer.WriteRecapSync(recapTime, from p in m_players select p.RecapInfo(recapTime));
                         netPlayer.Peer.Send(NetworkManager.SendMethod.Unreliable);
                     }
                 }
@@ -222,6 +226,7 @@ namespace Wheeled.Networking.Server
                 HistoryDuration = 2.0,
                 MaxMovementInputStepsReplicationCount = 5,
                 SpawnDelay = 0.5,
+                MaxValidationDelay = 1.0
             };
             netPlayer.Introduce(new PlayerInfo());
             m_players.Add(netPlayer);

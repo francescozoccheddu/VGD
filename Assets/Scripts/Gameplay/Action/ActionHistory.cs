@@ -6,7 +6,7 @@ using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Action
 {
-    internal sealed class ActionHistory : ActionHistory.IState
+    internal sealed class ActionHistory
     {
         private const int c_fullHealth = 100;
         private const float c_respawnWaitTime = 2.0f;
@@ -22,71 +22,22 @@ namespace Wheeled.Gameplay.Action
         private readonly LinkedListSimpleHistory<double> m_rifleShootHistory = new LinkedListSimpleHistory<double>();
         private readonly LinkedListSimpleHistory<double> m_rocketShootHistory = new LinkedListSimpleHistory<double>();
         private double? m_quitTime;
-        private double? m_time;
 
-        public ActionHistory()
+        public ActionHistory(byte _id)
         {
-            State = new ReadonlyState(this);
+            Id = _id;
+            Query = new ImmediateQuery(this);
         }
 
-        public interface IState
+        public byte Id { get; }
+        public ImmediateQuery Query { get; }
+
+        public StaticQuery GetQuery(double _time)
         {
-            bool CanKaze { get; }
-            bool CanShootRifle { get; }
-            bool CanShootRocket { get; }
-            int Deaths { get; }
-            int Health { get; }
-            bool IsAlive { get; }
-            bool IsQuit { get; }
-            int Kills { get; }
-            float RiflePower { get; }
-            bool ShouldSpawn { get; }
+            return new StaticQuery(this, _time);
         }
 
-        public interface ITarget
-        {
-            void PerformDamage(double _time, DamageInfo _info);
-
-            void PerformDeath(double _time, DeathInfo _info);
-
-            void PerformHitConfirm(double _time, HitConfirmInfo _info);
-
-            void PerformRifleShoot(double _time, ShotInfo _info, float _power);
-
-            void PerformRocketShoot(double _time, ShotInfo _info);
-
-            void PerformSpawn(double _time, SpawnInfo _info);
-        }
-
-        private interface IAction
-        {
-            void Perform(double _time, ITarget _target);
-        }
-
-        public bool CanKaze { get; private set; }
-        public bool CanShootRifle { get; private set; }
-        public bool CanShootRocket { get; private set; }
-        public int Deaths { get; private set; }
-        public int Health { get; private set; }
-        public bool IsAlive => Health > 0;
-        public bool IsQuit { get; private set; }
-        public int Kills { get; private set; }
-        public float RiflePower { get; private set; }
-        public bool ShouldSpawn { get; private set; }
-        public IState State { get; }
-        public ITarget Target { get; set; }
-
-        public void Perform()
-        {
-            foreach ((double time, IAction action) in m_actionHistory.GetFullSequence().Where(_n => _n.time <= m_time))
-            {
-                action.Perform(time, Target);
-            }
-            if (m_time != null)
-            {
-                m_actionHistory.ForgetAndOlder(m_time.Value);
-            }
-        }
+        #region Put
 
         public void PutDamage(double _time, DamageInfo _info)
         {
@@ -138,7 +89,7 @@ namespace Wheeled.Gameplay.Action
 
         public void PutShot(double _time, ShotInfo _info)
         {
-            m_actionHistory.Add(_time, new ShootAction(this) { info = _info });
+            m_actionHistory.Add(_time, new ShootAction() { info = _info });
             if (_info.isRocket)
             {
                 m_rocketShootHistory.Add(_time);
@@ -155,6 +106,8 @@ namespace Wheeled.Gameplay.Action
             PutHealth(_time, c_fullHealth);
         }
 
+        #endregion Put
+
         public void Trim(double _time)
         {
             m_actionHistory.ForgetOlder(_time, true);
@@ -166,116 +119,44 @@ namespace Wheeled.Gameplay.Action
             m_deathCountHistory.ForgetOlder(_time, true);
         }
 
-        public void Update(double _time)
+        #region Actions
+
+        public interface ITarget
         {
-            m_time = _time;
-            // Quit
-            IsQuit = m_quitTime <= _time;
-            if (!IsQuit)
+            void PerformDamage(double _time, DamageInfo _info);
+
+            void PerformDeath(double _time, DeathInfo _info);
+
+            void PerformHitConfirm(double _time, HitConfirmInfo _info);
+
+            void PerformRifleShoot(double _time, ShotInfo _info, float _power);
+
+            void PerformRocketShoot(double _time, ShotInfo _info);
+
+            void PerformSpawn(double _time, SpawnInfo _info);
+        }
+
+        private interface IAction
+        {
+            void Perform(double _time, ActionHistory _history, ITarget _target);
+        }
+
+        public ITarget Target { get; set; }
+
+        public void PerformUntil(double _time)
+        {
+            foreach ((double time, IAction action) in m_actionHistory.GetFullSequence().Where(_n => _n.time <= _time))
             {
-                // Life
-                {
-                    Health = 0;
-                    double lastTime = 0.0;
-                    bool found = false;
-                    bool willSpawn = false;
-                    double lastAliveTime = _time;
-                    foreach (HistoryNode<double, int> node in m_healthHistory.GetFullReversedSequence())
-                    {
-                        if (node.time <= _time)
-                        {
-                            if (!found)
-                            {
-                                Health = node.value;
-                                found = true;
-                            }
-                            if (node.value == 0)
-                            {
-                                lastTime = node.time;
-                            }
-                            else
-                            {
-                                lastAliveTime = node.time;
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            willSpawn |= node.value > 0;
-                        }
-                    }
-                    ShouldSpawn = Health == 0 && (_time - lastTime) >= c_respawnWaitTime && !willSpawn;
-                    CanKaze = IsAlive || m_explosionHistory.GetOrPrevious(_time) < lastAliveTime != true;
-                }
-                // Shoots
-                {
-                    double? lastRocketShot = m_rocketShootHistory.GetOrPrevious(_time);
-                    if (lastRocketShot != null)
-                    {
-                        double elapsed = _time - lastRocketShot.Value;
-                        CanShootRocket = elapsed >= c_rocketCooldown;
-                    }
-                    else
-                    {
-                        CanShootRocket = true;
-                    }
-                    CanShootRocket &= IsAlive;
-                }
-                {
-                    double? lastRifleShot = m_rocketShootHistory.GetOrPrevious(_time);
-                    if (lastRifleShot != null)
-                    {
-                        double elapsed = _time - lastRifleShot.Value;
-                        CanShootRifle = elapsed >= c_rifleCooldown;
-                        RiflePower = Mathf.Clamp01((float) (elapsed / c_riflePowerUpTime));
-                    }
-                    else
-                    {
-                        CanShootRifle = true;
-                        RiflePower = 1.0f;
-                    }
-                    CanShootRifle &= IsAlive;
-                }
+                action.Perform(time, this, Target);
             }
-            else
-            {
-                CanKaze = false;
-                CanShootRifle = false;
-                CanShootRocket = false;
-                RiflePower = 0.0f;
-                Health = 0;
-                ShouldSpawn = false;
-            }
-            // Stats
-            {
-                HistoryNode<double, int>? node = m_killCountHistory.GetOrPrevious(_time);
-                Kills = node?.value ?? 0;
-                foreach (double time in m_killsHistory.GetReversedSequenceSince(_time, false, true).Where(_n => node?.time >= _n != true))
-                {
-                    Kills++;
-                }
-            }
-            {
-                HistoryNode<double, int>? node = m_deathCountHistory.GetOrPrevious(_time);
-                Deaths = node?.value ?? 0;
-                IEnumerable<HistoryNode<double, int>> sequence = node != null ? m_healthHistory.GetSequenceSince(node.Value.time, true, true) : m_healthHistory.GetFullSequence();
-                bool alive = false;
-                foreach (HistoryNode<double, int> healthNode in sequence.Where(_n => _n.time <= _time))
-                {
-                    if (alive && healthNode.value <= 0 && node?.time >= healthNode.time != true)
-                    {
-                        Deaths++;
-                    }
-                    alive = healthNode.value > 0;
-                }
-            }
+            m_actionHistory.ForgetAndOlder(_time);
         }
 
         private struct DamageAction : IAction
         {
             public DamageInfo info;
 
-            void IAction.Perform(double _time, ITarget _target)
+            void IAction.Perform(double _time, ActionHistory _history, ITarget _target)
             {
                 _target?.PerformDamage(_time, info);
             }
@@ -285,9 +166,49 @@ namespace Wheeled.Gameplay.Action
         {
             public DeathInfo info;
 
-            void IAction.Perform(double _time, ITarget _target)
+            void IAction.Perform(double _time, ActionHistory _history, ITarget _target)
             {
-                _target?.PerformDeath(_time, info);
+                bool IsAliveOrDying()
+                {
+                    foreach (HistoryNode<double, int> node in _history.m_healthHistory.GetReversedSequenceSince(_time, false, true))
+                    {
+                        if (node.value > 0)
+                        {
+                            return true;
+                        }
+                        else if (node.time != _time)
+                        {
+                            break;
+                        }
+                    }
+                    return false;
+                }
+                if (info.isExploded && info.offenseType == OffenseType.Kaze && info.killerId == _history.Id)
+                {
+                    double? lastExplosion = _history.m_explosionHistory
+                        .GetReversedSequenceSince(_time, false, true)
+                        .Where(_t => _t < _time)
+                        .Cast<double?>()
+                        .FirstOrDefault();
+                    if (lastExplosion != null)
+                    {
+                        if (_history.m_healthHistory
+                            .GetSequenceSince(lastExplosion.Value, false, true)
+                            .Where(_node => _node.time <= _time)
+                            .Any(_node => _node.value > 0))
+                        {
+                            _target?.PerformDeath(_time, info);
+                        }
+                    }
+                    else if (IsAliveOrDying())
+                    {
+                        _target?.PerformDeath(_time, info);
+                    }
+                }
+                else if (IsAliveOrDying())
+                {
+                    _target?.PerformDeath(_time, info);
+                }
             }
         }
 
@@ -295,7 +216,7 @@ namespace Wheeled.Gameplay.Action
         {
             public HitConfirmInfo info;
 
-            void IAction.Perform(double _time, ITarget _target)
+            void IAction.Perform(double _time, ActionHistory _history, ITarget _target)
             {
                 _target?.PerformHitConfirm(_time, info);
             }
@@ -304,34 +225,15 @@ namespace Wheeled.Gameplay.Action
         private struct ShootAction : IAction
         {
             public ShotInfo info;
-            private readonly ActionHistory m_actionHistory;
 
-            public ShootAction(ActionHistory _actionHistory)
+            void IAction.Perform(double _time, ActionHistory _history, ITarget _target)
             {
-                m_actionHistory = _actionHistory;
-                info = default;
-            }
-
-            void IAction.Perform(double _time, ITarget _target)
-            {
-                if (info.isRocket)
+                if (info.isRocket && _history.Query.CanShootRocket(_time))
                 {
                     _target?.PerformRocketShoot(_time, info);
                 }
-                else
+                else if (_history.Query.CanShootRifle(_time, out float power))
                 {
-                    float power;
-                    {
-                        double? lastShotTime = m_actionHistory.m_rifleShootHistory.GetOrPrevious(_time);
-                        if (lastShotTime != null)
-                        {
-                            power = Mathf.Clamp01((float) ((_time - lastShotTime.Value) / c_riflePowerUpTime));
-                        }
-                        else
-                        {
-                            power = 1.0f;
-                        }
-                    }
                     _target?.PerformRifleShoot(_time, info, power);
                 }
             }
@@ -341,31 +243,215 @@ namespace Wheeled.Gameplay.Action
         {
             public SpawnInfo info;
 
-            void IAction.Perform(double _time, ITarget _target)
+            void IAction.Perform(double _time, ActionHistory _history, ITarget _target)
             {
                 _target?.PerformSpawn(_time, info);
             }
         }
 
-        private sealed class ReadonlyState : IState
-        {
-            private readonly IState m_state;
+        #endregion Actions
 
-            public ReadonlyState(IState _state)
+        #region Query
+
+        private bool CouldShootRifle(double _time, out float _power)
+        {
+            double? lastRifleShot = m_rocketShootHistory.GetOrPrevious(_time);
+            if (lastRifleShot != null)
             {
-                m_state = _state;
+                double elapsed = _time - lastRifleShot.Value;
+                _power = Mathf.Clamp01((float) (elapsed / c_riflePowerUpTime));
+                return elapsed >= c_rifleCooldown;
+            }
+            else
+            {
+                _power = 1.0f;
+                return true;
+            }
+        }
+
+        private bool CouldShootRocket(double _time)
+        {
+            double? lastRocketShot = m_rocketShootHistory.GetOrPrevious(_time);
+            if (lastRocketShot != null)
+            {
+                double elapsed = _time - lastRocketShot.Value;
+                return elapsed >= c_rocketCooldown;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private int GetDeaths(double _time)
+        {
+            HistoryNode<double, int>? node = m_deathCountHistory.GetOrPrevious(_time);
+            int deaths = node?.value ?? 0;
+            IEnumerable<HistoryNode<double, int>> sequence = node != null ? m_healthHistory.GetSequenceSince(node.Value.time, true, true) : m_healthHistory.GetFullSequence();
+            bool alive = false;
+            foreach (HistoryNode<double, int> healthNode in sequence.Where(_n => _n.time <= _time))
+            {
+                if (alive && healthNode.value <= 0 && node?.time >= healthNode.time != true)
+                {
+                    deaths++;
+                }
+                alive = healthNode.value > 0;
+            }
+            return deaths;
+        }
+
+        private int GetHealth(double _time)
+        {
+            return m_healthHistory.GetOrPrevious(_time)?.value ?? 0;
+        }
+
+        private int GetKills(double _time)
+        {
+            HistoryNode<double, int>? node = m_killCountHistory.GetOrPrevious(_time);
+            int kills = node?.value ?? 0;
+            foreach (double time in m_killsHistory.GetReversedSequenceSince(_time, false, true).Where(_n => node?.time >= _n != true))
+            {
+                kills++;
+            }
+            return kills;
+        }
+
+        private void GetLifeInfo(double _time, out int _outHealth, out bool _outShouldSpawn, out bool _outCanKaze)
+        {
+            _outHealth = 0;
+            double lastTime = 0.0;
+            bool found = false;
+            bool willSpawn = false;
+            double lastAliveTime = _time;
+            foreach (HistoryNode<double, int> node in m_healthHistory.GetFullReversedSequence())
+            {
+                if (node.time <= _time)
+                {
+                    if (!found)
+                    {
+                        _outHealth = node.value;
+                        found = true;
+                    }
+                    if (node.value == 0)
+                    {
+                        lastTime = node.time;
+                    }
+                    else
+                    {
+                        lastAliveTime = node.time;
+                        break;
+                    }
+                }
+                else
+                {
+                    willSpawn |= node.value > 0;
+                }
+            }
+            _outShouldSpawn = _outHealth == 0 && (_time - lastTime) >= c_respawnWaitTime && !willSpawn;
+            _outCanKaze = _outHealth > 0 || m_explosionHistory.GetOrPrevious(_time) < lastAliveTime != true;
+        }
+
+        private bool IsQuit(double _time)
+        {
+            return m_quitTime <= _time;
+        }
+
+        public class ImmediateQuery
+        {
+            private readonly ActionHistory m_history;
+
+            public ImmediateQuery(ActionHistory _history)
+            {
+                m_history = _history;
             }
 
-            bool IState.CanKaze => m_state.CanKaze;
-            bool IState.CanShootRifle => m_state.CanShootRifle;
-            bool IState.CanShootRocket => m_state.CanShootRocket;
-            int IState.Deaths => m_state.Deaths;
-            int IState.Health => m_state.Health;
-            bool IState.IsAlive => m_state.IsAlive;
-            bool IState.IsQuit => m_state.IsQuit;
-            int IState.Kills => m_state.Kills;
-            float IState.RiflePower => m_state.RiflePower;
-            bool IState.ShouldSpawn => m_state.ShouldSpawn;
+            public bool CanKaze(double _time)
+            {
+                m_history.GetLifeInfo(_time, out _, out _, out bool canKaze);
+                return canKaze;
+            }
+
+            public bool CanShootRifle(double _time, out float _power)
+            {
+                return m_history.CouldShootRifle(_time, out _power) && IsAlive(_time);
+            }
+
+            public bool CanShootRifle(double _time)
+            {
+                return CanShootRifle(_time, out _);
+            }
+
+            public bool CanShootRocket(double _time)
+            {
+                return m_history.CouldShootRocket(_time) && IsAlive(_time);
+            }
+
+            public int GetDeaths(double _time)
+            {
+                return m_history.GetDeaths(_time);
+            }
+
+            public int GetHealth(double _time)
+            {
+                return m_history.GetHealth(_time);
+            }
+
+            public int GetKills(double _time)
+            {
+                return m_history.GetKills(_time);
+            }
+
+            public bool IsAlive(double _time)
+            {
+                return GetHealth(_time) > 0 && !IsQuit(_time);
+            }
+
+            public bool IsAlive(double _time, out bool _shouldSpawn)
+            {
+                m_history.GetLifeInfo(_time, out int health, out _shouldSpawn, out _);
+                return health > 0;
+            }
+
+            public bool IsQuit(double _time)
+            {
+                return m_history.IsQuit(_time);
+            }
+
+            public bool ShouldSpawn(double _time)
+            {
+                m_history.GetLifeInfo(_time, out _, out bool shouldSpawn, out _);
+                return shouldSpawn;
+            }
         }
+
+        public class StaticQuery
+        {
+            public StaticQuery(ActionHistory _history, double _time)
+            {
+                IsQuit = _history.IsQuit(_time);
+                _history.GetLifeInfo(_time, out int health, out bool shouldSpawn, out bool canKaze);
+                Health = health;
+                ShouldSpawn = shouldSpawn && !IsQuit;
+                CanKaze = canKaze && !IsQuit;
+                Kills = _history.GetKills(_time);
+                Deaths = _history.GetDeaths(_time);
+                CanShootRifle = _history.CouldShootRifle(_time, out float riflePower) && IsAlive;
+                RiflePower = riflePower;
+                CanShootRocket = _history.CouldShootRocket(_time) && IsAlive;
+            }
+
+            public bool CanKaze { get; }
+            public bool CanShootRifle { get; }
+            public bool CanShootRocket { get; }
+            public int Deaths { get; }
+            public int Health { get; }
+            public bool IsAlive => Health > 0 && !IsQuit;
+            public bool IsQuit { get; }
+            public int Kills { get; }
+            public float RiflePower { get; }
+            public bool ShouldSpawn { get; }
+        }
+
+        #endregion Query
     }
 }

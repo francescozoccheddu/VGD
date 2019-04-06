@@ -1,19 +1,24 @@
 ﻿using System;
-
+using System.Collections.Generic;
+using UnityEngine;
 using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Movement
 {
     internal sealed class MovementHistory
     {
+        public bool DebugMe;
         private readonly IHistory<int, Sight> m_sightHistory;
         private readonly IHistory<int, SimulationStep> m_simulationHistory;
+        private double m_maxPrevisionTime;
 
         public MovementHistory()
         {
             m_sightHistory = new LinkedListHistory<int, Sight>();
             m_simulationHistory = new LinkedListHistory<int, SimulationStep>();
         }
+
+        public double MaxPrevisionTime { get => m_maxPrevisionTime; set { Debug.Assert(value >= 0.0); m_maxPrevisionTime = value; } }
 
         public void ForgetNewer(int _newest, bool _keepNewest)
         {
@@ -64,37 +69,23 @@ namespace Wheeled.Gameplay.Movement
                     SimulationStep b = next.Value.value;
                     double period = (next.Value.time - prev.Value.time).SimulationPeriod();
                     double progress = _time - (prev.Value.time).SimulationPeriod();
-                    if (_inputHistory != null)
-                    {
-                        SimulationStep simulation = prev.Value.value;
-                        int step = prev.Value.time;
-                        double partialSimulationProgress = progress;
-                        PartialSimulate(_inputHistory, ref simulation, ref step, ref partialSimulationProgress, false);
-                        float lerpAlpha = (float) (partialSimulationProgress / (period - progress + partialSimulationProgress));
-                        _outSimulation = SimulationStep.Lerp(simulation, next.Value.value, lerpAlpha);
-                    }
-                    else
-                    {
-                        _outSimulation = SimulationStep.Lerp(a, b, (float) (progress / period));
-                    }
+                    SimulationStep simulation = prev.Value.value;
+                    int step = prev.Value.time;
+                    double partialSimulationProgress = progress;
+                    PartialSimulate(_inputHistory, ref simulation, ref step, ref partialSimulationProgress, false);
+                    float lerpAlpha = (float) (partialSimulationProgress / (period - progress + partialSimulationProgress));
+                    _outSimulation = SimulationStep.Lerp(simulation, next.Value.value, lerpAlpha);
                 }
                 else
                 {
                     // Prev only
                     HistoryNode<int, SimulationStep> node = prev.Value;
-                    if (_inputHistory != null)
-                    {
-                        const double c_maxPrevision = 1.0f;
-                        SimulationStep simulation = node.value;
-                        int step = node.time;
-                        double partialSimulationProgress = Math.Min(_time - step.SimulationPeriod(), c_maxPrevision);
-                        PartialSimulate(_inputHistory, ref simulation, ref step, ref partialSimulationProgress, true);
-                        _outSimulation = simulation;
-                    }
-                    else
-                    {
-                        _outSimulation = node.value;
-                    }
+                    SimulationStep simulation = node.value;
+                    int step = node.time;
+                    double partialSimulationProgress = Math.Min(_time - step.SimulationPeriod(), MaxPrevisionTime);
+
+                    PartialSimulate(_inputHistory, ref simulation, ref step, ref partialSimulationProgress, true);
+                    _outSimulation = simulation;
                 }
             }
             else
@@ -116,38 +107,51 @@ namespace Wheeled.Gameplay.Movement
 
         private void PartialSimulate(InputHistory _inputHistory, ref SimulationStep _refSimulationStep, ref int _refStep, ref double _refDeltaTime, bool _canPredict)
         {
-            InputStep input = new InputStep();
-            foreach (HistoryNode<int, InputStep> node in _inputHistory.GetSequenceSince(_refStep, true, false))
+            void Simulate(ref SimulationStep _refInnerSimulationStep, ref int _refInnerStep, ref double _refInnerDeltaTime, in InputStep _inputStep)
             {
-                if (_refDeltaTime <= 0.0)
+                if (_refInnerDeltaTime > TimeConstants.c_simulationStep)
                 {
-                    break;
-                }
-                if (node.time < _refStep && _canPredict)
-                {
-                    input = node.value.Predicted;
-                }
-                else if (node.time == _refStep)
-                {
-                    input = node.value;
-                }
-                else if (_canPredict)
-                {
-                    input = input.Predicted;
+                    _refInnerSimulationStep = _refInnerSimulationStep.Simulate(_inputStep, TimeConstants.c_simulationStep);
+                    _refInnerDeltaTime -= TimeConstants.c_simulationStep;
+                    _refInnerStep++;
                 }
                 else
                 {
-                    break;
+                    _refInnerSimulationStep = _refInnerSimulationStep.Simulate(_inputStep, _refInnerDeltaTime);
+                    _refInnerDeltaTime = 0.0;
                 }
-                if (_refDeltaTime > TimeConstants.c_simulationStep)
+            }
+            if (_canPredict)
+            {
+                using (IEnumerator<HistoryNode<int, InputStep>> enumerator = _inputHistory.GetSequenceSince(_refStep, true, false).GetEnumerator())
                 {
-                    _refSimulationStep = _refSimulationStep.Simulate(input, TimeConstants.c_simulationStep);
-                    _refDeltaTime -= TimeConstants.c_simulationStep;
+                    if (enumerator.MoveNext())
+                    {
+                        HistoryNode<int, InputStep> node = enumerator.Current;
+                        while (_refDeltaTime > 0.0)
+                        {
+                            if (node.time < _refStep && enumerator.MoveNext())
+                            {
+                                node = enumerator.Current;
+                            }
+                            Simulate(ref _refSimulationStep, ref _refStep, ref _refDeltaTime, node.value);
+                            node.value = node.value.Predicted;
+                        }
+                    }
                 }
-                else
+            }
+            else
+            {
+                foreach (HistoryNode<int, InputStep> node in _inputHistory.GetSequenceSince(_refStep, false, false))
                 {
-                    _refSimulationStep = _refSimulationStep.Simulate(input, _refDeltaTime);
-                    _refDeltaTime = 0.0;
+                    if (node.time == _refStep && _refDeltaTime > 0.0)
+                    {
+                        Simulate(ref _refSimulationStep, ref _refStep, ref _refDeltaTime, node.value);
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
         }
