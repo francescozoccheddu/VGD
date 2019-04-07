@@ -58,15 +58,15 @@ namespace Wheeled.Networking.Client
                 {
                     if (!m_movementController.IsRunning)
                     {
-                        m_movementController.StartAt(m_LocalTime);
+                        m_movementController.StartAt(LocalTime);
                     }
                 }
                 else
                 {
                     m_movementController.Pause();
                 }
-                m_movementController.UpdateUntil(m_LocalTime);
-                m_actionController.Update(ActionHistoryLocalTimeQuery, GetSnapshot(m_LocalTime));
+                m_movementController.UpdateUntil(LocalTime);
+                m_actionController.Update(ActionHistoryLocalTimeQuery, GetSnapshot(LocalTime));
                 m_timeSinceLastMovementNotify += Time.deltaTime;
                 if (m_lastNotifiedMovementStep == null || (m_lastNotifiedMovementStep < m_movementController.Step && m_timeSinceLastMovementNotify >= 1.0f / m_movementSendRate))
                 {
@@ -89,14 +89,14 @@ namespace Wheeled.Networking.Client
 
             void ActionController.ITarget.Kaze()
             {
-                Serializer.WriteKazeNotify(m_LocalTime);
+                Serializer.WriteKazeNotify(LocalTime);
                 m_manager.m_server.Send(NetworkManager.SendMethod.Unreliable);
             }
 
             void ActionController.ITarget.Shoot(ShotInfo _info)
             {
-                PutShoot(m_LocalTime, _info);
-                Serializer.WriteShootNotify(m_LocalTime, _info);
+                PutShoot(LocalTime, _info);
+                Serializer.WriteShootNotify(LocalTime, _info);
                 m_manager.m_server.Send(NetworkManager.SendMethod.Unreliable);
             }
 

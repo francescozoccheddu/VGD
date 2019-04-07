@@ -28,7 +28,7 @@ namespace Wheeled.Networking.Server
 
             public void Start()
             {
-                m_movementController.StartAt(m_LocalTime);
+                m_movementController.StartAt(LocalTime);
             }
 
             #region MovementController.ICommitTarget
@@ -64,7 +64,7 @@ namespace Wheeled.Networking.Server
 
             protected override int GetLastValidMovementStep()
             {
-                return m_LocalTime.SimulationSteps();
+                return LocalTime.SimulationSteps();
             }
 
             protected override void OnUpdated()
@@ -73,15 +73,15 @@ namespace Wheeled.Networking.Server
                 {
                     if (!m_movementController.IsRunning)
                     {
-                        m_movementController.StartAt(m_LocalTime);
+                        m_movementController.StartAt(LocalTime);
                     }
                 }
                 else
                 {
                     m_movementController.Pause();
                 }
-                m_movementController.UpdateUntil(m_LocalTime);
-                m_actionController.Update(ActionHistoryLocalTimeQuery, GetSnapshot(m_LocalTime));
+                m_movementController.UpdateUntil(LocalTime);
+                m_actionController.Update(ActionHistoryLocalTimeQuery, GetSnapshot(LocalTime));
             }
 
             protected override void SendReplication(NetworkManager.SendMethod _method)

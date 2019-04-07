@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using UnityEngine;
 using Wheeled.Core.Utils;
-using Wheeled.Gameplay.Movement;
+using Wheeled.Networking;
 
 namespace Wheeled.Gameplay.Action
 {
@@ -55,7 +55,7 @@ namespace Wheeled.Gameplay.Action
             m_time = _time;
         }
 
-        public void ValidateUntil(double _time, ActionHistory.ImmediateQuery _query, in Snapshot _snapshot)
+        public void ValidateUntil(double _time, PlayerBase _player)
         {
             m_time = _time;
             foreach ((double time, INode node) in m_history.GetFullSequence().Where(_n => _n.time <= _time))
@@ -63,7 +63,7 @@ namespace Wheeled.Gameplay.Action
                 switch (node)
                 {
                     case KazeNode kazeNode:
-                    if (_query.CanKaze(time))
+                    if (_player.ActionHistoryQuery.CanKaze(time))
                     {
                         Target?.Kaze(time);
                     }
@@ -71,10 +71,10 @@ namespace Wheeled.Gameplay.Action
 
                     case ShotNode shotNode:
                     {
-                        if (Vector3.Distance(_snapshot.simulation.position, shotNode.info.position) <= c_maxShotPositionTolerance)
+                        if (Vector3.Distance(_player.GetSnapshot(time).simulation.position, shotNode.info.position) <= c_maxShotPositionTolerance)
                         {
-                            if ((shotNode.info.isRocket && _query.CanShootRocket(time))
-                                || (!shotNode.info.isRocket && _query.CanShootRifle(time)))
+                            if ((shotNode.info.isRocket && _player.ActionHistoryQuery.CanShootRocket(time))
+                                || (!shotNode.info.isRocket && _player.ActionHistoryQuery.CanShootRifle(time)))
                             {
                                 Target.Shoot(time, shotNode.info);
                             }

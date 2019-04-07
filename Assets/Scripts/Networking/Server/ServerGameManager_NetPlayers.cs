@@ -91,7 +91,7 @@ namespace Wheeled.Networking.Server
                     {
                         if (!m_movementValidator.IsRunning)
                         {
-                            m_movementValidator.SkipTo((m_LocalTime - m_maxValidationDelay).SimulationSteps(), false);
+                            m_movementValidator.SkipTo((LocalTime - m_maxValidationDelay).SimulationSteps(), false);
                             m_movementValidator.IsRunning = true;
                         }
                     }
@@ -101,8 +101,9 @@ namespace Wheeled.Networking.Server
                     }
                 }
                 m_timeSinceLastCorrection += Time.deltaTime;
-                m_movementValidator.UpdateUntil((m_LocalTime - m_maxValidationDelay).SimulationSteps());
-                m_actionValidator.ValidateUntil(m_LocalTime, ActionHistoryQuery, GetSnapshot(m_LocalTime));
+                m_movementValidator.UpdateUntil((LocalTime - m_maxValidationDelay).SimulationSteps());
+                double lastMovementTime = m_movementValidator.Step.SimulationPeriod();
+                m_actionValidator.ValidateUntil(lastMovementTime, this);
             }
 
             #region ActionValidator.ITarget
@@ -110,12 +111,12 @@ namespace Wheeled.Networking.Server
             void ActionValidator.ITarget.Kaze(double _time)
             {
                 DeathInfo deathInfo = new DeathInfo { isExploded = true, killerId = Id, offenseType = OffenseType.Kaze };
-                PutDeath(m_LocalTime, deathInfo);
+                PutDeath(LocalTime, deathInfo);
             }
 
             void ActionValidator.ITarget.Shoot(double _time, ShotInfo _info)
             {
-                PutShoot(m_LocalTime, _info);
+                PutShoot(LocalTime, _info);
             }
 
             #endregion ActionValidator.ITarget

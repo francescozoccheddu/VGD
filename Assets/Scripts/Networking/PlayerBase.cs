@@ -46,10 +46,10 @@ namespace Wheeled.Networking
         public byte Id { get; }
         public PlayerInfo? Info { get; private set; }
         public abstract bool IsLocal { get; }
+        public double LocalTime => m_manager.Time + TimeOffset;
         public int Ping { get; private set; }
         public double SpawnDelay { get => m_spawnDelay; set { Debug.Assert(value >= 0.0); m_spawnDelay = value; } }
         public double TimeOffset { get; set; }
-        protected double m_LocalTime => m_manager.Time + TimeOffset;
         protected bool m_ShouldHandleRespawn { get; set; }
 
         #region GameManager interface
@@ -106,13 +106,13 @@ namespace Wheeled.Networking
 
         public void Update()
         {
-            ActionHistoryLocalTimeQuery = m_actionHistory.GetQuery(m_LocalTime);
+            ActionHistoryLocalTimeQuery = m_actionHistory.GetQuery(LocalTime);
             if (m_ShouldHandleRespawn)
             {
                 HandleRespawn();
             }
             OnUpdated();
-            m_actionHistory.PerformUntil(m_LocalTime);
+            m_actionHistory.PerformUntil(LocalTime);
             UpdateView();
             Trim();
         }
@@ -253,7 +253,7 @@ namespace Wheeled.Networking
         {
             if (ActionHistoryLocalTimeQuery.ShouldSpawn)
             {
-                double spawnTime = m_LocalTime + m_spawnDelay;
+                double spawnTime = LocalTime + m_spawnDelay;
                 SpawnInfo info = new SpawnInfo
                 {
                     spawnPoint = 0 // TODO Decide where to spawn
@@ -280,7 +280,7 @@ namespace Wheeled.Networking
             }
             else
             {
-                m_view.Move(GetSnapshot(m_LocalTime));
+                m_view.Move(GetSnapshot(LocalTime));
                 m_view.isAlive = ActionHistoryLocalTimeQuery.IsAlive;
                 m_view.Update(Time.deltaTime);
             }
