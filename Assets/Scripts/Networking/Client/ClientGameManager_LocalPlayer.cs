@@ -54,7 +54,7 @@ namespace Wheeled.Networking.Client
 
             protected override void OnUpdated()
             {
-                if (ActionHistoryQuery.IsAlive(m_LocalTime))
+                if (ActionHistoryLocalTimeQuery.IsAlive)
                 {
                     if (!m_movementController.IsRunning)
                     {

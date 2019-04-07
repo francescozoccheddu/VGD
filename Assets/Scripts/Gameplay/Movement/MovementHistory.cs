@@ -7,7 +7,6 @@ namespace Wheeled.Gameplay.Movement
 {
     internal sealed class MovementHistory
     {
-        public bool DebugMe;
         private readonly IHistory<int, Sight> m_sightHistory;
         private readonly IHistory<int, SimulationStep> m_simulationHistory;
         private double m_maxPrevisionTime;

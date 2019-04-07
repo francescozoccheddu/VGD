@@ -58,13 +58,15 @@ namespace Wheeled.Gameplay.Movement
     {
         private float m_lookUp;
         private float m_turn;
-        public Vector3 Direction => Quaternion.Euler(m_lookUp, m_turn, 0.0f) * Vector3.forward;
+        public Vector3 Direction => Quaternion * Vector3.forward;
 
         public float LookUp
         {
             get => m_lookUp;
             set => m_lookUp = Mathf.Clamp(value, -40.0f, 80.0f);
         }
+
+        public Quaternion Quaternion => Quaternion.Euler(m_lookUp, m_turn, 0.0f);
 
         public float Turn
         {

@@ -51,9 +51,11 @@ namespace Wheeled.Networking.Server
         double IGameManager.Time => m_time;
         private IEnumerable<NetPlayer> m_NetPlayers => m_players.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
 
-        IEnumerable<Snapshot> ShootStage.IValidationTarget.GetPlayersAt(double _time)
+        #region ShootStage.IValidationTarget
+
+        IEnumerable<ShootStage.HitTarget> ShootStage.IValidationTarget.GetHitTargets(double _time, byte _shooterId)
         {
-            return from p in m_NetPlayers select p.GetSnapshot(_time);
+            return from p in m_players where p.Id != _shooterId select new ShootStage.HitTarget { player = p, snapshot = p.GetSnapshot(_time) };
         }
 
         void ShootStage.IValidationTarget.RifleHit(double _time, byte _id, Collider _collider, float _power)
@@ -65,6 +67,8 @@ namespace Wheeled.Networking.Server
         {
             throw new System.NotImplementedException();
         }
+
+        #endregion ShootStage.IValidationTarget
 
         void Updatable.ITarget.Update()
         {

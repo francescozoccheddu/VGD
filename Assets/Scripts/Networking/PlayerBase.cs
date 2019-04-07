@@ -38,7 +38,6 @@ namespace Wheeled.Networking
             m_ShouldHandleRespawn = false;
             Info = null;
             Ping = 0;
-            m_movementHistory.DebugMe = !IsLocal;
         }
 
         public ActionHistory.StaticQuery ActionHistoryLocalTimeQuery { get; private set; }

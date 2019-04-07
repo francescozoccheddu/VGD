@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using UnityEngine;
-
 using Wheeled.Core.Utils;
 using Wheeled.Debugging;
 using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Client
 {
-    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IGameManager
+    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IGameManager, ShootStage.IValidationTarget
     {
         private const int c_expectedMovementReplicationFrequency = 10;
         private const double c_localOffset = 0.5;
@@ -27,7 +26,10 @@ namespace Wheeled.Networking.Client
         public ClientGameManager(Client.IServer _server, byte _id)
         {
             Debug.Log("ClientGameManager started");
-            m_shootStage = new ShootStage();
+            m_shootStage = new ShootStage
+            {
+                ValidationTarget = this
+            };
             m_updatable = new Updatable(this, false)
             {
                 IsRunning = true
@@ -107,5 +109,24 @@ namespace Wheeled.Networking.Client
         }
 
         #endregion Client.IGameManager
+
+        #region ShootStage.IValidationTarget
+
+        IEnumerable<ShootStage.HitTarget> ShootStage.IValidationTarget.GetHitTargets(double _time, byte _shooterId)
+        {
+            return from p in m_players.Values where p.Id != _shooterId select new ShootStage.HitTarget { player = p, snapshot = p.GetSnapshot(_time) };
+        }
+
+        void ShootStage.IValidationTarget.RifleHit(double _time, byte _id, Collider _collider, float _power)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        void ShootStage.IValidationTarget.RocketHit(double _time, byte _id, Collider _collider)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        #endregion ShootStage.IValidationTarget
     }
 }

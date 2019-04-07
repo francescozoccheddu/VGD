@@ -2,22 +2,24 @@
 using UnityEngine;
 using Wheeled.Core.Data;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Networking;
 
 namespace Wheeled.Gameplay.Stage
 {
     internal sealed class ShootStage
     {
-        private static readonly List<GameObject> s_probes = new List<GameObject>();
+        private readonly HitProbePool m_probePool;
         private readonly List<Projectile> m_projectiles;
 
         public ShootStage()
         {
             m_projectiles = new List<Projectile>();
+            m_probePool = new HitProbePool();
         }
 
         public interface IValidationTarget
         {
-            IEnumerable<Snapshot> GetPlayersAt(double _time);
+            IEnumerable<HitTarget> GetHitTargets(double _time, byte _shooterId);
 
             void RifleHit(double _time, byte _id, Collider _collider, float _power);
 
@@ -40,9 +42,15 @@ namespace Wheeled.Gameplay.Stage
         {
             foreach (Projectile p in m_projectiles)
             {
-                p.Update(_time, ValidationTarget);
+                p.Update(_time, m_probePool, ValidationTarget);
             }
             m_projectiles.RemoveAll(_p => _p.IsGone);
+        }
+
+        public struct HitTarget
+        {
+            public PlayerBase player;
+            public Snapshot snapshot;
         }
 
         private abstract class Projectile
@@ -62,22 +70,12 @@ namespace Wheeled.Gameplay.Stage
 
             public bool IsGone { get; private set; }
 
-            public void Update(double _time, IValidationTarget _target)
+            public void Update(double _time, HitProbePool _probes, IValidationTarget _target)
             {
                 if (!IsGone)
                 {
-                    UpdateTrajectory(_time, _target);
+                    UpdateTrajectory(_time, _probes, _target);
                 }
-            }
-
-            protected static bool Raycast(Vector3 _start, Vector3 _end, out Hit _outHit)
-            {
-                bool wasHit = Physics.Raycast(new Ray(_start, _end - _start), out RaycastHit hit, 500, ~0);
-                _outHit = new Hit
-                {
-                    position = hit.point
-                };
-                return wasHit;
             }
 
             protected void Dispose()
@@ -85,14 +83,7 @@ namespace Wheeled.Gameplay.Stage
                 IsGone = true;
             }
 
-            protected abstract void UpdateTrajectory(double _time, IValidationTarget _target);
-
-            protected struct Hit
-            {
-                public Collider collider;
-                public Vector3 normal;
-                public Vector3 position;
-            }
+            protected abstract void UpdateTrajectory(double _time, HitProbePool _probes, IValidationTarget _target);
         }
 
         private sealed class RifleProjectile : Projectile
@@ -104,36 +95,27 @@ namespace Wheeled.Gameplay.Stage
                 m_power = _power;
             }
 
-            protected override void UpdateTrajectory(double _time, IValidationTarget _target)
+            protected override void UpdateTrajectory(double _time, HitProbePool _probes, IValidationTarget _target)
             {
                 if (_time >= m_shootTime)
                 {
-                    IEnumerable<Snapshot> snapshots = _target?.GetPlayersAt(_time);
-                    if (snapshots != null)
+                    _probes.Clear();
                     {
-                        int i = 0;
-                        foreach (Snapshot snapshot in snapshots)
+                        IEnumerable<HitTarget> targets = _target?.GetHitTargets(_time, m_shooterId);
+                        if (targets != null)
                         {
-                            if (i >= s_probes.Count)
+                            foreach (HitTarget t in targets)
                             {
-                                s_probes.Add(Object.Instantiate(ScriptManager.Actors.collisionProbe, snapshot.simulation.position, Quaternion.identity));
+                                _probes.Add(t.player, t.snapshot);
                             }
-                            else if (s_probes[i] == null)
-                            {
-                                s_probes[i] = Object.Instantiate(ScriptManager.Actors.collisionProbe, snapshot.simulation.position, Quaternion.identity);
-                            }
-                            else
-                            {
-                                s_probes[i].transform.position = snapshot.simulation.position;
-                            }
-                            i++;
                         }
                     }
                     Vector3 end = m_origin + m_direction * 100;
-                    if (Raycast(m_origin, end, out Hit hit))
+                    if (_probes.RayCast(m_origin, end, out HitProbePool.HitInfo hitInfo))
                     {
-                        end = hit.position;
+                        end = hitInfo.position;
                     }
+                    _probes.Clear();
                     GameObject gameObject = Object.Instantiate(ScriptManager.Actors.rifleProjectile);
                     gameObject.GetComponent<RifleProjectileBehaviour>()?.Shoot(m_origin, end);
                     Dispose();
@@ -147,7 +129,7 @@ namespace Wheeled.Gameplay.Stage
             {
             }
 
-            protected override void UpdateTrajectory(double _time, IValidationTarget _target)
+            protected override void UpdateTrajectory(double _time, HitProbePool _probes, IValidationTarget _target)
             {
                 Dispose();
             }
