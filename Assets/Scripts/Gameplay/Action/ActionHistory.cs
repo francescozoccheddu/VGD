@@ -228,13 +228,13 @@ namespace Wheeled.Gameplay.Action
 
             void IAction.Perform(double _time, ActionHistory _history, ITarget _target)
             {
-                if (info.isRocket && _history.Query.CanShootRocket(_time))
+                if (info.isRocket)
                 {
                     _target?.PerformRocketShoot(_time, info);
                 }
-                else if (_history.Query.CanShootRifle(_time, out float power))
+                else
                 {
-                    _target?.PerformRifleShoot(_time, info, power);
+                    _target?.PerformRifleShoot(_time, info, 1.0f);
                 }
             }
         }

@@ -9,7 +9,7 @@ namespace Wheeled.Gameplay.Stage
     {
         public Collider[] criticalColliders;
 
-        internal PlayerBase Player { get; private set; }
+        internal byte PlayerId { get; private set; }
 
         internal void Disable()
         {
@@ -21,9 +21,9 @@ namespace Wheeled.Gameplay.Stage
             return criticalColliders?.Contains(_collider) ?? false;
         }
 
-        internal void Set(PlayerBase _player, Snapshot _snapshot)
+        internal void Set(byte _playerId, Snapshot _snapshot)
         {
-            Player = _player;
+            PlayerId = _playerId;
             gameObject.SetActive(true);
             transform.position = _snapshot.simulation.position;
             transform.rotation = _snapshot.sight.Quaternion;

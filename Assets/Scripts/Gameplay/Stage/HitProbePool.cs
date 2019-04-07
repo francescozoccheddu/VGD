@@ -2,7 +2,6 @@
 using UnityEngine;
 using Wheeled.Core.Data;
 using Wheeled.Gameplay.Movement;
-using Wheeled.Networking;
 
 namespace Wheeled.Gameplay.Stage
 {
@@ -17,7 +16,7 @@ namespace Wheeled.Gameplay.Stage
             m_probes = new List<HitProbeBehaviour>();
         }
 
-        public void Add(PlayerBase _player, Snapshot _snapshot)
+        public void Add(byte _playerId, Snapshot _snapshot)
         {
             while (m_nextProbe >= m_probes.Count)
             {
@@ -27,7 +26,7 @@ namespace Wheeled.Gameplay.Stage
             {
                 m_probes[m_nextProbe] = Object.Instantiate(ScriptManager.Actors.collisionProbe).GetComponent<HitProbeBehaviour>();
             }
-            m_probes[m_nextProbe].Set(_player, _snapshot);
+            m_probes[m_nextProbe].Set(_playerId, _snapshot);
             m_nextProbe++;
         }
 
@@ -58,7 +57,7 @@ namespace Wheeled.Gameplay.Stage
             Vector3 diff = _end - _start;
             Ray ray = new Ray(_start, diff);
             int mask = c_worldLayerMask | (1 << ScriptManager.Actors.collisionProbe.layer);
-            if (Physics.Raycast(ray, out RaycastHit hit, diff.magnitude, mask))
+            if (Physics.Linecast(_start, _end, out RaycastHit hit, mask))
             {
                 GameObject gameObject = hit.collider.gameObject;
                 HitProbeBehaviour hitProbe = gameObject.GetComponent<HitProbeBehaviour>();
@@ -66,7 +65,7 @@ namespace Wheeled.Gameplay.Stage
                 {
                     position = hit.point,
                     normal = hit.normal,
-                    player = hitProbe?.Player,
+                    playerId = hitProbe?.PlayerId,
                     isCritical = hitProbe?.IsCriticalCollider(hit.collider) ?? false
                 };
                 return true;
@@ -82,7 +81,7 @@ namespace Wheeled.Gameplay.Stage
         {
             public bool isCritical;
             public Vector3 normal;
-            public PlayerBase player;
+            public byte? playerId;
             public Vector3 position;
         }
     }

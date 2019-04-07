@@ -140,6 +140,7 @@ namespace Wheeled.Networking
 
         void ActionHistory.ITarget.PerformRocketShoot(double _time, ShotInfo _info)
         {
+            m_manager.ShootStage.ShootRocket(_time, _info.position, _info.sight.Direction, Id);
         }
 
         void ActionHistory.ITarget.PerformSpawn(double _time, SpawnInfo _info)

@@ -4,11 +4,12 @@ using System.Linq;
 using UnityEngine;
 using Wheeled.Core.Utils;
 using Wheeled.Debugging;
+using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Client
 {
-    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IGameManager, ShootStage.IValidationTarget
+    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IGameManager, OffenseStage.IValidationTarget
     {
         private const int c_expectedMovementReplicationFrequency = 10;
         private const double c_localOffset = 0.5;
@@ -17,7 +18,7 @@ namespace Wheeled.Networking.Client
         private readonly LocalPlayer m_localPlayer;
         private readonly Dictionary<byte, Player> m_players;
         private readonly Client.IServer m_server;
-        private readonly ShootStage m_shootStage;
+        private readonly OffenseStage m_shootStage;
         private readonly Updatable m_updatable;
         private bool m_isRunning;
         private double m_targetTime;
@@ -26,7 +27,7 @@ namespace Wheeled.Networking.Client
         public ClientGameManager(Client.IServer _server, byte _id)
         {
             Debug.Log("ClientGameManager started");
-            m_shootStage = new ShootStage
+            m_shootStage = new OffenseStage
             {
                 ValidationTarget = this
             };
@@ -50,7 +51,7 @@ namespace Wheeled.Networking.Client
             m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
         }
 
-        ShootStage IGameManager.ShootStage => m_shootStage;
+        OffenseStage IGameManager.ShootStage => m_shootStage;
 
         double IGameManager.Time => m_time;
 
@@ -112,19 +113,13 @@ namespace Wheeled.Networking.Client
 
         #region ShootStage.IValidationTarget
 
-        IEnumerable<ShootStage.HitTarget> ShootStage.IValidationTarget.GetHitTargets(double _time, byte _shooterId)
+        IEnumerable<OffenseStage.HitTarget> OffenseStage.IValidationTarget.GetHitTargets(double _time, byte _shooterId)
         {
-            return from p in m_players.Values where p.Id != _shooterId select new ShootStage.HitTarget { player = p, snapshot = p.GetSnapshot(_time) };
+            return from p in m_players.Values where p.Id != _shooterId select new OffenseStage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time) };
         }
 
-        void ShootStage.IValidationTarget.RifleHit(double _time, byte _id, Collider _collider, float _power)
+        void OffenseStage.IValidationTarget.Offense(byte _offenderId, byte _offendedId, float _damage, OffenseType _type)
         {
-            throw new System.NotImplementedException();
-        }
-
-        void ShootStage.IValidationTarget.RocketHit(double _time, byte _id, Collider _collider)
-        {
-            throw new System.NotImplementedException();
         }
 
         #endregion ShootStage.IValidationTarget

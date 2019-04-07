@@ -4,7 +4,7 @@ namespace Wheeled.Networking
 {
     internal interface IGameManager
     {
-        ShootStage ShootStage { get; }
+        OffenseStage ShootStage { get; }
         double Time { get; }
     }
 }

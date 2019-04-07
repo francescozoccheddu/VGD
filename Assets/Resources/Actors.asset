@@ -18,4 +18,5 @@ MonoBehaviour:
   player: {fileID: 5949108520220492582, guid: 52ed707012d8e84459f01496b096d1f6, type: 3}
   rifleProjectile: {fileID: 6901257101853662855, guid: bfdde63f6e95b13469b0dc78ccb35924,
     type: 3}
-  rocketProjectile: {fileID: 0}
+  rocketProjectile: {fileID: 1199107559721684683, guid: b72e2cc371e1c904d925f0d33a77285f,
+    type: 3}

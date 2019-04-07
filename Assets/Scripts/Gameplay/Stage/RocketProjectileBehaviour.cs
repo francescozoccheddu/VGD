@@ -1,18 +1,28 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class RocketProjectileBehaviour : MonoBehaviour
+namespace Wheeled.Gameplay.Stage
 {
-
-    // Use this for initialization
-    void Start()
+    public sealed class RocketProjectileBehaviour : MonoBehaviour
     {
+        internal void Dissolve()
+        {
+            Destroy(gameObject);
+        }
 
-    }
+        internal void Explode(Vector3 _position)
+        {
+            transform.position = _position;
+            Destroy(gameObject);
+        }
 
-    // Update is called once per frame
-    void Update()
-    {
+        internal void Move(Vector3 _position)
+        {
+            transform.position = _position;
+        }
 
+        internal void Shoot(Vector3 _origin, Vector3 _direction)
+        {
+            transform.position = _origin;
+        }
     }
 }
