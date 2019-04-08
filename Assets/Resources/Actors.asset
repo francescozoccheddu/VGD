@@ -20,3 +20,5 @@ MonoBehaviour:
     type: 3}
   rocketProjectile: {fileID: 1199107559721684683, guid: b72e2cc371e1c904d925f0d33a77285f,
     type: 3}
+  explosion: {fileID: 8078640579761566153, guid: 38939ec25fde45f4b9735bf7e1a4bdf8,
+    type: 3}

@@ -8,8 +8,10 @@ namespace Wheeled.Gameplay
     internal sealed class PlayerView
     {
 
-        private GameObject m_gameObject;
+        private GameObject m_body;
+        private GameObject m_corpse;
 
+        private bool m_wasAlive;
         public bool isPositionInterpolationEnabled;
         public bool isSightInterpolationEnabled;
         public float positionInterpolationQuickness;
@@ -21,6 +23,7 @@ namespace Wheeled.Gameplay
 
         public PlayerView()
         {
+            m_wasAlive = false;
             isPositionInterpolationEnabled = false;
             isSightInterpolationEnabled = false;
             positionInterpolationQuickness = 4.0f;
@@ -29,9 +32,9 @@ namespace Wheeled.Gameplay
 
         private void EnsureSpawned()
         {
-            if (m_gameObject == null)
+            if (m_body == null)
             {
-                m_gameObject = Object.Instantiate(ScriptManager.Actors.player, m_position, m_sight.Quaternion);
+                m_body = Object.Instantiate(ScriptManager.Actors.player, m_position, m_sight.Quaternion);
             }
         }
 
@@ -41,35 +44,25 @@ namespace Wheeled.Gameplay
             m_sight = _snapshot.sight;
         }
 
-        public void Spawn(byte _spawnPoint)
+        public void ShootRocket()
         {
-            Vector3 position = Vector3.zero;
-            Debug.DrawRay(position + Vector3.forward, Vector3.forward * -2, Color.magenta, 2f);
-            Debug.DrawRay(position + Vector3.right, Vector3.right * -2, Color.magenta, 2f);
         }
 
-        public void Die(Vector3 _offensePosition, bool _explode)
+        public void ShootRifle()
         {
-            Object.Instantiate(ScriptManager.Actors.corpse, m_position, Quaternion.identity);
         }
 
-        public void ShootRocket(Vector3 _from, Vector3 _shootDirection)
-        {
-            Debug.DrawRay(_from, _shootDirection, Color.blue, 2f);
-        }
-
-        public void ShootRifle(Vector3 _from, Vector3 _shootDirection, float _power)
+        public void Explode()
         {
 
-            Debug.DrawRay(_from, _shootDirection, Color.Lerp(Color.green, Color.red, _power), 2f);
         }
 
         public void ReachTarget()
         {
-            if (m_gameObject != null)
+            if (m_body != null)
             {
-                m_gameObject.transform.position = m_position;
-                m_gameObject.transform.localRotation = m_sight.Quaternion;
+                m_body.transform.position = m_position;
+                m_body.transform.localRotation = m_sight.Quaternion;
             }
         }
 
@@ -78,42 +71,52 @@ namespace Wheeled.Gameplay
             EnsureSpawned();
 
             // Life
-            m_gameObject.SetActive(isAlive);
+            if (!isAlive && m_wasAlive)
+            {
+                if (m_corpse != null)
+                {
+                    Object.Destroy(m_corpse);
+                }
+                m_corpse = Object.Instantiate(ScriptManager.Actors.corpse, m_position, m_sight.Quaternion);
+                m_wasAlive = false;
+            }
+            m_wasAlive |= isAlive;
+            m_body.SetActive(isAlive);
 
             // Position
             if (isPositionInterpolationEnabled)
             {
                 float lerpAlpha = Mathf.Min(1.0f, _deltaTime * positionInterpolationQuickness);
-                m_gameObject.transform.position = Vector3.LerpUnclamped(m_gameObject.transform.position, m_position, lerpAlpha);
+                m_body.transform.position = Vector3.LerpUnclamped(m_body.transform.position, m_position, lerpAlpha);
             }
             else
             {
-                m_gameObject.transform.position = m_position;
+                m_body.transform.position = m_position;
             }
             // Sight
             if (isSightInterpolationEnabled)
             {
                 float lerpAlpha = Mathf.Min(1.0f, _deltaTime * sightInterpolationQuickness);
-                Vector3 angles = m_gameObject.transform.eulerAngles;
+                Vector3 angles = m_body.transform.eulerAngles;
                 angles.y = Mathf.LerpAngle(angles.y, m_sight.Turn, lerpAlpha);
-                m_gameObject.transform.eulerAngles = angles;
+                m_body.transform.eulerAngles = angles;
             }
             else
             {
-                Vector3 angles = m_gameObject.transform.eulerAngles;
+                Vector3 angles = m_body.transform.eulerAngles;
                 angles.y = m_sight.Turn;
-                m_gameObject.transform.eulerAngles = angles;
+                m_body.transform.eulerAngles = angles;
             }
 
         }
 
         public void Destroy()
         {
-            if (m_gameObject != null)
+            if (m_body != null)
             {
-                Object.Destroy(m_gameObject);
+                Object.Destroy(m_body);
             }
-            m_gameObject = null;
+            m_body = null;
         }
     }
 
