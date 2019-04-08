@@ -96,8 +96,9 @@ namespace Wheeled.Networking.Client
 
                 case Message.DeathOrderOrReplication:
                 {
-                    _reader.ReadDeathOrderOrReplication(out double time, out byte id, out DeathInfo deathInfo, out byte deaths);
+                    _reader.ReadDeathOrderOrReplication(out double time, out byte id, out DeathInfo deathInfo, out byte deaths, out byte kills);
                     GetOrCreatePlayer(id).PutDeath(time, deathInfo, deaths);
+                    GetOrCreatePlayer(id).PutKills(time, kills);
                 }
                 break;
 

@@ -63,7 +63,7 @@ namespace Wheeled.Gameplay.Action
                 switch (node)
                 {
                     case KazeNode kazeNode:
-                    if (_player.ActionHistoryQuery.CanKaze(time))
+                    if (_player.ActionHistory.CanKaze(time))
                     {
                         Target?.Kaze(time);
                     }
@@ -73,8 +73,8 @@ namespace Wheeled.Gameplay.Action
                     {
                         if (Vector3.Distance(_player.GetSnapshot(time).simulation.position, shotNode.info.position) <= c_maxShotPositionTolerance)
                         {
-                            if ((shotNode.info.isRocket && _player.ActionHistoryQuery.CanShootRocket(time))
-                                || (!shotNode.info.isRocket && _player.ActionHistoryQuery.CanShootRifle(time)))
+                            if ((shotNode.info.isRocket && _player.ActionHistory.CanShootRocket(time))
+                                || (!shotNode.info.isRocket && _player.ActionHistory.CanShootRifle(time)))
                             {
                                 Target.Shoot(time, shotNode.info);
                             }

@@ -100,6 +100,11 @@ namespace Wheeled.Networking.Server
             return m_NetPlayers.FirstOrDefault(_p => _p.Peer == _peer);
         }
 
+        private Player GetPlayerById(int _id)
+        {
+            return m_players.FirstOrDefault(_p => _p.Id == _id);
+        }
+
         private bool ProcessPlayerMessage(NetworkManager.Peer _peer, out NetPlayer _outNetPlayer)
         {
             _outNetPlayer = GetNetPlayerByPeer(_peer);

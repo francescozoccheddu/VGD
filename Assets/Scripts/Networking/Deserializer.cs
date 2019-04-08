@@ -275,17 +275,13 @@ namespace Wheeled.Networking
             _outHealth = ReadByte();
         }
 
-        public void ReadDeathOrder(out double _outTime)
-        {
-            _outTime = ReadDouble();
-        }
-
-        public void ReadDeathOrderOrReplication(out double _outTime, out byte _outId, out DeathInfo _outDeathInfo, out byte _outDeaths)
+        public void ReadDeathOrderOrReplication(out double _outTime, out byte _outId, out DeathInfo _outDeathInfo, out byte _outDeaths, out byte _outKills)
         {
             _outTime = ReadDouble();
             _outId = ReadByte();
             _outDeathInfo = ReadDeathInfo();
             _outDeaths = ReadByte();
+            _outKills = ReadByte();
         }
 
         public void ReadHitConfirmOrder(out double _outTime, out HitConfirmInfo _outInfo)

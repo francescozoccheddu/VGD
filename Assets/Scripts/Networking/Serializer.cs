@@ -166,7 +166,7 @@ namespace Wheeled.Networking
             writer.Put(_health);
         }
 
-        public static void WriteDeathOrderOrReplication(double _time, byte _id, DeathInfo _info, byte _deaths)
+        public static void WriteDeathOrderOrReplication(double _time, byte _id, DeathInfo _info, byte _deaths, byte _kills)
         {
             writer.Reset();
             writer.Put(Message.DeathOrderOrReplication);
@@ -174,6 +174,7 @@ namespace Wheeled.Networking
             writer.Put(_id);
             writer.Put(_info);
             writer.Put(_deaths);
+            writer.Put(_kills);
         }
 
         public static void WriteHitConfirmOrder(double _time, HitConfirmInfo _info)

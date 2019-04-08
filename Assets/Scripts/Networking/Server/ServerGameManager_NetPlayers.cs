@@ -73,7 +73,7 @@ namespace Wheeled.Networking.Server
 
             protected override void OnDamageScheduled(double _time, DamageInfo _info)
             {
-                Serializer.WriteDamageOrder(_time, _info, (byte) ActionHistoryQuery.GetHealth(_time));
+                Serializer.WriteDamageOrder(_time, _info, (byte) ActionHistory.GetHealth(_time));
                 Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
             }
 

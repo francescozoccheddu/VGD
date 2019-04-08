@@ -41,7 +41,7 @@ namespace Wheeled.Networking
         }
 
         public ActionHistory.StaticQuery ActionHistoryLocalTimeQuery { get; private set; }
-        public ActionHistory.ImmediateQuery ActionHistoryQuery => m_actionHistory.Query;
+        public IActionHistory ActionHistory => m_actionHistory;
         public double HistoryDuration { get => m_historyDuration; set { Debug.Assert(value >= 0.0); m_historyDuration = value; } }
         public byte Id { get; }
         public PlayerInfo? Info { get; private set; }
