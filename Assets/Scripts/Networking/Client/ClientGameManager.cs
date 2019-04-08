@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Wheeled.Core.Utils;
-using Wheeled.Debugging;
+using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Stage;
 
@@ -12,9 +11,9 @@ namespace Wheeled.Networking.Client
     internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IGameManager, OffenseStage.IValidationTarget
     {
         private const int c_expectedMovementReplicationFrequency = 10;
-        private const double c_localOffset = 0.05;
-        private const double c_netOffset = 0.1;
-        private const double c_timeSmoothQuickness = 0.5;
+        private const double c_localOffset = 0.025;
+        private const double c_netOffset = 0.025;
+        private const float c_timeSmoothQuickness = 0.2f;
         private readonly LocalPlayer m_localPlayer;
         private IEnumerable<NetPlayer> m_NetPlayers => m_players.Values.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
         private readonly Dictionary<byte, Player> m_players;
@@ -59,31 +58,24 @@ namespace Wheeled.Networking.Client
         void Updatable.ITarget.Update()
         {
             double owd = m_server.Ping / 2.0;
-            m_localPlayer.TimeOffset = LerpTime(m_localPlayer.TimeOffset, owd + 1.0 / m_localPlayer.MaxMovementNotifyFrequency + c_localOffset, Time.deltaTime);
-            Printer.Print("LocalTimeOffset", m_localPlayer.TimeOffset);
+            m_localPlayer.TimeOffset = TimeConstants.Smooth(m_localPlayer.TimeOffset, owd + 1.0 / m_localPlayer.MaxMovementNotifyFrequency + c_localOffset, Time.deltaTime, c_timeSmoothQuickness);
+            Debug.LogFormat("LocalTimeOffset {0:0.00}", m_localPlayer.TimeOffset);
             if (m_isRunning)
             {
                 m_time += Time.deltaTime;
                 m_targetTime += Time.deltaTime;
-                m_time = LerpTime(m_time, m_targetTime, Time.deltaTime);
-                Printer.Print("Offset", m_targetTime - m_time);
+                m_time = TimeConstants.Smooth(m_time, m_targetTime, Time.deltaTime, c_timeSmoothQuickness);
             }
-            foreach (Player p in m_NetPlayers)
+            foreach (NetPlayer p in m_NetPlayers)
             {
-                p.TimeOffset = LerpTime(p.TimeOffset, -(owd + 1.0 / c_expectedMovementReplicationFrequency + c_netOffset), Time.deltaTime);
-                Printer.Print("TimeOffset", p.TimeOffset);
+                p.TimeOffset = TimeConstants.Smooth(p.TimeOffset, -(owd + p.AverageReplicationInterval + c_netOffset), Time.deltaTime, c_timeSmoothQuickness);
+                Debug.LogFormat("TimeOffset {0:0.00}", p.TimeOffset);
             }
             foreach (Player p in m_players.Values)
             {
                 p.Update();
             }
             m_shootStage.Update(m_time);
-        }
-
-        private static double LerpTime(double _a, double _b, double _deltaTime)
-        {
-            double alpha = Math.Max(_deltaTime * c_timeSmoothQuickness, 0.5);
-            return _a * (1 - alpha) + _b * alpha;
         }
 
         private Player GetOrCreatePlayer(byte _id)

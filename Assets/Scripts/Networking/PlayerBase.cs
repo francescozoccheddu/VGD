@@ -17,6 +17,8 @@ namespace Wheeled.Networking
         private double m_lastPingTime;
         private double m_spawnDelay;
 
+        public bool IsActionDelayEnabled { get; set; }
+
         protected PlayerBase(IGameManager _manager, byte _id)
         {
             Id = _id;
@@ -38,6 +40,7 @@ namespace Wheeled.Networking
             m_ShouldHandleRespawn = false;
             Info = null;
             Ping = 0;
+            IsActionDelayEnabled = true;
         }
 
         public ActionHistory.StaticQuery ActionHistoryLocalTimeQuery { get; private set; }
@@ -136,7 +139,7 @@ namespace Wheeled.Networking
                 HandleRespawn();
             }
             OnUpdated();
-            m_actionHistory.PerformUntil(LocalTime);
+            m_actionHistory.PerformUntil(IsActionDelayEnabled ? LocalTime : m_manager.Time);
             UpdateView();
             Trim();
         }

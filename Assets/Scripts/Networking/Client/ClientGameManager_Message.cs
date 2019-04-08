@@ -79,6 +79,7 @@ namespace Wheeled.Networking.Client
                 {
                     _reader.ReadMovementReplication(out byte id, out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
                     NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
+                    player?.SignalReplication();
                     player?.Move(step, inputSteps, snapshot);
                 }
                 break;

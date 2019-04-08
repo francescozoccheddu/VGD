@@ -15,8 +15,14 @@ namespace Wheeled.Networking.Server
 
             private readonly ActionValidator m_actionValidator;
             private readonly MovementValidator m_movementValidator;
+            private const float c_notifyDelaySmoothQuickness = 0.2f;
             private double m_maxValidationDelay;
             private float m_timeSinceLastCorrection;
+
+            public float AverageNotifyInterval => m_notifyTapper.AverageInterval;
+            private int m_lastNotifyStep;
+            private readonly TimeConstants.Tapper m_notifyTapper;
+            private bool m_wasAlive;
 
             public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer) : base(_manager, _id)
             {
@@ -33,6 +39,8 @@ namespace Wheeled.Networking.Server
                 };
                 IsStarted = false;
                 MaxValidationDelay = 1.0;
+                m_lastNotifyStep = -1;
+                m_notifyTapper = new TimeConstants.Tapper(0.0f);
             }
 
             public override bool IsLocal => false;
@@ -57,6 +65,11 @@ namespace Wheeled.Networking.Server
 
             public void TryMove(int _step, IEnumerable<InputStep> _inputSteps, Snapshot _snapshot)
             {
+                if (_step > m_lastNotifyStep && m_wasAlive)
+                {
+                    m_notifyTapper.Tap();
+                    m_lastNotifyStep = _step;
+                }
                 m_movementValidator.Put(_step, _inputSteps, _snapshot.simulation);
                 PutSight(_step, _snapshot.sight);
             }
@@ -89,8 +102,19 @@ namespace Wheeled.Networking.Server
                 m_movementValidator.Teleport(_snapshot.simulation);
             }
 
+            private void UpdateNotifyTapper()
+            {
+                bool isAlive = ActionHistory.IsAlive(m_manager.m_time);
+                if (isAlive && !m_wasAlive)
+                {
+                    m_notifyTapper.QuietTap();
+                }
+                m_wasAlive = isAlive;
+            }
+
             protected override void OnUpdated()
             {
+                UpdateNotifyTapper();
                 int validationStep = (m_manager.m_time - m_maxValidationDelay).SimulationSteps();
                 if (IsStarted)
                 {

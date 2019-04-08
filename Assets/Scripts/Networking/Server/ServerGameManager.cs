@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Wheeled.Core.Utils;
-using Wheeled.Debugging;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
@@ -19,7 +18,7 @@ namespace Wheeled.Networking.Server
         private readonly List<Player> m_players;
         private readonly OffenseStage m_shootStage;
         private readonly Updatable m_updatable;
-        private const double c_timeSmoothQuickness = 0.5;
+        private const float c_timeSmoothQuickness = 0.25f;
         private byte m_nextPlayerId;
         private double m_time;
         private float m_timeSinceLastReplication;
@@ -97,21 +96,15 @@ namespace Wheeled.Networking.Server
 
         #endregion ShootStage.IValidationTarget
 
-        private static double LerpTime(double _a, double _b, double _deltaTime)
-        {
-            double alpha = Math.Max(_deltaTime * c_timeSmoothQuickness, 0.5);
-            return _a * (1 - alpha) + _b * alpha;
-        }
-
         void Updatable.ITarget.Update()
         {
             m_time += Time.deltaTime;
             m_timeSinceLastReplication += Time.deltaTime;
             foreach (NetPlayer player in m_NetPlayers)
             {
-                double targetOffset = Math.Max(-player.Peer.Ping / 2.0f, -c_validationDelay);
-                player.TimeOffset = LerpTime(player.TimeOffset, targetOffset, Time.deltaTime);
-                Printer.Print("TimeOffset", player.TimeOffset);
+                double targetOffset = -Math.Min(Math.Max(player.AverageNotifyInterval, 0.0) + player.Ping / 2.0, c_validationDelay);
+                player.TimeOffset = TimeConstants.Smooth(player.TimeOffset, targetOffset, Time.deltaTime, c_timeSmoothQuickness);
+                Debug.LogFormat("TimeOffset {0:0.00}", player.TimeOffset);
             }
             foreach (Player player in m_players)
             {
