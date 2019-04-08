@@ -7,6 +7,7 @@ using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Stage;
+using Wheeled.Networking.Client;
 
 namespace Wheeled.Networking.Server
 {
@@ -57,10 +58,12 @@ namespace Wheeled.Networking.Server
 
         IEnumerable<OffenseStage.HitTarget> OffenseStage.IValidationTarget.GetHitTargets(double _time, byte _shooterId)
         {
+            double shooterDelay = (GetPlayerById(_shooterId) as NetPlayer)?.Peer.Ping / 2.0 + 1.0 / c_replicationRate + ClientGameManager.c_netOffset ?? 0.0;
             return from p
                    in m_players
                    where p.Id != _shooterId && p.ActionHistory.IsAlive(_time)
-                   select new OffenseStage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time) };
+                   let delay = _shooterId == m_localPlayer.Id ? p.TimeOffset : shooterDelay
+                   select new OffenseStage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time - delay) };
         }
 
         void OffenseStage.IValidationTarget.Offense(double _time, byte _offenderId, byte _offendedId, float _damage, OffenseType _type, Vector3 _origin)
@@ -104,7 +107,6 @@ namespace Wheeled.Networking.Server
             {
                 double targetOffset = -Math.Min(Math.Max(player.AverageNotifyInterval, 0.0) + player.Ping / 2.0, c_validationDelay);
                 player.TimeOffset = TimeConstants.Smooth(player.TimeOffset, targetOffset, Time.deltaTime, c_timeSmoothQuickness);
-                Debug.LogFormat("TimeOffset {0:0.00}", player.TimeOffset);
             }
             foreach (Player player in m_players)
             {

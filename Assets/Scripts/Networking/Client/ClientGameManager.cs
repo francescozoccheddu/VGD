@@ -10,9 +10,8 @@ namespace Wheeled.Networking.Client
 {
     internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IGameManager, OffenseStage.IValidationTarget
     {
-        private const int c_expectedMovementReplicationFrequency = 10;
         private const double c_localOffset = 0.025;
-        private const double c_netOffset = 0.025;
+        public const double c_netOffset = 0.025;
         private const float c_timeSmoothQuickness = 0.2f;
         private readonly LocalPlayer m_localPlayer;
         private IEnumerable<NetPlayer> m_NetPlayers => m_players.Values.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
@@ -59,7 +58,6 @@ namespace Wheeled.Networking.Client
         {
             double owd = m_server.Ping / 2.0;
             m_localPlayer.TimeOffset = TimeConstants.Smooth(m_localPlayer.TimeOffset, owd + 1.0 / m_localPlayer.MaxMovementNotifyFrequency + c_localOffset, Time.deltaTime, c_timeSmoothQuickness);
-            Debug.LogFormat("LocalTimeOffset {0:0.00}", m_localPlayer.TimeOffset);
             if (m_isRunning)
             {
                 m_time += Time.deltaTime;
@@ -69,7 +67,6 @@ namespace Wheeled.Networking.Client
             foreach (NetPlayer p in m_NetPlayers)
             {
                 p.TimeOffset = TimeConstants.Smooth(p.TimeOffset, -(owd + p.AverageReplicationInterval + c_netOffset), Time.deltaTime, c_timeSmoothQuickness);
-                Debug.LogFormat("TimeOffset {0:0.00}", p.TimeOffset);
             }
             foreach (Player p in m_players.Values)
             {
