@@ -74,6 +74,11 @@ namespace Wheeled.Networking.Client
                 }
             }
 
+            protected override void OnSpawn(double _time, Snapshot _snapshot)
+            {
+                m_movementController.Teleport(_snapshot, true);
+            }
+
             #region MovementController.ICommitTarget
 
             void MovementController.ICommitTarget.Commit(int _step, InputStep _input, Snapshot _snapshot)

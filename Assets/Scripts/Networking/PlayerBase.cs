@@ -145,6 +145,12 @@ namespace Wheeled.Networking
 
         void ActionHistory.ITarget.PerformSpawn(double _time, SpawnInfo _info)
         {
+            Snapshot snapshot = SpawnManager.Get(_info.spawnPoint);
+            PutSimulation(_time.SimulationSteps(), snapshot.simulation);
+            PutSight(_time.SimulationSteps(), snapshot.sight);
+            m_view.Move(snapshot);
+            m_view.ReachTarget();
+            OnSpawn(_time, snapshot);
         }
 
         #endregion ActionHistory.ITarget
@@ -173,6 +179,11 @@ namespace Wheeled.Networking
 
         protected virtual void OnSpawnScheduled(double _time, SpawnInfo _info)
         {
+        }
+
+        protected virtual void OnSpawn(double _time, Snapshot _snapshot)
+        {
+
         }
 
         protected virtual void OnUpdated()
@@ -256,7 +267,7 @@ namespace Wheeled.Networking
                 double spawnTime = LocalTime + m_spawnDelay;
                 SpawnInfo info = new SpawnInfo
                 {
-                    spawnPoint = 0 // TODO Decide where to spawn
+                    spawnPoint = SpawnManager.Spawn()
                 };
                 PutSpawn(spawnTime, info);
                 OnSpawnScheduled(spawnTime, info);

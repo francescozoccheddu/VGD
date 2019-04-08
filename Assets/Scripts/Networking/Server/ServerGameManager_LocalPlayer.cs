@@ -67,6 +67,11 @@ namespace Wheeled.Networking.Server
                 return LocalTime.SimulationSteps();
             }
 
+            protected override void OnSpawn(double _time, Snapshot _snapshot)
+            {
+                m_movementController.Teleport(_snapshot, true);
+            }
+
             protected override void OnUpdated()
             {
                 if (ActionHistoryLocalTimeQuery.IsAlive)

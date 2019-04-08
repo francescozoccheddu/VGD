@@ -31,7 +31,7 @@ namespace Wheeled.Gameplay
         {
             if (m_gameObject == null)
             {
-                m_gameObject = Object.Instantiate(ScriptManager.Actors.player);
+                m_gameObject = Object.Instantiate(ScriptManager.Actors.player, m_position, m_sight.Quaternion);
             }
         }
 
@@ -64,6 +64,14 @@ namespace Wheeled.Gameplay
             Debug.DrawRay(_from, _shootDirection, Color.Lerp(Color.green, Color.red, _power), 2f);
         }
 
+        public void ReachTarget()
+        {
+            if (m_gameObject != null)
+            {
+                m_gameObject.transform.position = m_position;
+                m_gameObject.transform.localRotation = m_sight.Quaternion;
+            }
+        }
 
         public void Update(float _deltaTime)
         {

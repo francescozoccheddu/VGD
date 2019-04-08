@@ -36,6 +36,6 @@ namespace Wheeled.Gameplay.Action
 
     internal struct SpawnInfo
     {
-        public int spawnPoint;
+        public byte spawnPoint;
     }
 }

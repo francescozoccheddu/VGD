@@ -201,7 +201,7 @@ namespace Wheeled.Networking
         {
             return new SpawnInfo
             {
-                spawnPoint = ReadInt()
+                spawnPoint = ReadByte()
             };
         }
 

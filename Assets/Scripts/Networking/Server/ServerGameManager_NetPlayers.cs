@@ -83,6 +83,12 @@ namespace Wheeled.Networking.Server
                 Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
             }
 
+            protected override void OnSpawn(double _time, Snapshot _snapshot)
+            {
+                m_movementValidator.SkipTo(_time.SimulationSteps(), false);
+                m_movementValidator.Teleport(_snapshot.simulation);
+            }
+
             protected override void OnUpdated()
             {
                 if (IsStarted)
