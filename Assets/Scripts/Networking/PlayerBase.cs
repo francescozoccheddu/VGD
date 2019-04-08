@@ -23,7 +23,7 @@ namespace Wheeled.Networking
             m_manager = _manager;
             m_movementHistory = new MovementHistory
             {
-                MaxPrevisionTime = 4.0
+                MaxPrevisionTime = 0.5
             };
             m_inputHistory = new InputHistory();
             m_actionHistory = new ActionHistory(_id)

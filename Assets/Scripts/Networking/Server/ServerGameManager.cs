@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Wheeled.Core.Utils;
+using Wheeled.Debugging;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
@@ -12,12 +14,12 @@ namespace Wheeled.Networking.Server
     internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget, IGameManager, OffenseStage.IValidationTarget
     {
         private const int c_replicationRate = 10;
-        private const double c_validationDelay = 1.0;
-        private const double c_maxOffenseDelay = 3.0;
+        private const double c_validationDelay = 0.3;
         private readonly LocalPlayer m_localPlayer;
         private readonly List<Player> m_players;
         private readonly OffenseStage m_shootStage;
         private readonly Updatable m_updatable;
+        private const double c_timeSmoothQuickness = 0.5;
         private byte m_nextPlayerId;
         private double m_time;
         private float m_timeSinceLastReplication;
@@ -64,7 +66,7 @@ namespace Wheeled.Networking.Server
 
         void OffenseStage.IValidationTarget.Offense(double _time, byte _offenderId, byte _offendedId, float _damage, OffenseType _type, Vector3 _origin)
         {
-            if (_time >= m_time - c_maxOffenseDelay)
+            if (_time >= m_time - c_validationDelay)
             {
                 Player offended = GetPlayerById(_offendedId);
                 if (offended != null)
@@ -95,10 +97,22 @@ namespace Wheeled.Networking.Server
 
         #endregion ShootStage.IValidationTarget
 
+        private static double LerpTime(double _a, double _b, double _deltaTime)
+        {
+            double alpha = Math.Max(_deltaTime * c_timeSmoothQuickness, 0.5);
+            return _a * (1 - alpha) + _b * alpha;
+        }
+
         void Updatable.ITarget.Update()
         {
             m_time += Time.deltaTime;
             m_timeSinceLastReplication += Time.deltaTime;
+            foreach (NetPlayer player in m_NetPlayers)
+            {
+                double targetOffset = Math.Max(-player.Peer.Ping / 2.0f, -c_validationDelay);
+                player.TimeOffset = LerpTime(player.TimeOffset, targetOffset, Time.deltaTime);
+                Printer.Print("TimeOffset", player.TimeOffset);
+            }
             foreach (Player player in m_players)
             {
                 player.Update();
@@ -257,10 +271,10 @@ namespace Wheeled.Networking.Server
             // TODO decide whether accept it or not
             NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer)
             {
-                HistoryDuration = 2.0,
-                MaxMovementInputStepsReplicationCount = 5,
+                HistoryDuration = 3.0,
+                MaxMovementInputStepsReplicationCount = 20,
                 SpawnDelay = 0.5,
-                MaxValidationDelay = 1.0
+                MaxValidationDelay = c_validationDelay
             };
             netPlayer.Introduce(new PlayerInfo());
             m_players.Add(netPlayer);

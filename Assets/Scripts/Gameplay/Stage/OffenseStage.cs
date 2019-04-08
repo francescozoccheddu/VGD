@@ -239,7 +239,7 @@ namespace Wheeled.Gameplay.Stage
                                     {
                                         continue;
                                     }
-                                    _target.Offense(m_lifetime + Time, OffenderId, t.playerId, damage, OffenseType.Rocket, m_origin);
+                                    _target.Offense(nextLifeTime + Time, OffenderId, t.playerId, damage, OffenseType.Rocket, m_origin);
                                 }
                             }
                             Dispose();

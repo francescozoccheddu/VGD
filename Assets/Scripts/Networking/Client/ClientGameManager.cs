@@ -12,10 +12,11 @@ namespace Wheeled.Networking.Client
     internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IGameManager, OffenseStage.IValidationTarget
     {
         private const int c_expectedMovementReplicationFrequency = 10;
-        private const double c_localOffset = 0.5;
-        private const double c_netOffset = -0.25;
+        private const double c_localOffset = 0.05;
+        private const double c_netOffset = 0.1;
         private const double c_timeSmoothQuickness = 0.5;
         private readonly LocalPlayer m_localPlayer;
+        private IEnumerable<NetPlayer> m_NetPlayers => m_players.Values.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
         private readonly Dictionary<byte, Player> m_players;
         private readonly Client.IServer m_server;
         private readonly OffenseStage m_shootStage;
@@ -40,7 +41,7 @@ namespace Wheeled.Networking.Client
             {
                 HistoryDuration = 2.0,
                 MaxMovementInputStepsNotifyCount = 20,
-                MaxMovementNotifyFrequency = 10
+                MaxMovementNotifyFrequency = 15
             };
             m_players = new Dictionary<byte, Player>
             {
@@ -59,6 +60,7 @@ namespace Wheeled.Networking.Client
         {
             double owd = m_server.Ping / 2.0;
             m_localPlayer.TimeOffset = LerpTime(m_localPlayer.TimeOffset, owd + 1.0 / m_localPlayer.MaxMovementNotifyFrequency + c_localOffset, Time.deltaTime);
+            Printer.Print("LocalTimeOffset", m_localPlayer.TimeOffset);
             if (m_isRunning)
             {
                 m_time += Time.deltaTime;
@@ -66,9 +68,13 @@ namespace Wheeled.Networking.Client
                 m_time = LerpTime(m_time, m_targetTime, Time.deltaTime);
                 Printer.Print("Offset", m_targetTime - m_time);
             }
+            foreach (Player p in m_NetPlayers)
+            {
+                p.TimeOffset = LerpTime(p.TimeOffset, -(owd + 1.0 / c_expectedMovementReplicationFrequency + c_netOffset), Time.deltaTime);
+                Printer.Print("TimeOffset", p.TimeOffset);
+            }
             foreach (Player p in m_players.Values)
             {
-                p.TimeOffset = LerpTime(p.TimeOffset, -(owd + 1.0 / c_expectedMovementReplicationFrequency) + c_netOffset, Time.deltaTime);
                 p.Update();
             }
             m_shootStage.Update(m_time);

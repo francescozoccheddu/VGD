@@ -24,10 +24,10 @@ namespace Wheeled.Networking
             {
                 DiscoveryEnabled = true,
                 SimulatePacketLoss = false,
-                SimulationPacketLossChance = 20,
+                SimulationPacketLossChance = 5,
                 SimulateLatency = false,
-                SimulationMinLatency = 10,
-                SimulationMaxLatency = 200,
+                SimulationMinLatency = 100,
+                SimulationMaxLatency = 150,
             };
         }
 

@@ -91,13 +91,14 @@ namespace Wheeled.Networking.Server
 
             protected override void OnUpdated()
             {
+                int validationStep = (m_manager.m_time - m_maxValidationDelay).SimulationSteps();
                 if (IsStarted)
                 {
-                    if (ActionHistoryLocalTimeQuery.IsAlive)
+                    if (ActionHistory.IsAlive(validationStep.SimulationPeriod()))
                     {
                         if (!m_movementValidator.IsRunning)
                         {
-                            m_movementValidator.SkipTo((LocalTime - m_maxValidationDelay).SimulationSteps(), false);
+                            m_movementValidator.SkipTo(validationStep, false);
                             m_movementValidator.IsRunning = true;
                         }
                     }
@@ -107,7 +108,7 @@ namespace Wheeled.Networking.Server
                     }
                 }
                 m_timeSinceLastCorrection += Time.deltaTime;
-                m_movementValidator.UpdateUntil((LocalTime - m_maxValidationDelay).SimulationSteps());
+                m_movementValidator.UpdateUntil(validationStep);
                 double lastMovementTime = m_movementValidator.Step.SimulationPeriod();
                 m_actionValidator.ValidateUntil(lastMovementTime, this);
             }

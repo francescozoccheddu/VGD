@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 
 using UnityEngine;
-using Wheeled.Debugging;
 
 namespace Wheeled.Gameplay.Movement
 {
@@ -63,7 +62,6 @@ namespace Wheeled.Gameplay.Movement
                 if (step < Step)
                 {
                     Target?.Rejected(step, false);
-                    Printer.PrintIncrement("SkippedInputs");
                     break;
                 }
                 else if (step >= Step + m_Length)
