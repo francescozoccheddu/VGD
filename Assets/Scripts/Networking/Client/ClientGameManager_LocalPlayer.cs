@@ -47,11 +47,6 @@ namespace Wheeled.Networking.Client
                 PutHealth(_time, _health);
             }
 
-            public new void PutHitConfirm(double _time, HitConfirmInfo _info)
-            {
-                base.PutHitConfirm(_time, _info);
-            }
-
             protected override void OnUpdated()
             {
                 if (ActionHistoryLocalTimeQuery.IsAlive)
@@ -92,9 +87,9 @@ namespace Wheeled.Networking.Client
 
             #region ActionController.ITarget
 
-            void ActionController.ITarget.Kaze()
+            void ActionController.ITarget.Kaze(KazeInfo _info)
             {
-                Serializer.WriteKazeNotify(LocalTime);
+                Serializer.WriteKazeNotify(LocalTime, _info);
                 m_manager.m_server.Send(NetworkManager.SendMethod.Unreliable);
             }
 

@@ -44,13 +44,14 @@ namespace Wheeled.Networking.Server
 
             #region ActionController.ITarget
 
-            void ActionController.ITarget.Kaze()
+            void ActionController.ITarget.Kaze(KazeInfo _info)
             {
                 DeathInfo deathInfo = new DeathInfo
                 {
                     isExploded = true,
                     killerId = Id,
-                    offenseType = OffenseType.Kaze
+                    offenseType = OffenseType.Explosion,
+                    position = _info.position
                 };
                 PutDeath(m_manager.m_time, deathInfo);
             }

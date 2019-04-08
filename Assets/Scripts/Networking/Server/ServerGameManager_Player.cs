@@ -52,6 +52,11 @@ namespace Wheeled.Networking.Server
                 }
             }
 
+            protected override void OnExplosion(double _time, Vector3 _position)
+            {
+
+            }
+
             protected abstract int GetLastValidMovementStep();
 
             protected override void OnDeathScheduled(double _time, DeathInfo _info)

@@ -82,7 +82,8 @@ namespace Wheeled.Networking
             {
                 killerId = ReadByte(),
                 offenseType = ReadEnum<OffenseType>(),
-                isExploded = ReadBool()
+                isExploded = ReadBool(),
+                position = ReadVector3()
             };
         }
 
@@ -205,6 +206,14 @@ namespace Wheeled.Networking
             };
         }
 
+        private KazeInfo ReadKazeInfo()
+        {
+            return new KazeInfo
+            {
+                position = ReadVector3()
+            };
+        }
+
         private string ReadString()
         {
             EnsureRead(m_netDataReader.TryGetString(out string value));
@@ -290,9 +299,10 @@ namespace Wheeled.Networking
             _outInfo = ReadHitConfirmInfo();
         }
 
-        public void ReadKazeNotify(out double _outTime)
+        public void ReadKazeNotify(out double _outTime, out KazeInfo _outInfo)
         {
             _outTime = ReadDouble();
+            _outInfo = ReadKazeInfo();
         }
 
         public void ReadShotNotify(out double _outTime, out ShotInfo _outInfo)

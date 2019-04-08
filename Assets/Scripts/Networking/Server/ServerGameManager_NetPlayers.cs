@@ -50,9 +50,9 @@ namespace Wheeled.Networking.Server
                 }
             }
 
-            public void TryKaze(double _time)
+            public void TryKaze(double _time, KazeInfo _info)
             {
-                m_actionValidator.PutKaze(_time);
+                m_actionValidator.PutKaze(_time, _info);
             }
 
             public void TryMove(int _step, IEnumerable<InputStep> _inputSteps, Snapshot _snapshot)
@@ -114,9 +114,9 @@ namespace Wheeled.Networking.Server
 
             #region ActionValidator.ITarget
 
-            void ActionValidator.ITarget.Kaze(double _time)
+            void ActionValidator.ITarget.Kaze(double _time, KazeInfo _info)
             {
-                DeathInfo deathInfo = new DeathInfo { isExploded = true, killerId = Id, offenseType = OffenseType.Kaze };
+                DeathInfo deathInfo = new DeathInfo { isExploded = true, killerId = Id, offenseType = OffenseType.Explosion, position = _info.position };
                 PutDeath(LocalTime, deathInfo);
             }
 

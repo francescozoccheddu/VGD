@@ -6,7 +6,7 @@ namespace Wheeled.Gameplay.Action
 {
     internal enum OffenseType
     {
-        Rifle, Rocket, Kaze
+        Rifle, Rocket, Explosion
     }
 
     internal struct DamageInfo
@@ -15,8 +15,14 @@ namespace Wheeled.Gameplay.Action
         public OffenseType offenseType;
     }
 
+    internal struct KazeInfo
+    {
+        public Vector3 position;
+    }
+
     internal struct DeathInfo
     {
+        public Vector3 position;
         public bool isExploded;
         public byte killerId;
         public OffenseType offenseType;

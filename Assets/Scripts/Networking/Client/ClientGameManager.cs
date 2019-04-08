@@ -115,10 +115,13 @@ namespace Wheeled.Networking.Client
 
         IEnumerable<OffenseStage.HitTarget> OffenseStage.IValidationTarget.GetHitTargets(double _time, byte _shooterId)
         {
-            return from p in m_players.Values where p.Id != _shooterId select new OffenseStage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time) };
+            return from p
+                   in m_players.Values
+                   where p.Id != _shooterId && p.ActionHistory.IsAlive(_time)
+                   select new OffenseStage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time) };
         }
 
-        void OffenseStage.IValidationTarget.Offense(byte _offenderId, byte _offendedId, float _damage, OffenseType _type)
+        void OffenseStage.IValidationTarget.Offense(double _time, byte _offenderId, byte _offendedId, float _damage, OffenseType _type, Vector3 _origin)
         {
         }
 

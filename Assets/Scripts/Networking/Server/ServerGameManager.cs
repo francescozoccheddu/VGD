@@ -13,6 +13,7 @@ namespace Wheeled.Networking.Server
     {
         private const int c_replicationRate = 10;
         private const double c_validationDelay = 1.0;
+        private const double c_maxOffenseDelay = 3.0;
         private readonly LocalPlayer m_localPlayer;
         private readonly List<Player> m_players;
         private readonly OffenseStage m_shootStage;
@@ -55,14 +56,40 @@ namespace Wheeled.Networking.Server
 
         IEnumerable<OffenseStage.HitTarget> OffenseStage.IValidationTarget.GetHitTargets(double _time, byte _shooterId)
         {
-            return from p in m_players where p.Id != _shooterId select new OffenseStage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time) };
+            return from p
+                   in m_players
+                   where p.Id != _shooterId && p.ActionHistory.IsAlive(_time)
+                   select new OffenseStage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time) };
         }
 
-        void OffenseStage.IValidationTarget.Offense(byte _offenderId, byte _offendedId, float _damage, OffenseType _type)
+        void OffenseStage.IValidationTarget.Offense(double _time, byte _offenderId, byte _offendedId, float _damage, OffenseType _type, Vector3 _origin)
         {
-            Player offended = GetPlayerById(_offendedId);
-            if (offended != null)
+            if (_time >= m_time - c_maxOffenseDelay)
             {
+                Player offended = GetPlayerById(_offendedId);
+                if (offended != null)
+                {
+                    int health = offended.ActionHistory.GetHealth(_time);
+                    int newHealth = health - Mathf.RoundToInt(_damage * ActionHistory.c_fullHealth);
+                    if (newHealth != health)
+                    {
+                        GetPlayerById(_offenderId)?.PutHitConfirm(_time, new HitConfirmInfo { offenseType = _type });
+                        if (newHealth > 0)
+                        {
+                            offended.PutDamage(_time, new DamageInfo { offensePosition = _origin, offenseType = _type });
+                            offended.PutHealth(_time, newHealth);
+                        }
+                        else
+                        {
+                            offended.PutDeath(_time, new DeathInfo
+                            {
+                                isExploded = newHealth < ActionHistory.c_explosionhealth,
+                                killerId = _offenderId,
+                                offenseType = _type
+                            });
+                        }
+                    }
+                }
             }
         }
 
@@ -198,8 +225,8 @@ namespace Wheeled.Networking.Server
                 {
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
-                        _reader.ReadKazeNotify(out double time);
-                        netPlayer.TryKaze(time);
+                        _reader.ReadKazeNotify(out double time, out KazeInfo info);
+                        netPlayer.TryKaze(time, info);
                     }
                 }
                 break;

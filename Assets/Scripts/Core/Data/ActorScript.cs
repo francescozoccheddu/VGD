@@ -11,5 +11,6 @@ namespace Wheeled.Core.Data
 
         public GameObject rifleProjectile;
         public GameObject rocketProjectile;
+        public GameObject explosion;
     }
 }

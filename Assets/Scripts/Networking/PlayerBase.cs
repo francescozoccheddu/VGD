@@ -104,6 +104,30 @@ namespace Wheeled.Networking
             m_actionHistory.PutQuit(_time);
         }
 
+        public void PutDamage(double _time, DamageInfo _info)
+        {
+            if (IsLocal)
+            {
+                m_actionHistory.PutDamage(_time, _info);
+            }
+            OnDamageScheduled(_time, _info);
+        }
+
+        public void PutDeath(double _time, DeathInfo _info)
+        {
+            m_actionHistory.PutDeath(_time, _info);
+            OnDeathScheduled(_time, _info);
+        }
+
+        public void PutHitConfirm(double _time, HitConfirmInfo _info)
+        {
+            if (IsLocal)
+            {
+                m_actionHistory.PutHitConfirm(_time, _info);
+            }
+            OnHitConfirmScheduled(_time, _info);
+        }
+
         public void Update()
         {
             ActionHistoryLocalTimeQuery = m_actionHistory.GetQuery(LocalTime);
@@ -127,6 +151,10 @@ namespace Wheeled.Networking
 
         void ActionHistory.ITarget.PerformDeath(double _time, DeathInfo _info)
         {
+            if (_info.isExploded)
+            {
+                m_manager.ShootStage.Explode(_time, _info.killerId, _info.position);
+            }
         }
 
         void ActionHistory.ITarget.PerformHitConfirm(double _time, HitConfirmInfo _info)
@@ -190,6 +218,11 @@ namespace Wheeled.Networking
         {
         }
 
+        protected virtual void OnExplosion(double _time, Vector3 _position)
+        {
+
+        }
+
         #endregion Protected abstract events
 
         #region Protected services
@@ -203,30 +236,6 @@ namespace Wheeled.Networking
         protected IEnumerable<InputStep> GetReversedInputSequence(int _step, int _maxStepsCount)
         {
             return m_inputHistory.GetReversedInputSequence(_step, _maxStepsCount);
-        }
-
-        protected void PutDamage(double _time, DamageInfo _info)
-        {
-            if (IsLocal)
-            {
-                m_actionHistory.PutDamage(_time, _info);
-            }
-            OnDamageScheduled(_time, _info);
-        }
-
-        protected void PutDeath(double _time, DeathInfo _info)
-        {
-            m_actionHistory.PutDeath(_time, _info);
-            OnDeathScheduled(_time, _info);
-        }
-
-        protected void PutHitConfirm(double _time, HitConfirmInfo _info)
-        {
-            if (IsLocal)
-            {
-                m_actionHistory.PutHitConfirm(_time, _info);
-            }
-            OnHitConfirmScheduled(_time, _info);
         }
 
         protected void PutInput(int _step, in InputStep _inputStep)

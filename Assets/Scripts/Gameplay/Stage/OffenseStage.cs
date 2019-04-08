@@ -22,12 +22,12 @@ namespace Wheeled.Gameplay.Stage
         {
             IEnumerable<HitTarget> GetHitTargets(double _time, byte _shooterId);
 
-            void Offense(byte _offenderId, byte _offendedId, float _damage, OffenseType _type);
+            void Offense(double _time, byte _offenderId, byte _offendedId, float _damage, OffenseType _type, Vector3 _offensePosition);
         }
 
         public IValidationTarget ValidationTarget { get; set; }
 
-        public void Kaze(double _time, byte _id, Vector3 _position)
+        public void Explode(double _time, byte _id, Vector3 _position)
         {
             m_offenses.Add(new KazeOffense(_time, _id, _position));
         }
@@ -95,9 +95,11 @@ namespace Wheeled.Gameplay.Stage
                             {
                                 continue;
                             }
-                            _stage.ValidationTarget.Offense(OffenderId, t.playerId, damage, OffenseType.Kaze);
+                            _stage.ValidationTarget.Offense(Time, OffenderId, t.playerId, damage, OffenseType.Explosion, m_position);
                         }
                     }
+                    GameObject gameObject = UnityEngine.Object.Instantiate(ScriptManager.Actors.explosion);
+                    gameObject.GetComponent<ExplosionBehaviour>()?.Explode(m_position);
                     Dispose();
                 }
             }
@@ -160,7 +162,7 @@ namespace Wheeled.Gameplay.Stage
                         if (hitInfo.playerId != null)
                         {
                             float damage = (hitInfo.isCritical ? c_criticalDamage : c_damage) * m_power;
-                            _target.Offense(OffenderId, hitInfo.playerId.Value, damage, OffenseType.Rifle);
+                            _target.Offense(Time, OffenderId, hitInfo.playerId.Value, damage, OffenseType.Rifle, m_origin);
                         }
                         hit = true;
                     }
@@ -237,7 +239,7 @@ namespace Wheeled.Gameplay.Stage
                                     {
                                         continue;
                                     }
-                                    _target.Offense(OffenderId, t.playerId, damage, OffenseType.Rocket);
+                                    _target.Offense(m_lifetime + Time, OffenderId, t.playerId, damage, OffenseType.Rocket, m_origin);
                                 }
                             }
                             Dispose();

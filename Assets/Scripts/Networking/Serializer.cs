@@ -98,11 +98,17 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.killerId);
             _netDataWriter.Put(_value.offenseType);
             _netDataWriter.Put(_value.isExploded);
+            _netDataWriter.Put(_value.position);
         }
 
         private static void Put(this NetDataWriter _netDataWriter, in SpawnInfo _value)
         {
             _netDataWriter.Put(_value.spawnPoint);
+        }
+
+        private static void Put(this NetDataWriter _netDataWriter, in KazeInfo _value)
+        {
+            _netDataWriter.Put(_value.position);
         }
 
         private static void Put<T>(this NetDataWriter _netDataWriter, IEnumerable<T> _value, Action<NetDataWriter, T> _put)
@@ -185,11 +191,12 @@ namespace Wheeled.Networking
             writer.Put(_info);
         }
 
-        public static void WriteKazeNotify(double _time)
+        public static void WriteKazeNotify(double _time, KazeInfo _info)
         {
             writer.Reset();
             writer.Put(Message.KazeNotify);
             writer.Put(_time);
+            writer.Put(_info);
         }
 
         public static void WriteShootNotify(double _time, ShotInfo _info)

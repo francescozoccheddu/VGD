@@ -8,6 +8,7 @@ namespace Wheeled.Gameplay.Action
     internal sealed class ActionValidator
     {
         private const float c_maxShotPositionTolerance = 0.5f;
+        private const float c_maxKazePositionTolerance = 0.8f;
         private readonly LinkedListHistory<double, INode> m_history;
         private double m_maxAnticipation;
         private double m_maxDelay;
@@ -21,7 +22,7 @@ namespace Wheeled.Gameplay.Action
 
         public interface ITarget
         {
-            void Kaze(double _time);
+            void Kaze(double _time, KazeInfo _info);
 
             void Shoot(double _time, ShotInfo _info);
         }
@@ -34,11 +35,11 @@ namespace Wheeled.Gameplay.Action
         public double MaxDelay { get => m_maxDelay; set { Debug.Assert(value >= 0.0); m_maxDelay = value; } }
         public ITarget Target { get; set; }
 
-        public void PutKaze(double _time)
+        public void PutKaze(double _time, KazeInfo _info)
         {
             if (_time >= m_time - MaxDelay && _time <= m_time + MaxAnticipation)
             {
-                m_history.Add(_time, new KazeNode());
+                m_history.Add(_time, new KazeNode { info = _info });
             }
         }
 
@@ -63,10 +64,14 @@ namespace Wheeled.Gameplay.Action
                 switch (node)
                 {
                     case KazeNode kazeNode:
-                    if (_player.ActionHistory.CanKaze(time))
+                    if (Vector3.Distance(_player.GetSnapshot(time).simulation.position, kazeNode.info.position) <= c_maxShotPositionTolerance)
                     {
-                        Target?.Kaze(time);
+                        if (_player.ActionHistory.CanKaze(time))
+                        {
+                            Target?.Kaze(time, kazeNode.info);
+                        }
                     }
+
                     break;
 
                     case ShotNode shotNode:
@@ -86,7 +91,10 @@ namespace Wheeled.Gameplay.Action
             m_history.ForgetAndOlder(_time);
         }
 
-        private struct KazeNode : INode { }
+        private struct KazeNode : INode
+        {
+            internal KazeInfo info;
+        }
 
         private struct ShotNode : INode
         {

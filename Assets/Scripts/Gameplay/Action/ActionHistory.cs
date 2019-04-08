@@ -56,6 +56,7 @@ namespace Wheeled.Gameplay.Action
     {
 
         public const int c_fullHealth = 100;
+        public const int c_explosionhealth = -50;
         public const float c_respawnWaitTime = 2.0f;
         public const float c_rifleCooldown = 0.5f;
         public const float c_riflePowerUpTime = 3.0f;
@@ -212,7 +213,7 @@ namespace Wheeled.Gameplay.Action
 
             void IAction.Perform(double _time, ActionHistory _history)
             {
-                bool kaze = info.isExploded && info.offenseType == OffenseType.Kaze && info.killerId == _history.Id;
+                bool kaze = info.isExploded && info.offenseType == OffenseType.Explosion && info.killerId == _history.Id;
                 if ((!kaze && _history.CanDie(_time, true)) || (kaze && _history.CanKaze(_time, true)))
                 {
                     _history.Target?.PerformDeath(_time, info);

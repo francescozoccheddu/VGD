@@ -7,7 +7,7 @@ namespace Wheeled.Gameplay.Action
     {
         public interface ITarget
         {
-            void Kaze();
+            void Kaze(KazeInfo _info);
 
             void Shoot(ShotInfo _info);
         }
@@ -38,7 +38,10 @@ namespace Wheeled.Gameplay.Action
                 }
                 if (Input.GetButtonDown("Kaze") && _query.CanKaze)
                 {
-                    Target.Kaze();
+                    Target.Kaze(new KazeInfo
+                    {
+                        position = _snapshot.simulation.position
+                    });
                 }
             }
         }
