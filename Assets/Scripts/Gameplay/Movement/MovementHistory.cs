@@ -71,7 +71,7 @@ namespace Wheeled.Gameplay.Movement
                     SimulationStep simulation = prev.Value.value;
                     int step = prev.Value.time;
                     double partialSimulationProgress = progress;
-                    PartialSimulate(_inputHistory, ref simulation, ref step, ref partialSimulationProgress, false);
+                    PartialSimulate(_inputHistory, ref simulation, step, ref partialSimulationProgress, false);
                     float lerpAlpha = (float) (partialSimulationProgress / (period - progress + partialSimulationProgress));
                     _outSimulation = SimulationStep.Lerp(simulation, next.Value.value, lerpAlpha);
                 }
@@ -83,7 +83,7 @@ namespace Wheeled.Gameplay.Movement
                     int step = node.time;
                     double partialSimulationProgress = Math.Min(_time - step.SimulationPeriod(), MaxPrevisionTime);
 
-                    PartialSimulate(_inputHistory, ref simulation, ref step, ref partialSimulationProgress, true);
+                    PartialSimulate(_inputHistory, ref simulation, step, ref partialSimulationProgress, true);
                     _outSimulation = simulation;
                 }
             }
@@ -104,11 +104,11 @@ namespace Wheeled.Gameplay.Movement
             m_simulationHistory.Set(_step, _simulation);
         }
 
-        private void PartialSimulate(InputHistory _inputHistory, ref SimulationStep _refSimulationStep, ref int _refStep, ref double _refDeltaTime, bool _canPredict)
+        private void PartialSimulate(InputHistory _inputHistory, ref SimulationStep _refSimulationStep, int _step, ref double _refDeltaTime, bool _canPredict)
         {
             void Simulate(ref SimulationStep _refInnerSimulationStep, ref int _refInnerStep, ref double _refInnerDeltaTime, in InputStep _inputStep)
             {
-                if (_refInnerDeltaTime > TimeConstants.c_simulationStep)
+                if (_refInnerDeltaTime >= TimeConstants.c_simulationStep)
                 {
                     _refInnerSimulationStep = _refInnerSimulationStep.Simulate(_inputStep, TimeConstants.c_simulationStep);
                     _refInnerDeltaTime -= TimeConstants.c_simulationStep;
@@ -122,18 +122,18 @@ namespace Wheeled.Gameplay.Movement
             }
             if (_canPredict)
             {
-                using (IEnumerator<HistoryNode<int, InputStep>> enumerator = _inputHistory.GetSequenceSince(_refStep, true, false).GetEnumerator())
+                using (IEnumerator<HistoryNode<int, InputStep>> enumerator = _inputHistory.GetSequenceSince(_step, true, false).GetEnumerator())
                 {
                     if (enumerator.MoveNext())
                     {
                         HistoryNode<int, InputStep> node = enumerator.Current;
                         while (_refDeltaTime > 0.0)
                         {
-                            if (node.time < _refStep && enumerator.MoveNext())
+                            if (node.time < _step && enumerator.MoveNext())
                             {
                                 node = enumerator.Current;
                             }
-                            Simulate(ref _refSimulationStep, ref _refStep, ref _refDeltaTime, node.value);
+                            Simulate(ref _refSimulationStep, ref _step, ref _refDeltaTime, node.value);
                             node.value = node.value.Predicted;
                         }
                     }
@@ -141,11 +141,11 @@ namespace Wheeled.Gameplay.Movement
             }
             else
             {
-                foreach (HistoryNode<int, InputStep> node in _inputHistory.GetSequenceSince(_refStep, false, false))
+                foreach (HistoryNode<int, InputStep> node in _inputHistory.GetSequenceSince(_step, false, false))
                 {
-                    if (node.time == _refStep && _refDeltaTime > 0.0)
+                    if (node.time == _step && _refDeltaTime > 0.0)
                     {
-                        Simulate(ref _refSimulationStep, ref _refStep, ref _refDeltaTime, node.value);
+                        Simulate(ref _refSimulationStep, ref _step, ref _refDeltaTime, node.value);
                     }
                     else
                     {
