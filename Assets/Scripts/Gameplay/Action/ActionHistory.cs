@@ -55,11 +55,11 @@ namespace Wheeled.Gameplay.Action
     internal sealed class ActionHistory : IActionHistory
     {
 
-        private const int c_fullHealth = 100;
-        private const float c_respawnWaitTime = 2.0f;
-        private const float c_rifleCooldown = 0.5f;
-        private const float c_riflePowerUpTime = 3.0f;
-        private const float c_rocketCooldown = 1.0f;
+        public const int c_fullHealth = 100;
+        public const float c_respawnWaitTime = 2.0f;
+        public const float c_rifleCooldown = 0.5f;
+        public const float c_riflePowerUpTime = 3.0f;
+        public const float c_rocketCooldown = 1.0f;
         private readonly LinkedListHistory<double, IAction> m_actionHistory = new LinkedListHistory<double, IAction>();
         private readonly LinkedListHistory<double, int> m_deathCountHistory = new LinkedListHistory<double, int>();
         private readonly LinkedListSimpleHistory<double> m_explosionHistory = new LinkedListSimpleHistory<double>();
@@ -213,7 +213,7 @@ namespace Wheeled.Gameplay.Action
             void IAction.Perform(double _time, ActionHistory _history)
             {
                 bool kaze = info.isExploded && info.offenseType == OffenseType.Kaze && info.killerId == _history.Id;
-                if ((kaze && _history.CanDie(_time, true)) || (!kaze && _history.CanKaze(_time)))
+                if ((!kaze && _history.CanDie(_time, true)) || (kaze && _history.CanKaze(_time, true)))
                 {
                     _history.Target?.PerformDeath(_time, info);
                 }
@@ -352,7 +352,10 @@ namespace Wheeled.Gameplay.Action
         {
             if (this.IsFirstSpawnedAndNotQuit(_time))
             {
-                double? lastExplosion = m_explosionHistory.GetOrPrevious(_time);
+                double? lastExplosion = m_explosionHistory
+                    .GetReversedSequenceSince(_time, false, true)
+                    .Cast<double?>()
+                    .FirstOrDefault(_t => !_isValidation || _t != _time);
                 return lastExplosion == null ||
                     m_healthHistory
                     .GetReversedSequenceSince(_time, false, true)
@@ -365,7 +368,7 @@ namespace Wheeled.Gameplay.Action
 
         private bool CanShootRocket(double _time, bool _isValidation)
         {
-            if (this.IsFirstSpawnedAndNotQuit(_time))
+            if (this.IsAlive(_time))
             {
                 double? lastShot = m_rocketShootHistory
                     .GetReversedSequenceSince(_time, false, true)
@@ -399,7 +402,7 @@ namespace Wheeled.Gameplay.Action
 
         private float GetRiflePower(double _time, bool _isValidation)
         {
-            if (this.IsFirstSpawnedAndNotQuit(_time))
+            if (this.IsAlive(_time))
             {
                 double? lastShot = m_rifleShootHistory
                     .GetReversedSequenceSince(_time, false, true)

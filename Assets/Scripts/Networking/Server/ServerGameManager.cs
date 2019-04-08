@@ -60,6 +60,10 @@ namespace Wheeled.Networking.Server
 
         void OffenseStage.IValidationTarget.Offense(byte _offenderId, byte _offendedId, float _damage, OffenseType _type)
         {
+            Player offended = GetPlayerById(_offendedId);
+            if (offended != null)
+            {
+            }
         }
 
         #endregion ShootStage.IValidationTarget
