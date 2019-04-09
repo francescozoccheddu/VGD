@@ -98,8 +98,7 @@ namespace Wheeled.Gameplay.Stage
                             _stage.ValidationTarget.Offense(Time, OffenderId, t.playerId, damage, OffenseType.Explosion, m_position);
                         }
                     }
-                    GameObject gameObject = UnityEngine.Object.Instantiate(ScriptManager.Actors.explosion);
-                    gameObject.GetComponent<ExplosionBehaviour>()?.Explode(m_position);
+                    GameObject gameObject = UnityEngine.Object.Instantiate(ScriptManager.Actors.explosion, m_position, Quaternion.identity);
                     Dispose();
                 }
             }
