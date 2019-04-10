@@ -4,15 +4,25 @@ namespace Wheeled.Gameplay.Stage
 {
     public sealed class RocketProjectileBehaviour : MonoBehaviour
     {
+        public ParticleSystem particleSystemTrail;
+        public MeshRenderer meshRenderer;
+
+        public GameObject explosion;
+
         internal void Dissolve()
         {
-            Destroy(gameObject);
+            particleSystemTrail.Stop();
+            meshRenderer.enabled = false;
         }
 
         internal void Explode(Vector3 _position)
         {
             transform.position = _position;
-            Destroy(gameObject);
+
+            Instantiate(explosion, _position, Quaternion.identity);
+            particleSystemTrail.Stop();
+            meshRenderer.enabled = false;
+            
         }
 
         internal void Move(Vector3 _position)
