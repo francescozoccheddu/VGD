@@ -154,7 +154,7 @@ namespace Wheeled.Networking
                 if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.F8))
                 {
                     m_netManager.SimulatePacketLoss = m_netManager.SimulateLatency = !m_netManager.SimulateLatency;
-                    Debugging.Printer.Print("BadNetwork", m_netManager.SimulatePacketLoss);
+                    Lebug.Log("BadNetwork", m_netManager.SimulatePacketLoss);
                 }
             }
             m_netManager.PollEvents();

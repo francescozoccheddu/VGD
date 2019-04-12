@@ -168,7 +168,6 @@ namespace Wheeled.Gameplay.Movement
                 m_trustedSteps = 0;
                 if (!SimulationStep.IsNearlyEqual(m_last.simulation, m_buffer[bufInd].simulation.Value))
                 {
-                    Debugging.Printer.PrintIncrement("WrongData");
                     SendCorrection();
                 }
             }
@@ -177,7 +176,6 @@ namespace Wheeled.Gameplay.Movement
                 m_trustedSteps++;
                 if (m_trustedSteps > m_maxTrustedSteps)
                 {
-                    Debugging.Printer.PrintIncrement("NoData");
                     SendCorrection();
                 }
             }
