@@ -29,7 +29,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1199107559721684683}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 6.07}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -94,7 +94,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particleSystemTrail: {fileID: 7965033000619721998}
   meshRenderer: {fileID: 1645506174624344801}
-  explosion: {fileID: 8078640579761566153, guid: 38939ec25fde45f4b9735bf7e1a4bdf8,
+  explosion: {fileID: 1590646576897671981, guid: fd833a662494921499ed1f8958c9d2ba,
     type: 3}
 --- !u!198 &7965033000619721998
 ParticleSystem:
@@ -110,7 +110,7 @@ ParticleSystem:
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
@@ -1307,7 +1307,7 @@ ParticleSystem:
     curve:
       serializedVersion: 2
       minMaxState: 1
-      scalar: 6.283185
+      scalar: 1.7453293
       minScalar: 0.7853982
       maxCurve:
         serializedVersion: 2
