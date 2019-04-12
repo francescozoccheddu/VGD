@@ -37,7 +37,7 @@ namespace Wheeled.Gameplay.Movement
             m_history.Set(_step, _inputStep);
         }
 
-        public SimulationStep SimulateFrom(int _step, SimulationStep _simulation)
+        public CharacterController SimulateFrom(int _step, CharacterController _simulation)
         {
             InputStep? input = null;
             foreach (HistoryNode<int, InputStep> node in m_history.GetSequenceSince(_step))
@@ -49,7 +49,7 @@ namespace Wheeled.Gameplay.Movement
                     {
                         input = node.value;
                     }
-                    _simulation = _simulation.Simulate(input.Value, TimeConstants.c_simulationStep);
+                    _simulation = _simulation.Simulate(input.Value, (float) TimeConstants.c_simulationStep);
                     _step++;
                 }
             }

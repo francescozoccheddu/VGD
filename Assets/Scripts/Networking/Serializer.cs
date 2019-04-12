@@ -37,10 +37,12 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.movementZ);
         }
 
-        private static void Put(this NetDataWriter _netDataWriter, in SimulationStep _value)
+        private static void Put(this NetDataWriter _netDataWriter, in CharacterController _value)
         {
-            _netDataWriter.Put(_value.velocity);
-            _netDataWriter.Put(_value.position);
+            _netDataWriter.Put(_value.Velocity);
+            _netDataWriter.Put(_value.Position);
+            _netDataWriter.Put(_value.Height);
+            _netDataWriter.Put(_value.dashStamina);
         }
 
         private static void Put(this NetDataWriter _netDataWriter, in Sight _value)

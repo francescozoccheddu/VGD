@@ -90,82 +90,21 @@ namespace Wheeled.Gameplay.Movement
         }
     }
 
-    internal struct SimulationStep
-    {
-        public Vector3 position;
-        public Vector3 velocity;
-        private const float c_gravitySpeed = -10f;
-        private const float c_jumpSpeed = 100;
-        private const float c_moveSpeed = 5;
-
-        public static bool IsNearlyEqual(in SimulationStep _a, in SimulationStep _b)
-        {
-            return IsNearlyEqual(_a.velocity, _b.velocity)
-                && IsNearlyEqual(_a.position, _b.position);
-        }
-
-        public static SimulationStep Lerp(in SimulationStep _a, in SimulationStep _b, float _progress)
-        {
-            SimulationStep l;
-            l.velocity = Vector3.Lerp(_a.velocity, _b.velocity, _progress);
-            l.position = Vector3.Lerp(_a.position, _b.position, _progress);
-            return l;
-        }
-
-        public SimulationStep Simulate(in InputStep _input, double _deltaTime)
-        {
-            SimulationStep next = this;
-            InputStep input = _input.Clamped;
-            next.velocity.x = input.movementX * c_moveSpeed;
-            next.velocity.z = input.movementZ * c_moveSpeed;
-            if (next.position.y == 2.0f)
-            {
-                if (input.jump)
-                {
-                    next.velocity.y = c_jumpSpeed;
-                }
-                else
-                {
-                    next.velocity.y = 0.0f;
-                }
-            }
-            next.velocity.y += (float) (c_gravitySpeed * _deltaTime);
-            next.position += velocity * (float) _deltaTime;
-            if (next.position.y <= 2.0f)
-            {
-                next.position.y = 2.0f;
-            }
-            return next;
-        }
-
-        private static bool IsNearlyEqual(float _a, float _b)
-        {
-            return Mathf.Approximately(_a, _b);
-        }
-
-        private static bool IsNearlyEqual(in Vector3 _a, in Vector3 _b)
-        {
-            return IsNearlyEqual(_a.x, _b.x)
-                && IsNearlyEqual(_a.y, _b.y)
-                && IsNearlyEqual(_a.z, _b.z);
-        }
-    }
-
     internal struct SimulationStepInfo
     {
         public InputStep input;
-        public SimulationStep simulation;
+        public CharacterController simulation;
     }
 
     internal struct Snapshot
     {
         public Sight sight;
-        public SimulationStep simulation;
+        public CharacterController simulation;
 
         public static Snapshot Lerp(in Snapshot _a, in Snapshot _b, float _progress)
         {
             Snapshot l;
-            l.simulation = SimulationStep.Lerp(_a.simulation, _b.simulation, _progress);
+            l.simulation = CharacterController.Lerp(_a.simulation, _b.simulation, _progress);
             l.sight = Sight.Lerp(_a.sight, _b.sight, _progress);
             return l;
         }

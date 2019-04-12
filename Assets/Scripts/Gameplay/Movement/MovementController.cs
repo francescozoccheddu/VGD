@@ -12,7 +12,7 @@ namespace Wheeled.Gameplay.Movement
 
         private double m_accumulatedTime;
 
-        private SimulationStep m_lastSimulation;
+        private CharacterController m_lastSimulation;
 
         private Snapshot m_snapshot;
 
@@ -82,7 +82,7 @@ namespace Wheeled.Gameplay.Movement
         {
             InputStep input = GetAccumulatedInput();
             m_lastSimulation = m_snapshot.simulation;
-            m_snapshot.simulation = m_snapshot.simulation.Simulate(input, TimeConstants.c_simulationStep);
+            m_snapshot.simulation = m_snapshot.simulation.Simulate(input, (float) TimeConstants.c_simulationStep);
             target?.Commit(Step, input, m_snapshot);
             m_accumulatedInput = new InputStep();
             m_accumulatedTime = 0.0f;
@@ -107,7 +107,7 @@ namespace Wheeled.Gameplay.Movement
             float right = Input.GetAxis("Horizontal");
             float forward = Input.GetAxis("Vertical");
             bool jumped = Input.GetButtonDown("Jump");
-            bool dashed = false;
+            bool dashed = Input.GetButtonDown("Dash");
             float turn = Input.GetAxis("Mouse X");
             float lookUp = -Input.GetAxis("Mouse Y");
 

@@ -60,7 +60,7 @@ namespace Wheeled.Networking
         public Snapshot GetSnapshot(double _time)
         {
             Snapshot snapshot = new Snapshot();
-            m_movementHistory.GetSimulation(_time, out SimulationStep? simulation, m_inputHistory);
+            m_movementHistory.GetSimulation(_time, out CharacterController? simulation, m_inputHistory);
             if (simulation != null)
             {
                 snapshot.simulation = simulation.Value;
@@ -230,7 +230,7 @@ namespace Wheeled.Networking
 
         #region Protected services
 
-        protected SimulationStep CorrectSimulation(int _step, InputStep _input, SimulationStep _simulation)
+        protected CharacterController CorrectSimulation(int _step, InputStep _input, CharacterController _simulation)
         {
             PutInput(_step, _input);
             return m_inputHistory.SimulateFrom(_step, _simulation);
@@ -257,7 +257,7 @@ namespace Wheeled.Networking
             m_movementHistory.Put(_step, _sight);
         }
 
-        protected void PutSimulation(int _step, in SimulationStep _simulation)
+        protected void PutSimulation(int _step, in CharacterController _simulation)
         {
             m_movementHistory.Put(_step, _simulation);
         }

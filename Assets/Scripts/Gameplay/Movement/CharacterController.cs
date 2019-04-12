@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using Wheeled.Gameplay.Movement;
 
-public struct CharacterController
+internal struct CharacterController
 {
 
     private const float c_jumpSpeed = 10.0f;
@@ -14,12 +15,31 @@ public struct CharacterController
     private const float c_groundDragXZ = 5.0f;
     private const float c_airDragXZ = 1.0f;
 
-    public CapsuleController capsule;
+    private CapsuleController m_capsule;
     public float dashStamina;
+
+    public Vector3 Position { get => m_capsule.position; set => m_capsule.position = value; }
+    public Vector3 Velocity { get => m_capsule.velocity; set => m_capsule.velocity = value; }
+    public float Height { get => m_capsule.height; set => m_capsule.height = value; }
+    public bool IsGrounded => m_capsule.IsGrounded;
 
     public static bool AreNearlyEqual(in CharacterController _a, in CharacterController _b)
     {
-        return CapsuleController.AreNearlyEqual(_a.capsule, _b.capsule);
+        return CapsuleController.AreNearlyEqual(_a.m_capsule, _b.m_capsule);
+    }
+
+    public static CharacterController Lerp(in CharacterController _a, in CharacterController _b, float _progress)
+    {
+        return new CharacterController
+        {
+            m_capsule = CapsuleController.Lerp(_a.m_capsule, _b.m_capsule, _progress),
+            dashStamina = Mathf.Lerp(_a.dashStamina, _b.dashStamina, _progress)
+        };
+    }
+
+    public CharacterController Simulate(InputStep _input, float _deltaTime)
+    {
+        return Simulate(new Vector2(_input.movementX, _input.movementZ), _input.jump, _input.dash, _deltaTime);
     }
 
     public CharacterController Simulate(Vector2 _movementXZ, bool _jump, bool _dash, float _deltaTime)
@@ -27,25 +47,25 @@ public struct CharacterController
         CharacterController next = this;
         next.dashStamina = Mathf.Clamp01(next.dashStamina + _deltaTime * c_dashRegenSpeed);
         _movementXZ = Vector2.ClampMagnitude(_movementXZ, 1.0f);
-        if (next.capsule.IsGrounded)
+        if (next.m_capsule.IsGrounded)
         {
             if (_jump)
             {
-                next.capsule.velocity.y = c_jumpSpeed;
+                next.m_capsule.velocity.y = c_jumpSpeed;
             }
             if (_dash)
             {
                 float stamina = next.dashStamina;
                 next.dashStamina = Mathf.Max(next.dashStamina - _movementXZ.magnitude, 0.0f);
-                next.capsule.velocity += (stamina * c_dashSpeed * _movementXZ).ToVector3XZ();
+                next.m_capsule.velocity += (stamina * c_dashSpeed * _movementXZ).ToVector3XZ();
             }
         }
         else
         {
             _movementXZ *= c_airMovementFactor;
         }
-        next.capsule.velocity.y += c_gravityY * _deltaTime;
-        Vector2 velocityXZ = next.capsule.velocity.ToVector2XZ();
+        next.m_capsule.velocity.y += c_gravityY * _deltaTime;
+        Vector2 velocityXZ = next.m_capsule.velocity.ToVector2XZ();
         {
             float currentSpeed = velocityXZ.magnitude;
             float compliance = Mathf.Max(Vector2.Dot(velocityXZ.normalized, _movementXZ.normalized), 0.0f);
@@ -57,15 +77,15 @@ public struct CharacterController
             float targetSpeed = velocityXZ.magnitude;
             if (targetSpeed > 0.0f)
             {
-                float drag = next.capsule.IsGrounded ? c_groundDragXZ : c_airDragXZ;
+                float drag = next.m_capsule.IsGrounded ? c_groundDragXZ : c_airDragXZ;
                 float targetMagnitude = Mathf.Max(0.0f, Mathf.Min(targetSpeed - drag * _deltaTime, c_maxSpeedXZ));
                 velocityXZ = velocityXZ * (targetMagnitude / targetSpeed);
-                next.capsule.velocity = velocityXZ.ToVector3XZ(next.capsule.velocity.y);
+                next.m_capsule.velocity = velocityXZ.ToVector3XZ(next.m_capsule.velocity.y);
             }
-            Lebug.Log("SpeedXZ", next.capsule.velocity.ToVector2XZ().magnitude);
-            Lebug.Log("SpeedY", next.capsule.velocity.y);
+            Lebug.Log("SpeedXZ", next.m_capsule.velocity.ToVector2XZ().magnitude);
+            Lebug.Log("SpeedY", next.m_capsule.velocity.y);
         }
-        next.capsule = next.capsule.Simulate(_deltaTime);
+        next.m_capsule = next.m_capsule.Simulate(_deltaTime);
         return next;
     }
 

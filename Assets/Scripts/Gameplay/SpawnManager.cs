@@ -20,7 +20,7 @@ namespace Wheeled.Gameplay
             return new Snapshot
             {
                 sight = new Sight { Turn = point.eulerAngles.y },
-                simulation = new SimulationStep { position = point.position }
+                simulation = new CharacterController { Position = point.position }
             };
         }
 

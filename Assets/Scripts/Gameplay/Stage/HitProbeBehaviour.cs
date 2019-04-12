@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using UnityEngine;
 using Wheeled.Gameplay.Movement;
-using Wheeled.Networking;
 
 namespace Wheeled.Gameplay.Stage
 {
@@ -25,7 +24,7 @@ namespace Wheeled.Gameplay.Stage
         {
             PlayerId = _playerId;
             gameObject.SetActive(true);
-            transform.position = _snapshot.simulation.position;
+            transform.position = _snapshot.simulation.Position;
             transform.rotation = _snapshot.sight.Quaternion;
         }
     }

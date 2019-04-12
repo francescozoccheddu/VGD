@@ -82,7 +82,7 @@ namespace Wheeled.Gameplay.Stage
                         foreach (HitTarget t in targets)
                         {
                             float damage;
-                            float distance = Vector3.Distance(t.snapshot.simulation.position, m_position);
+                            float distance = Vector3.Distance(t.snapshot.simulation.Position, m_position);
                             if (distance <= c_innerRadius)
                             {
                                 damage = c_fullDamage;
@@ -225,7 +225,7 @@ namespace Wheeled.Gameplay.Stage
                                 foreach (HitTarget t in targets)
                                 {
                                     float damage;
-                                    float distance = Vector3.Distance(t.snapshot.simulation.position, position);
+                                    float distance = Vector3.Distance(t.snapshot.simulation.Position, position);
                                     if (distance <= c_innerRadius)
                                     {
                                         damage = c_fullDamage;

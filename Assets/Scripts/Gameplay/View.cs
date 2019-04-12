@@ -40,7 +40,7 @@ namespace Wheeled.Gameplay
 
         public void Move(in Snapshot _snapshot)
         {
-            m_position = _snapshot.simulation.position;
+            m_position = _snapshot.simulation.Position;
             m_sight = _snapshot.sight;
         }
 

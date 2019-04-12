@@ -8,13 +8,13 @@ namespace Wheeled.Gameplay.Movement
     internal sealed class MovementHistory
     {
         private readonly IHistory<int, Sight> m_sightHistory;
-        private readonly IHistory<int, SimulationStep> m_simulationHistory;
+        private readonly IHistory<int, CharacterController> m_simulationHistory;
         private double m_maxPrevisionTime;
 
         public MovementHistory()
         {
             m_sightHistory = new LinkedListHistory<int, Sight>();
-            m_simulationHistory = new LinkedListHistory<int, SimulationStep>();
+            m_simulationHistory = new LinkedListHistory<int, CharacterController>();
         }
 
         public double MaxPrevisionTime { get => m_maxPrevisionTime; set { Debug.Assert(value >= 0.0); m_maxPrevisionTime = value; } }
@@ -56,30 +56,30 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        public void GetSimulation(double _time, out SimulationStep? _outSimulation, InputHistory _inputHistory)
+        public void GetSimulation(double _time, out CharacterController? _outSimulation, InputHistory _inputHistory)
         {
-            m_simulationHistory.Query(_time.SimulationSteps(), out HistoryNode<int, SimulationStep>? prev, out HistoryNode<int, SimulationStep>? next);
+            m_simulationHistory.Query(_time.SimulationSteps(), out HistoryNode<int, CharacterController>? prev, out HistoryNode<int, CharacterController>? next);
             if (prev != null)
             {
                 if (next != null)
                 {
                     // Prev & next
-                    SimulationStep a = prev.Value.value;
-                    SimulationStep b = next.Value.value;
+                    CharacterController a = prev.Value.value;
+                    CharacterController b = next.Value.value;
                     double period = (next.Value.time - prev.Value.time).SimulationPeriod();
                     double progress = _time - (prev.Value.time).SimulationPeriod();
-                    SimulationStep simulation = prev.Value.value;
+                    CharacterController simulation = prev.Value.value;
                     int step = prev.Value.time;
                     double partialSimulationProgress = progress;
                     PartialSimulate(_inputHistory, ref simulation, step, ref partialSimulationProgress, false);
                     float lerpAlpha = (float) (partialSimulationProgress / (period - progress + partialSimulationProgress));
-                    _outSimulation = SimulationStep.Lerp(simulation, next.Value.value, lerpAlpha);
+                    _outSimulation = CharacterController.Lerp(simulation, next.Value.value, lerpAlpha);
                 }
                 else
                 {
                     // Prev only
-                    HistoryNode<int, SimulationStep> node = prev.Value;
-                    SimulationStep simulation = node.value;
+                    HistoryNode<int, CharacterController> node = prev.Value;
+                    CharacterController simulation = node.value;
                     int step = node.time;
                     double partialSimulationProgress = Math.Min(_time - step.SimulationPeriod(), MaxPrevisionTime);
 
@@ -99,24 +99,24 @@ namespace Wheeled.Gameplay.Movement
             m_sightHistory.Set(_step, _sight);
         }
 
-        public void Put(int _step, in SimulationStep _simulation)
+        public void Put(int _step, in CharacterController _simulation)
         {
             m_simulationHistory.Set(_step, _simulation);
         }
 
-        private void PartialSimulate(InputHistory _inputHistory, ref SimulationStep _refSimulationStep, int _step, ref double _refDeltaTime, bool _canPredict)
+        private void PartialSimulate(InputHistory _inputHistory, ref CharacterController _refSimulationStep, int _step, ref double _refDeltaTime, bool _canPredict)
         {
-            void Simulate(ref SimulationStep _refInnerSimulationStep, ref int _refInnerStep, ref double _refInnerDeltaTime, in InputStep _inputStep)
+            void Simulate(ref CharacterController _refInnerSimulationStep, ref int _refInnerStep, ref double _refInnerDeltaTime, in InputStep _inputStep)
             {
                 if (_refInnerDeltaTime >= TimeConstants.c_simulationStep)
                 {
-                    _refInnerSimulationStep = _refInnerSimulationStep.Simulate(_inputStep, TimeConstants.c_simulationStep);
+                    _refInnerSimulationStep = _refInnerSimulationStep.Simulate(_inputStep, (float) TimeConstants.c_simulationStep);
                     _refInnerDeltaTime -= TimeConstants.c_simulationStep;
                     _refInnerStep++;
                 }
                 else
                 {
-                    _refInnerSimulationStep = _refInnerSimulationStep.Simulate(_inputStep, _refInnerDeltaTime);
+                    _refInnerSimulationStep = _refInnerSimulationStep.Simulate(_inputStep, (float) _refInnerDeltaTime);
                     _refInnerDeltaTime = 0.0;
                 }
             }

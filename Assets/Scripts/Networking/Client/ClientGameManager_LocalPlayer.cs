@@ -37,7 +37,7 @@ namespace Wheeled.Networking.Client
 
             public void Correct(int _step, SimulationStepInfo _info)
             {
-                SimulationStep correctedSimulation = CorrectSimulation(_step, _info.input, _info.simulation);
+                CharacterController correctedSimulation = CorrectSimulation(_step, _info.input, _info.simulation);
                 m_movementController.Teleport(new Snapshot { sight = m_movementController.RawSnapshot.sight, simulation = correctedSimulation }, false);
             }
 

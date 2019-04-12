@@ -10,6 +10,9 @@ namespace Wheeled.Gameplay.Movement
         private SimulationStepInfo m_last;
         private int m_maxTrustedSteps;
         private int m_trustedSteps;
+        // DEBUG
+        private int m_noData = 0;
+        private int m_wrongData = 0;
 
         public MovementValidator(double _duration)
         {
@@ -23,7 +26,7 @@ namespace Wheeled.Gameplay.Movement
 
             void Rejected(int _step, bool _newer);
 
-            void Validated(int _step, in InputStep _input, in SimulationStep _simulation);
+            void Validated(int _step, in InputStep _input, in CharacterController _simulation);
         }
 
         public bool IsRunning { get; set; }
@@ -54,7 +57,7 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        public void Put(int _step, IEnumerable<InputStep> _reversedInputSteps, in SimulationStep _simulation)
+        public void Put(int _step, IEnumerable<InputStep> _reversedInputSteps, in CharacterController _simulation)
         {
             int step = _step;
             foreach (InputStep inputStep in _reversedInputSteps)
@@ -132,7 +135,7 @@ namespace Wheeled.Gameplay.Movement
             Step = _step;
         }
 
-        public void Teleport(in SimulationStep _simulation)
+        public void Teleport(in CharacterController _simulation)
         {
             m_last.simulation = _simulation;
         }
@@ -161,13 +164,14 @@ namespace Wheeled.Gameplay.Movement
         {
             int bufInd = GetStep(Step);
             m_last.input = m_buffer[bufInd].input ?? m_last.input.Predicted;
-            m_last.simulation = m_last.simulation.Simulate(m_last.input, TimeConstants.c_simulationStep);
+            m_last.simulation = m_last.simulation.Simulate(m_last.input, (float) TimeConstants.c_simulationStep);
             Target?.Validated(Step, m_last.input, m_last.simulation);
             if (m_buffer[bufInd].simulation != null)
             {
                 m_trustedSteps = 0;
-                if (!SimulationStep.IsNearlyEqual(m_last.simulation, m_buffer[bufInd].simulation.Value))
+                if (!CharacterController.AreNearlyEqual(m_last.simulation, m_buffer[bufInd].simulation.Value))
                 {
+                    Lebug.Log("WrongData", ++m_wrongData);
                     SendCorrection();
                 }
             }
@@ -176,6 +180,7 @@ namespace Wheeled.Gameplay.Movement
                 m_trustedSteps++;
                 if (m_trustedSteps > m_maxTrustedSteps)
                 {
+                    Lebug.Log("NoData", ++m_noData);
                     SendCorrection();
                 }
             }
@@ -186,7 +191,7 @@ namespace Wheeled.Gameplay.Movement
         private struct Node
         {
             public InputStep? input;
-            public SimulationStep? simulation;
+            public CharacterController? simulation;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Wheeled.Gameplay.Action
                 {
                     Target.Shoot(new ShotInfo
                     {
-                        position = _snapshot.simulation.position,
+                        position = _snapshot.simulation.Position,
                         sight = _snapshot.sight,
                         isRocket = false
                     });
@@ -31,7 +31,7 @@ namespace Wheeled.Gameplay.Action
                 {
                     Target.Shoot(new ShotInfo
                     {
-                        position = _snapshot.simulation.position,
+                        position = _snapshot.simulation.Position,
                         sight = _snapshot.sight,
                         isRocket = true
                     });
@@ -40,7 +40,7 @@ namespace Wheeled.Gameplay.Action
                 {
                     Target.Kaze(new KazeInfo
                     {
-                        position = _snapshot.simulation.position
+                        position = _snapshot.simulation.Position
                     });
                 }
             }

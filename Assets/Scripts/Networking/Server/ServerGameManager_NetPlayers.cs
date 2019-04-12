@@ -168,7 +168,7 @@ namespace Wheeled.Networking.Server
             {
             }
 
-            void MovementValidator.ITarget.Validated(int _step, in InputStep _input, in SimulationStep _simulation)
+            void MovementValidator.ITarget.Validated(int _step, in InputStep _input, in CharacterController _simulation)
             {
                 PutInput(_step, _input);
                 PutSimulation(_step, _simulation);

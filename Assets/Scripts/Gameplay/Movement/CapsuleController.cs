@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public static class CapsuleControllerHelper
+internal static class CapsuleControllerHelper
 {
 
     public static Vector3 ToVector3XZ(this Vector2 _vector, float _y = 0.0f)
@@ -38,7 +38,7 @@ public static class CapsuleControllerHelper
 
 }
 
-public struct CapsuleController
+internal struct CapsuleController
 {
     public Vector3 position;
     public Vector3 velocity;
@@ -62,6 +62,16 @@ public struct CapsuleController
     {
         return CapsuleControllerHelper.AreNearlyEqualPerDistance(_a.position, _b.position, 0.01f)
             && CapsuleControllerHelper.AreNearlyEqualPerOffset(_a.velocity, _b.velocity, 0.2f, 0.5f);
+    }
+
+    public static CapsuleController Lerp(in CapsuleController _a, in CapsuleController _b, float _progress)
+    {
+        return new CapsuleController
+        {
+            height = Mathf.Lerp(_a.height, _b.height, _progress),
+            position = Vector3.Lerp(_a.position, _b.position, _progress),
+            velocity = Vector3.Lerp(_a.velocity, _b.velocity, _progress)
+        };
     }
 
     public CapsuleController Simulate(float _deltaTime)

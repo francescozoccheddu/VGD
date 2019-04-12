@@ -171,12 +171,14 @@ namespace Wheeled.Networking
             };
         }
 
-        private SimulationStep ReadSimulationStep()
+        private CharacterController ReadSimulationStep()
         {
-            return new SimulationStep
+            return new CharacterController
             {
-                velocity = ReadVector3(),
-                position = ReadVector3()
+                Velocity = ReadVector3(),
+                Position = ReadVector3(),
+                Height = ReadFloat(),
+                dashStamina = ReadFloat()
             };
         }
 
