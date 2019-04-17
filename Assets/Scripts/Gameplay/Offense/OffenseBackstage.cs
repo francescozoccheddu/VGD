@@ -1,50 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Wheeled.Core.Data;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Gameplay.Stage
 {
-    internal sealed class OffenseStage
+    internal sealed class OffenseBackstage
     {
-        private readonly List<Offense> m_offenses;
+        private readonly List<PendingOffense> m_offenses;
         private readonly HitProbePool m_probePool;
 
-        public OffenseStage()
+        public OffenseBackstage()
         {
-            m_offenses = new List<Offense>();
+            m_offenses = new List<PendingOffense>();
             m_probePool = new HitProbePool();
         }
 
         public interface IValidationTarget
         {
-            IEnumerable<HitTarget> GetHitTargets(double _time, byte _shooterId);
 
-            void Offense(double _time, byte _offenderId, byte _offendedId, float _damage, OffenseType _type, Vector3 _offensePosition);
+            IEnumerable<HitTarget> ProvideHitTarget(double _time, Offense _offense);
+
+            void Damage(double _time, byte _offendedId, Offense _offense, float _damage);
+
         }
 
         public IValidationTarget ValidationTarget { get; set; }
 
-        public void Explode(double _time, byte _id, Vector3 _position)
+        public void PutExplosion(double _time, ExplosionOffense _offense)
         {
-            m_offenses.Add(new KazeOffense(_time, _id, _position));
+            m_offenses.Add(new PendingExplosionOffense(_time, _offense));
         }
 
-        public void ShootRifle(double _time, Vector3 _origin, Vector3 _direction, byte _shooterId, float _power)
+        public void PutRifle(double _time, RifleShotOffense _offense)
         {
-            m_offenses.Add(new RifleProjectile(_time, _shooterId, _origin, _direction, _power));
+            m_offenses.Add(new PendingRifleShotOffense(_time, _offense));
         }
 
-        public void ShootRocket(double _time, Vector3 _origin, Vector3 _direction, byte _shooterId)
+        public void PutRocket(double _time, RocketShotOffense _offense)
         {
-            m_offenses.Add(new RocketProjectile(_time, _shooterId, _origin, _direction));
+            m_offenses.Add(new PendingRocketShotOffense(_time, _offense));
         }
 
-        public void Update(double _time)
+        public void UpdateUntil(double _time)
         {
-            foreach (Offense o in m_offenses)
+            foreach (PendingOffense o in m_offenses)
             {
                 o.Update(_time, this);
             }
@@ -59,30 +60,52 @@ namespace Wheeled.Gameplay.Stage
 
         #region Offense
 
-        private class KazeOffense : Offense
+        private abstract class PendingOffense
+        {
+            public PendingOffense(double _time, Offense _offense)
+            {
+                IsGone = false;
+                Time = _time;
+                Offense = _offense;
+            }
+
+            public Offense Offense { get; }
+
+            public bool IsGone { get; private set; }
+
+            public byte OffenderId { get; }
+
+            public double Time { get; }
+
+            public abstract void Update(double _time, OffenseBackstage _stage);
+
+            protected void Dispose()
+            {
+                IsGone = true;
+            }
+        }
+
+        private class PendingExplosionOffense : PendingOffense
         {
             private const float c_fullDamage = 1.0f;
             private const float c_innerRadius = 2.0f;
             private const float c_outerRadius = 5.0f;
 
-            private readonly Vector3 m_position;
-
-            public KazeOffense(double _time, byte _offenderId, Vector3 _position) : base(_time, _offenderId)
+            public PendingExplosionOffense(double _time, ExplosionOffense _offense) : base(_time, _offense)
             {
-                m_position = _position;
             }
 
-            public override void Update(double _time, OffenseStage _stage)
+            public override void Update(double _time, OffenseBackstage _stage)
             {
                 if (_time >= Time)
                 {
-                    IEnumerable<HitTarget> targets = _stage.ValidationTarget?.GetHitTargets(Time, OffenderId);
+                    IEnumerable<HitTarget> targets = _stage.ValidationTarget?.ProvideHitTarget(Time, Offense);
                     if (targets != null)
                     {
                         foreach (HitTarget t in targets)
                         {
                             float damage;
-                            float distance = Vector3.Distance(t.snapshot.simulation.Position, m_position);
+                            float distance = Vector3.Distance(t.snapshot.simulation.Position, Offense.Origin);
                             if (distance <= c_innerRadius)
                             {
                                 damage = c_fullDamage;
@@ -95,56 +118,32 @@ namespace Wheeled.Gameplay.Stage
                             {
                                 continue;
                             }
-                            _stage.ValidationTarget.Offense(Time, OffenderId, t.playerId, damage, OffenseType.Explosion, m_position);
+                            _stage.ValidationTarget.Damage(Time, t.playerId, Offense, damage);
                         }
                     }
-                    GameObject gameObject = UnityEngine.Object.Instantiate(ScriptManager.Actors.explosion, m_position, Quaternion.identity);
                     Dispose();
                 }
             }
         }
 
-        private abstract class Offense
-        {
-            public Offense(double _time, byte _offenderId)
-            {
-                IsGone = false;
-                Time = _time;
-                OffenderId = _offenderId;
-            }
-
-            public bool IsGone { get; private set; }
-
-            public byte OffenderId { get; }
-
-            public double Time { get; }
-
-            public abstract void Update(double _time, OffenseStage _stage);
-
-            protected void Dispose()
-            {
-                IsGone = true;
-            }
-        }
-
-        private sealed class RifleProjectile : ShootOffense
+        private sealed class PendingRifleShotOffense : PendingShotOffense
         {
             private const float c_criticalDamage = 2.0f;
             private const float c_damage = 0.7f;
-            private readonly float m_power;
+            private const float c_maxDistance = 100.0f;
 
-            public RifleProjectile(double _shootTime, byte _shooterId, Vector3 _origin, Vector3 _direction, float _power) : base(_shootTime, _shooterId, _origin, _direction)
+            public PendingRifleShotOffense(double _time, RifleShotOffense _offense) : base(_time, _offense)
             {
-                m_power = _power;
             }
 
             protected override void UpdateTrajectory(double _time, HitProbePool _probes, IValidationTarget _target)
             {
                 if (_time >= Time)
                 {
+                    RifleShotOffense offense = (RifleShotOffense) Offense;
                     _probes.Clear();
                     {
-                        IEnumerable<HitTarget> targets = _target?.GetHitTargets(_time, OffenderId);
+                        IEnumerable<HitTarget> targets = _target?.ProvideHitTarget(_time, Offense);
                         if (targets != null)
                         {
                             foreach (HitTarget t in targets)
@@ -153,27 +152,24 @@ namespace Wheeled.Gameplay.Stage
                             }
                         }
                     }
-                    Vector3 end = m_origin + m_direction * 100;
-                    bool hit = false;
-                    if (_probes.RayCast(m_origin, end, out HitProbePool.HitInfo hitInfo))
+                    Vector3 end = offense.Origin + offense.Direction * c_maxDistance;
+                    if (_probes.RayCast(offense.Origin, end, out HitProbePool.HitInfo hitInfo))
                     {
                         end = hitInfo.position;
                         if (hitInfo.playerId != null)
                         {
-                            float damage = (hitInfo.isCritical ? c_criticalDamage : c_damage) * m_power;
-                            _target.Offense(Time, OffenderId, hitInfo.playerId.Value, damage, OffenseType.Rifle, m_origin);
+                            float damage = (hitInfo.isCritical ? c_criticalDamage : c_damage) * offense.Power;
+                            _target.Damage(Time, hitInfo.playerId.Value, offense, damage);
                         }
-                        hit = true;
+                        ((RifleShotOffense) Offense).HitDistance = Vector3.Distance(hitInfo.position, Offense.Origin);
                     }
                     _probes.Clear();
-                    GameObject gameObject = UnityEngine.Object.Instantiate(ScriptManager.Actors.rifleProjectile);
-                    gameObject.GetComponent<RifleProjectileBehaviour>()?.Shoot(m_origin, end, hit);
                     Dispose();
                 }
             }
         }
 
-        private sealed class RocketProjectile : ShootOffense
+        private sealed class PendingRocketShotOffense : PendingShotOffense
         {
             private const float c_fullDamage = 1.0f;
             private const double c_hitTestDuration = 0.5;
@@ -181,23 +177,16 @@ namespace Wheeled.Gameplay.Stage
             private const double c_maxLifetime = 5.0;
             private const float c_outerRadius = 5.0f;
             private const float c_velocity = 20.0f;
-            private RocketProjectileBehaviour m_behaviour;
             private double m_lifetime;
 
-            public RocketProjectile(double _shootTime, byte _shooterId, Vector3 _origin, Vector3 _direction) : base(_shootTime, _shooterId, _origin, _direction)
+            public PendingRocketShotOffense(double _time, RocketShotOffense _offense) : base(_time, _offense)
             {
-                m_lifetime = 0.0;
             }
 
             protected override void UpdateTrajectory(double _time, HitProbePool _probes, IValidationTarget _target)
             {
                 if (_time >= Time)
                 {
-                    if (m_behaviour == null)
-                    {
-                        m_behaviour = UnityEngine.Object.Instantiate(ScriptManager.Actors.rocketProjectile).GetComponent<RocketProjectileBehaviour>();
-                        m_behaviour.Shoot(m_origin, m_direction);
-                    }
                     double targetLifetime = Math.Min(_time - Time, c_maxLifetime);
                     Vector3 position = GetPosition(m_lifetime);
                     while (m_lifetime < targetLifetime)
@@ -205,7 +194,7 @@ namespace Wheeled.Gameplay.Stage
                         double nextLifeTime = Math.Min(m_lifetime + c_hitTestDuration, targetLifetime);
                         _probes.Clear();
                         {
-                            IEnumerable<HitTarget> targets = _target?.GetHitTargets(m_lifetime + Time, OffenderId);
+                            IEnumerable<HitTarget> targets = _target?.ProvideHitTarget(m_lifetime + Time, Offense);
                             if (targets != null)
                             {
                                 foreach (HitTarget t in targets)
@@ -218,8 +207,7 @@ namespace Wheeled.Gameplay.Stage
                         if (_probes.RayCast(position, nextPosition, out HitProbePool.HitInfo hitInfo))
                         {
                             position = hitInfo.position;
-                            m_behaviour?.Explode(position);
-                            IEnumerable<HitTarget> targets = _target?.GetHitTargets(m_lifetime + Time, OffenderId);
+                            IEnumerable<HitTarget> targets = _target?.ProvideHitTarget(m_lifetime + Time, Offense);
                             if (targets != null)
                             {
                                 foreach (HitTarget t in targets)
@@ -238,9 +226,10 @@ namespace Wheeled.Gameplay.Stage
                                     {
                                         continue;
                                     }
-                                    _target.Offense(nextLifeTime + Time, OffenderId, t.playerId, damage, OffenseType.Rocket, m_origin);
+                                    _target.Damage(nextLifeTime + Time, t.playerId, Offense, damage);
                                 }
                             }
+                            ((RocketShotOffense) Offense).HitDistance = Vector3.Distance(hitInfo.position, Offense.Origin);
                             Dispose();
                             break;
                         }
@@ -251,10 +240,8 @@ namespace Wheeled.Gameplay.Stage
                         }
                     }
                     _probes.Clear();
-                    m_behaviour?.Move(position);
                     if (m_lifetime >= c_maxLifetime)
                     {
-                        m_behaviour?.Dissolve();
                         Dispose();
                     }
                 }
@@ -262,22 +249,19 @@ namespace Wheeled.Gameplay.Stage
 
             private Vector3 GetPosition(double _elapsedTime)
             {
-                return m_origin + m_direction * (float) (_elapsedTime * c_velocity);
+                RocketShotOffense offense = (RocketShotOffense) Offense;
+                return offense.Origin + offense.Direction * (float) (_elapsedTime * c_velocity);
             }
         }
 
-        private abstract class ShootOffense : Offense
+        private abstract class PendingShotOffense : PendingOffense
         {
-            protected readonly Vector3 m_direction;
-            protected readonly Vector3 m_origin;
 
-            protected ShootOffense(double _shootTime, byte _shooterId, Vector3 _origin, Vector3 _direction) : base(_shootTime, _shooterId)
+            public PendingShotOffense(double _time, ShotOffense _offense) : base(_time, _offense)
             {
-                m_origin = _origin;
-                m_direction = _direction.normalized;
             }
 
-            public override void Update(double _time, OffenseStage _stage)
+            public override void Update(double _time, OffenseBackstage _stage)
             {
                 if (!IsGone)
                 {
