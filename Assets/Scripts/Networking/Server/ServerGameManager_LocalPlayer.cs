@@ -87,6 +87,7 @@ namespace Wheeled.Networking.Server
                     m_movementController.Pause();
                 }
                 m_movementController.UpdateUntil(LocalTime);
+                PutSight(m_movementController.Step, m_movementController.RawSnapshot.sight);
                 m_actionController.Update(ActionHistoryLocalTimeQuery, GetSnapshot(LocalTime));
             }
 

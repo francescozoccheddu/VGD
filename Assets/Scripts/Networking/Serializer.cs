@@ -68,6 +68,11 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.name);
         }
 
+        private static byte ConvertHealth(int _health)
+        {
+            return (byte) (Mathf.Clamp(_health, LifeHistory.c_explosionHealth, LifeHistory.c_fullHealth) - LifeHistory.c_explosionHealth);
+        }
+
         private static void Put(this NetDataWriter _netDataWriter, in PlayerRecapInfo _value)
         {
             _netDataWriter.Put(_value.id);
@@ -79,7 +84,9 @@ namespace Wheeled.Networking
 
         private static void Put(this NetDataWriter _netDataWriter, in DamageInfo _value)
         {
-            _netDataWriter.Put(_value.offensePosition);
+            _netDataWriter.Put(ConvertHealth(_value.damage));
+            _netDataWriter.Put(ConvertHealth(_value.maxHealth));
+            _netDataWriter.Put(_value.offenderId);
             _netDataWriter.Put(_value.offenseType);
         }
 

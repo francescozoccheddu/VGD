@@ -92,11 +92,11 @@ internal struct CapsuleController
         {
             position.y = c_gameCeilingY;
             const float capsulePointOffset = c_height / 2.0f - c_radius;
-            RaycastHit[] hits = Physics.RaycastAll(position, -Vector3.up);
+            RaycastHit[] hits = Physics.RaycastAll(position, -Vector3.up, c_gameCeilingY - c_gameFloorY, c_layerMask);
             for (int i = hits.Length - 1; i >= 0; i--)
             {
                 position.y = hits[i].point.y + c_height / 2.0f + c_skin;
-                if (!Physics.CheckCapsule(position - Vector3.up * capsulePointOffset, position + Vector3.up * capsulePointOffset, c_radius))
+                if (!Physics.CheckCapsule(position - Vector3.up * capsulePointOffset, position + Vector3.up * capsulePointOffset, c_radius, c_layerMask))
                 {
                     Debug.LogWarning("Emergency floor reset");
                     velocity = Vector3.zero;

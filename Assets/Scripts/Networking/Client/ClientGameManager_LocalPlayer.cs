@@ -61,6 +61,7 @@ namespace Wheeled.Networking.Client
                     m_movementController.Pause();
                 }
                 m_movementController.UpdateUntil(LocalTime);
+                PutSight(m_movementController.Step, m_movementController.RawSnapshot.sight);
                 m_actionController.Update(ActionHistoryLocalTimeQuery, GetSnapshot(LocalTime));
                 m_timeSinceLastMovementNotify += Time.deltaTime;
                 if (m_lastNotifiedMovementStep == null || (m_lastNotifiedMovementStep < m_movementController.Step && m_timeSinceLastMovementNotify >= 1.0f / m_movementSendRate))

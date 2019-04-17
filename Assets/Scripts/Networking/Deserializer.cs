@@ -67,11 +67,18 @@ namespace Wheeled.Networking
             return value;
         }
 
+        private int ReadHealth()
+        {
+            return Mathf.Min(ReadByte() - LifeHistory.c_explosionHealth, LifeHistory.c_fullHealth);
+        }
+
         private DamageInfo ReadDamageInfo()
         {
             return new DamageInfo
             {
-                offensePosition = ReadVector3(),
+                damage = ReadHealth(),
+                maxHealth = ReadHealth(),
+                offenderId = ReadByte(),
                 offenseType = ReadEnum<OffenseType>()
             };
         }

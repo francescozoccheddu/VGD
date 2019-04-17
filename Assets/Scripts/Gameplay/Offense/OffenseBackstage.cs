@@ -8,6 +8,11 @@ namespace Wheeled.Gameplay.Stage
 {
     internal sealed class OffenseBackstage
     {
+
+        public const float c_maxRifleShotDistance = 100.0f;
+        public const double c_maxRocketShotLifetime = 5.0f;
+        public const float c_rocketShotVelocity = 20.0f;
+
         private readonly List<PendingOffense> m_offenses;
         private readonly HitProbePool m_probePool;
 
@@ -130,7 +135,6 @@ namespace Wheeled.Gameplay.Stage
         {
             private const float c_criticalDamage = 2.0f;
             private const float c_damage = 0.7f;
-            private const float c_maxDistance = 100.0f;
 
             public PendingRifleShotOffense(double _time, RifleShotOffense _offense) : base(_time, _offense)
             {
@@ -152,7 +156,7 @@ namespace Wheeled.Gameplay.Stage
                             }
                         }
                     }
-                    Vector3 end = offense.Origin + offense.Direction * c_maxDistance;
+                    Vector3 end = offense.Origin + offense.Direction * c_maxRifleShotDistance;
                     if (_probes.RayCast(offense.Origin, end, out HitProbePool.HitInfo hitInfo))
                     {
                         end = hitInfo.position;
@@ -174,9 +178,7 @@ namespace Wheeled.Gameplay.Stage
             private const float c_fullDamage = 1.0f;
             private const double c_hitTestDuration = 0.5;
             private const float c_innerRadius = 2.0f;
-            private const double c_maxLifetime = 5.0;
             private const float c_outerRadius = 5.0f;
-            private const float c_velocity = 20.0f;
             private double m_lifetime;
 
             public PendingRocketShotOffense(double _time, RocketShotOffense _offense) : base(_time, _offense)
@@ -187,7 +189,7 @@ namespace Wheeled.Gameplay.Stage
             {
                 if (_time >= Time)
                 {
-                    double targetLifetime = Math.Min(_time - Time, c_maxLifetime);
+                    double targetLifetime = Math.Min(_time - Time, c_maxRocketShotLifetime);
                     Vector3 position = GetPosition(m_lifetime);
                     while (m_lifetime < targetLifetime)
                     {
@@ -240,7 +242,7 @@ namespace Wheeled.Gameplay.Stage
                         }
                     }
                     _probes.Clear();
-                    if (m_lifetime >= c_maxLifetime)
+                    if (m_lifetime >= c_maxRocketShotLifetime)
                     {
                         Dispose();
                     }
@@ -250,7 +252,7 @@ namespace Wheeled.Gameplay.Stage
             private Vector3 GetPosition(double _elapsedTime)
             {
                 RocketShotOffense offense = (RocketShotOffense) Offense;
-                return offense.Origin + offense.Direction * (float) (_elapsedTime * c_velocity);
+                return offense.Origin + offense.Direction * (float) (_elapsedTime * c_rocketShotVelocity);
             }
         }
 
