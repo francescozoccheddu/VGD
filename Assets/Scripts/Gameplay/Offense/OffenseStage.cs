@@ -1,15 +1,34 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Wheeled.Core.Data;
+using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 
 namespace Wheeled.Gameplay.Stage
 {
-    internal sealed class OffenseStage : ActionHistory<Offense>.ITarget
+    internal sealed class OffenseStage : EventHistory<Offense>.ITarget
     {
+        #region Private Classes
 
         private class PendingRocketShot
         {
+            #region Public Properties
+
+            public bool IsGone { get; private set; }
+
+            #endregion Public Properties
+
+            #region Private Fields
+
+            private readonly RocketShotOffense m_offense;
+
+            private readonly double m_time;
+
+            private readonly RocketProjectileBehaviour m_behaviour;
+
+            #endregion Private Fields
+
+            #region Public Constructors
 
             public PendingRocketShot(double _time, RocketShotOffense _offense)
             {
@@ -17,9 +36,9 @@ namespace Wheeled.Gameplay.Stage
                 m_time = _time;
             }
 
-            private readonly RocketShotOffense m_offense;
-            private readonly double m_time;
-            private readonly RocketProjectileBehaviour m_behaviour;
+            #endregion Public Constructors
+
+            #region Public Methods
 
             public void Update(double _time)
             {
@@ -42,30 +61,45 @@ namespace Wheeled.Gameplay.Stage
                 }
             }
 
+            #endregion Public Methods
+
+            #region Private Methods
+
             private Vector3 GetPosition(double _elapsedTime)
             {
                 return m_offense.Origin + m_offense.Direction * (float) (_elapsedTime * OffenseBackstage.c_rocketShotVelocity);
             }
 
-            public bool IsGone { get; private set; }
-
+            #endregion Private Methods
         }
 
-        private readonly ActionHistory<Offense> m_history;
+        #endregion Private Classes
+
+        #region Private Fields
+
+        private readonly EventHistory<Offense> m_history;
         private readonly List<PendingRocketShot> m_pendingRocketShots;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public OffenseStage()
         {
-            m_history = new ActionHistory<Offense>();
+            m_history = new EventHistory<Offense>();
             m_pendingRocketShots = new List<PendingRocketShot>();
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public void Put(double _time, in RifleShotOffense _offense)
         {
             m_history.Put(_time, _offense);
         }
 
-        public void Put(double _time, object _key, in RocketShotOffense _offense)
+        public void Put(double _time, in RocketShotOffense _offense)
         {
             m_history.Put(_time, _offense);
         }
@@ -85,13 +119,14 @@ namespace Wheeled.Gameplay.Stage
             m_pendingRocketShots.RemoveAll(_o => _o.IsGone);
         }
 
-        void ActionHistory<Offense>.ITarget.Perform(double _time, Offense _value)
+        void EventHistory<Offense>.ITarget.Perform(double _time, Offense _value)
         {
             switch (_value)
             {
                 case RocketShotOffense o:
                 m_pendingRocketShots.Add(new PendingRocketShot(_time, o));
                 break;
+
                 case RifleShotOffense o:
                 {
                     RifleProjectileBehaviour behaviour = Object.Instantiate(ScriptManager.Actors.rifleProjectile).GetComponent<RifleProjectileBehaviour>();
@@ -99,10 +134,13 @@ namespace Wheeled.Gameplay.Stage
                     behaviour.Shoot(o.Origin, end, o.HitDistance != null);
                 }
                 break;
+
                 case ExplosionOffense o:
                 Object.Instantiate(ScriptManager.Actors.explosion, o.Origin, Quaternion.identity);
                 break;
             }
         }
+
+        #endregion Public Methods
     }
 }

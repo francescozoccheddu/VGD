@@ -27,11 +27,11 @@ namespace Wheeled.Networking.Server
             {
                 return new PlayerRecapInfo
                 {
-                    deaths = ActionHistory.GetDeaths(_time),
-                    health = (byte) ActionHistory.GetHealth(_time),
+                    deaths = EventHistory.GetDeaths(_time),
+                    health = (byte) EventHistory.GetHealth(_time),
                     id = Id,
-                    kills = ActionHistory.GetHealth(_time),
-                    ping = (byte) Mathf.Clamp(Ping, 0, 255)
+                    kills = EventHistory.GetHealth(_time),
+                    ping = (byte) Mathf.Clamp(PingValue, 0, 255)
                 };
             }
 
@@ -62,7 +62,7 @@ namespace Wheeled.Networking.Server
             protected override void OnDeathScheduled(double _time, DeathInfo _info)
             {
                 byte kills = (byte) (m_manager.GetPlayerById(_info.killerId)?.ActionHistory.GetKills(_time) ?? 0);
-                Serializer.WriteDeathOrderOrReplication(_time, Id, _info, (byte) ActionHistory.GetDeaths(_time), kills);
+                Serializer.WriteDeathOrderOrReplication(_time, Id, _info, (byte) EventHistory.GetDeaths(_time), kills);
                 m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
             }
 

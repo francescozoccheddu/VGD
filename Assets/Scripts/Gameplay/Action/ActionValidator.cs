@@ -7,6 +7,61 @@ namespace Wheeled.Gameplay.Action
 {
     internal sealed class ActionValidator
     {
+        #region Public Interfaces
+
+        public interface ITarget
+        {
+            #region Public Methods
+
+            void Kaze(double _time, KazeInfo _info);
+
+            void Shoot(double _time, ShotInfo _info);
+
+            #endregion Public Methods
+        }
+
+        #endregion Public Interfaces
+
+        #region Private Interfaces
+
+        private interface INode
+        {
+        }
+
+        #endregion Private Interfaces
+
+        #region Private Structs
+
+        private struct KazeNode : INode
+        {
+            #region Internal Fields
+
+            internal KazeInfo info;
+
+            #endregion Internal Fields
+        }
+
+        private struct ShotNode : INode
+        {
+            #region Public Fields
+
+            public ShotInfo info;
+
+            #endregion Public Fields
+        }
+
+        #endregion Private Structs
+
+        #region Public Properties
+
+        public double MaxAnticipation { get => m_maxAnticipation; set { Debug.Assert(value > 0.0); m_maxAnticipation = value; } }
+        public double MaxDelay { get => m_maxDelay; set { Debug.Assert(value >= 0.0); m_maxDelay = value; } }
+        public ITarget Target { get; set; }
+
+        #endregion Public Properties
+
+        #region Private Fields
+
         private const float c_maxShotPositionTolerance = 0.5f;
         private const float c_maxKazePositionTolerance = 0.8f;
         private readonly LinkedListHistory<double, INode> m_history;
@@ -14,26 +69,19 @@ namespace Wheeled.Gameplay.Action
         private double m_maxDelay;
         private double? m_time;
 
+        #endregion Private Fields
+
+        #region Public Constructors
+
         public ActionValidator()
         {
             m_history = new LinkedListHistory<double, INode>();
             MaxAnticipation = 1.0;
         }
 
-        public interface ITarget
-        {
-            void Kaze(double _time, KazeInfo _info);
+        #endregion Public Constructors
 
-            void Shoot(double _time, ShotInfo _info);
-        }
-
-        private interface INode
-        {
-        }
-
-        public double MaxAnticipation { get => m_maxAnticipation; set { Debug.Assert(value > 0.0); m_maxAnticipation = value; } }
-        public double MaxDelay { get => m_maxDelay; set { Debug.Assert(value >= 0.0); m_maxDelay = value; } }
-        public ITarget Target { get; set; }
+        #region Public Methods
 
         public void PutKaze(double _time, KazeInfo _info)
         {
@@ -56,7 +104,7 @@ namespace Wheeled.Gameplay.Action
             m_time = _time;
         }
 
-        public void ValidateUntil(double _time, PlayerBase _player)
+        public void ValidateUntil(double _time, IReadOnlyPlayer _player)
         {
             m_time = _time;
             foreach ((double time, INode node) in m_history.GetFullSequence().Where(_n => _n.time <= _time))
@@ -66,7 +114,7 @@ namespace Wheeled.Gameplay.Action
                     case KazeNode kazeNode:
                     if (Vector3.Distance(_player.GetSnapshot(time).simulation.Position, kazeNode.info.position) <= c_maxShotPositionTolerance)
                     {
-                        if (_player.ActionHistory.CanKaze(time))
+                        if (!_player.LifeHistory.IsExploded(_time))
                         {
                             Target?.Kaze(time, kazeNode.info);
                         }
@@ -78,8 +126,9 @@ namespace Wheeled.Gameplay.Action
                     {
                         if (Vector3.Distance(_player.GetSnapshot(time).simulation.Position, shotNode.info.position) <= c_maxShotPositionTolerance)
                         {
-                            if ((shotNode.info.isRocket && _player.ActionHistory.CanShootRocket(time))
-                                || (!shotNode.info.isRocket && _player.ActionHistory.CanShootRifle(time)))
+                            if (_player.LifeHistory.IsAlive(_time)
+                                && ((shotNode.info.isRocket && _player.WeaponsHistory.CanShootRocket(time))
+                                    || (!shotNode.info.isRocket && _player.WeaponsHistory.CanShootRifle(time, out _))))
                             {
                                 Target.Shoot(time, shotNode.info);
                             }
@@ -91,14 +140,6 @@ namespace Wheeled.Gameplay.Action
             m_history.ForgetAndOlder(_time);
         }
 
-        private struct KazeNode : INode
-        {
-            internal KazeInfo info;
-        }
-
-        private struct ShotNode : INode
-        {
-            public ShotInfo info;
-        }
+        #endregion Public Methods
     }
 }

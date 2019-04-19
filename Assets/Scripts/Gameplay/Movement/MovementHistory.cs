@@ -5,11 +5,57 @@ using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Movement
 {
-    internal sealed class MovementHistory
+    internal interface IReadOnlyMovementHistory
     {
+        #region Public Methods
+
+        void GetSight(double _time, out Sight? _outSight);
+
+        void GetSimulation(double _time, out CharacterController? _outSimulation, IReadOnlyInputHistory _inputHistory);
+
+        #endregion Public Methods
+    }
+
+    internal static class MovementHistoryHelper
+    {
+        #region Public Methods
+
+        public static Snapshot GetSnapshot(this IReadOnlyMovementHistory _movementHistory, double _time, IReadOnlyInputHistory _inputHistory)
+        {
+            Snapshot snapshot = new Snapshot();
+            _movementHistory.GetSimulation(_time, out CharacterController? simulation, _inputHistory);
+            if (simulation != null)
+            {
+                snapshot.simulation = simulation.Value;
+            }
+            _movementHistory.GetSight(_time, out Sight? sight);
+            if (sight != null)
+            {
+                snapshot.sight = sight.Value;
+            }
+            return snapshot;
+        }
+
+        #endregion Public Methods
+    }
+
+    internal sealed class MovementHistory : IReadOnlyMovementHistory
+    {
+        #region Public Properties
+
+        public double MaxPrevisionTime { get => m_maxPrevisionTime; set { Debug.Assert(value >= 0.0); m_maxPrevisionTime = value; } }
+
+        #endregion Public Properties
+
+        #region Private Fields
+
         private readonly IHistory<int, Sight> m_sightHistory;
         private readonly IHistory<int, CharacterController> m_simulationHistory;
         private double m_maxPrevisionTime;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public MovementHistory()
         {
@@ -17,7 +63,9 @@ namespace Wheeled.Gameplay.Movement
             m_simulationHistory = new LinkedListHistory<int, CharacterController>();
         }
 
-        public double MaxPrevisionTime { get => m_maxPrevisionTime; set { Debug.Assert(value >= 0.0); m_maxPrevisionTime = value; } }
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public void ForgetNewer(int _newest, bool _keepNewest)
         {
@@ -56,7 +104,7 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        public void GetSimulation(double _time, out CharacterController? _outSimulation, InputHistory _inputHistory)
+        public void GetSimulation(double _time, out CharacterController? _outSimulation, IReadOnlyInputHistory _inputHistory)
         {
             m_simulationHistory.Query(_time.SimulationSteps(), out HistoryNode<int, CharacterController>? prev, out HistoryNode<int, CharacterController>? next);
             if (prev != null)
@@ -104,7 +152,11 @@ namespace Wheeled.Gameplay.Movement
             m_simulationHistory.Set(_step, _simulation);
         }
 
-        private void PartialSimulate(InputHistory _inputHistory, ref CharacterController _refSimulationStep, int _step, ref double _refDeltaTime, bool _canPredict)
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private void PartialSimulate(IReadOnlyInputHistory _inputHistory, ref CharacterController _refSimulationStep, int _step, ref double _refDeltaTime, bool _canPredict)
         {
             void Simulate(ref CharacterController _refInnerSimulationStep, ref int _refInnerStep, ref double _refInnerDeltaTime, in InputStep _inputStep)
             {
@@ -154,5 +206,7 @@ namespace Wheeled.Gameplay.Movement
                 }
             }
         }
+
+        #endregion Private Methods
     }
 }

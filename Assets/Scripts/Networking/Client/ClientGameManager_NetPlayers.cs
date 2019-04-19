@@ -31,7 +31,7 @@ namespace Wheeled.Networking.Client
 
             protected override void OnUpdated()
             {
-                bool isAlive = ActionHistory.IsAlive(m_manager.m_time);
+                bool isAlive = EventHistory.IsAlive(m_manager.m_time);
                 if (!m_wasAlive && isAlive)
                 {
                     m_replicationTapper.QuietTap();

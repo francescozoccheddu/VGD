@@ -8,7 +8,7 @@ using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Client
 {
-    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IGameManager, OffenseStage.IValidationTarget
+    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IPlayerManager, OffenseStage.IValidationTarget
     {
         private const double c_localOffset = 0.025;
         public const double c_netOffset = 0.025;
@@ -50,9 +50,9 @@ namespace Wheeled.Networking.Client
             m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
         }
 
-        OffenseStage IGameManager.ShootStage => m_shootStage;
+        OffenseStage IPlayerManager.ShootStage => m_shootStage;
 
-        double IGameManager.Time => m_time;
+        double IPlayerManager.Time => m_time;
 
         void Updatable.ITarget.Update()
         {

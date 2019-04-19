@@ -4,14 +4,37 @@ using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Movement
 {
-    internal sealed class InputHistory
+    internal interface IReadOnlyInputHistory
     {
+        #region Public Methods
+
+        IEnumerable<InputStep> GetReversedInputSequence(int _step, int _maxLength);
+
+        IEnumerable<HistoryNode<int, InputStep>> GetSequenceSince(int _step, bool _allowBefore, bool _allowAfter);
+
+        CharacterController SimulateFrom(int _step, CharacterController _simulation);
+
+        #endregion Public Methods
+    }
+
+    internal sealed class InputHistory : IReadOnlyInputHistory
+    {
+        #region Private Fields
+
         private readonly LinkedListHistory<int, InputStep> m_history;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public InputHistory()
         {
             m_history = new LinkedListHistory<int, InputStep>();
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public IEnumerable<InputStep> GetReversedInputSequence(int _step, int _maxLength)
         {
@@ -60,5 +83,7 @@ namespace Wheeled.Gameplay.Movement
         {
             m_history.ForgetOlder(_oldest, true);
         }
+
+        #endregion Public Methods
     }
 }

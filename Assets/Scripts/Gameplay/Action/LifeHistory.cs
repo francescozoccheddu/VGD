@@ -4,20 +4,71 @@ using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Action
 {
-    internal class LifeHistory
+    internal interface IReadOnlyLifeHistory
     {
+        #region Public Methods
+
+        int GetHealth(double _time);
+
+        void GetLastDeathInfo(out KillInfo? _outDeath, out KillInfo? _outExplosion);
+
+        #endregion Public Methods
+    }
+
+    internal static class LifeHistoryHelper
+    {
+        #region Public Methods
+
+        public static bool IsAlive(int _health)
+        {
+            return _health > 0;
+        }
+
+        public static bool IsExploded(int _health)
+        {
+            return _health <= LifeHistory.c_explosionHealth;
+        }
+
+        public static bool IsAlive(this IReadOnlyLifeHistory _history, double _time)
+        {
+            return IsAlive(_history.GetHealth(_time));
+        }
+
+        public static bool IsExploded(this IReadOnlyLifeHistory _history, double _time)
+        {
+            return IsExploded(_history.GetHealth(_time));
+        }
+
+        #endregion Public Methods
+    }
+
+    internal class LifeHistory : IReadOnlyLifeHistory
+    {
+        #region Public Fields
 
         public const int c_fullHealth = 100;
         public const int c_explosionHealth = -50;
 
+        #endregion Public Fields
+
+        #region Private Fields
+
         private readonly LinkedListHistory<double, DamageInfo> m_damages;
         private readonly LinkedListHistory<double, int> m_health;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public LifeHistory()
         {
             m_damages = new LinkedListHistory<double, DamageInfo>();
             m_health = new LinkedListHistory<double, int>();
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public DamageInfo PutDamage(double _time, int _damage, byte _offenderId, OffenseType _offenseType)
         {
@@ -64,21 +115,21 @@ namespace Wheeled.Gameplay.Action
             m_damages.ForgetOlder(_time, true);
         }
 
-        public struct KillInfo
-        {
-            public double time;
-            public byte? offenderId;
-        }
-
-        public KillInfo? GetDeathInfo(double _time, out OffenseType _outOffenseType)
+        public void GetLastDeathInfo(out KillInfo? _outDeath, out KillInfo? _outExplosion)
         {
             throw new System.NotImplementedException();
         }
 
-        public KillInfo? GetExplosionInfo(double _time)
-        {
-            throw new System.NotImplementedException();
-        }
+        #endregion Public Methods
+    }
 
+    internal struct KillInfo
+    {
+        #region Public Fields
+
+        public double time;
+        public byte? offenderId;
+
+        #endregion Public Fields
     }
 }

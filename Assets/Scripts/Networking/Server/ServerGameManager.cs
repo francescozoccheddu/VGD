@@ -11,7 +11,7 @@ using Wheeled.Networking.Client;
 
 namespace Wheeled.Networking.Server
 {
-    internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget, IGameManager, OffenseStage.IValidationTarget
+    internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget, IPlayerManager, OffenseStage.IValidationTarget
     {
         private const int c_replicationRate = 10;
         private const double c_validationDelay = 0.3;
@@ -50,8 +50,8 @@ namespace Wheeled.Networking.Server
             m_localPlayer.Start();
         }
 
-        OffenseStage IGameManager.ShootStage => m_shootStage;
-        double IGameManager.Time => m_time;
+        OffenseStage IPlayerManager.ShootStage => m_shootStage;
+        double IPlayerManager.Time => m_time;
         private IEnumerable<NetPlayer> m_NetPlayers => m_players.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
 
         #region ShootStage.IValidationTarget
@@ -74,7 +74,7 @@ namespace Wheeled.Networking.Server
                 if (offended != null)
                 {
                     int health = offended.ActionHistory.GetHealth(_time);
-                    int newHealth = health - Mathf.RoundToInt(_damage * ActionHistory.c_fullHealth);
+                    int newHealth = health - Mathf.RoundToInt(_damage * EventHistory.c_fullHealth);
                     if (newHealth != health)
                     {
                         GetPlayerById(_offenderId)?.PutHitConfirm(_time, new HitConfirmInfo { offenseType = _type });
@@ -87,7 +87,7 @@ namespace Wheeled.Networking.Server
                         {
                             offended.PutDeath(_time, new DeathInfo
                             {
-                                isExploded = newHealth < ActionHistory.c_explosionhealth,
+                                isExploded = newHealth < EventHistory.c_explosionhealth,
                                 killerId = _offenderId,
                                 offenseType = _type
                             });
@@ -105,7 +105,7 @@ namespace Wheeled.Networking.Server
             m_timeSinceLastReplication += Time.deltaTime;
             foreach (NetPlayer player in m_NetPlayers)
             {
-                double targetOffset = -Math.Min(Math.Max(player.AverageNotifyInterval, 0.0) + player.Ping / 2.0, c_validationDelay);
+                double targetOffset = -Math.Min(Math.Max(player.AverageNotifyInterval, 0.0) + player.PingValue / 2.0, c_validationDelay);
                 player.TimeOffset = TimeConstants.Smooth(player.TimeOffset, targetOffset, Time.deltaTime, c_timeSmoothQuickness);
             }
             foreach (Player player in m_players)

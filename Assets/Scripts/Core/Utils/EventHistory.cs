@@ -1,10 +1,9 @@
 ﻿using System.Linq;
-using Wheeled.Core.Utils;
 
-namespace Wheeled.Gameplay.Action
+namespace Wheeled.Core.Utils
 {
 
-    internal sealed class ActionHistory<T>
+    internal sealed class EventHistory<T>
     {
 
         public interface ITarget
@@ -16,7 +15,7 @@ namespace Wheeled.Gameplay.Action
 
         private readonly LinkedListHistory<double, T> m_history;
 
-        public ActionHistory()
+        public EventHistory()
         {
             m_history = new LinkedListHistory<double, T>();
         }

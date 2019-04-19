@@ -86,7 +86,7 @@ namespace Wheeled.Networking.Server
 
             protected override void OnDamageScheduled(double _time, DamageInfo _info)
             {
-                Serializer.WriteDamageOrder(_time, _info, (byte) ActionHistory.GetHealth(_time));
+                Serializer.WriteDamageOrder(_time, _info, (byte) EventHistory.GetHealth(_time));
                 Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
             }
 
@@ -104,7 +104,7 @@ namespace Wheeled.Networking.Server
 
             private void UpdateNotifyTapper()
             {
-                bool isAlive = ActionHistory.IsAlive(m_manager.m_time);
+                bool isAlive = EventHistory.IsAlive(m_manager.m_time);
                 if (isAlive && !m_wasAlive)
                 {
                     m_notifyTapper.QuietTap();
@@ -118,7 +118,7 @@ namespace Wheeled.Networking.Server
                 int validationStep = (m_manager.m_time - m_maxValidationDelay).SimulationSteps();
                 if (IsStarted)
                 {
-                    if (ActionHistory.IsAlive(validationStep.SimulationPeriod()))
+                    if (EventHistory.IsAlive(validationStep.SimulationPeriod()))
                     {
                         if (!m_movementValidator.IsRunning)
                         {
