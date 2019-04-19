@@ -162,6 +162,7 @@ namespace Wheeled.Networking.Server
                             victimDeaths = (byte) Deaths,
                             killerKills = (byte) (killer?.Kills ?? 0)
                         });
+                        m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
                     }
                     if (explosion?.time > m_lastValidatedExplosionTime)
                     {
