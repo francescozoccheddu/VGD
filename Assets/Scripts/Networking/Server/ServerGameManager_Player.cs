@@ -97,7 +97,7 @@ namespace Wheeled.Networking.Server
 
             protected override void OnDamageScheduled(double _time, DamageInfo _info)
             {
-                Serializer.WriteDamageOrderOrReplication(_time, _info);
+                Serializer.WriteDamageOrderOrReplication(_time, Id, _info);
                 m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
             }
 

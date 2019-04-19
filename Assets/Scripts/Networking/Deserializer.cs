@@ -63,26 +63,11 @@ namespace Wheeled.Networking
             _outSimulation = ReadSimulationStepInfo();
         }
 
-        public void ReadDamageOrder(out double _outTime, out DamageInfo _outInfo, out byte _outHealth)
-        {
-            _outTime = ReadDouble();
-            _outInfo = ReadDamageInfo();
-            _outHealth = ReadByte();
-        }
-
-        public void ReadDeathOrderOrReplication(out double _outTime, out byte _outId, out DeathInfo _outDeathInfo, out byte _outDeaths, out byte _outKills)
+        public void ReadDamageOrderOrReplication(out double _outTime, out byte _outId, out DamageInfo _outInfo)
         {
             _outTime = ReadDouble();
             _outId = ReadByte();
-            _outDeathInfo = ReadDeathInfo();
-            _outDeaths = ReadByte();
-            _outKills = ReadByte();
-        }
-
-        public void ReadHitConfirmOrder(out double _outTime, out HitConfirmInfo _outInfo)
-        {
-            _outTime = ReadDouble();
-            _outInfo = ReadHitConfirmInfo();
+            _outInfo = ReadDamageInfo();
         }
 
         public void ReadKazeNotify(out double _outTime, out KazeInfo _outInfo)
@@ -208,17 +193,6 @@ namespace Wheeled.Networking
             };
         }
 
-        private DeathInfo ReadDeathInfo()
-        {
-            return new DeathInfo
-            {
-                killerId = ReadByte(),
-                offenseType = ReadEnum<OffenseType>(),
-                isExploded = ReadBool(),
-                position = ReadVector3()
-            };
-        }
-
         private double ReadDouble()
         {
             EnsureRead(m_netDataReader.TryGetDouble(out double value));
@@ -237,14 +211,6 @@ namespace Wheeled.Networking
         {
             EnsureRead(m_netDataReader.TryGetFloat(out float value));
             return value;
-        }
-
-        private HitConfirmInfo ReadHitConfirmInfo()
-        {
-            return new HitConfirmInfo
-            {
-                offenseType = ReadEnum<OffenseType>()
-            };
         }
 
         private InputStep ReadInputStep()

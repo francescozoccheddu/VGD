@@ -54,30 +54,12 @@ namespace Wheeled.Networking
             writer.Put(_simulationStepInfo);
         }
 
-        public static void WriteDamageOrderOrReplication(double _time, DamageInfo _info)
+        public static void WriteDamageOrderOrReplication(double _time, byte _id, DamageInfo _info)
         {
             writer.Reset();
             writer.Put(Message.DamageOrderOrReplication);
             writer.Put(_time);
-            writer.Put(_info);
-        }
-
-        public static void WriteDeathOrderOrReplication(double _time, byte _id, DeathInfo _info, byte _deaths, byte _kills)
-        {
-            writer.Reset();
-            writer.Put(Message.DeathOrderOrReplication);
-            writer.Put(_time);
             writer.Put(_id);
-            writer.Put(_info);
-            writer.Put(_deaths);
-            writer.Put(_kills);
-        }
-
-        public static void WriteHitConfirmOrder(double _time, HitConfirmInfo _info)
-        {
-            writer.Reset();
-            writer.Put(Message.HitConfirmOrder);
-            writer.Put(_time);
             writer.Put(_info);
         }
 
@@ -243,24 +225,11 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.offenseType);
         }
 
-        private static void Put(this NetDataWriter _netDataWriter, in HitConfirmInfo _value)
-        {
-            _netDataWriter.Put(_value.offenseType);
-        }
-
         private static void Put(this NetDataWriter _netDataWriter, in ShotInfo _value)
         {
             _netDataWriter.Put(_value.position);
             _netDataWriter.Put(_value.sight);
             _netDataWriter.Put(_value.isRocket);
-        }
-
-        private static void Put(this NetDataWriter _netDataWriter, in DeathInfo _value)
-        {
-            _netDataWriter.Put(_value.killerId);
-            _netDataWriter.Put(_value.offenseType);
-            _netDataWriter.Put(_value.isExploded);
-            _netDataWriter.Put(_value.position);
         }
 
         private static void Put(this NetDataWriter _netDataWriter, in SpawnInfo _value)

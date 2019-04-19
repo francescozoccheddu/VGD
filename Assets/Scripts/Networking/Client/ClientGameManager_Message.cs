@@ -97,25 +97,14 @@ namespace Wheeled.Networking.Client
                 }
                 break;
 
-                /*case Message.DeathOrderOrReplication:
-                {
-                    _reader.ReadDeathOrderOrReplication(out double time, out byte id, out DeathInfo deathInfo, out byte deaths, out byte kills);
-                    GetOrCreatePlayer(id).PutDeath(time, deathInfo, deaths);
-                    GetOrCreatePlayer(id).PutKills(time, kills);
-                }
-                break;*/
-
-                case Message.HitConfirmOrder:
-                {
-                    _reader.ReadHitConfirmOrder(out double time, out HitConfirmInfo info);
-                    m_localPlayer.PutHitConfirm(time, info);
-                }
-                break;
-
                 case Message.DamageOrderOrReplication:
                 {
-                    _reader.ReadDamageOrder(out double time, out DamageInfo info, out byte health);
-                    m_localPlayer.PutDamage(time, info, health);
+                    _reader.ReadDamageOrderOrReplication(out double time, out byte id, out DamageInfo info);
+                    GetOrCreatePlayer(id).PutDamage(time, info);
+                    if (info.offenderId == m_localPlayer.Id)
+                    {
+                        m_localPlayer.PutHitConfirm(time, info.offenseType);
+                    }
                 }
                 break;
 

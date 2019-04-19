@@ -5,7 +5,7 @@ using Wheeled.Networking;
 
 namespace Wheeled.Gameplay.Player
 {
-    internal sealed class PlayerController : MovementController.ICommitTarget, ActionController.ITarget, EventHistory<DamageInfo>.ITarget, EventHistory<HitConfirmInfo>.ITarget
+    internal sealed class PlayerController : MovementController.ICommitTarget, ActionController.ITarget, EventHistory<DamageInfo>.ITarget, EventHistory<OffenseType>.ITarget
     {
         #region Public Properties
 
@@ -18,7 +18,7 @@ namespace Wheeled.Gameplay.Player
         private readonly ActionController m_actionController;
         private readonly MovementController m_movementController;
         private readonly EventHistory<DamageInfo> m_damageHistory;
-        private readonly EventHistory<HitConfirmInfo> m_hitConfirmHistory;
+        private readonly EventHistory<OffenseType> m_hitConfirmHistory;
         private readonly PlayerBase m_player;
 
         #endregion Private Fields
@@ -40,7 +40,7 @@ namespace Wheeled.Gameplay.Player
             {
                 Target = this
             };
-            m_hitConfirmHistory = new EventHistory<HitConfirmInfo>
+            m_hitConfirmHistory = new EventHistory<OffenseType>
             {
                 Target = this
             };
@@ -59,7 +59,7 @@ namespace Wheeled.Gameplay.Player
             }, false);
         }
 
-        public void PutHitConfirm(double _time, HitConfirmInfo _info)
+        public void PutHitConfirm(double _time, OffenseType _info)
         {
             m_hitConfirmHistory.Put(_time, _info);
         }
@@ -81,7 +81,7 @@ namespace Wheeled.Gameplay.Player
             m_player.PutInput(_step, _input);
         }
 
-        void EventHistory<HitConfirmInfo>.ITarget.Perform(double _time, HitConfirmInfo _value)
+        void EventHistory<OffenseType>.ITarget.Perform(double _time, OffenseType _value)
         {
         }
 

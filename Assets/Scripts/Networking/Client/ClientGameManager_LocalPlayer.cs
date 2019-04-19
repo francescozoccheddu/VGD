@@ -61,7 +61,7 @@ namespace Wheeled.Networking.Client
 
             #region Internal Methods
 
-            internal void PutHitConfirm(double _time, HitConfirmInfo _info)
+            internal void PutHitConfirm(double _time, OffenseType _info)
             {
                 m_playerController.PutHitConfirm(_time, _info);
             }
