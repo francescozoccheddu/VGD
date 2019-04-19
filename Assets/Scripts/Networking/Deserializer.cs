@@ -13,14 +13,150 @@ namespace Wheeled.Networking
 {
     internal sealed class Deserializer
     {
-        #region Logic and Data
+        #region Public Classes
 
+        public sealed class DeserializationException : Exception { }
+
+        #endregion Public Classes
+
+        #region Private Fields
+
+        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double) + sizeof(ushort)];
         private readonly NetDataReader m_netDataReader;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public Deserializer(NetDataReader _netDataReader)
         {
             m_netDataReader = _netDataReader;
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
+
+        public Message ReadMessageType()
+        {
+            return ReadEnum<Message>();
+        }
+
+        public void ReadMovementNotify(out int _outStep, out IEnumerable<InputStep> _outInputSteps, out Snapshot _outSnapshot)
+        {
+            _outStep = ReadInt();
+            _outSnapshot = ReadSnapshot();
+            _outInputSteps = ReadArray(ReadInputStep);
+        }
+
+        public void ReadMovementReplication(out byte _outId, out int _outStep, out IEnumerable<InputStep> _outInputSteps, out Snapshot _snapshot)
+        {
+            _outId = ReadByte();
+            _outStep = ReadInt();
+            _snapshot = ReadSnapshot();
+            _outInputSteps = ReadArray(ReadInputStep);
+        }
+
+        public void ReadSimulationOrder(out int _outStep, out SimulationStepInfo _outSimulation)
+        {
+            _outStep = ReadInt();
+            _outSimulation = ReadSimulationStepInfo();
+        }
+
+        public void ReadDamageOrder(out double _outTime, out DamageInfo _outInfo, out byte _outHealth)
+        {
+            _outTime = ReadDouble();
+            _outInfo = ReadDamageInfo();
+            _outHealth = ReadByte();
+        }
+
+        public void ReadDeathOrderOrReplication(out double _outTime, out byte _outId, out DeathInfo _outDeathInfo, out byte _outDeaths, out byte _outKills)
+        {
+            _outTime = ReadDouble();
+            _outId = ReadByte();
+            _outDeathInfo = ReadDeathInfo();
+            _outDeaths = ReadByte();
+            _outKills = ReadByte();
+        }
+
+        public void ReadHitConfirmOrder(out double _outTime, out HitConfirmInfo _outInfo)
+        {
+            _outTime = ReadDouble();
+            _outInfo = ReadHitConfirmInfo();
+        }
+
+        public void ReadKazeNotify(out double _outTime, out KazeInfo _outInfo)
+        {
+            _outTime = ReadDouble();
+            _outInfo = ReadKazeInfo();
+        }
+
+        public void ReadShotNotify(out double _outTime, out ShotInfo _outInfo)
+        {
+            _outTime = ReadDouble();
+            _outInfo = ReadShotInfo();
+        }
+
+        public void ReadShotReplication(out double _outTime, out byte _outId, out ShotInfo _outInfo)
+        {
+            _outTime = ReadDouble();
+            _outId = ReadByte();
+            _outInfo = ReadShotInfo();
+        }
+
+        public void ReadSpawnOrderOrReplication(out double _outTime, out byte _outId, out SpawnInfo _outSpawnInfo)
+        {
+            _outTime = ReadDouble();
+            _outId = ReadByte();
+            _outSpawnInfo = ReadSpawnInfo();
+        }
+
+        public void ReadPlayerIntroduction(out byte _outId, out PlayerInfo _outInfo)
+        {
+            _outId = ReadByte();
+            _outInfo = ReadPlayerInfo();
+        }
+
+        public void ReadPlayerSync(out double _outTime, out IEnumerable<PlayerRecapInfo> _outInfos)
+        {
+            _outTime = ReadDouble();
+            _outInfos = ReadArray(ReadPlayerRecapInfo);
+        }
+
+        public void ReadPlayerWelcomeSync(out byte _outId)
+        {
+            _outId = ReadByte();
+            // Checksum
+            EnsureRead(ReadByte() == 255 - _outId);
+            EnsureRead(ReadByte() == _outId);
+            EnsureRead(ReadByte() == 255 - _outId);
+            EnsureReadEnd();
+        }
+
+        public void ReadQuitReplication(out double _outTime, out byte _outId)
+        {
+            _outTime = ReadDouble();
+            _outId = ReadByte();
+        }
+
+        public void ReadRecapSync(out double _outTime, out IEnumerable<PlayerRecapInfo> _outInfos)
+        {
+            _outTime = ReadDouble();
+            _outInfos = ReadArray(ReadPlayerRecapInfo);
+        }
+
+        public void ReadTimeSync(out double _time)
+        {
+            _time = ReadDouble();
+            // Checksum
+            ulong bytes = Convert.ToUInt64(_time);
+            EnsureRead(bytes == ~ReadULong());
+            EnsureReadEnd();
+        }
+
+        #endregion Public Methods
+
+        #region Private Methods
 
         private static void EnsureRead(bool _read)
         {
@@ -33,17 +169,6 @@ namespace Wheeled.Networking
         private void EnsureReadEnd()
         {
             EnsureRead(m_netDataReader.EndOfData);
-        }
-
-        public sealed class DeserializationException : Exception { }
-
-        #endregion Logic and Data
-
-        #region Primitive read methods
-
-        public Message ReadMessageType()
-        {
-            return ReadEnum<Message>();
         }
 
         private IEnumerable<T> ReadArray<T>(Func<T> _read)
@@ -154,7 +279,7 @@ namespace Wheeled.Networking
                 id = ReadByte(),
                 kills = ReadByte(),
                 deaths = ReadByte(),
-                health = ReadByte(),
+                health = ReadHealth(),
                 ping = ReadByte(),
             };
         }
@@ -257,132 +382,6 @@ namespace Wheeled.Networking
             };
         }
 
-        #endregion Primitive read methods
-
-        #region Movement messages
-
-        public void ReadMovementNotify(out int _outStep, out IEnumerable<InputStep> _outInputSteps, out Snapshot _outSnapshot)
-        {
-            _outStep = ReadInt();
-            _outSnapshot = ReadSnapshot();
-            _outInputSteps = ReadArray(ReadInputStep);
-        }
-
-        public void ReadMovementReplication(out byte _outId, out int _outStep, out IEnumerable<InputStep> _outInputSteps, out Snapshot _snapshot)
-        {
-            _outId = ReadByte();
-            _outStep = ReadInt();
-            _snapshot = ReadSnapshot();
-            _outInputSteps = ReadArray(ReadInputStep);
-        }
-
-        public void ReadSimulationOrder(out int _outStep, out SimulationStepInfo _outSimulation)
-        {
-            _outStep = ReadInt();
-            _outSimulation = ReadSimulationStepInfo();
-        }
-
-        #endregion Movement messages
-
-        #region Action messages
-
-        public void ReadDamageOrder(out double _outTime, out DamageInfo _outInfo, out byte _outHealth)
-        {
-            _outTime = ReadDouble();
-            _outInfo = ReadDamageInfo();
-            _outHealth = ReadByte();
-        }
-
-        public void ReadDeathOrderOrReplication(out double _outTime, out byte _outId, out DeathInfo _outDeathInfo, out byte _outDeaths, out byte _outKills)
-        {
-            _outTime = ReadDouble();
-            _outId = ReadByte();
-            _outDeathInfo = ReadDeathInfo();
-            _outDeaths = ReadByte();
-            _outKills = ReadByte();
-        }
-
-        public void ReadHitConfirmOrder(out double _outTime, out HitConfirmInfo _outInfo)
-        {
-            _outTime = ReadDouble();
-            _outInfo = ReadHitConfirmInfo();
-        }
-
-        public void ReadKazeNotify(out double _outTime, out KazeInfo _outInfo)
-        {
-            _outTime = ReadDouble();
-            _outInfo = ReadKazeInfo();
-        }
-
-        public void ReadShotNotify(out double _outTime, out ShotInfo _outInfo)
-        {
-            _outTime = ReadDouble();
-            _outInfo = ReadShotInfo();
-        }
-
-        public void ReadShotReplication(out double _outTime, out byte _outId, out ShotInfo _outInfo)
-        {
-            _outTime = ReadDouble();
-            _outId = ReadByte();
-            _outInfo = ReadShotInfo();
-        }
-
-        public void ReadSpawnOrderOrReplication(out double _outTime, out byte _outId, out SpawnInfo _outSpawnInfo)
-        {
-            _outTime = ReadDouble();
-            _outId = ReadByte();
-            _outSpawnInfo = ReadSpawnInfo();
-        }
-
-        #endregion Action messages
-
-        #region Room messages
-
-        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double) + sizeof(ushort)];
-
-        public void ReadPlayerIntroduction(out byte _outId, out PlayerInfo _outInfo)
-        {
-            _outId = ReadByte();
-            _outInfo = ReadPlayerInfo();
-        }
-
-        public void ReadPlayerSync(out double _outTime, out IEnumerable<PlayerRecapInfo> _outInfos)
-        {
-            _outTime = ReadDouble();
-            _outInfos = ReadArray(ReadPlayerRecapInfo);
-        }
-
-        public void ReadPlayerWelcomeSync(out byte _outId)
-        {
-            _outId = ReadByte();
-            // Checksum
-            EnsureRead(ReadByte() == 255 - _outId);
-            EnsureRead(ReadByte() == _outId);
-            EnsureRead(ReadByte() == 255 - _outId);
-            EnsureReadEnd();
-        }
-
-        public void ReadQuitReplication(out double _outTime, out byte _outId)
-        {
-            _outTime = ReadDouble();
-            _outId = ReadByte();
-        }
-
-        public void ReadRecapSync(out double _outTime, out IEnumerable<PlayerRecapInfo> _outInfos)
-        {
-            _outTime = ReadDouble();
-            _outInfos = ReadArray(ReadPlayerRecapInfo);
-        }
-
-        public void ReadTimeSync(out double _time)
-        {
-            _time = ReadDouble();
-            // Checksum
-            ulong bytes = Convert.ToUInt64(_time);
-            EnsureRead(bytes == ~ReadULong());
-            EnsureReadEnd();
-        }
-
-        #endregion Room messages
+        #endregion Private Methods
     }
 }

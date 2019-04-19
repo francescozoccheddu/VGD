@@ -1,100 +1,75 @@
 ﻿using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
-using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking.Server
 {
     internal sealed partial class ServerGameManager
     {
-        private sealed class LocalPlayer : Player, MovementController.ICommitTarget, ActionController.ITarget
-        {
-            private readonly ActionController m_actionController;
-            private readonly MovementController m_movementController;
+        #region Private Classes
 
-            public LocalPlayer(ServerGameManager _manager, byte _id) : base(_manager, _id)
-            {
-                m_movementController = new MovementController()
-                {
-                    target = this
-                };
-                m_actionController = new ActionController()
-                {
-                    Target = this
-                };
-                m_ShouldHandleRespawn = true;
-            }
+        private sealed class LocalPlayer : Player
+        {
+            #region Public Properties
 
             public override bool IsLocal => true;
 
-            public void Start()
+            #endregion Public Properties
+
+            #region Private Fields
+
+            private readonly PlayerController m_playerController;
+
+            #endregion Private Fields
+
+            #region Public Constructors
+
+            public LocalPlayer(ServerGameManager _manager, byte _id) : base(_manager, _id)
             {
-                m_movementController.StartAt(LocalTime);
+                m_playerController = new PlayerController(this);
             }
 
-            #region MovementController.ICommitTarget
+            #endregion Public Constructors
 
-            void MovementController.ICommitTarget.Commit(int _step, InputStep _input, Snapshot _snapshot)
-            {
-                PutInput(_step, _input);
-                PutSimulation(_step, _snapshot.simulation);
-                PutSight(_step, _snapshot.sight);
-            }
-
-            #endregion MovementController.ICommitTarget
-
-            #region ActionController.ITarget
-
-            void ActionController.ITarget.Kaze(KazeInfo _info)
-            {
-                DeathInfo deathInfo = new DeathInfo
-                {
-                    isExploded = true,
-                    killerId = Id,
-                    offenseType = OffenseType.Explosion,
-                    position = _info.position
-                };
-                PutDeath(m_manager.m_time, deathInfo);
-            }
-
-            void ActionController.ITarget.Shoot(ShotInfo _info)
-            {
-                PutShoot(m_manager.m_time, _info);
-            }
-
-            #endregion ActionController.ITarget
+            #region Protected Methods
 
             protected override int GetLastValidMovementStep()
             {
                 return LocalTime.SimulationSteps();
             }
 
-            protected override void OnSpawn(double _time, Snapshot _snapshot)
+            protected override void OnActorSpawned()
             {
-                m_movementController.Teleport(_snapshot, true);
+                base.OnActorSpawned();
+                m_playerController.OnActorSpawned();
             }
 
             protected override void OnUpdated()
             {
-                if (ActionHistoryLocalTimeQuery.IsAlive)
-                {
-                    if (!m_movementController.IsRunning)
-                    {
-                        m_movementController.StartAt(LocalTime);
-                    }
-                }
-                else
-                {
-                    m_movementController.Pause();
-                }
-                m_movementController.UpdateUntil(LocalTime);
-                PutSight(m_movementController.Step, m_movementController.RawSnapshot.sight);
-                m_actionController.Update(ActionHistoryLocalTimeQuery, GetSnapshot(LocalTime));
+                base.OnUpdated();
+                m_playerController.OnUpdated();
+            }
+
+            protected override void OnDamageScheduled(double _time, DamageInfo _info)
+            {
+                base.OnDamageScheduled(_time, _info);
+                m_playerController.OnDamageScheduled(_time, _info);
+            }
+
+            protected override void OnActorBreathed()
+            {
+                base.OnActorBreathed();
+                m_playerController.OnActorBreathed();
             }
 
             protected override void SendReplication(NetworkManager.SendMethod _method)
             {
                 m_manager.SendAll(_method);
             }
+
+            #endregion Protected Methods
         }
+
+        #endregion Private Classes
     }
 }

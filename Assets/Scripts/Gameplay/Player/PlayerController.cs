@@ -5,8 +5,14 @@ using Wheeled.Networking;
 
 namespace Wheeled.Gameplay.Player
 {
-    internal abstract class LocalPlayer : MovementController.ICommitTarget, ActionController.ITarget, EventHistory<DamageInfo>.ITarget, EventHistory<HitConfirmInfo>.ITarget
+    internal sealed class PlayerController : MovementController.ICommitTarget, ActionController.ITarget, EventHistory<DamageInfo>.ITarget, EventHistory<HitConfirmInfo>.ITarget
     {
+        #region Public Properties
+
+        public int MovementStep => m_movementController.Step;
+
+        #endregion Public Properties
+
         #region Private Fields
 
         private readonly ActionController m_actionController;
@@ -17,13 +23,19 @@ namespace Wheeled.Gameplay.Player
 
         #endregion Private Fields
 
-        #region Protected Constructors
+        #region Public Constructors
 
-        protected LocalPlayer(PlayerBase _player)
+        public PlayerController(PlayerBase _player)
         {
             m_player = _player;
-            m_actionController = new ActionController();
-            m_movementController = new MovementController();
+            m_actionController = new ActionController
+            {
+                Target = this
+            };
+            m_movementController = new MovementController
+            {
+                target = this
+            };
             m_damageHistory = new EventHistory<DamageInfo>
             {
                 Target = this
@@ -34,9 +46,23 @@ namespace Wheeled.Gameplay.Player
             };
         }
 
-        #endregion Protected Constructors
+        #endregion Public Constructors
 
         #region Public Methods
+
+        public void Teleport(CharacterController _snapshot)
+        {
+            m_movementController.Teleport(new Snapshot
+            {
+                sight = m_movementController.RawSnapshot.sight,
+                simulation = _snapshot
+            }, false);
+        }
+
+        public void PutHitConfirm(double _time, HitConfirmInfo _info)
+        {
+            m_hitConfirmHistory.Put(_time, _info);
+        }
 
         void ActionController.ITarget.Kaze(KazeInfo _info)
         {
@@ -63,9 +89,11 @@ namespace Wheeled.Gameplay.Player
         {
         }
 
-        public void OnUpdated(IReadOnlyPlayer _player)
+        public void OnUpdated()
         {
-            m_actionController.Update(_player.LocalTime, _player);
+            m_actionController.Update(m_player.LocalTime, m_player);
+            m_hitConfirmHistory.PerformUntil(m_player.LocalTime);
+            m_damageHistory.PerformUntil(m_player.LocalTime);
         }
 
         public void OnActorDied()

@@ -8,6 +8,8 @@ namespace Wheeled.Networking.Client
 {
     internal sealed partial class ClientGameManager
     {
+        #region Public Methods
+
         void Client.IGameManager.Received(Deserializer _reader)
         {
             // TODO Catch exception
@@ -31,20 +33,20 @@ namespace Wheeled.Networking.Client
                 case Message.PlayerIntroductionSync:
                 {
                     _reader.ReadPlayerIntroduction(out byte id, out PlayerInfo info);
-                    GetOrCreatePlayer(id).Introduce(info);
+                    GetOrCreatePlayer(id).Info = info;
                 }
                 break;
 
                 case Message.RecapSync:
                 {
                     _reader.ReadRecapSync(out double time, out IEnumerable<PlayerRecapInfo> infos);
-                    Dictionary<byte, Player> oldPlayers = new Dictionary<byte, Player>(m_players);
+                    Dictionary<byte, PlayerBase> oldPlayers = new Dictionary<byte, PlayerBase>(m_players);
                     foreach (PlayerRecapInfo info in infos)
                     {
-                        Player player = GetOrCreatePlayer(info.id);
-                        player.PutDeaths(time, info.deaths);
+                        PlayerBase player = GetOrCreatePlayer(info.id);
+                        player.DeathsValue.Put(time, info.deaths);
                         player.PutHealth(time, info.health);
-                        player.PutKills(time, info.kills);
+                        player.KillsValue.Put(time, info.kills);
                         oldPlayers.Remove(info.id);
                     }
                     foreach (NetPlayer oldPlayer in oldPlayers.Values)
@@ -57,7 +59,7 @@ namespace Wheeled.Networking.Client
                 case Message.QuitReplication:
                 {
                     _reader.ReadQuitReplication(out double time, out byte id);
-                    if (m_players.TryGetValue(id, out Player player))
+                    if (m_players.TryGetValue(id, out PlayerBase player))
                     {
                         player.PutQuit(time);
                     }
@@ -95,13 +97,13 @@ namespace Wheeled.Networking.Client
                 }
                 break;
 
-                case Message.DeathOrderOrReplication:
+                /*case Message.DeathOrderOrReplication:
                 {
                     _reader.ReadDeathOrderOrReplication(out double time, out byte id, out DeathInfo deathInfo, out byte deaths, out byte kills);
                     GetOrCreatePlayer(id).PutDeath(time, deathInfo, deaths);
                     GetOrCreatePlayer(id).PutKills(time, kills);
                 }
-                break;
+                break;*/
 
                 case Message.HitConfirmOrder:
                 {
@@ -110,7 +112,7 @@ namespace Wheeled.Networking.Client
                 }
                 break;
 
-                case Message.DamageOrder:
+                case Message.DamageOrderOrReplication:
                 {
                     _reader.ReadDamageOrder(out double time, out DamageInfo info, out byte health);
                     m_localPlayer.PutDamage(time, info, health);
@@ -121,12 +123,14 @@ namespace Wheeled.Networking.Client
                 {
                     _reader.ReadShotReplication(out double time, out byte id, out ShotInfo info);
                     NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
-                    player?.PutShoot(time, info);
+                    player?.PutShot(time, info);
                 }
                 break;
 
                 #endregion Action messages
             }
         }
+
+        #endregion Public Methods
     }
 }

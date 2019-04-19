@@ -8,25 +8,48 @@ using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Client
 {
-    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IPlayerManager, OffenseStage.IValidationTarget
+    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IPlayerManager, OffenseBackstage.IValidationTarget
     {
-        private const double c_localOffset = 0.025;
+        #region Public Properties
+
+        OffenseBackstage IPlayerManager.OffenseBackstage => m_offenseBackstage;
+        double IPlayerManager.Time => m_time;
+
+        #endregion Public Properties
+
+        #region Private Properties
+
+        private IEnumerable<NetPlayer> m_NetPlayers => m_players.Values.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
+
+        #endregion Private Properties
+
+        #region Public Fields
+
         public const double c_netOffset = 0.025;
+
+        #endregion Public Fields
+
+        #region Private Fields
+
+        private const double c_localOffset = 0.025;
         private const float c_timeSmoothQuickness = 0.2f;
         private readonly LocalPlayer m_localPlayer;
-        private IEnumerable<NetPlayer> m_NetPlayers => m_players.Values.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
-        private readonly Dictionary<byte, Player> m_players;
+        private readonly Dictionary<byte, PlayerBase> m_players;
         private readonly Client.IServer m_server;
-        private readonly OffenseStage m_shootStage;
+        private readonly OffenseBackstage m_offenseBackstage;
         private readonly Updatable m_updatable;
         private bool m_isRunning;
         private double m_targetTime;
         private double m_time;
 
+        #endregion Private Fields
+
+        #region Public Constructors
+
         public ClientGameManager(Client.IServer _server, byte _id)
         {
             Debug.Log("ClientGameManager started");
-            m_shootStage = new OffenseStage
+            m_offenseBackstage = new OffenseBackstage
             {
                 ValidationTarget = this
             };
@@ -41,7 +64,7 @@ namespace Wheeled.Networking.Client
                 MaxMovementInputStepsNotifyCount = 20,
                 MaxMovementNotifyFrequency = 15
             };
-            m_players = new Dictionary<byte, Player>
+            m_players = new Dictionary<byte, PlayerBase>
             {
                 { _id, m_localPlayer }
             };
@@ -50,9 +73,9 @@ namespace Wheeled.Networking.Client
             m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
         }
 
-        OffenseStage IPlayerManager.ShootStage => m_shootStage;
+        #endregion Public Constructors
 
-        double IPlayerManager.Time => m_time;
+        #region Public Methods
 
         void Updatable.ITarget.Update()
         {
@@ -68,16 +91,47 @@ namespace Wheeled.Networking.Client
             {
                 p.TimeOffset = TimeConstants.Smooth(p.TimeOffset, -(owd + p.AverageReplicationInterval + c_netOffset), Time.deltaTime, c_timeSmoothQuickness);
             }
-            foreach (Player p in m_players.Values)
+            foreach (PlayerBase p in m_players.Values)
             {
                 p.Update();
             }
-            m_shootStage.Update(m_time);
+            m_offenseBackstage.UpdateUntil(m_time);
         }
 
-        private Player GetOrCreatePlayer(byte _id)
+        void Client.IGameManager.LatencyUpdated(double _latency)
         {
-            if (m_players.TryGetValue(_id, out Player player))
+        }
+
+        void Client.IGameManager.Stopped()
+        {
+            m_isRunning = false;
+            m_updatable.IsRunning = false;
+        }
+
+        IEnumerable<OffenseBackstage.HitTarget> OffenseBackstage.IValidationTarget.ProvideHitTarget(double _time, Offense _offense)
+        {
+            return from p
+                  in m_players.Values
+                   where p.Id != _offense.OffenderId && p.LifeHistory.IsAlive(_time) && !p.IsQuit(_time)
+                   select new OffenseBackstage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time) };
+        }
+
+        void OffenseBackstage.IValidationTarget.Damage(double _time, byte _offendedId, Offense _offense, float _damage)
+        {
+        }
+
+        bool OffenseBackstage.IValidationTarget.ShouldProcess(double _time, Offense _offense)
+        {
+            return true;
+        }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private PlayerBase GetOrCreatePlayer(byte _id)
+        {
+            if (m_players.TryGetValue(_id, out PlayerBase player))
             {
                 return player;
             }
@@ -92,34 +146,6 @@ namespace Wheeled.Networking.Client
             }
         }
 
-        #region Client.IGameManager
-
-        void Client.IGameManager.LatencyUpdated(double _latency)
-        {
-        }
-
-        void Client.IGameManager.Stopped()
-        {
-            m_isRunning = false;
-            m_updatable.IsRunning = false;
-        }
-
-        #endregion Client.IGameManager
-
-        #region ShootStage.IValidationTarget
-
-        IEnumerable<OffenseStage.HitTarget> OffenseStage.IValidationTarget.GetHitTargets(double _time, byte _shooterId)
-        {
-            return from p
-                   in m_players.Values
-                   where p.Id != _shooterId && p.ActionHistory.IsAlive(_time)
-                   select new OffenseStage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time) };
-        }
-
-        void OffenseStage.IValidationTarget.Offense(double _time, byte _offenderId, byte _offendedId, float _damage, OffenseType _type, Vector3 _origin)
-        {
-        }
-
-        #endregion ShootStage.IValidationTarget
+        #endregion Private Methods
     }
 }

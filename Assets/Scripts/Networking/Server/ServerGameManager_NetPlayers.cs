@@ -8,21 +8,36 @@ namespace Wheeled.Networking.Server
 {
     internal sealed partial class ServerGameManager
     {
+        #region Private Classes
+
         private sealed class NetPlayer : Player, MovementValidator.ITarget, ActionValidator.ITarget
         {
+            #region Public Properties
+
+            public float AverageNotifyInterval => m_notifyTapper.AverageInterval;
+            public override bool IsLocal => false;
+            public double MaxValidationDelay { get => m_maxValidationDelay; set { Debug.Assert(value >= 0.0); m_actionValidator.MaxDelay = value; m_maxValidationDelay = value; } }
+            public NetworkManager.Peer Peer { get; }
+
+            #endregion Public Properties
+
+            #region Private Fields
+
             private const int c_maxCorrectionFrequency = 5;
             private const double c_maxValidationAnticipation = 4.0f;
 
+            private const float c_notifyDelaySmoothQuickness = 0.2f;
             private readonly ActionValidator m_actionValidator;
             private readonly MovementValidator m_movementValidator;
-            private const float c_notifyDelaySmoothQuickness = 0.2f;
+            private readonly TimeConstants.Tapper m_notifyTapper;
             private double m_maxValidationDelay;
             private float m_timeSinceLastCorrection;
-
-            public float AverageNotifyInterval => m_notifyTapper.AverageInterval;
             private int m_lastNotifyStep;
-            private readonly TimeConstants.Tapper m_notifyTapper;
             private bool m_wasAlive;
+
+            #endregion Private Fields
+
+            #region Public Constructors
 
             public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer) : base(_manager, _id)
             {
@@ -37,26 +52,14 @@ namespace Wheeled.Networking.Server
                     Target = this,
                     MaxAnticipation = c_maxValidationAnticipation
                 };
-                IsStarted = false;
                 MaxValidationDelay = 1.0;
                 m_lastNotifyStep = -1;
                 m_notifyTapper = new TimeConstants.Tapper(0.0f);
             }
 
-            public override bool IsLocal => false;
-            public bool IsStarted { get; private set; }
-            public double MaxValidationDelay { get => m_maxValidationDelay; set { Debug.Assert(value >= 0.0); m_actionValidator.MaxDelay = value; m_maxValidationDelay = value; } }
-            public NetworkManager.Peer Peer { get; }
+            #endregion Public Constructors
 
-            public void Start()
-            {
-                if (!IsStarted)
-                {
-                    IsStarted = true;
-
-                    m_ShouldHandleRespawn = true;
-                }
-            }
+            #region Public Methods
 
             public void TryKaze(double _time, KazeInfo _info)
             {
@@ -79,80 +82,15 @@ namespace Wheeled.Networking.Server
                 m_actionValidator.PutShot(_time, _info);
             }
 
-            protected override int GetLastValidMovementStep()
-            {
-                return m_movementValidator.Step;
-            }
-
-            protected override void OnDamageScheduled(double _time, DamageInfo _info)
-            {
-                Serializer.WriteDamageOrder(_time, _info, (byte) EventHistory.GetHealth(_time));
-                Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
-            }
-
-            protected override void OnHitConfirmScheduled(double _time, HitConfirmInfo _info)
-            {
-                Serializer.WriteHitConfirmOrder(_time, _info);
-                Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
-            }
-
-            protected override void OnSpawn(double _time, Snapshot _snapshot)
-            {
-                m_movementValidator.SkipTo(_time.SimulationSteps(), false);
-                m_movementValidator.Teleport(_snapshot.simulation);
-            }
-
-            private void UpdateNotifyTapper()
-            {
-                bool isAlive = EventHistory.IsAlive(m_manager.m_time);
-                if (isAlive && !m_wasAlive)
-                {
-                    m_notifyTapper.QuietTap();
-                }
-                m_wasAlive = isAlive;
-            }
-
-            protected override void OnUpdated()
-            {
-                UpdateNotifyTapper();
-                int validationStep = (m_manager.m_time - m_maxValidationDelay).SimulationSteps();
-                if (IsStarted)
-                {
-                    if (EventHistory.IsAlive(validationStep.SimulationPeriod()))
-                    {
-                        if (!m_movementValidator.IsRunning)
-                        {
-                            m_movementValidator.SkipTo(validationStep, false);
-                            m_movementValidator.IsRunning = true;
-                        }
-                    }
-                    else
-                    {
-                        m_movementValidator.IsRunning = false;
-                    }
-                }
-                m_timeSinceLastCorrection += Time.deltaTime;
-                m_movementValidator.UpdateUntil(validationStep);
-                double lastMovementTime = m_movementValidator.Step.SimulationPeriod();
-                m_actionValidator.ValidateUntil(lastMovementTime, this);
-            }
-
-            #region ActionValidator.ITarget
-
             void ActionValidator.ITarget.Kaze(double _time, KazeInfo _info)
             {
-                DeathInfo deathInfo = new DeathInfo { isExploded = true, killerId = Id, offenseType = OffenseType.Explosion, position = _info.position };
-                PutDeath(LocalTime, deathInfo);
+                PutKaze(LocalTime, _info);
             }
 
             void ActionValidator.ITarget.Shoot(double _time, ShotInfo _info)
             {
-                PutShoot(LocalTime, _info);
+                PutShot(LocalTime, _info);
             }
-
-            #endregion ActionValidator.ITarget
-
-            #region MovementValidator.ITarget
 
             void MovementValidator.ITarget.Corrected(int _step, in SimulationStepInfo _simulation)
             {
@@ -174,12 +112,68 @@ namespace Wheeled.Networking.Server
                 PutSimulation(_step, _simulation);
             }
 
-            #endregion MovementValidator.ITarget
+            #endregion Public Methods
+
+            #region Protected Methods
+
+            protected override int GetLastValidMovementStep()
+            {
+                return m_movementValidator.Step;
+            }
+
+            protected override void OnActorSpawned()
+            {
+                base.OnActorSpawned();
+                int step = LocalTime.SimulationSteps();
+                m_movementValidator.SkipTo(step, false);
+                m_movementValidator.Teleport(this.GetSnapshot(step.SimulationPeriod()).simulation);
+                m_movementValidator.IsRunning = true;
+            }
+
+            protected override void OnUpdated()
+            {
+                UpdateNotifyTapper();
+                m_timeSinceLastCorrection += Time.deltaTime;
+                double lastMovementTime = m_movementValidator.Step.SimulationPeriod();
+                m_actionValidator.ValidateUntil(lastMovementTime, this);
+                base.OnUpdated();
+            }
+
+            protected override void OnActorDied()
+            {
+                base.OnActorDied();
+                m_movementValidator.IsRunning = false;
+            }
 
             protected override void SendReplication(NetworkManager.SendMethod _method)
             {
                 m_manager.SendAllBut(Peer, _method);
             }
+
+            protected override void OnActorBreathed()
+            {
+                base.OnActorBreathed();
+                int validationStep = (m_manager.m_time - m_maxValidationDelay).SimulationSteps();
+                m_movementValidator.UpdateUntil(validationStep);
+            }
+
+            #endregion Protected Methods
+
+            #region Private Methods
+
+            private void UpdateNotifyTapper()
+            {
+                bool isAlive = LifeHistory.IsAlive(m_manager.m_time);
+                if (isAlive && !m_wasAlive)
+                {
+                    m_notifyTapper.QuietTap();
+                }
+                m_wasAlive = isAlive;
+            }
+
+            #endregion Private Methods
         }
+
+        #endregion Private Classes
     }
 }

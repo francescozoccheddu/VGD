@@ -10,28 +10,51 @@ namespace Wheeled.Networking.Server
 {
     internal sealed partial class ServerGameManager
     {
+        #region Private Classes
+
         private abstract class Player : PlayerBase
         {
+            #region Public Properties
+
+            public int MaxMovementInputStepsReplicationCount { get => m_maxMovementInputStepsSendCount; set { Debug.Assert(value >= 0); m_maxMovementInputStepsSendCount = value; } }
+
+            public bool IsStarted { get; private set; }
+
+            #endregion Public Properties
+
+            #region Protected Fields
+
             protected readonly ServerGameManager m_manager;
+
+            #endregion Protected Fields
+
+            #region Private Fields
+
             private int? m_lastReplicatedMovementStep;
             private int m_maxMovementInputStepsSendCount;
+
+            #endregion Private Fields
+
+            #region Protected Constructors
 
             protected Player(ServerGameManager _manager, byte _id) : base(_manager, _id)
             {
                 m_manager = _manager;
             }
 
-            public int MaxMovementInputStepsReplicationCount { get => m_maxMovementInputStepsSendCount; set { Debug.Assert(value >= 0); m_maxMovementInputStepsSendCount = value; } }
+            #endregion Protected Constructors
+
+            #region Public Methods
 
             public PlayerRecapInfo RecapInfo(double _time)
             {
                 return new PlayerRecapInfo
                 {
-                    deaths = EventHistory.GetDeaths(_time),
-                    health = (byte) EventHistory.GetHealth(_time),
+                    deaths = Deaths,
+                    health = LifeHistory.GetHealth(_time),
                     id = Id,
-                    kills = EventHistory.GetHealth(_time),
-                    ping = (byte) Mathf.Clamp(PingValue, 0, 255)
+                    kills = Kills,
+                    ping = (byte) Mathf.Clamp(Ping, 0, 255)
                 };
             }
 
@@ -46,23 +69,35 @@ namespace Wheeled.Networking.Server
                     {
                         maxStepsCount = Math.Min(maxStepsCount, lastMovementStep - m_lastReplicatedMovementStep.Value);
                     }
-                    IEnumerable<InputStep> inputSequence = GetReversedInputSequence(lastMovementStep, maxStepsCount);
-                    Serializer.WriteMovementAndInputReplication(Id, lastMovementStep, inputSequence, GetSnapshot(lastMovementStep.SimulationPeriod()));
+                    IEnumerable<InputStep> inputSequence = InputHistory.GetReversedInputSequence(lastMovementStep, maxStepsCount);
+                    Serializer.WriteMovementAndInputReplication(Id, lastMovementStep, inputSequence, this.GetSnapshot(lastMovementStep.SimulationPeriod()));
                     SendReplication(NetworkManager.SendMethod.Unreliable);
                 }
             }
 
-            protected override void OnExplosion(double _time, Vector3 _position)
+            public void Start()
             {
-
+                if (!IsStarted)
+                {
+                    IsStarted = true;
+                    PutSpawn(m_manager.m_time + c_spawnDelay, new SpawnInfo());
+                }
             }
+
+            #endregion Public Methods
+
+            #region Protected Methods
 
             protected abstract int GetLastValidMovementStep();
 
-            protected override void OnDeathScheduled(double _time, DeathInfo _info)
+            protected override void OnUpdated()
             {
-                byte kills = (byte) (m_manager.GetPlayerById(_info.killerId)?.ActionHistory.GetKills(_time) ?? 0);
-                Serializer.WriteDeathOrderOrReplication(_time, Id, _info, (byte) EventHistory.GetDeaths(_time), kills);
+                // TODO Look for kills
+            }
+
+            protected override void OnDamageScheduled(double _time, DamageInfo _info)
+            {
+                Serializer.WriteDamageOrderOrReplication(_time, _info);
                 m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
             }
 
@@ -72,7 +107,7 @@ namespace Wheeled.Networking.Server
                 m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
             }
 
-            protected override void OnShootScheduled(double _time, ShotInfo _info)
+            protected override void OnShotScheduled(double _time, ShotInfo _info)
             {
                 Serializer.WriteShootReplication(_time, Id, _info);
                 m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
@@ -85,6 +120,16 @@ namespace Wheeled.Networking.Server
             }
 
             protected abstract void SendReplication(NetworkManager.SendMethod _method);
+
+            #endregion Protected Methods
         }
+
+        #endregion Private Classes
+
+        #region Public Fields
+
+        public const double c_spawnDelay = 0.5;
+
+        #endregion Public Fields
     }
 }

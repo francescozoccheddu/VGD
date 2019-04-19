@@ -1,44 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking.Client
 {
     internal sealed partial class ClientGameManager
     {
-        private sealed class LocalPlayer : Player, MovementController.ICommitTarget, ActionController.ITarget
-        {
-            private readonly ActionController m_actionController;
-            private readonly ClientGameManager m_manager;
-            private readonly MovementController m_movementController;
-            private int? m_lastNotifiedMovementStep;
-            private int m_maxMovementInputStepsSendCount;
-            private int m_movementSendRate;
-            private float m_timeSinceLastMovementNotify;
+        #region Private Classes
 
-            public LocalPlayer(ClientGameManager _manager, byte _id) : base(_manager, _id)
-            {
-                m_manager = _manager;
-                m_movementController = new MovementController()
-                {
-                    target = this
-                };
-                m_actionController = new ActionController
-                {
-                    Target = this
-                };
-            }
+        private sealed class LocalPlayer : PlayerBase
+        {
+            #region Public Properties
 
             public override bool IsLocal => true;
             public int MaxMovementInputStepsNotifyCount { get => m_maxMovementInputStepsSendCount; set { Debug.Assert(value >= 0); m_maxMovementInputStepsSendCount = value; } }
             public int MaxMovementNotifyFrequency { get => m_movementSendRate; set { Debug.Assert(value >= 0); m_movementSendRate = value; } }
 
+            #endregion Public Properties
+
+            #region Private Fields
+
+            private readonly ClientGameManager m_manager;
+            private readonly PlayerController m_playerController;
+            private int? m_lastNotifiedMovementStep;
+            private int m_maxMovementInputStepsSendCount;
+            private int m_movementSendRate;
+            private float m_timeSinceLastMovementNotify;
+
+            #endregion Private Fields
+
+            #region Public Constructors
+
+            public LocalPlayer(ClientGameManager _manager, byte _id) : base(_manager, _id)
+            {
+                m_manager = _manager;
+                m_playerController = new PlayerController(this);
+            }
+
+            #endregion Public Constructors
+
+            #region Public Methods
+
             public void Correct(int _step, SimulationStepInfo _info)
             {
-                CharacterController correctedSimulation = CorrectSimulation(_step, _info.input, _info.simulation);
-                m_movementController.Teleport(new Snapshot { sight = m_movementController.RawSnapshot.sight, simulation = correctedSimulation }, false);
+                PutInput(_step, _info.input);
+                m_playerController.Teleport(InputHistory.SimulateFrom(_step, _info.simulation));
             }
 
             public void PutDamage(double _time, DamageInfo _info, int _health)
@@ -47,61 +57,55 @@ namespace Wheeled.Networking.Client
                 PutHealth(_time, _health);
             }
 
+            #endregion Public Methods
+
+            #region Internal Methods
+
+            internal void PutHitConfirm(double _time, HitConfirmInfo _info)
+            {
+                m_playerController.PutHitConfirm(_time, _info);
+            }
+
+            #endregion Internal Methods
+
+            #region Protected Methods
+
+            protected override void OnActorBreathed()
+            {
+                base.OnActorBreathed();
+                m_playerController.OnActorBreathed();
+            }
+
+            protected override void OnDamageScheduled(double _time, DamageInfo _info)
+            {
+                base.OnDamageScheduled(_time, _info);
+                m_playerController.OnDamageScheduled(_time, _info);
+            }
+
+            protected override void OnActorDied()
+            {
+                base.OnActorDied();
+                m_playerController.OnActorDied();
+            }
+
+            protected override void OnActorSpawned()
+            {
+                base.OnActorSpawned();
+                m_playerController.OnActorSpawned();
+            }
+
             protected override void OnUpdated()
             {
-                if (ActionHistoryLocalTimeQuery.IsAlive)
-                {
-                    if (!m_movementController.IsRunning)
-                    {
-                        m_movementController.StartAt(LocalTime);
-                    }
-                }
-                else
-                {
-                    m_movementController.Pause();
-                }
-                m_movementController.UpdateUntil(LocalTime);
-                PutSight(m_movementController.Step, m_movementController.RawSnapshot.sight);
-                m_actionController.Update(ActionHistoryLocalTimeQuery, GetSnapshot(LocalTime));
                 m_timeSinceLastMovementNotify += Time.deltaTime;
-                if (m_lastNotifiedMovementStep == null || (m_lastNotifiedMovementStep < m_movementController.Step && m_timeSinceLastMovementNotify >= 1.0f / m_movementSendRate))
+                if (m_lastNotifiedMovementStep == null || (m_lastNotifiedMovementStep < m_playerController.MovementStep && m_timeSinceLastMovementNotify >= 1.0f / m_movementSendRate))
                 {
                     NotifyMovement();
                 }
             }
 
-            protected override void OnSpawn(double _time, Snapshot _snapshot)
-            {
-                m_movementController.Teleport(_snapshot, true);
-            }
+            #endregion Protected Methods
 
-            #region MovementController.ICommitTarget
-
-            void MovementController.ICommitTarget.Commit(int _step, InputStep _input, Snapshot _snapshot)
-            {
-                PutInput(_step, _input);
-                PutSight(_step, _snapshot.sight);
-                PutSimulation(_step, _snapshot.simulation);
-            }
-
-            #endregion MovementController.ICommitTarget
-
-            #region ActionController.ITarget
-
-            void ActionController.ITarget.Kaze(KazeInfo _info)
-            {
-                Serializer.WriteKazeNotify(LocalTime, _info);
-                m_manager.m_server.Send(NetworkManager.SendMethod.Unreliable);
-            }
-
-            void ActionController.ITarget.Shoot(ShotInfo _info)
-            {
-                PutShoot(LocalTime, _info);
-                Serializer.WriteShootNotify(LocalTime, _info);
-                m_manager.m_server.Send(NetworkManager.SendMethod.Unreliable);
-            }
-
-            #endregion ActionController.ITarget
+            #region Private Methods
 
             private void NotifyMovement()
             {
@@ -109,13 +113,17 @@ namespace Wheeled.Networking.Client
                 int maxStepsCount = MaxMovementInputStepsNotifyCount;
                 if (m_lastNotifiedMovementStep != null)
                 {
-                    maxStepsCount = Math.Min(maxStepsCount, m_movementController.Step - m_lastNotifiedMovementStep.Value);
+                    maxStepsCount = Math.Min(maxStepsCount, m_playerController.MovementStep - m_lastNotifiedMovementStep.Value);
                 }
-                m_lastNotifiedMovementStep = m_movementController.Step;
-                IEnumerable<InputStep> inputSteps = GetReversedInputSequence(m_movementController.Step, maxStepsCount);
-                Serializer.WriteMovementNotify(m_movementController.Step, inputSteps, m_movementController.RawSnapshot);
+                m_lastNotifiedMovementStep = m_playerController.MovementStep;
+                IEnumerable<InputStep> inputSteps = InputHistory.GetReversedInputSequence(m_playerController.MovementStep, maxStepsCount);
+                Serializer.WriteMovementNotify(m_playerController.MovementStep, inputSteps, this.GetSnapshot(m_playerController.MovementStep.SimulationPeriod()));
                 m_manager.m_server.Send(NetworkManager.SendMethod.Unreliable);
             }
+
+            #endregion Private Methods
         }
+
+        #endregion Private Classes
     }
 }

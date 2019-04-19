@@ -21,10 +21,8 @@ namespace Wheeled.Gameplay.Stage
             #region Private Fields
 
             private readonly RocketShotOffense m_offense;
-
             private readonly double m_time;
-
-            private readonly RocketProjectileBehaviour m_behaviour;
+            private RocketProjectileBehaviour m_behaviour;
 
             #endregion Private Fields
 
@@ -42,6 +40,10 @@ namespace Wheeled.Gameplay.Stage
 
             public void Update(double _time)
             {
+                if (m_behaviour == null)
+                {
+                    m_behaviour = Object.Instantiate(ScriptManager.Actors.rocketProjectile).GetComponent<RocketProjectileBehaviour>();
+                }
                 double elapsed = _time - m_time;
                 float distance = (float) (elapsed * OffenseBackstage.c_rocketShotVelocity);
                 if (distance >= m_offense.HitDistance)
@@ -86,7 +88,10 @@ namespace Wheeled.Gameplay.Stage
 
         public OffenseStage()
         {
-            m_history = new EventHistory<Offense>();
+            m_history = new EventHistory<Offense>()
+            {
+                Target = this
+            };
             m_pendingRocketShots = new List<PendingRocketShot>();
         }
 

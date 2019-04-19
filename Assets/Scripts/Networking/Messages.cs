@@ -1,5 +1,18 @@
 ﻿namespace Wheeled.Networking
 {
+    internal struct PlayerRecapInfo
+    {
+        #region Public Fields
+
+        public int deaths;
+        public int health;
+        public byte id;
+        public int kills;
+        public byte ping;
+
+        #endregion Public Fields
+    }
+
     // Notify: Client tells Server
     // Replication: Server tells Client about someone else
     // Order: Server tells Client about itself
@@ -13,15 +26,6 @@
         TimeSync, ReadyNotify, PlayerIntroductionSync, PlayerWelcomeSync, RecapSync, QuitReplication,
 
         // Actions
-        KazeNotify, ShootNotify, DeathOrderOrReplication, SpawnOrderOrReplication, ShootReplication, DamageOrder, HitConfirmOrder
-    }
-
-    internal struct PlayerRecapInfo
-    {
-        public int deaths;
-        public byte health;
-        public byte id;
-        public int kills;
-        public byte ping;
+        KazeNotify, ShootNotify, DeathOrderOrReplication, SpawnOrderOrReplication, ShootReplication, DamageOrderOrReplication, HitConfirmOrder
     }
 }
