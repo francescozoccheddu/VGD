@@ -2,6 +2,7 @@
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking.Client
 {
@@ -9,7 +10,7 @@ namespace Wheeled.Networking.Client
     {
         #region Private Classes
 
-        private sealed class NetPlayer : PlayerBase
+        private sealed class NetPlayer : Player
         {
             #region Public Properties
 

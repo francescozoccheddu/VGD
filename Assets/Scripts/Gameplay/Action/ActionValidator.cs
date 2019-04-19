@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using UnityEngine;
 using Wheeled.Core.Utils;
-using Wheeled.Networking;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Gameplay.Action
 {

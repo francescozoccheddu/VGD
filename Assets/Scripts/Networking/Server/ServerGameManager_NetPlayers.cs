@@ -3,6 +3,7 @@ using UnityEngine;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking.Server
 {
@@ -10,7 +11,7 @@ namespace Wheeled.Networking.Server
     {
         #region Private Classes
 
-        private sealed class NetPlayer : Player, MovementValidator.ITarget, ActionValidator.ITarget
+        private sealed class NetPlayer : AuthoritativePlayer, MovementValidator.ITarget, ActionValidator.ITarget
         {
             #region Public Properties
 

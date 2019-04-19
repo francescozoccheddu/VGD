@@ -4,6 +4,7 @@ using UnityEngine;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
+using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Client
@@ -34,7 +35,7 @@ namespace Wheeled.Networking.Client
         private const double c_localOffset = 0.025;
         private const float c_timeSmoothQuickness = 0.2f;
         private readonly LocalPlayer m_localPlayer;
-        private readonly Dictionary<byte, PlayerBase> m_players;
+        private readonly Dictionary<byte, Player> m_players;
         private readonly Client.IServer m_server;
         private readonly OffenseBackstage m_offenseBackstage;
         private readonly Updatable m_updatable;
@@ -64,7 +65,7 @@ namespace Wheeled.Networking.Client
                 MaxMovementInputStepsNotifyCount = 20,
                 MaxMovementNotifyFrequency = 15
             };
-            m_players = new Dictionary<byte, PlayerBase>
+            m_players = new Dictionary<byte, Player>
             {
                 { _id, m_localPlayer }
             };
@@ -91,11 +92,11 @@ namespace Wheeled.Networking.Client
             {
                 p.TimeOffset = TimeConstants.Smooth(p.TimeOffset, -(owd + p.AverageReplicationInterval + c_netOffset), Time.deltaTime, c_timeSmoothQuickness);
             }
-            foreach (PlayerBase p in m_players.Values)
+            m_offenseBackstage.UpdateUntil(m_time);
+            foreach (Player p in m_players.Values)
             {
                 p.Update();
             }
-            m_offenseBackstage.UpdateUntil(m_time);
         }
 
         void Client.IGameManager.LatencyUpdated(double _latency)
@@ -122,16 +123,20 @@ namespace Wheeled.Networking.Client
 
         bool OffenseBackstage.IValidationTarget.ShouldProcess(double _time, Offense _offense)
         {
-            return true;
+            if (m_players.TryGetValue(_offense.OffenderId, out Player player))
+            {
+                return !player?.IsQuit(_time) == true;
+            }
+            return false;
         }
 
         #endregion Public Methods
 
         #region Private Methods
 
-        private PlayerBase GetOrCreatePlayer(byte _id)
+        private Player GetOrCreatePlayer(byte _id)
         {
-            if (m_players.TryGetValue(_id, out PlayerBase player))
+            if (m_players.TryGetValue(_id, out Player player))
             {
                 return player;
             }

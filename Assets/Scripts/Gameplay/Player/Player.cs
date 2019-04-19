@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 
 using Wheeled.Core.Utils;
-using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Stage;
+using Wheeled.Networking;
 
-namespace Wheeled.Networking
+namespace Wheeled.Gameplay.Player
 {
     internal interface IReadOnlyPlayer
     {
@@ -43,7 +43,7 @@ namespace Wheeled.Networking
         #endregion Public Methods
     }
 
-    internal abstract class PlayerBase : IReadOnlyPlayer, EventHistory<SpawnInfo>.ITarget
+    internal abstract class Player : IReadOnlyPlayer, EventHistory<SpawnInfo>.ITarget
     {
         #region Public Properties
 
@@ -91,7 +91,7 @@ namespace Wheeled.Networking
 
         #region Protected Constructors
 
-        protected PlayerBase(IPlayerManager _manager, byte _id)
+        protected Player(IPlayerManager _manager, byte _id)
         {
             // Logic
             Id = _id;

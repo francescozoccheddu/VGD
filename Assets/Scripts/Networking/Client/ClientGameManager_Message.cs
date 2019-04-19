@@ -3,6 +3,7 @@
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking.Client
 {
@@ -40,10 +41,10 @@ namespace Wheeled.Networking.Client
                 case Message.RecapSync:
                 {
                     _reader.ReadRecapSync(out double time, out IEnumerable<PlayerRecapInfo> infos);
-                    Dictionary<byte, PlayerBase> oldPlayers = new Dictionary<byte, PlayerBase>(m_players);
+                    Dictionary<byte, Player> oldPlayers = new Dictionary<byte, Player>(m_players);
                     foreach (PlayerRecapInfo info in infos)
                     {
-                        PlayerBase player = GetOrCreatePlayer(info.id);
+                        Player player = GetOrCreatePlayer(info.id);
                         player.DeathsValue.Put(time, info.deaths);
                         player.PutHealth(time, info.health);
                         player.KillsValue.Put(time, info.kills);
@@ -59,7 +60,7 @@ namespace Wheeled.Networking.Client
                 case Message.QuitReplication:
                 {
                     _reader.ReadQuitReplication(out double time, out byte id);
-                    if (m_players.TryGetValue(id, out PlayerBase player))
+                    if (m_players.TryGetValue(id, out Player player))
                     {
                         player.PutQuit(time);
                     }
@@ -113,6 +114,16 @@ namespace Wheeled.Networking.Client
                     _reader.ReadShotReplication(out double time, out byte id, out ShotInfo info);
                     NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
                     player?.PutShot(time, info);
+                }
+                break;
+
+                case Message.KillSync:
+                {
+                    _reader.ReadKillSync(out double time, out KillInfo info);
+                    Player killer = GetOrCreatePlayer(info.killerId);
+                    Player victim = GetOrCreatePlayer(info.victimId);
+                    killer.KillsValue.Put(time, info.killerKills);
+                    victim.DeathsValue.Put(time, info.victimDeaths);
                 }
                 break;
 

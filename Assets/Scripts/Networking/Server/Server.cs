@@ -5,21 +5,12 @@ namespace Wheeled.Networking.Server
 {
     internal sealed partial class Server : IGameHost
     {
-        private IGameManager m_game;
-
-        private bool m_wasPlaying;
-
-        public Server()
-        {
-            RoomInfo = null;
-            IsStarted = false;
-            m_game = null;
-        }
-
-        public event GameHostStopped OnStopped;
+        #region Public Interfaces
 
         public interface IGameManager
         {
+            #region Public Methods
+
             void ConnectedTo(NetworkManager.Peer _peer);
 
             void DisconnectedFrom(NetworkManager.Peer _peer);
@@ -33,10 +24,45 @@ namespace Wheeled.Networking.Server
             bool ShouldReplyToDiscoveryRequest();
 
             void Stopped();
+
+            #endregion Public Methods
         }
+
+        #endregion Public Interfaces
+
+        #region Public Properties
 
         public bool IsStarted { get; private set; }
         public GameRoomInfo? RoomInfo { get; private set; }
+
+        #endregion Public Properties
+
+        #region Public Events
+
+        public event GameHostStopped OnStopped;
+
+        #endregion Public Events
+
+        #region Private Fields
+
+        private IGameManager m_game;
+
+        private bool m_wasPlaying;
+
+        #endregion Private Fields
+
+        #region Public Constructors
+
+        public Server()
+        {
+            RoomInfo = null;
+            IsStarted = false;
+            m_game = null;
+        }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public void Start(GameRoomInfo _room)
         {
@@ -65,6 +91,10 @@ namespace Wheeled.Networking.Server
             NotifyStopped(GameHostStopCause.Programmatically);
         }
 
+        #endregion Public Methods
+
+        #region Private Methods
+
         private void Cleanup()
         {
             NetworkManager.instance.listener = null;
@@ -83,5 +113,7 @@ namespace Wheeled.Networking.Server
                 OnStopped?.Invoke(_cause);
             }
         }
+
+        #endregion Private Methods
     }
 }

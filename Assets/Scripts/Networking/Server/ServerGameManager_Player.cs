@@ -5,6 +5,7 @@ using UnityEngine;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking.Server
 {
@@ -12,7 +13,7 @@ namespace Wheeled.Networking.Server
     {
         #region Private Classes
 
-        private abstract class Player : PlayerBase
+        private abstract class AuthoritativePlayer : Player
         {
             #region Public Properties
 
@@ -32,6 +33,7 @@ namespace Wheeled.Networking.Server
 
             private const double c_respawnWaitTime = 3.0;
 
+            private double m_lastSpawnTime;
             private double m_lastValidatedDeathTime;
             private double m_lastValidatedExplosionTime;
             private int? m_lastReplicatedMovementStep;
@@ -42,11 +44,12 @@ namespace Wheeled.Networking.Server
 
             #region Protected Constructors
 
-            protected Player(ServerGameManager _manager, byte _id) : base(_manager, _id)
+            protected AuthoritativePlayer(ServerGameManager _manager, byte _id) : base(_manager, _id)
             {
                 m_manager = _manager;
                 m_lastValidatedDeathTime = double.NegativeInfinity;
                 m_lastValidatedExplosionTime = double.NegativeInfinity;
+                m_lastSpawnTime = double.NegativeInfinity;
             }
 
             #endregion Protected Constructors
@@ -145,7 +148,7 @@ namespace Wheeled.Networking.Server
                         DamageInfo damage = death.Value.damage;
                         m_lastValidatedDeathTime = death.Value.time;
                         DeathsValue.Put(validationTime, Deaths + 1);
-                        Player killer = null;
+                        AuthoritativePlayer killer = null;
                         if (damage.offenderId != Id)
                         {
                             killer = m_manager.GetPlayerById(damage.offenderId);
@@ -162,7 +165,7 @@ namespace Wheeled.Networking.Server
                     }
                     if (explosion?.time > m_lastValidatedExplosionTime)
                     {
-                        double time = m_lastValidatedExplosionTime;
+                        double time = explosion.Value.time;
                         byte offenderId = explosion.Value.damage.offenderId;
                         Vector3 position = this.GetSnapshot(time).simulation.Position;
                         m_manager.m_offenseBackstage.PutExplosion(explosion.Value.time, new ExplosionOffense(offenderId, position));
@@ -180,10 +183,14 @@ namespace Wheeled.Networking.Server
 
             private void HandleRespawn()
             {
-                double? elapsed = LifeHistory.GetTimeSinceLastDeath(m_manager.m_time);
-                if (elapsed >= c_respawnWaitTime)
+                if (m_manager.m_time > m_lastSpawnTime)
                 {
-                    Spawn();
+                    double? elapsed = LifeHistory.GetTimeSinceLastDeath(m_manager.m_time);
+                    if (elapsed >= c_respawnWaitTime)
+                    {
+                        m_lastSpawnTime = m_manager.m_time;
+                        Spawn();
+                    }
                 }
             }
 

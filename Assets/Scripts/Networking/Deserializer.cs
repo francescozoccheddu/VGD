@@ -185,7 +185,7 @@ namespace Wheeled.Networking
 
         private int ReadHealth()
         {
-            return Mathf.Min(ReadByte() - LifeHistory.c_explosionHealth, LifeHistory.c_fullHealth);
+            return ReadByte() + LifeHistory.c_explosionHealth;
         }
 
         private DamageInfo ReadDamageInfo()

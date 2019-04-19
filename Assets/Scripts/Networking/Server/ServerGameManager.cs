@@ -6,6 +6,7 @@ using Wheeled.Core.Utils;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Stage;
 using Wheeled.Networking.Client;
 
@@ -34,7 +35,7 @@ namespace Wheeled.Networking.Server
         private const double c_recapSyncPeriod = 5.0f;
         private const double c_roomUpdatePeriod = 2.0f;
         private readonly LocalPlayer m_localPlayer;
-        private readonly List<Player> m_players;
+        private readonly List<AuthoritativePlayer> m_players;
         private readonly OffenseBackstage m_offenseBackstage;
         private readonly Updatable m_updatable;
         private byte m_nextPlayerId;
@@ -67,7 +68,7 @@ namespace Wheeled.Networking.Server
             };
             m_localPlayer.Info = new PlayerInfo();
             m_nextPlayerId = 1;
-            m_players = new List<Player>
+            m_players = new List<AuthoritativePlayer>
             {
                 m_localPlayer
             };
@@ -87,7 +88,7 @@ namespace Wheeled.Networking.Server
                 double targetOffset = -Math.Min(Math.Max(player.AverageNotifyInterval, 0.0) + player.Ping / 2.0, c_validationDelay);
                 player.TimeOffset = TimeConstants.Smooth(player.TimeOffset, targetOffset, Time.deltaTime, c_timeSmoothQuickness);
             }
-            foreach (Player player in m_players)
+            foreach (AuthoritativePlayer player in m_players)
             {
                 player.Update();
             }
@@ -100,7 +101,7 @@ namespace Wheeled.Networking.Server
             if (m_timeSinceLastReplication > 1.0f / c_replicationRate)
             {
                 m_timeSinceLastReplication = 0.0f;
-                foreach (Player player in m_players)
+                foreach (AuthoritativePlayer player in m_players)
                 {
                     player.Replicate();
                 }
@@ -122,7 +123,7 @@ namespace Wheeled.Networking.Server
                 Serializer.WritePlayerWelcomeSync(netPlayer.Id);
                 netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
                 // Introduction (so that he knows the others)
-                foreach (Player p in m_players.Where(_p => _p != netPlayer))
+                foreach (AuthoritativePlayer p in m_players.Where(_p => _p != netPlayer))
                 {
                     Serializer.WritePlayerIntroductionSync(p.Id, p.Info.Value);
                     netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
@@ -209,7 +210,8 @@ namespace Wheeled.Networking.Server
             {
                 HistoryDuration = 3.0,
                 MaxMovementInputStepsReplicationCount = 20,
-                MaxValidationDelay = c_validationDelay
+                MaxValidationDelay = c_validationDelay,
+                DamageValidationDelay = c_validationDelay
             };
             netPlayer.Info = new PlayerInfo();
             m_players.Add(netPlayer);
@@ -238,38 +240,20 @@ namespace Wheeled.Networking.Server
 
         void OffenseBackstage.IValidationTarget.Damage(double _time, byte _offendedId, Offense _offense, float _damage)
         {
-            /* if (_time >= m_time - c_validationDelay)
-             {
-                 Player offended = GetPlayerById(_offendedId);
-                 if (offended != null)
-                 {
-                     int health = offended.LifeHistory.GetHealth(_time);
-                     int newHealth = health - Mathf.RoundToInt(_damage * LifeHistory.c_fullHealth);
-                     if (newHealth != health)
-                     {
-                         GetPlayerById(_offenderId)?.PutHitConfirm(_time, new HitConfirmInfo { offenseType = _type });
-                         if (newHealth > 0)
-                         {
-                             offended.PutDamage(_time, new DamageInfo { offensePosition = _origin, offenseType = _type });
-                             offended.PutHealth(_time, newHealth);
-                         }
-                         else
-                         {
-                             offended.PutDeath(_time, new DeathInfo
-                             {
-                                 isExploded = newHealth < LifeHistory.c_explosionhealth,
-                                 killerId = _offenderId,
-                                 offenseType = _type
-                             });
-                         }
-                     }
-                 }
-             }*/
+            AuthoritativePlayer offended = GetPlayerById(_offendedId);
+            int damage = Mathf.RoundToInt(_damage * LifeHistory.c_fullHealth);
+            offended?.PutDamage(_time, new DamageInfo
+            {
+                damage = damage,
+                maxHealth = offended.LifeHistory.GetHealth(_time) - damage,
+                offenderId = _offense.OffenderId,
+                offenseType = _offense.Type
+            });
         }
 
         bool OffenseBackstage.IValidationTarget.ShouldProcess(double _time, Offense _offense)
         {
-            return GetPlayerById(_offense.OffenderId)?.IsQuit(_time) != true;
+            return !GetPlayerById(_offense.OffenderId)?.IsQuit(_time) == true;
         }
 
         #endregion Public Methods
@@ -281,7 +265,7 @@ namespace Wheeled.Networking.Server
             return m_NetPlayers.FirstOrDefault(_p => _p.Peer == _peer);
         }
 
-        private Player GetPlayerById(int _id)
+        private AuthoritativePlayer GetPlayerById(int _id)
         {
             return m_players.FirstOrDefault(_p => _p.Id == _id);
         }

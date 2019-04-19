@@ -8,7 +8,7 @@ namespace Wheeled.Networking.Server
     {
         #region Private Classes
 
-        private sealed class LocalPlayer : Player
+        private sealed class LocalPlayer : AuthoritativePlayer
         {
             #region Public Properties
 

@@ -1,7 +1,6 @@
 ﻿using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
-using Wheeled.Networking;
 
 namespace Wheeled.Gameplay.Player
 {
@@ -19,13 +18,13 @@ namespace Wheeled.Gameplay.Player
         private readonly MovementController m_movementController;
         private readonly EventHistory<DamageInfo> m_damageHistory;
         private readonly EventHistory<OffenseType> m_hitConfirmHistory;
-        private readonly PlayerBase m_player;
+        private readonly Player m_player;
 
         #endregion Private Fields
 
         #region Public Constructors
 
-        public PlayerController(PlayerBase _player)
+        public PlayerController(Player _player)
         {
             m_player = _player;
             m_actionController = new ActionController

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using Wheeled.Gameplay.Movement;
-using Wheeled.Networking;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Gameplay.Action
 {

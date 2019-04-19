@@ -11,6 +11,8 @@ namespace Wheeled.Gameplay.Action
         public byte OffenderId { get; }
         public Vector3 Origin { get; }
 
+        public abstract OffenseType Type { get; }
+
         #endregion Public Properties
 
         #region Public Constructors
@@ -26,6 +28,12 @@ namespace Wheeled.Gameplay.Action
 
     internal sealed class ExplosionOffense : Offense
     {
+        #region Public Properties
+
+        public override OffenseType Type => OffenseType.Explosion;
+
+        #endregion Public Properties
+
         #region Public Constructors
 
         public ExplosionOffense(byte _offenderId, Vector3 _position) : base(_offenderId, _position)
@@ -58,6 +66,12 @@ namespace Wheeled.Gameplay.Action
 
     internal sealed class RocketShotOffense : ShotOffense
     {
+        #region Public Properties
+
+        public override OffenseType Type => OffenseType.Rocket;
+
+        #endregion Public Properties
+
         #region Public Constructors
 
         public RocketShotOffense(byte _offenderId, Vector3 _position, Vector3 _direction) : base(_offenderId, _position, _direction)
@@ -71,6 +85,7 @@ namespace Wheeled.Gameplay.Action
     {
         #region Public Properties
 
+        public override OffenseType Type => OffenseType.Rifle;
         public float Power { get; }
 
         #endregion Public Properties

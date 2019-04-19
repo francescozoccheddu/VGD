@@ -12,7 +12,7 @@ namespace Wheeled.Networking.Client
     {
         #region Private Classes
 
-        private sealed class LocalPlayer : PlayerBase
+        private sealed class LocalPlayer : Player
         {
             #region Public Properties
 
@@ -96,11 +96,27 @@ namespace Wheeled.Networking.Client
 
             protected override void OnUpdated()
             {
+                base.OnUpdated();
+                m_playerController.OnUpdated();
                 m_timeSinceLastMovementNotify += Time.deltaTime;
                 if (m_lastNotifiedMovementStep == null || (m_lastNotifiedMovementStep < m_playerController.MovementStep && m_timeSinceLastMovementNotify >= 1.0f / m_movementSendRate))
                 {
                     NotifyMovement();
                 }
+            }
+
+            protected override void OnKazeScheduled(double _time, KazeInfo _info)
+            {
+                base.OnKazeScheduled(_time, _info);
+                Serializer.WriteKazeNotify(_time, _info);
+                m_manager.m_server.Send(NetworkManager.SendMethod.ReliableSequenced);
+            }
+
+            protected override void OnShotScheduled(double _time, ShotInfo _info)
+            {
+                base.OnShotScheduled(_time, _info);
+                Serializer.WriteShootNotify(_time, _info);
+                m_manager.m_server.Send(NetworkManager.SendMethod.ReliableSequenced);
             }
 
             #endregion Protected Methods
