@@ -134,7 +134,7 @@ namespace Wheeled.Gameplay.Player
             else
             {
                 m_weaponsHistory.CanShootRifle(_time, out float power);
-                power = Mathf.Max(Gameplay.Action.WeaponsHistory.c_rifleMinPower, power);
+                power = Mathf.Max(Action.WeaponsHistory.c_rifleMinPower, power);
                 RifleShotOffense offense = new RifleShotOffense(Id, _info.position, _info.sight.Direction, power);
                 m_manager.OffenseBackstage.PutRifle(_time, offense);
                 m_offenseStage.Put(_time, offense);

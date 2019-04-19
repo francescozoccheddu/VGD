@@ -94,6 +94,7 @@ namespace Wheeled.Gameplay.Action
 
         public RifleShotOffense(byte _offenderId, Vector3 _position, Vector3 _direction, float _power) : base(_offenderId, _position, _direction)
         {
+            Power = _power;
         }
 
         #endregion Public Constructors
