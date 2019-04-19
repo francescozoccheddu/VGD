@@ -6,7 +6,7 @@ using Wheeled.Gameplay.Action;
 
 namespace Wheeled.Gameplay.Stage
 {
-    internal sealed class OffenseStage : EventHistory<Offense>.ITarget
+    internal sealed class OffenseStage : EventHistory<ShotOffense>.ITarget
     {
         #region Private Classes
 
@@ -79,7 +79,7 @@ namespace Wheeled.Gameplay.Stage
 
         #region Private Fields
 
-        private readonly EventHistory<Offense> m_history;
+        private readonly EventHistory<ShotOffense> m_history;
         private readonly List<PendingRocketShot> m_pendingRocketShots;
 
         #endregion Private Fields
@@ -88,7 +88,7 @@ namespace Wheeled.Gameplay.Stage
 
         public OffenseStage()
         {
-            m_history = new EventHistory<Offense>()
+            m_history = new EventHistory<ShotOffense>()
             {
                 Target = this
             };
@@ -109,11 +109,6 @@ namespace Wheeled.Gameplay.Stage
             m_history.Put(_time, _offense);
         }
 
-        public void Put(double _time, in ExplosionOffense _offense)
-        {
-            m_history.Put(_time, _offense);
-        }
-
         public void Update(double _time)
         {
             m_history.PerformUntil(_time);
@@ -124,7 +119,7 @@ namespace Wheeled.Gameplay.Stage
             m_pendingRocketShots.RemoveAll(_o => _o.IsGone);
         }
 
-        void EventHistory<Offense>.ITarget.Perform(double _time, Offense _value)
+        void EventHistory<ShotOffense>.ITarget.Perform(double _time, ShotOffense _value)
         {
             switch (_value)
             {
@@ -138,10 +133,6 @@ namespace Wheeled.Gameplay.Stage
                     Vector3 end = o.Origin + o.Direction * (o.HitDistance ?? 100);
                     behaviour.Shoot(o.Origin, end, o.HitDistance != null);
                 }
-                break;
-
-                case ExplosionOffense o:
-                Object.Instantiate(ScriptManager.Actors.explosion, o.Origin, Quaternion.identity);
                 break;
             }
         }

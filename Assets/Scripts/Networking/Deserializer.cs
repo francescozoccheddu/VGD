@@ -139,6 +139,12 @@ namespace Wheeled.Networking
             EnsureReadEnd();
         }
 
+        public void ReadKillSync(out double _outTime, out KillInfo _outInfo)
+        {
+            _outTime = ReadDouble();
+            _outInfo = ReadKillInfo();
+        }
+
         #endregion Public Methods
 
         #region Private Methods
@@ -345,6 +351,18 @@ namespace Wheeled.Networking
                 x = ReadFloat(),
                 y = ReadFloat(),
                 z = ReadFloat()
+            };
+        }
+
+        private KillInfo ReadKillInfo()
+        {
+            return new KillInfo()
+            {
+                killerId = ReadByte(),
+                victimId = ReadByte(),
+                offenseType = ReadEnum<OffenseType>(),
+                killerKills = ReadByte(),
+                victimDeaths = ReadByte()
             };
         }
 

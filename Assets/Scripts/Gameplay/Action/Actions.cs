@@ -125,6 +125,19 @@ namespace Wheeled.Gameplay.Action
         #endregion Public Fields
     }
 
+    internal struct KillInfo
+    {
+        #region Public Fields
+
+        public byte killerId;
+        public byte victimId;
+        public OffenseType offenseType;
+        public byte killerKills;
+        public byte victimDeaths;
+
+        #endregion Public Fields
+    }
+
     internal enum OffenseType
     {
         Rifle, Rocket, Explosion

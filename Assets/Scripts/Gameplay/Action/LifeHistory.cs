@@ -10,7 +10,9 @@ namespace Wheeled.Gameplay.Action
 
         int GetHealth(double _time);
 
-        void GetLastDeathInfo(out KillInfo? _outDeath, out KillInfo? _outExplosion);
+        void GetLastDeathInfo(double _time, out DamageNode? _outDeath, out DamageNode? _outExplosion);
+
+        double? GetTimeSinceLastDeath(double _time);
 
         #endregion Public Methods
     }
@@ -100,8 +102,7 @@ namespace Wheeled.Gameplay.Action
             }
             int health = healthNode.Value.value;
             foreach (HistoryNode<double, DamageInfo> damageNode in m_damages
-                .GetSequenceSince(_time, false, true)
-                .Where(_n => _n.time > healthNode.Value.time)
+                .GetSequenceSince(healthNode.Value.time, false, true)
                 .TakeWhile(_n => _n.time <= _time))
             {
                 health = Mathf.Min(damageNode.value.maxHealth, health - damageNode.value.damage);
@@ -115,20 +116,80 @@ namespace Wheeled.Gameplay.Action
             m_damages.ForgetOlder(_time, true);
         }
 
-        public void GetLastDeathInfo(out KillInfo? _outDeath, out KillInfo? _outExplosion)
+        public void GetLastDeathInfo(double _time, out DamageNode? _outDeath, out DamageNode? _outExplosion)
         {
-            throw new System.NotImplementedException();
+            _outDeath = null;
+            _outExplosion = null;
+            HistoryNode<double, int>? healthNode = m_health
+                .GetReversedSequenceSince(_time, false, true)
+                .Where(_n => _n.value > 0)
+                .Cast<HistoryNode<double, int>?>()
+                .FirstOrDefault();
+            if (healthNode == null)
+            {
+                return;
+            }
+            int health = healthNode.Value.value;
+            int lastHealth = health;
+            foreach (HistoryNode<double, DamageInfo> damageNode in m_damages
+                .GetSequenceSince(healthNode.Value.time, false, true)
+                .TakeWhile(_n => _n.time <= _time))
+            {
+                lastHealth = health;
+                health = Mathf.Min(damageNode.value.maxHealth, health - damageNode.value.damage);
+                if (LifeHistoryHelper.IsAlive(lastHealth) && !LifeHistoryHelper.IsAlive(health))
+                {
+                    _outDeath = new DamageNode
+                    {
+                        damage = damageNode.value,
+                        time = damageNode.time
+                    };
+                }
+                if (!LifeHistoryHelper.IsExploded(lastHealth) && LifeHistoryHelper.IsExploded(health))
+                {
+                    _outExplosion = new DamageNode
+                    {
+                        damage = damageNode.value,
+                        time = damageNode.time
+                    };
+                    break;
+                }
+            }
+        }
+
+        public double? GetTimeSinceLastDeath(double _time)
+        {
+            HistoryNode<double, int>? healthNode = m_health
+                .GetReversedSequenceSince(_time, false, true)
+                .Where(_n => _n.value > 0)
+                .Cast<HistoryNode<double, int>?>()
+                .FirstOrDefault();
+            if (healthNode != null)
+            {
+                int health = healthNode.Value.value;
+                foreach (HistoryNode<double, DamageInfo> damageNode in m_damages
+                    .GetSequenceSince(healthNode.Value.time, false, true)
+                    .TakeWhile(_n => _n.time <= _time))
+                {
+                    health = Mathf.Min(damageNode.value.maxHealth, health - damageNode.value.damage);
+                    if (!LifeHistoryHelper.IsAlive(health))
+                    {
+                        return _time - damageNode.time;
+                    }
+                }
+            }
+            return null;
         }
 
         #endregion Public Methods
     }
 
-    internal struct KillInfo
+    internal struct DamageNode
     {
         #region Public Fields
 
         public double time;
-        public byte? offenderId;
+        public DamageInfo damage;
 
         #endregion Public Fields
     }

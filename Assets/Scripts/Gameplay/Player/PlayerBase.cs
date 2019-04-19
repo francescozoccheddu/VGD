@@ -205,25 +205,25 @@ namespace Wheeled.Networking
         public void Update()
         {
             m_spawnHistory.PerformUntil(LocalTime);
-            int health = m_lifeHistory.GetHealth(LocalTime);
-            if (health < 0 && m_isAlive)
+            int health = LifeHistory.GetHealth(LocalTime);
+            if (m_isAlive && !LifeHistoryHelper.IsAlive(health))
             {
                 OnActorDied();
             }
-            else if (health > 0 && !m_isAlive)
+            else if (!m_isAlive && LifeHistoryHelper.IsAlive(health))
             {
                 OnActorSpawned();
             }
-            if (!m_exploded && health <= Gameplay.Action.LifeHistory.c_explosionHealth)
+            if (!m_exploded && LifeHistoryHelper.IsExploded(health))
             {
                 m_exploded = true;
                 // TODO Explode view
             }
-            m_isAlive = health > 0;
+            m_isAlive = LifeHistoryHelper.IsAlive(health);
             OnActorBreathed();
             m_offenseStage.Update(LocalTime);
             OnUpdated();
-            UpdateView();
+            UpdateView(health);
             Trim();
         }
 
@@ -290,7 +290,7 @@ namespace Wheeled.Networking
             m_movementHistory.ForgetOlder(lastStep, true);
         }
 
-        private void UpdateView()
+        private void UpdateView(int _health)
         {
             if (IsQuit(LocalTime))
             {
@@ -299,7 +299,7 @@ namespace Wheeled.Networking
             else
             {
                 m_view.Move(this.GetSnapshot(LocalTime));
-                m_view.isAlive = m_lifeHistory.GetHealth(LocalTime) > 0;
+                m_view.isAlive = LifeHistoryHelper.IsAlive(_health);
                 m_view.Update(Time.deltaTime);
             }
         }

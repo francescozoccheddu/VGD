@@ -17,7 +17,7 @@ namespace Wheeled.Networking.Server
             #region Public Properties
 
             public int MaxMovementInputStepsReplicationCount { get => m_maxMovementInputStepsSendCount; set { Debug.Assert(value >= 0); m_maxMovementInputStepsSendCount = value; } }
-
+            public double DamageValidationDelay { get => m_damageValidationDelay; set { Debug.Assert(value >= 0); m_damageValidationDelay = value; } }
             public bool IsStarted { get; private set; }
 
             #endregion Public Properties
@@ -30,8 +30,13 @@ namespace Wheeled.Networking.Server
 
             #region Private Fields
 
+            private const double c_respawnWaitTime = 3.0;
+
+            private double m_lastValidatedDeathTime;
+            private double m_lastValidatedExplosionTime;
             private int? m_lastReplicatedMovementStep;
             private int m_maxMovementInputStepsSendCount;
+            private double m_damageValidationDelay;
 
             #endregion Private Fields
 
@@ -40,6 +45,8 @@ namespace Wheeled.Networking.Server
             protected Player(ServerGameManager _manager, byte _id) : base(_manager, _id)
             {
                 m_manager = _manager;
+                m_lastValidatedDeathTime = double.NegativeInfinity;
+                m_lastValidatedExplosionTime = double.NegativeInfinity;
             }
 
             #endregion Protected Constructors
@@ -80,7 +87,7 @@ namespace Wheeled.Networking.Server
                 if (!IsStarted)
                 {
                     IsStarted = true;
-                    PutSpawn(m_manager.m_time + c_spawnDelay, new SpawnInfo());
+                    Spawn();
                 }
             }
 
@@ -92,7 +99,8 @@ namespace Wheeled.Networking.Server
 
             protected override void OnUpdated()
             {
-                // TODO Look for kills
+                ValidateDamage();
+                HandleRespawn();
             }
 
             protected override void OnDamageScheduled(double _time, DamageInfo _info)
@@ -122,6 +130,64 @@ namespace Wheeled.Networking.Server
             protected abstract void SendReplication(NetworkManager.SendMethod _method);
 
             #endregion Protected Methods
+
+            #region Private Methods
+
+            private void ValidateDamage()
+            {
+                double validationTime = m_manager.m_time - m_damageValidationDelay;
+                if ((validationTime > m_lastValidatedDeathTime || validationTime > m_lastValidatedExplosionTime)
+                    && !LifeHistory.IsAlive(validationTime))
+                {
+                    LifeHistory.GetLastDeathInfo(validationTime, out DamageNode? death, out DamageNode? explosion);
+                    if (death?.time > m_lastValidatedDeathTime)
+                    {
+                        DamageInfo damage = death.Value.damage;
+                        m_lastValidatedDeathTime = death.Value.time;
+                        DeathsValue.Put(validationTime, Deaths + 1);
+                        Player killer = null;
+                        if (damage.offenderId != Id)
+                        {
+                            killer = m_manager.GetPlayerById(damage.offenderId);
+                            killer?.KillsValue.Put(validationTime, killer.Kills + 1);
+                        }
+                        Serializer.WriteKillSync(death.Value.time, new KillInfo
+                        {
+                            killerId = damage.offenderId,
+                            offenseType = damage.offenseType,
+                            victimId = Id,
+                            victimDeaths = (byte) Deaths,
+                            killerKills = (byte) (killer?.Kills ?? 0)
+                        });
+                    }
+                    if (explosion?.time > m_lastValidatedExplosionTime)
+                    {
+                        double time = m_lastValidatedExplosionTime;
+                        byte offenderId = explosion.Value.damage.offenderId;
+                        Vector3 position = this.GetSnapshot(time).simulation.Position;
+                        m_manager.m_offenseBackstage.PutExplosion(explosion.Value.time, new ExplosionOffense(offenderId, position));
+                        m_lastValidatedExplosionTime = time;
+                    }
+                }
+            }
+
+            private void Spawn()
+            {
+                PutSpawn(m_manager.m_time + c_spawnDelay, new SpawnInfo()
+                {
+                });
+            }
+
+            private void HandleRespawn()
+            {
+                double? elapsed = LifeHistory.GetTimeSinceLastDeath(m_manager.m_time);
+                if (elapsed >= c_respawnWaitTime)
+                {
+                    Spawn();
+                }
+            }
+
+            #endregion Private Methods
         }
 
         #endregion Private Classes

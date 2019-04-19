@@ -148,6 +148,14 @@ namespace Wheeled.Networking
             writer.Put(~bytes);
         }
 
+        public static void WriteKillSync(double _time, KillInfo _info)
+        {
+            writer.Reset();
+            writer.Put(Message.KillSync);
+            writer.Put(_time);
+            writer.Put(_info);
+        }
+
         #endregion Public Methods
 
         #region Private Methods
@@ -257,6 +265,15 @@ namespace Wheeled.Networking
                 }
             }
             writer.Data[countPosition] = (byte) count;
+        }
+
+        private static void Put(this NetDataWriter _netDataWriter, in KillInfo _value)
+        {
+            _netDataWriter.Put(_value.killerId);
+            _netDataWriter.Put(_value.victimId);
+            _netDataWriter.Put(_value.offenseType);
+            _netDataWriter.Put(_value.killerKills);
+            _netDataWriter.Put(_value.victimDeaths);
         }
 
         #endregion Private Methods

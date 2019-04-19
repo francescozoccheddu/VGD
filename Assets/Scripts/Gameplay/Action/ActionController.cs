@@ -71,10 +71,14 @@ namespace Wheeled.Gameplay.Action
                 }
                 if (Input.GetButtonDown("Kaze") && !LifeHistoryHelper.IsExploded(GetHealth()))
                 {
-                    Target.Kaze(new KazeInfo
+                    _player.LifeHistory.GetLastDeathInfo(_time, out DamageNode? death, out DamageNode? explosion);
+                    if (explosion == null && (_time - death?.time > ActionValidator.c_maxKazeWaitAfterDeath != true))
                     {
-                        position = GetSnapshot().simulation.Position
-                    });
+                        Target.Kaze(new KazeInfo
+                        {
+                            position = GetSnapshot().simulation.Position
+                        });
+                    }
                 }
             }
         }

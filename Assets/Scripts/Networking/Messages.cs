@@ -26,6 +26,6 @@
         TimeSync, ReadyNotify, PlayerIntroductionSync, PlayerWelcomeSync, RecapSync, QuitReplication,
 
         // Actions
-        KazeNotify, ShootNotify, DeathOrderOrReplication, SpawnOrderOrReplication, ShootReplication, DamageOrderOrReplication
+        KazeNotify, ShootNotify, KillSync, SpawnOrderOrReplication, ShootReplication, DamageOrderOrReplication
     }
 }

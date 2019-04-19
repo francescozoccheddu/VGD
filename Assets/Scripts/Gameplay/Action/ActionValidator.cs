@@ -60,6 +60,12 @@ namespace Wheeled.Gameplay.Action
 
         #endregion Public Properties
 
+        #region Public Fields
+
+        public const double c_maxKazeWaitAfterDeath = 2.0;
+
+        #endregion Public Fields
+
         #region Private Fields
 
         private const float c_maxShotPositionTolerance = 0.5f;
@@ -114,7 +120,8 @@ namespace Wheeled.Gameplay.Action
                     case KazeNode kazeNode:
                     if (Vector3.Distance(_player.GetSnapshot(time).simulation.Position, kazeNode.info.position) <= c_maxShotPositionTolerance)
                     {
-                        if (!_player.LifeHistory.IsExploded(_time))
+                        _player.LifeHistory.GetLastDeathInfo(time, out DamageNode? death, out DamageNode? explosion);
+                        if (explosion == null && (time - death?.time > c_maxKazeWaitAfterDeath != true))
                         {
                             Target?.Kaze(time, kazeNode.info);
                         }
