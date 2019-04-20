@@ -49,8 +49,8 @@ namespace Wheeled.Gameplay.Movement
 
         #region Private Fields
 
-        private readonly IHistory<int, Sight> m_sightHistory;
-        private readonly IHistory<int, CharacterController> m_simulationHistory;
+        private readonly LinkedListHistory<int, Sight> m_sightHistory;
+        private readonly LinkedListHistory<int, CharacterController> m_simulationHistory;
         private double m_maxPrevisionTime;
 
         #endregion Private Fields

@@ -21,10 +21,6 @@ namespace Wheeled.Core.Utils
     {
         #region Public Methods
 
-        void ForgetAndOlder(TComparer _time);
-
-        void ForgetOlder(TComparer _time, bool _keepOldest);
-
         IEnumerable<TNode> EndBackwards();
 
         IEnumerable<TNode> Begin();

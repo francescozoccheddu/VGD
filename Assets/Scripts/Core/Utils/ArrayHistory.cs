@@ -54,6 +54,15 @@ namespace Wheeled.Core.Utils
 
         #endregion Private Fields
 
+        #region Public Constructors
+
+        public ArrayHistory(int _duration = 64)
+        {
+            m_array = new Node[_duration];
+        }
+
+        #endregion Public Constructors
+
         #region Private Indexers
 
         private ref Node this[int _index] => ref m_array[_index % Duration];
@@ -119,45 +128,6 @@ namespace Wheeled.Core.Utils
                 throw new System.ArgumentException();
             }
             Set(_time, _value.value);
-        }
-
-        public void ForgetAndOlder(int _time)
-        {
-            int max = Mathf.Min(_time, m_Newest);
-            for (int i = m_oldest; i <= max; i++)
-            {
-                this[i].isSet = false;
-            }
-            m_oldest = _time + 1;
-        }
-
-        public void ForgetOlder(int _time, bool _keepOldest)
-        {
-            if (_keepOldest)
-            {
-                int i = _time;
-                int oldest = m_oldest;
-                while (--i >= oldest)
-                {
-                    if (this[i].isSet)
-                    {
-                        m_oldest = i;
-                        break;
-                    }
-                }
-                while (--i >= oldest)
-                {
-                    this[i].isSet = false;
-                }
-            }
-            else
-            {
-                for (int i = m_oldest; i < _time; i++)
-                {
-                    this[i].isSet = false;
-                }
-                m_oldest = _time;
-            }
         }
 
         public IEnumerable<HistoryNode<int, TValue>> EndBackwards()
@@ -250,12 +220,35 @@ namespace Wheeled.Core.Utils
 
         public IEnumerable<HistoryNode<int, TValue>> UntilBackwardsSequenced(int _time)
         {
-            return UntilBackwards(_time, false, false).Sequenced(_time, -1);
+            if (_time <= m_Newest)
+            {
+                for (int i = _time; i >= m_oldest; i--)
+                {
+                    Node node = this[i];
+                    if (!node.isSet)
+                    {
+                        yield break;
+                    }
+                    yield return new HistoryNode<int, TValue> { time = i, value = node.value };
+                }
+            }
         }
 
         public IEnumerable<HistoryNode<int, TValue>> SinceSequenced(int _time)
         {
-            return Since(_time, false, false).Sequenced(_time, +1);
+            if (_time >= m_oldest)
+            {
+                int newest = m_Newest;
+                for (int i = _time; i <= newest; i++)
+                {
+                    Node node = this[i];
+                    if (!node.isSet)
+                    {
+                        yield break;
+                    }
+                    yield return new HistoryNode<int, TValue> { time = i, value = node.value };
+                }
+            }
         }
 
         #endregion Public Methods

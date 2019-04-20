@@ -9,6 +9,12 @@ namespace Wheeled.Networking.Client
 {
     internal sealed partial class ClientGameManager
     {
+        #region Private Fields
+
+        private const int c_maxStepAdvance = 30;
+
+        #endregion Private Fields
+
         #region Public Methods
 
         void Client.IGameManager.Received(Deserializer _reader)
@@ -74,6 +80,10 @@ namespace Wheeled.Networking.Client
                 case Message.SimulationOrder:
                 {
                     _reader.ReadSimulationOrder(out int step, out SimulationStepInfo simulation);
+                    if (m_isRunning && step > m_time.CeilingSimulationSteps() + c_maxStepAdvance)
+                    {
+                        break;
+                    }
                     m_localPlayer.Correct(step, simulation);
                 }
                 break;
@@ -81,6 +91,10 @@ namespace Wheeled.Networking.Client
                 case Message.MovementReplication:
                 {
                     _reader.ReadMovementReplication(out byte id, out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
+                    if (m_isRunning && step > m_time.CeilingSimulationSteps() + c_maxStepAdvance)
+                    {
+                        break;
+                    }
                     NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
                     player?.SignalReplication();
                     player?.Move(step, inputSteps, snapshot);
