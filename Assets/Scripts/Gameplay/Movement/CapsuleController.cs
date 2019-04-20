@@ -45,7 +45,7 @@ internal struct CapsuleController
     public bool IsGrounded => height <= c_skin + c_groundOffset;
     public float height;
 
-    private const int c_layerMask = 1 << 0;
+    private const int c_layerMask = 1 << 10 | 1 << 12;
     private const float c_gameCeilingY = 5.0f;
     private const float c_gameFloorY = -5.0f;
     private const float c_height = 2.0f;

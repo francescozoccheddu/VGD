@@ -7,7 +7,7 @@ namespace Wheeled.Gameplay.Stage
 {
     internal sealed class HitProbePool
     {
-        private const int c_worldLayerMask = 1 << 0;
+        private const int c_worldLayerMask = 1 << 11 | 1 << 12;
         private readonly List<HitProbeBehaviour> m_probes;
         private int m_nextProbe;
 
