@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
+using Wheeled.Core.Data;
 
 internal static class CapsuleControllerHelper
 {
+    #region Public Methods
 
     public static Vector3 ToVector3XZ(this Vector2 _vector, float _y = 0.0f)
     {
@@ -36,16 +38,27 @@ internal static class CapsuleControllerHelper
             && AreNearlyEqual(_a.magnitude, _b.magnitude, _maxMagnitudeOffset);
     }
 
+    #endregion Public Methods
 }
 
 internal struct CapsuleController
 {
+    #region Public Properties
+
+    public bool IsGrounded => height <= c_skin + c_groundOffset;
+
+    #endregion Public Properties
+
+    #region Public Fields
+
     public Vector3 position;
     public Vector3 velocity;
-    public bool IsGrounded => height <= c_skin + c_groundOffset;
     public float height;
 
-    private const int c_layerMask = 1 << 10 | 1 << 12;
+    #endregion Public Fields
+
+    #region Private Fields
+
     private const float c_gameCeilingY = 5.0f;
     private const float c_gameFloorY = -5.0f;
     private const float c_height = 2.0f;
@@ -54,9 +67,13 @@ internal struct CapsuleController
     private const float c_overShoot = 0.5f;
     private const float c_skin = 0.1f;
     private const float c_groundOffset = 0.01f;
-    private static readonly Vector3 s_emergencyRespawnPoint = new Vector3(0.0f, 5.0f, 0.0f);
     private const float c_maxSlopeAngle = 50.0f;
     private const float c_maxHeight = 10.0f;
+    private static readonly Vector3 s_emergencyRespawnPoint = new Vector3(0.0f, 5.0f, 0.0f);
+
+    #endregion Private Fields
+
+    #region Public Methods
 
     public static bool AreNearlyEqual(in CapsuleController _a, in CapsuleController _b)
     {
@@ -86,17 +103,21 @@ internal struct CapsuleController
         return next;
     }
 
+    #endregion Public Methods
+
+    #region Private Methods
+
     private void EmergencyDepenetrationY()
     {
         if (position.y <= c_gameFloorY)
         {
             position.y = c_gameCeilingY;
             const float capsulePointOffset = c_height / 2.0f - c_radius;
-            RaycastHit[] hits = Physics.RaycastAll(position, -Vector3.up, c_gameCeilingY - c_gameFloorY, c_layerMask);
+            RaycastHit[] hits = Physics.RaycastAll(position, -Vector3.up, c_gameCeilingY - c_gameFloorY, ScriptManager.Collisions.movement);
             for (int i = hits.Length - 1; i >= 0; i--)
             {
                 position.y = hits[i].point.y + c_height / 2.0f + c_skin;
-                if (!Physics.CheckCapsule(position - Vector3.up * capsulePointOffset, position + Vector3.up * capsulePointOffset, c_radius, c_layerMask))
+                if (!Physics.CheckCapsule(position - Vector3.up * capsulePointOffset, position + Vector3.up * capsulePointOffset, c_radius, ScriptManager.Collisions.movement))
                 {
                     Debug.LogWarning("Emergency floor reset");
                     velocity = Vector3.zero;
@@ -121,7 +142,7 @@ internal struct CapsuleController
             Vector3 direction = velocity.normalized;
             Vector3 pointA = position - Vector3.up * capsulePointOffset;
             Vector3 pointB = position + Vector3.up * capsulePointOffset;
-            if (Physics.CapsuleCast(pointA, pointB, c_radius, direction, out RaycastHit hit, movementDistance + c_overShoot + c_skin, c_layerMask))
+            if (Physics.CapsuleCast(pointA, pointB, c_radius, direction, out RaycastHit hit, movementDistance + c_overShoot + c_skin, ScriptManager.Collisions.movement))
             {
                 float distance = Mathf.Min(movementDistance, Mathf.Max(hit.distance - c_skin, 0.0f));
                 position += direction * distance;
@@ -169,7 +190,7 @@ internal struct CapsuleController
         const float sphereBodyDistance = c_height - c_radius * 2.0f;
         const float shootDistance = sphereBodyDistance + c_maxHeight;
         Vector3 startingPosition = position + Vector3.up * (c_height / 2.0f - c_radius);
-        if (Physics.SphereCast(startingPosition, c_radius, -Vector3.up, out RaycastHit hit, shootDistance, c_layerMask))
+        if (Physics.SphereCast(startingPosition, c_radius, -Vector3.up, out RaycastHit hit, shootDistance, ScriptManager.Collisions.movement))
         {
             height = hit.distance - sphereBodyDistance;
         }
@@ -184,9 +205,9 @@ internal struct CapsuleController
         float sign = velocity.y > 0.0f ? 1.0f : -1.0f;
         Vector3 direction = Vector3.up * sign;
         Vector3 startingPosition = position - direction * (c_height / 2.0f - c_radius);
-        if (Physics.CheckSphere(startingPosition, c_radius, c_layerMask))
+        if (Physics.CheckSphere(startingPosition, c_radius, ScriptManager.Collisions.movement))
         {
-            if (Physics.Raycast(position - direction * (c_height / 2.0f), direction, out RaycastHit earlyHit, c_height, c_layerMask))
+            if (Physics.Raycast(position - direction * (c_height / 2.0f), direction, out RaycastHit earlyHit, c_height, ScriptManager.Collisions.movement))
             {
                 position.y += earlyHit.point.y - (c_height / 2.0f) * sign;
             }
@@ -210,7 +231,7 @@ internal struct CapsuleController
             bool isFalling = sign < 0.0f;
             float moveShootDistance = amountDistance + c_overShoot + c_skin;
             float shootDistance = sphereBodyDistance + moveShootDistance;
-            if (Physics.SphereCast(startingPosition, c_radius, direction, out RaycastHit hit, shootDistance, c_layerMask))
+            if (Physics.SphereCast(startingPosition, c_radius, direction, out RaycastHit hit, shootDistance, ScriptManager.Collisions.movement))
             {
                 float hitDistance = hit.distance - sphereBodyDistance - c_skin;
                 float movement;
@@ -227,10 +248,10 @@ internal struct CapsuleController
             }
             else
             {
-
                 position.y += amount;
             }
         }
     }
 
+    #endregion Private Methods
 }

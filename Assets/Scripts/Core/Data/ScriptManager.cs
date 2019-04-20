@@ -34,7 +34,7 @@ namespace Wheeled.Core.Data
             {
                 if (s_collisions == null)
                 {
-                    s_collisions = Resources.Load<CollisionScript>("Collision");
+                    s_collisions = Resources.Load<CollisionScript>("Collisions");
                 }
                 return s_collisions;
             }
