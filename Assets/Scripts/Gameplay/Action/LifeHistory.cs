@@ -12,8 +12,6 @@ namespace Wheeled.Gameplay.Action
 
         void GetLastDeathInfo(double _time, out DamageNode? _outDeath, out DamageNode? _outExplosion);
 
-        double? GetTimeSinceLastDeath(double _time);
-
         #endregion Public Methods
     }
 
@@ -39,6 +37,12 @@ namespace Wheeled.Gameplay.Action
         public static bool IsExploded(this IReadOnlyLifeHistory _history, double _time)
         {
             return IsExploded(_history.GetHealth(_time));
+        }
+
+        public static double? GetTimeSinceLastDeath(this IReadOnlyLifeHistory _history, double _time)
+        {
+            _history.GetLastDeathInfo(_time, out DamageNode? node, out _);
+            return _time - node?.time;
         }
 
         #endregion Public Methods
@@ -155,30 +159,6 @@ namespace Wheeled.Gameplay.Action
                     break;
                 }
             }
-        }
-
-        public double? GetTimeSinceLastDeath(double _time)
-        {
-            HistoryNode<double, int>? healthNode = m_health
-                .GetReversedSequenceSince(_time, false, true)
-                .Where(_n => _n.value > 0)
-                .Cast<HistoryNode<double, int>?>()
-                .FirstOrDefault();
-            if (healthNode != null)
-            {
-                int health = healthNode.Value.value;
-                foreach (HistoryNode<double, DamageInfo> damageNode in m_damages
-                    .GetSequenceSince(healthNode.Value.time, false, true)
-                    .TakeWhile(_n => _n.time <= _time))
-                {
-                    health = Mathf.Min(damageNode.value.maxHealth, health - damageNode.value.damage);
-                    if (!LifeHistoryHelper.IsAlive(health))
-                    {
-                        return _time - damageNode.time;
-                    }
-                }
-            }
-            return null;
         }
 
         #endregion Public Methods

@@ -33,7 +33,7 @@ namespace Wheeled.Networking.Server
 
             private const double c_respawnWaitTime = 3.0;
 
-            private double m_lastSpawnTime;
+            private double m_nextSpawnTime;
             private double m_lastValidatedDeathTime;
             private double m_lastValidatedExplosionTime;
             private int? m_lastReplicatedMovementStep;
@@ -49,7 +49,7 @@ namespace Wheeled.Networking.Server
                 m_manager = _manager;
                 m_lastValidatedDeathTime = double.NegativeInfinity;
                 m_lastValidatedExplosionTime = double.NegativeInfinity;
-                m_lastSpawnTime = double.NegativeInfinity;
+                m_nextSpawnTime = double.NaN;
             }
 
             #endregion Protected Constructors
@@ -92,6 +92,24 @@ namespace Wheeled.Networking.Server
                     IsStarted = true;
                     Spawn();
                 }
+            }
+
+            public byte? GetExplosionOffenderIdRecursive(double _time)
+            {
+                LifeHistory.GetLastDeathInfo(_time, out _, out DamageNode? node);
+                if (node != null)
+                {
+                    DamageInfo info = node.Value.damage;
+                    if (info.offenderId == Id || info.offenseType != OffenseType.Explosion)
+                    {
+                        return info.offenderId;
+                    }
+                    else
+                    {
+                        return m_manager.GetPlayerById(info.offenderId)?.GetExplosionOffenderIdRecursive(node.Value.time);
+                    }
+                }
+                return null;
             }
 
             #endregion Public Methods
@@ -138,45 +156,62 @@ namespace Wheeled.Networking.Server
 
             private void ValidateDamage()
             {
-                double validationTime = m_manager.m_time - m_damageValidationDelay;
-                if ((validationTime > m_lastValidatedDeathTime || validationTime > m_lastValidatedExplosionTime)
-                    && !LifeHistory.IsAlive(validationTime))
+                LifeHistory.GetLastDeathInfo(m_manager.m_time, out DamageNode? death, out DamageNode? explosion);
+                if (death != null)
                 {
-                    LifeHistory.GetLastDeathInfo(validationTime, out DamageNode? death, out DamageNode? explosion);
-                    if (death?.time > m_lastValidatedDeathTime)
+                    ValidateKill(death.Value);
+                }
+                if (explosion != null)
+                {
+                    ValidateExplosion(explosion.Value);
+                }
+            }
+
+            private void ValidateKill(DamageNode _node)
+            {
+                if (_node.time > m_lastValidatedDeathTime && _node.time <= m_manager.m_time - m_damageValidationDelay)
+                {
+                    m_nextSpawnTime = m_manager.m_time + c_respawnWaitTime;
+                    m_lastValidatedDeathTime = _node.time;
+                    DeathsValue.Put(_node.time, Deaths + 1);
+                    AuthoritativePlayer killer = null;
+                    byte offenderId = _node.damage.offenderId;
+                    if (offenderId != Id)
                     {
-                        DamageInfo damage = death.Value.damage;
-                        m_lastValidatedDeathTime = death.Value.time;
-                        DeathsValue.Put(validationTime, Deaths + 1);
-                        AuthoritativePlayer killer = null;
-                        if (damage.offenderId != Id)
+                        if (_node.damage.offenseType == OffenseType.Explosion)
                         {
-                            killer = m_manager.GetPlayerById(damage.offenderId);
-                            killer?.KillsValue.Put(validationTime, killer.Kills + 1);
+                            offenderId = m_manager.GetPlayerById(offenderId)
+                                ?.GetExplosionOffenderIdRecursive(_node.time) ?? offenderId;
                         }
-                        Serializer.WriteKillSync(death.Value.time, new KillInfo
-                        {
-                            killerId = damage.offenderId,
-                            offenseType = damage.offenseType,
-                            victimId = Id,
-                            victimDeaths = (byte) Deaths,
-                            killerKills = (byte) (killer?.Kills ?? 0)
-                        });
-                        m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
+                        killer = m_manager.GetPlayerById(offenderId);
+                        killer?.KillsValue.Put(_node.time, killer.Kills + 1);
                     }
-                    if (explosion?.time > m_lastValidatedExplosionTime)
+                    Serializer.WriteKillSync(_node.time, new KillInfo
                     {
-                        double time = explosion.Value.time;
-                        byte offenderId = explosion.Value.damage.offenderId;
-                        Vector3 position = this.GetSnapshot(time).simulation.Position;
-                        m_manager.m_offenseBackstage.PutExplosion(explosion.Value.time, new ExplosionOffense(offenderId, position));
-                        m_lastValidatedExplosionTime = time;
-                    }
+                        killerId = offenderId,
+                        offenseType = _node.damage.offenseType,
+                        victimId = Id,
+                        victimDeaths = (byte) Deaths,
+                        killerKills = (byte) (killer?.Kills ?? 0)
+                    });
+                    m_manager.SendAll(NetworkManager.SendMethod.ReliableSequenced);
+
+                    Debug.LogFormat("{0} killed {1}", offenderId, Id);
+                }
+            }
+
+            private void ValidateExplosion(DamageNode _node)
+            {
+                if (_node.time > m_lastValidatedExplosionTime)
+                {
+                    m_lastValidatedExplosionTime = _node.time;
+                    m_manager.m_offenseBackstage.PutExplosion(_node.time, new ExplosionOffense(Id, this.GetSnapshot(_node.time).simulation.Position));
                 }
             }
 
             private void Spawn()
             {
+                m_nextSpawnTime = double.NaN;
                 PutSpawn(m_manager.m_time + c_spawnDelay, new SpawnInfo()
                 {
                 });
@@ -184,14 +219,9 @@ namespace Wheeled.Networking.Server
 
             private void HandleRespawn()
             {
-                if (m_manager.m_time > m_lastSpawnTime)
+                if (m_manager.m_time > m_nextSpawnTime)
                 {
-                    double? elapsed = LifeHistory.GetTimeSinceLastDeath(m_manager.m_time);
-                    if (elapsed >= c_respawnWaitTime)
-                    {
-                        m_lastSpawnTime = m_manager.m_time;
-                        Spawn();
-                    }
+                    Spawn();
                 }
             }
 
