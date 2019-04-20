@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Player;
 
@@ -113,7 +112,7 @@ namespace Wheeled.Gameplay.Action
         public void ValidateUntil(double _time, IReadOnlyPlayer _player)
         {
             m_time = _time;
-            foreach ((double time, INode node) in m_history.GetFullSequence().Where(_n => _n.time <= _time))
+            foreach ((double time, INode node) in m_history.Until(_time))
             {
                 switch (node)
                 {

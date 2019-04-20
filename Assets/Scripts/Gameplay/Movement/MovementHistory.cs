@@ -67,21 +67,15 @@ namespace Wheeled.Gameplay.Movement
 
         #region Public Methods
 
-        public void ForgetNewer(int _newest, bool _keepNewest)
+        public void Trim(int _oldest)
         {
-            m_sightHistory.ForgetNewer(_newest, _keepNewest);
-            m_simulationHistory.ForgetNewer(_newest, _keepNewest);
-        }
-
-        public void ForgetOlder(int _oldest, bool _keepOldest)
-        {
-            m_sightHistory.ForgetOlder(_oldest, _keepOldest);
-            m_simulationHistory.ForgetOlder(_oldest, _keepOldest);
+            m_sightHistory.ForgetOlder(_oldest, true);
+            m_simulationHistory.ForgetOlder(_oldest, true);
         }
 
         public void GetSight(double _time, out Sight? _outSight)
         {
-            m_sightHistory.Query(_time.SimulationSteps(), out HistoryNode<int, Sight>? prev, out HistoryNode<int, Sight>? next);
+            m_sightHistory.Around(_time.SimulationSteps(), out HistoryNode<int, Sight>? prev, out HistoryNode<int, Sight>? next);
             if (prev != null)
             {
                 if (next != null)
@@ -106,7 +100,7 @@ namespace Wheeled.Gameplay.Movement
 
         public void GetSimulation(double _time, out CharacterController? _outSimulation, IReadOnlyInputHistory _inputHistory)
         {
-            m_simulationHistory.Query(_time.SimulationSteps(), out HistoryNode<int, CharacterController>? prev, out HistoryNode<int, CharacterController>? next);
+            m_simulationHistory.Around(_time.SimulationSteps(), out HistoryNode<int, CharacterController>? prev, out HistoryNode<int, CharacterController>? next);
             if (prev != null)
             {
                 if (next != null)
@@ -174,7 +168,7 @@ namespace Wheeled.Gameplay.Movement
             }
             if (_canPredict)
             {
-                using (IEnumerator<HistoryNode<int, InputStep>> enumerator = _inputHistory.GetSequenceSince(_step, true, false).GetEnumerator())
+                using (IEnumerator<HistoryNode<int, InputStep>> enumerator = _inputHistory.History.Since(_step, true, false).GetEnumerator())
                 {
                     if (enumerator.MoveNext())
                     {
@@ -193,7 +187,7 @@ namespace Wheeled.Gameplay.Movement
             }
             else
             {
-                foreach (HistoryNode<int, InputStep> node in _inputHistory.GetSequenceSince(_step, false, false))
+                foreach (HistoryNode<int, InputStep> node in _inputHistory.History.Since(_step, false, false))
                 {
                     if (node.time == _step && _refDeltaTime > 0.0)
                     {

@@ -99,15 +99,14 @@ namespace Wheeled.Gameplay.Action
 
         public int GetHealth(double _time)
         {
-            HistoryNode<double, int>? healthNode = m_health.GetOrPrevious(_time);
+            HistoryNode<double, int>? healthNode = m_health.Last(_time);
             if (healthNode == null)
             {
                 return 0;
             }
             int health = healthNode.Value.value;
             foreach (HistoryNode<double, DamageInfo> damageNode in m_damages
-                .GetSequenceSince(healthNode.Value.time, false, true)
-                .TakeWhile(_n => _n.time <= _time))
+                .Between(healthNode.Value.time, _time))
             {
                 health = Mathf.Min(damageNode.value.maxHealth, health - damageNode.value.damage);
             }
@@ -124,11 +123,7 @@ namespace Wheeled.Gameplay.Action
         {
             _outDeath = null;
             _outExplosion = null;
-            HistoryNode<double, int>? healthNode = m_health
-                .GetReversedSequenceSince(_time, false, true)
-                .Where(_n => _n.value > 0)
-                .Cast<HistoryNode<double, int>?>()
-                .FirstOrDefault();
+            HistoryNode<double, int>? healthNode = m_health.Last(_time, _n => _n.value > 0);
             if (healthNode == null)
             {
                 return;
@@ -136,8 +131,7 @@ namespace Wheeled.Gameplay.Action
             int health = healthNode.Value.value;
             int lastHealth = health;
             foreach (HistoryNode<double, DamageInfo> damageNode in m_damages
-                .GetSequenceSince(healthNode.Value.time, false, true)
-                .TakeWhile(_n => _n.time <= _time))
+                .Between(healthNode.Value.time, _time))
             {
                 lastHealth = health;
                 health = Mathf.Min(damageNode.value.maxHealth, health - damageNode.value.damage);

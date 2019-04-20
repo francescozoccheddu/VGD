@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Action
@@ -44,7 +45,7 @@ namespace Wheeled.Gameplay.Action
 
             public double? GetElapsedTime(double _time)
             {
-                return _time - m_history.GetOrPrevious(_time);
+                return _time - m_history.Last(_time);
             }
 
             public void Trim(double _time)

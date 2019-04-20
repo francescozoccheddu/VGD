@@ -287,7 +287,7 @@ namespace Wheeled.Gameplay.Player
             m_inputHistory.Trim(lastStep);
             m_lifeHistory.Trim(lastTime);
             m_weaponsHistory.Trim(lastTime);
-            m_movementHistory.ForgetOlder(lastStep, true);
+            m_movementHistory.Trim(lastStep);
         }
 
         private void UpdateView(int _health)

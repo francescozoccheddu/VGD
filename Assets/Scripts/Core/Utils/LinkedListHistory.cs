@@ -5,8 +5,7 @@ namespace Wheeled.Core.Utils
 {
     internal sealed class LinkedListHistory<TTime, TValue> : LinkedListSimpleHistory<HistoryNode<TTime, TValue>, TTime>, IHistory<TTime, TValue> where TTime : struct, IComparable<TTime>
     {
-        public TTime? NewestTime => Oldest?.time;
-        public TTime? OldestTime => Oldest?.time;
+        #region Public Methods
 
         public void Add(TTime _time, TValue _value)
         {
@@ -17,14 +16,19 @@ namespace Wheeled.Core.Utils
         {
             Set(_time, new HistoryNode<TTime, TValue> { time = _time, value = _value });
         }
+
+        #endregion Public Methods
     }
 
     internal class LinkedListSimpleHistory<TNode, TComparer> : ISimpleHistory<TNode, TComparer> where TNode : struct, IComparable<TComparer> where TComparer : struct
     {
+        #region Private Fields
+
         private readonly LinkedList<TNode> m_list = new LinkedList<TNode>();
 
-        public TNode? Newest => m_list.Last?.Value;
-        public TNode? Oldest => m_list.First?.Value;
+        #endregion Private Fields
+
+        #region Public Methods
 
         public void Add(TComparer _time, TNode _value)
         {
@@ -39,21 +43,6 @@ namespace Wheeled.Core.Utils
             }
         }
 
-        public void Clear()
-        {
-            m_list.Clear();
-        }
-
-        public void ForgetAndNewer(TComparer _time)
-        {
-            LinkedListNode<TNode> node = m_list.Last;
-            while (node?.Value.IsLessThan(_time) == false)
-            {
-                m_list.RemoveLast();
-                node = node.Previous;
-            }
-        }
-
         public void ForgetAndOlder(TComparer _time)
         {
             LinkedListNode<TNode> node = m_list.First;
@@ -61,27 +50,6 @@ namespace Wheeled.Core.Utils
             {
                 m_list.RemoveFirst();
                 node = node.Next;
-            }
-        }
-
-        public void ForgetNewer(TComparer _time, bool _keepNewest)
-        {
-            LinkedListNode<TNode> node = m_list.Last;
-            if (_keepNewest)
-            {
-                while (node?.Next?.Value.IsLessThan(_time) == false)
-                {
-                    m_list.RemoveLast();
-                    node = node.Previous;
-                }
-            }
-            else
-            {
-                while (node?.Value.IsGreaterThan(_time) == true)
-                {
-                    m_list.RemoveLast();
-                    node = node.Previous;
-                }
             }
         }
 
@@ -106,13 +74,7 @@ namespace Wheeled.Core.Utils
             }
         }
 
-        public TNode? Get(TComparer _time)
-        {
-            LinkedListNode<TNode> node = GetNodeOrPrevious(_time);
-            return node?.Value.IsEqualTo(_time) == true ? node.Value : (TNode?) null;
-        }
-
-        public IEnumerable<TNode> GetFullReversedSequence()
+        public IEnumerable<TNode> EndBackwards()
         {
             LinkedListNode<TNode> listNode = m_list.Last;
             while (listNode != null)
@@ -122,7 +84,7 @@ namespace Wheeled.Core.Utils
             }
         }
 
-        public IEnumerable<TNode> GetFullSequence()
+        public IEnumerable<TNode> Begin()
         {
             LinkedListNode<TNode> listNode = m_list.First;
             while (listNode != null)
@@ -132,22 +94,7 @@ namespace Wheeled.Core.Utils
             }
         }
 
-        public TNode? GetOrNext(TComparer _time)
-        {
-            return GetNodeOrNext(_time)?.Value;
-        }
-
-        public TNode? GetOrPrevious(TComparer _time)
-        {
-            return GetNodeOrPrevious(_time)?.Value;
-        }
-
-        public TNode? GetOrPreviousOrNext(TComparer _time)
-        {
-            return GetNodeOrPreviousOrNext(_time)?.Value;
-        }
-
-        public IEnumerable<TNode> GetReversedSequenceSince(TComparer _time, bool _allowAfter = true, bool _allowBefore = false)
+        public IEnumerable<TNode> UntilBackwards(TComparer _time, bool _allowAfter = true, bool _allowBefore = false)
         {
             LinkedListNode<TNode> listNode = GetNode(_time, _allowBefore, _allowAfter);
             while (listNode != null)
@@ -157,7 +104,7 @@ namespace Wheeled.Core.Utils
             }
         }
 
-        public IEnumerable<TNode> GetSequenceSince(TComparer _time, bool _allowBefore = true, bool _allowAfter = false)
+        public IEnumerable<TNode> Since(TComparer _time, bool _allowBefore = true, bool _allowAfter = false)
         {
             LinkedListNode<TNode> listNode = GetNode(_time, _allowBefore, _allowAfter);
             while (listNode != null)
@@ -165,25 +112,6 @@ namespace Wheeled.Core.Utils
                 yield return listNode.Value;
                 listNode = listNode.Next;
             }
-        }
-
-        public bool Has(TComparer _time)
-        {
-            LinkedListNode<TNode> node = GetNodeOrPrevious(_time);
-            return node != null && node.Value.IsEqualTo(_time);
-        }
-
-        public void Query(TComparer _time, out TNode? _outA, out TNode? _outB)
-        {
-            LinkedListNode<TNode> node = m_list.Last;
-            LinkedListNode<TNode> lastNode = null;
-            while (node?.Value.IsGreaterThan(_time) == true)
-            {
-                lastNode = node;
-                node = node.Previous;
-            }
-            _outA = node?.Value;
-            _outB = lastNode?.Value;
         }
 
         public void Set(TComparer _time, TNode _value)
@@ -202,6 +130,10 @@ namespace Wheeled.Core.Utils
                 m_list.AddAfter(listNode, _value);
             }
         }
+
+        #endregion Public Methods
+
+        #region Private Methods
 
         private LinkedListNode<TNode> GetNode(TComparer _time, bool _allowBefore, bool _allowAfter)
         {
@@ -258,10 +190,14 @@ namespace Wheeled.Core.Utils
             }
             return node;
         }
+
+        #endregion Private Methods
     }
 
     internal class LinkedListSimpleHistory<T> : LinkedListSimpleHistory<T, T> where T : struct, IComparable<T>
     {
+        #region Public Methods
+
         public void Add(T _node)
         {
             Add(_node, _node);
@@ -271,5 +207,7 @@ namespace Wheeled.Core.Utils
         {
             Set(_node, _node);
         }
+
+        #endregion Public Methods
     }
 }
