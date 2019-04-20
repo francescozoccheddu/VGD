@@ -97,6 +97,20 @@ namespace Wheeled.Core.Utils
             return _history.UntilBackwards(_time, false, true).Where(_where).Cast<TNode?>().FirstOrDefault();
         }
 
+        public static TNode? Next<TNode, TComparer>(this IReadOnlySimpleHistory<TNode, TComparer> _history, TComparer _time)
+            where TNode : struct, IComparable<TComparer> where TComparer : struct
+
+        {
+            return _history.Since(_time, false, true).Cast<TNode?>().FirstOrDefault();
+        }
+
+        public static TNode? Next<TNode, TComparer>(this IReadOnlySimpleHistory<TNode, TComparer> _history, TComparer _time, Func<TNode, bool> _where)
+            where TNode : struct, IComparable<TComparer> where TComparer : struct
+
+        {
+            return _history.Since(_time, false, true).Where(_where).Cast<TNode?>().FirstOrDefault();
+        }
+
         public static IEnumerable<TNode> Between<TNode, TComparer>(this IReadOnlySimpleHistory<TNode, TComparer> _history, TComparer _since, TComparer _until)
             where TNode : struct, IComparable<TComparer> where TComparer : struct
         {
@@ -107,6 +121,36 @@ namespace Wheeled.Core.Utils
             where TNode : struct, IComparable<TComparer> where TComparer : struct
         {
             return _history.Begin().TakeWhile(_n => !_n.IsGreaterThan(_until));
+        }
+
+        public static IEnumerable<TNode> Sequenced<TComparer, TNode>(this IEnumerable<TNode> _enumerable, TComparer _start, Func<TComparer, TComparer> _step)
+            where TNode : struct, IComparable<TComparer> where TComparer : struct
+        {
+            TComparer sequenceTime = _start;
+            foreach (TNode node in _enumerable)
+            {
+                if (!node.IsEqualTo(sequenceTime))
+                {
+                    break;
+                }
+                sequenceTime = _step(sequenceTime);
+                yield return node;
+            }
+        }
+
+        public static IEnumerable<TNode> Sequenced<TNode>(this IEnumerable<TNode> _enumerable, int _start, int _step)
+            where TNode : struct, IComparable<int>
+        {
+            int sequenceTime = _start;
+            foreach (TNode node in _enumerable)
+            {
+                if (!node.IsEqualTo(sequenceTime))
+                {
+                    break;
+                }
+                sequenceTime += _step;
+                yield return node;
+            }
         }
 
         #endregion Public Methods
