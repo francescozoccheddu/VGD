@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9b53cf68b75320f40bc45e77cd4cb726
+guid: 026bd7f6ee5c97e42aaeec96c3b64358
 ModelImporter:
   serializedVersion: 25
   internalIDToNameTable:
@@ -20,7 +20,7 @@ ModelImporter:
     second: //RootNode
   - first:
       43: 4300000
-    second: Border
+    second: Jump_pad
   - first:
       41386430: 2186277476908879412
     second: ImportLogs
@@ -52,17 +52,17 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 0
+    isReadable: 1
   meshes:
     lODScreenPercentages: []
     globalScale: 1
-    meshCompression: 2
+    meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
-    importVisibility: 0
-    importBlendShapes: 0
-    importCameras: 0
-    importLights: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
     swapUVChannels: 0
     generateSecondaryUV: 1
     useFileUnits: 1
@@ -83,7 +83,7 @@ ModelImporter:
     normalSmoothAngle: 0
     normalImportMode: 1
     tangentImportMode: 2
-    normalCalculationMode: 1
+    normalCalculationMode: 4
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 2
     normalSmoothingSource: 0

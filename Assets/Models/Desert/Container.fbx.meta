@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9b53cf68b75320f40bc45e77cd4cb726
+guid: 619f34c8704db3740a31aafddf57c6f0
 ModelImporter:
   serializedVersion: 25
   internalIDToNameTable:
@@ -7,8 +7,14 @@ ModelImporter:
       1: 100000
     second: //RootNode
   - first:
+      1: 100002
+    second: Door
+  - first:
       4: 400000
     second: //RootNode
+  - first:
+      4: 400002
+    second: Door
   - first:
       21: 2100000
     second: No Name
@@ -16,11 +22,20 @@ ModelImporter:
       23: 2300000
     second: //RootNode
   - first:
+      23: 2300002
+    second: Door
+  - first:
       33: 3300000
     second: //RootNode
   - first:
+      33: 3300002
+    second: Door
+  - first:
       43: 4300000
-    second: Border
+    second: Container
+  - first:
+      43: 4300002
+    second: Door
   - first:
       41386430: 2186277476908879412
     second: ImportLogs

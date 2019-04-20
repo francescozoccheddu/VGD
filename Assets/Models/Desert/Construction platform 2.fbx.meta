@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9b53cf68b75320f40bc45e77cd4cb726
+guid: d9aa635b3830b2a4999e4c7c5d6fc08c
 ModelImporter:
   serializedVersion: 25
   internalIDToNameTable:
@@ -20,7 +20,7 @@ ModelImporter:
     second: //RootNode
   - first:
       43: 4300000
-    second: Border
+    second: Construction_platform
   - first:
       41386430: 2186277476908879412
     second: ImportLogs

@@ -1,26 +1,62 @@
 fileFormatVersion: 2
-guid: 9b53cf68b75320f40bc45e77cd4cb726
+guid: eb1d8176d5f9d4f41ab78b9aabe0909d
 ModelImporter:
   serializedVersion: 25
   internalIDToNameTable:
   - first:
       1: 100000
+    second: Matress
+  - first:
+      1: 100002
+    second: Matress_2
+  - first:
+      1: 100004
     second: //RootNode
   - first:
+      1: 100006
+    second: Spring
+  - first:
       4: 400000
+    second: Matress
+  - first:
+      4: 400002
+    second: Matress_2
+  - first:
+      4: 400004
     second: //RootNode
+  - first:
+      4: 400006
+    second: Spring
   - first:
       21: 2100000
     second: No Name
   - first:
       23: 2300000
-    second: //RootNode
+    second: Matress
+  - first:
+      23: 2300002
+    second: Matress_2
+  - first:
+      23: 2300004
+    second: Spring
   - first:
       33: 3300000
-    second: //RootNode
+    second: Matress
+  - first:
+      33: 3300002
+    second: Matress_2
+  - first:
+      33: 3300004
+    second: Spring
   - first:
       43: 4300000
-    second: Border
+    second: Matress
+  - first:
+      43: 4300002
+    second: Spring
+  - first:
+      43: 4300004
+    second: Matress_2
   - first:
       41386430: 2186277476908879412
     second: ImportLogs

@@ -1,26 +1,83 @@
 fileFormatVersion: 2
-guid: 9b53cf68b75320f40bc45e77cd4cb726
+guid: 509c0bb829a69dc48abd197920e4c9bd
 ModelImporter:
   serializedVersion: 25
   internalIDToNameTable:
   - first:
       1: 100000
+    second: Broken_support
+  - first:
+      1: 100002
+    second: Broken_support_1
+  - first:
+      1: 100004
+    second: Broken_support_2
+  - first:
+      1: 100006
     second: //RootNode
   - first:
+      1: 100008
+    second: Platform
+  - first:
+      1: 100010
+    second: Support
+  - first:
       4: 400000
+    second: Broken_support
+  - first:
+      4: 400002
+    second: Broken_support_1
+  - first:
+      4: 400004
+    second: Broken_support_2
+  - first:
+      4: 400006
     second: //RootNode
+  - first:
+      4: 400008
+    second: Platform
+  - first:
+      4: 400010
+    second: Support
   - first:
       21: 2100000
     second: No Name
   - first:
       23: 2300000
-    second: //RootNode
+    second: Broken_support_1
+  - first:
+      23: 2300002
+    second: Broken_support_2
+  - first:
+      23: 2300004
+    second: Platform
+  - first:
+      23: 2300006
+    second: Support
   - first:
       33: 3300000
-    second: //RootNode
+    second: Broken_support_1
+  - first:
+      33: 3300002
+    second: Broken_support_2
+  - first:
+      33: 3300004
+    second: Platform
+  - first:
+      33: 3300006
+    second: Support
   - first:
       43: 4300000
-    second: Border
+    second: Platform
+  - first:
+      43: 4300002
+    second: Broken_support_1
+  - first:
+      43: 4300004
+    second: Broken_support_2
+  - first:
+      43: 4300006
+    second: Support
   - first:
       41386430: 2186277476908879412
     second: ImportLogs

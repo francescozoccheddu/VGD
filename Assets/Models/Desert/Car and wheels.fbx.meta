@@ -1,26 +1,143 @@
 fileFormatVersion: 2
-guid: 9b53cf68b75320f40bc45e77cd4cb726
+guid: 6ba3afb20e7b413448e079099e5c9750
 ModelImporter:
   serializedVersion: 25
   internalIDToNameTable:
   - first:
       1: 100000
+    second: Back_lights
+  - first:
+      1: 100002
+    second: Back_wheels
+  - first:
+      1: 100004
+    second: Body
+  - first:
+      1: 100006
+    second: Bumper
+  - first:
+      1: 100008
+    second: Car
+  - first:
+      1: 100010
     second: //RootNode
   - first:
+      1: 100012
+    second: Front_lights
+  - first:
+      1: 100014
+    second: Front_wheels
+  - first:
+      1: 100016
+    second: Handles
+  - first:
+      1: 100018
+    second: Wheels
+  - first:
       4: 400000
+    second: Back_lights
+  - first:
+      4: 400002
+    second: Back_wheels
+  - first:
+      4: 400004
+    second: Body
+  - first:
+      4: 400006
+    second: Bumper
+  - first:
+      4: 400008
+    second: Car
+  - first:
+      4: 400010
     second: //RootNode
+  - first:
+      4: 400012
+    second: Front_lights
+  - first:
+      4: 400014
+    second: Front_wheels
+  - first:
+      4: 400016
+    second: Handles
+  - first:
+      4: 400018
+    second: Wheels
   - first:
       21: 2100000
     second: No Name
   - first:
       23: 2300000
-    second: //RootNode
+    second: Back_lights
+  - first:
+      23: 2300002
+    second: Back_wheels
+  - first:
+      23: 2300004
+    second: Body
+  - first:
+      23: 2300006
+    second: Bumper
+  - first:
+      23: 2300008
+    second: Front_lights
+  - first:
+      23: 2300010
+    second: Front_wheels
+  - first:
+      23: 2300012
+    second: Handles
+  - first:
+      23: 2300014
+    second: Wheels
   - first:
       33: 3300000
-    second: //RootNode
+    second: Back_lights
+  - first:
+      33: 3300002
+    second: Back_wheels
+  - first:
+      33: 3300004
+    second: Body
+  - first:
+      33: 3300006
+    second: Bumper
+  - first:
+      33: 3300008
+    second: Front_lights
+  - first:
+      33: 3300010
+    second: Front_wheels
+  - first:
+      33: 3300012
+    second: Handles
+  - first:
+      33: 3300014
+    second: Wheels
   - first:
       43: 4300000
-    second: Border
+    second: Body
+  - first:
+      43: 4300002
+    second: Bumper
+  - first:
+      43: 4300004
+    second: Handles
+  - first:
+      43: 4300006
+    second: Back_lights
+  - first:
+      43: 4300008
+    second: Front_lights
+  - first:
+      43: 4300010
+    second: Back_wheels
+  - first:
+      43: 4300012
+    second: Front_wheels
+  - first:
+      43: 4300014
+    second: Wheels
   - first:
       41386430: 2186277476908879412
     second: ImportLogs
