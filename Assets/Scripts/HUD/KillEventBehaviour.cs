@@ -32,7 +32,7 @@ namespace Wheeled.HUD
                 offense = "explosion";
                 break;
             }
-            return string.Format("<b>{0}</b> killed <b>{1}</b> by {2}", Killer?.Info?.name, Victim?.Info?.name, offense);
+            return string.Format("{0} killed {1} by {2}", GetName(Killer?.Info?.name), GetName(Victim?.Info?.name), offense);
         }
 
         #endregion Protected Methods

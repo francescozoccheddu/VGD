@@ -14,7 +14,7 @@ namespace Wheeled.HUD
 
         protected override string GetText()
         {
-            return string.Format("<b>{0}</b> joined the game", Player?.Info?.name);
+            return string.Format("{0} joined the game", GetName(Player?.Info?.name));
         }
 
         #endregion Protected Methods

@@ -30,6 +30,18 @@ namespace Wheeled.HUD
 
         protected abstract string GetText();
 
+        protected string GetName(string _name)
+        {
+            if (_name != null)
+            {
+                return string.Format("<b>{0}</b>", _name);
+            }
+            else
+            {
+                return string.Format("<i>{0}</i>", "Unknown");
+            }
+        }
+
         #endregion Protected Methods
 
         #region Private Methods
