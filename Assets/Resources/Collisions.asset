@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shoot:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 6144
   movement:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 5120
   jumpPad:
     serializedVersion: 2
     m_Bits: 8192

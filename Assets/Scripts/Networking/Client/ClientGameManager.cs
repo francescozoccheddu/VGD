@@ -6,6 +6,7 @@ using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Stage;
+using Wheeled.HUD;
 
 namespace Wheeled.Networking.Client
 {
@@ -13,8 +14,10 @@ namespace Wheeled.Networking.Client
     {
         #region Public Properties
 
-        OffenseBackstage IPlayerManager.OffenseBackstage => m_offenseBackstage;
+        public OffenseBackstage OffenseBackstage { get; }
         double IPlayerManager.Time => m_time;
+
+        public MatchBoard MatchBoard { get; }
 
         #endregion Public Properties
 
@@ -37,7 +40,6 @@ namespace Wheeled.Networking.Client
         private readonly LocalPlayer m_localPlayer;
         private readonly Dictionary<byte, Player> m_players;
         private readonly Client.IServer m_server;
-        private readonly OffenseBackstage m_offenseBackstage;
         private readonly Updatable m_updatable;
         private bool m_isRunning;
         private double m_targetTime;
@@ -50,7 +52,7 @@ namespace Wheeled.Networking.Client
         public ClientGameManager(Client.IServer _server, byte _id)
         {
             Debug.Log("ClientGameManager started");
-            m_offenseBackstage = new OffenseBackstage
+            OffenseBackstage = new OffenseBackstage
             {
                 ValidationTarget = this
             };
@@ -69,6 +71,7 @@ namespace Wheeled.Networking.Client
             {
                 { _id, m_localPlayer }
             };
+            MatchBoard = new MatchBoard();
             // Ready notify
             Serializer.WriteReady();
             m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
@@ -87,15 +90,16 @@ namespace Wheeled.Networking.Client
                 m_time += Time.deltaTime;
                 m_targetTime += Time.deltaTime;
                 m_time = TimeConstants.Smooth(m_time, m_targetTime, Time.deltaTime, c_timeSmoothQuickness);
-            }
-            foreach (NetPlayer p in m_NetPlayers)
-            {
-                p.TimeOffset = TimeConstants.Smooth(p.TimeOffset, -(owd + p.AverageReplicationInterval + c_netOffset), Time.deltaTime, c_timeSmoothQuickness);
-            }
-            m_offenseBackstage.UpdateUntil(m_time);
-            foreach (Player p in m_players.Values)
-            {
-                p.Update();
+                foreach (NetPlayer p in m_NetPlayers)
+                {
+                    p.TimeOffset = TimeConstants.Smooth(p.TimeOffset, -(owd + p.AverageReplicationInterval + c_netOffset), Time.deltaTime, c_timeSmoothQuickness);
+                }
+                OffenseBackstage.UpdateUntil(m_time);
+                foreach (Player p in m_players.Values)
+                {
+                    p.Update();
+                }
+                MatchBoard.UpdateUntil(m_time);
             }
         }
 
@@ -147,6 +151,10 @@ namespace Wheeled.Networking.Client
                     HistoryDuration = 2.0,
                 };
                 m_players.Add(_id, newNetPlayer);
+                MatchBoard.Put(m_time, new MatchBoard.JoinEvent
+                {
+                    player = newNetPlayer
+                });
                 return newNetPlayer;
             }
         }

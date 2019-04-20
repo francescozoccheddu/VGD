@@ -2,7 +2,7 @@
 
 namespace Wheeled.HUD
 {
-    public sealed class JoinEventBehaviour : EventBehaviour
+    public sealed class JoinEventBehaviour : MatchBoardEventBehaviour
     {
         #region Internal Properties
 
@@ -14,7 +14,7 @@ namespace Wheeled.HUD
 
         protected override string GetText()
         {
-            return "";
+            return string.Format("<b>{0}</b> joined the game", Player?.Info?.name);
         }
 
         #endregion Protected Methods

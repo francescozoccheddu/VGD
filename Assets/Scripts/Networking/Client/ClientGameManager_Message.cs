@@ -4,6 +4,7 @@ using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
+using Wheeled.HUD;
 
 namespace Wheeled.Networking.Client
 {
@@ -138,6 +139,12 @@ namespace Wheeled.Networking.Client
                     Player victim = GetOrCreatePlayer(info.victimId);
                     killer.KillsValue.Put(time, info.killerKills);
                     victim.DeathsValue.Put(time, info.victimDeaths);
+                    MatchBoard.Put(m_time, new MatchBoard.KillEvent
+                    {
+                        killer = killer,
+                        victim = victim,
+                        offenseType = info.offenseType
+                    });
                 }
                 break;
 

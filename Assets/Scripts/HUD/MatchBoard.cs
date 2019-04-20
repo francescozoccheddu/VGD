@@ -1,15 +1,22 @@
-﻿using Wheeled.Core.Utils;
+﻿using UnityEngine;
+using Wheeled.Core.Data;
+using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Player;
 
-namespace Wheeled.Assets.Scripts.HUD
+namespace Wheeled.HUD
 {
-    internal sealed class MatchBoard
+    internal sealed class MatchBoard : EventHistory<MatchBoard.IEvent>.ITarget
     {
         #region Public Interfaces
 
         public interface IEvent
         {
+            #region Public Methods
+
+            void Instantiate();
+
+            #endregion Public Methods
         }
 
         #endregion Public Interfaces
@@ -23,6 +30,17 @@ namespace Wheeled.Assets.Scripts.HUD
             public IReadOnlyPlayer player;
 
             #endregion Public Fields
+
+            #region Public Methods
+
+            public void Instantiate()
+            {
+                JoinEventBehaviour behaviour = Object.Instantiate(ScriptManager.Actors.joinEvent).GetComponent<JoinEventBehaviour>();
+                behaviour.Player = player;
+                MatchBoardBehaviour.Add(behaviour);
+            }
+
+            #endregion Public Methods
         }
 
         public struct KillEvent : IEvent
@@ -34,6 +52,19 @@ namespace Wheeled.Assets.Scripts.HUD
             public OffenseType offenseType;
 
             #endregion Public Fields
+
+            #region Public Methods
+
+            public void Instantiate()
+            {
+                KillEventBehaviour behaviour = Object.Instantiate(ScriptManager.Actors.killEvent).GetComponent<KillEventBehaviour>();
+                behaviour.Killer = killer;
+                behaviour.Victim = victim;
+                behaviour.OffenseType = offenseType;
+                MatchBoardBehaviour.Add(behaviour);
+            }
+
+            #endregion Public Methods
         }
 
         public struct QuitEvent : IEvent
@@ -43,13 +74,24 @@ namespace Wheeled.Assets.Scripts.HUD
             public IReadOnlyPlayer player;
 
             #endregion Public Fields
+
+            #region Public Methods
+
+            public void Instantiate()
+            {
+                QuitEventBehaviour behaviour = Object.Instantiate(ScriptManager.Actors.quitEvent).GetComponent<QuitEventBehaviour>();
+                behaviour.Player = player;
+                MatchBoardBehaviour.Add(behaviour);
+            }
+
+            #endregion Public Methods
         }
 
         #endregion Public Structs
 
         #region Private Fields
 
-        private readonly LinkedListHistory<double, IEvent> m_history;
+        private readonly EventHistory<IEvent> m_history;
 
         #endregion Private Fields
 
@@ -57,7 +99,10 @@ namespace Wheeled.Assets.Scripts.HUD
 
         public MatchBoard()
         {
-            m_history = new LinkedListHistory<double, IEvent>();
+            m_history = new EventHistory<IEvent>
+            {
+                Target = this
+            };
         }
 
         #endregion Public Constructors
@@ -66,7 +111,17 @@ namespace Wheeled.Assets.Scripts.HUD
 
         public void Put(double _time, IEvent _event)
         {
-            m_history.Add(_time, _event);
+            m_history.Put(_time, _event);
+        }
+
+        public void UpdateUntil(double _time)
+        {
+            m_history.PerformUntil(_time);
+        }
+
+        void EventHistory<IEvent>.ITarget.Perform(double _time, IEvent _value)
+        {
+            _value.Instantiate();
         }
 
         #endregion Public Methods

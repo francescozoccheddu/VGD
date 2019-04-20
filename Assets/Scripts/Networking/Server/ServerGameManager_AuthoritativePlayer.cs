@@ -6,6 +6,7 @@ using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
+using Wheeled.HUD;
 
 namespace Wheeled.Networking.Server
 {
@@ -194,6 +195,12 @@ namespace Wheeled.Networking.Server
                         victimDeaths = (byte) Deaths,
                         killerKills = (byte) (killer?.Kills ?? 0)
                     });
+                    m_manager.MatchBoard.Put(m_manager.m_time, new MatchBoard.KillEvent
+                    {
+                        killer = killer,
+                        victim = this,
+                        offenseType = _node.damage.offenseType
+                    });
                     m_manager.SendAll(NetworkManager.SendMethod.ReliableSequenced);
 
                     Debug.LogFormat("{0} killed {1}", offenderId, Id);
@@ -205,7 +212,7 @@ namespace Wheeled.Networking.Server
                 if (_node.time > m_lastValidatedExplosionTime)
                 {
                     m_lastValidatedExplosionTime = _node.time;
-                    m_manager.m_offenseBackstage.PutExplosion(_node.time, new ExplosionOffense(Id, this.GetSnapshot(_node.time).simulation.Position));
+                    m_manager.OffenseBackstage.PutExplosion(_node.time, new ExplosionOffense(Id, this.GetSnapshot(_node.time).simulation.Position));
                 }
             }
 

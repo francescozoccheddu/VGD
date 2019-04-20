@@ -1,12 +1,20 @@
-﻿namespace Wheeled.HUD
+﻿using Wheeled.Gameplay.Player;
+
+namespace Wheeled.HUD
 {
-    public sealed class QuitEventBehaviour : EventBehaviour
+    public sealed class QuitEventBehaviour : MatchBoardEventBehaviour
     {
+        #region Internal Properties
+
+        internal IReadOnlyPlayer Player { get; set; }
+
+        #endregion Internal Properties
+
         #region Protected Methods
 
         protected override string GetText()
         {
-            return "";
+            return string.Format("<b>{0}</b> left the game", Player?.Info?.name);
         }
 
         #endregion Protected Methods

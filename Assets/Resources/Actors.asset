@@ -22,3 +22,9 @@ MonoBehaviour:
     type: 3}
   explosion: {fileID: 8078640579761566153, guid: 38939ec25fde45f4b9735bf7e1a4bdf8,
     type: 3}
+  joinEvent: {fileID: 3791524801950614766, guid: cd2c54cda8dd75248be3c62cd5123e88,
+    type: 3}
+  quitEvent: {fileID: 3554850238772112368, guid: e0c52820b3817a14d9656dd4d2845911,
+    type: 3}
+  killEvent: {fileID: 4861083780833097065, guid: bab1d1dee3018cb4f85fca14731d2004,
+    type: 3}

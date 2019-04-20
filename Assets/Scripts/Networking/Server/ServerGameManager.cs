@@ -8,6 +8,7 @@ using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Stage;
+using Wheeled.HUD;
 using Wheeled.Networking.Client;
 
 namespace Wheeled.Networking.Server
@@ -16,8 +17,10 @@ namespace Wheeled.Networking.Server
     {
         #region Public Properties
 
-        OffenseBackstage IPlayerManager.OffenseBackstage => m_offenseBackstage;
+        public OffenseBackstage OffenseBackstage { get; }
         double IPlayerManager.Time => m_time;
+
+        public MatchBoard MatchBoard { get; }
 
         #endregion Public Properties
 
@@ -36,7 +39,6 @@ namespace Wheeled.Networking.Server
         private const double c_roomUpdatePeriod = 2.0f;
         private readonly LocalPlayer m_localPlayer;
         private readonly List<AuthoritativePlayer> m_players;
-        private readonly OffenseBackstage m_offenseBackstage;
         private readonly Updatable m_updatable;
         private byte m_nextPlayerId;
         private double m_time;
@@ -52,7 +54,7 @@ namespace Wheeled.Networking.Server
 
         public ServerGameManager()
         {
-            m_offenseBackstage = new OffenseBackstage
+            OffenseBackstage = new OffenseBackstage
             {
                 ValidationTarget = this
             };
@@ -72,6 +74,7 @@ namespace Wheeled.Networking.Server
             {
                 m_localPlayer
             };
+            MatchBoard = new MatchBoard();
             m_localPlayer.Start();
         }
 
@@ -92,7 +95,7 @@ namespace Wheeled.Networking.Server
             {
                 player.Update();
             }
-            m_offenseBackstage.UpdateUntil(m_time);
+            OffenseBackstage.UpdateUntil(m_time);
             if (m_lastTimeSyncTime + c_roomUpdatePeriod <= m_time)
             {
                 m_lastTimeSyncTime = m_time;
@@ -113,6 +116,7 @@ namespace Wheeled.Networking.Server
                 Serializer.WriteRecapSync(recapTime, from p in m_players select p.RecapInfo(recapTime));
                 SendAll(NetworkManager.SendMethod.Sequenced);
             }
+            MatchBoard.UpdateUntil(m_time);
         }
 
         void Server.IGameManager.ConnectedTo(NetworkManager.Peer _peer)
@@ -213,6 +217,10 @@ namespace Wheeled.Networking.Server
                 MaxValidationDelay = c_validationDelay,
                 DamageValidationDelay = c_validationDelay
             };
+            MatchBoard.Put(m_time, new MatchBoard.JoinEvent
+            {
+                player = netPlayer
+            });
             netPlayer.Info = new PlayerInfo();
             m_players.Add(netPlayer);
             return true;
