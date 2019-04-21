@@ -2,6 +2,7 @@
 using Wheeled.Core.Data;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.HUD.CrossHair;
 
 namespace Wheeled.Gameplay.PlayerView
 {
@@ -99,13 +100,15 @@ namespace Wheeled.Gameplay.PlayerView
         {
             EnsureSpawned();
 
-            // Life
-            if (m_lastState != LifeState.Exploded && State == LifeState.Exploded)
+            if (IsLocal)
             {
-                if (m_explosion == null)
-                {
-                    m_explosion = Object.Instantiate(ScriptManager.Actors.explosion, m_simulation.Position, Quaternion.identity);
-                }
+                CrossHairBehaviour.SetBase(State == LifeState.Alive);
+            }
+
+            // Life
+            if (m_lastState != LifeState.Exploded && State == LifeState.Exploded && m_explosion == null)
+            {
+                m_explosion = Object.Instantiate(ScriptManager.Actors.explosion, m_simulation.Position, Quaternion.identity);
             }
             m_lastState = State;
 
@@ -115,7 +118,7 @@ namespace Wheeled.Gameplay.PlayerView
             }
             else if (State == LifeState.Alive && m_deathBehaviour.IsDead)
             {
-                m_gameObject = null;
+                Destroy();
                 EnsureSpawned();
             }
 

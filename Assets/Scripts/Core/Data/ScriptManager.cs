@@ -6,6 +6,18 @@ namespace Wheeled.Core.Data
     {
         #region Public Properties
 
+        public static SocketScript Sockets
+        {
+            get
+            {
+                if (s_sockets == null)
+                {
+                    s_sockets = Resources.Load<SocketScript>("Sockets");
+                }
+                return s_sockets;
+            }
+        }
+
         public static ActorScript Actors
         {
             get
@@ -17,6 +29,7 @@ namespace Wheeled.Core.Data
                 return s_actors;
             }
         }
+
         public static SceneScript Scenes
         {
             get
@@ -28,6 +41,7 @@ namespace Wheeled.Core.Data
                 return s_scenes;
             }
         }
+
         public static CollisionScript Collisions
         {
             get
@@ -44,6 +58,7 @@ namespace Wheeled.Core.Data
 
         #region Private Fields
 
+        private static SocketScript s_sockets;
         private static ActorScript s_actors;
         private static SceneScript s_scenes;
         private static CollisionScript s_collisions;
