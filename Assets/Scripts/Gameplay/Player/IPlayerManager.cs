@@ -1,7 +1,7 @@
 ﻿using Wheeled.Gameplay.Stage;
 using Wheeled.HUD;
 
-namespace Wheeled.Networking
+namespace Wheeled.Gameplay.Player
 {
     internal interface IPlayerManager
     {

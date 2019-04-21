@@ -136,7 +136,7 @@ namespace Wheeled.Gameplay.Action
     {
         #region Public Fields
 
-        public byte spawnPoint;
+        public int spawnPoint;
 
         #endregion Public Fields
     }

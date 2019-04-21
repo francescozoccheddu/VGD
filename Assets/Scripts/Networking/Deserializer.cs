@@ -4,10 +4,9 @@ using System;
 using System.Collections.Generic;
 
 using UnityEngine;
-
-using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking
 {

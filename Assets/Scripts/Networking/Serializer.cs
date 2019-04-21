@@ -4,10 +4,9 @@ using System;
 using System.Collections.Generic;
 
 using UnityEngine;
-
-using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking
 {
@@ -242,7 +241,7 @@ namespace Wheeled.Networking
 
         private static void Put(this NetDataWriter _netDataWriter, in SpawnInfo _value)
         {
-            _netDataWriter.Put(_value.spawnPoint);
+            _netDataWriter.Put((byte) _value.spawnPoint);
         }
 
         private static void Put(this NetDataWriter _netDataWriter, in KazeInfo _value)

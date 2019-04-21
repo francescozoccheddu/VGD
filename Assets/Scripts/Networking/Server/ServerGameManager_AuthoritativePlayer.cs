@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using UnityEngine;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
@@ -219,8 +219,13 @@ namespace Wheeled.Networking.Server
             private void Spawn()
             {
                 m_nextSpawnTime = double.NaN;
+                IEnumerable<Vector3> positions = from p in m_manager.m_players
+                                                 where !p.IsQuit(m_manager.m_time)
+                                                 && p.LifeHistory.IsAlive(m_manager.m_time)
+                                                 select p.GetSnapshot(m_manager.m_time).simulation.Position;
                 PutSpawn(m_manager.m_time + c_spawnDelay, new SpawnInfo()
                 {
+                    spawnPoint = SpawnManagerBehaviour.Spawn(positions)
                 });
             }
 

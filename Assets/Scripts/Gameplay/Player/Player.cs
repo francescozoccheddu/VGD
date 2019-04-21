@@ -5,7 +5,6 @@ using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.PlayerView;
 using Wheeled.Gameplay.Stage;
-using Wheeled.Networking;
 
 namespace Wheeled.Gameplay.Player
 {
@@ -227,7 +226,7 @@ namespace Wheeled.Gameplay.Player
 
         void EventHistory<SpawnInfo>.ITarget.Perform(double _time, SpawnInfo _value)
         {
-            Snapshot snapshot = SpawnManager.Get(_value.spawnPoint);
+            Snapshot snapshot = SpawnManagerBehaviour.Get(_value.spawnPoint);
             PutSimulation(_time.SimulationSteps(), snapshot.simulation);
             PutSight(_time.SimulationSteps(), snapshot.sight);
             m_view.Move(snapshot);
@@ -303,5 +302,14 @@ namespace Wheeled.Gameplay.Player
         }
 
         #endregion Private Methods
+    }
+
+    internal struct PlayerInfo
+    {
+        #region Public Fields
+
+        public string name;
+
+        #endregion Public Fields
     }
 }
