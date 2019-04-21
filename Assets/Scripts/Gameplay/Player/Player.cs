@@ -3,6 +3,7 @@
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.PlayerView;
 using Wheeled.Gameplay.Stage;
 using Wheeled.Networking;
 
@@ -76,7 +77,7 @@ namespace Wheeled.Gameplay.Player
         private readonly IPlayerManager m_manager;
         // Components
         private readonly OffenseStage m_offenseStage;
-        private readonly PlayerView m_view;
+        private readonly View m_view;
         private readonly LifeHistory m_lifeHistory;
         private readonly EventHistory<SpawnInfo> m_spawnHistory;
         private readonly WeaponsHistory m_weaponsHistory;
@@ -85,7 +86,6 @@ namespace Wheeled.Gameplay.Player
         private bool m_isAlive;
         private double m_historyDuration;
         private double m_quitTime;
-        private bool m_exploded;
 
         #endregion Private Fields
 
@@ -96,7 +96,10 @@ namespace Wheeled.Gameplay.Player
             // Logic
             Id = _id;
             m_manager = _manager;
-            m_view = new PlayerView();
+            m_view = new View()
+            {
+                IsLocal = IsLocal
+            };
             m_historyDuration = 1.0;
             TimeOffset = 0.0;
             Info = null;
@@ -214,11 +217,6 @@ namespace Wheeled.Gameplay.Player
             {
                 OnActorSpawned();
             }
-            if (!m_exploded && LifeHistoryHelper.IsExploded(health))
-            {
-                m_exploded = true;
-                // TODO Explode view
-            }
             m_isAlive = LifeHistoryHelper.IsAlive(health);
             OnActorBreathed();
             m_offenseStage.Update(LocalTime);
@@ -299,7 +297,7 @@ namespace Wheeled.Gameplay.Player
             else
             {
                 m_view.Move(this.GetSnapshot(LocalTime));
-                m_view.isAlive = LifeHistoryHelper.IsAlive(_health);
+                m_view.State = LifeHistoryHelper.GetLifeState(_health);
                 m_view.Update(Time.deltaTime);
             }
         }

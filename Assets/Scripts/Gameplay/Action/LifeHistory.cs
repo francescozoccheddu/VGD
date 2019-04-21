@@ -19,6 +19,22 @@ namespace Wheeled.Gameplay.Action
     {
         #region Public Methods
 
+        public static LifeState GetLifeState(int _health)
+        {
+            if (IsExploded(_health))
+            {
+                return LifeState.Exploded;
+            }
+            else if (IsAlive(_health))
+            {
+                return LifeState.Alive;
+            }
+            else
+            {
+                return LifeState.Dead;
+            }
+        }
+
         public static bool IsAlive(int _health)
         {
             return _health > 0;
@@ -37,6 +53,11 @@ namespace Wheeled.Gameplay.Action
         public static bool IsExploded(this IReadOnlyLifeHistory _history, double _time)
         {
             return IsExploded(_history.GetHealth(_time));
+        }
+
+        public static LifeState GetLifeState(this IReadOnlyLifeHistory _history, double _time)
+        {
+            return GetLifeState(_history.GetHealth(_time));
         }
 
         public static double? GetTimeSinceLastDeath(this IReadOnlyLifeHistory _history, double _time)
@@ -166,5 +187,10 @@ namespace Wheeled.Gameplay.Action
         public DamageInfo damage;
 
         #endregion Public Fields
+    }
+
+    public enum LifeState
+    {
+        Alive, Dead, Exploded
     }
 }

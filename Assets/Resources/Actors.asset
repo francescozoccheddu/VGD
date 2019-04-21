@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e94e6f60db472e74d8f585b7fb35f2da, type: 3}
   m_Name: Actors
   m_EditorClassIdentifier: 
-  collisionProbe: {fileID: 126886733035378778, guid: ff791be9b749541429323cfde15ea5ce,
-    type: 3}
-  corpse: {fileID: 4754752801640044696, guid: 8089120b4e4433644ad39d1c2f504813, type: 3}
-  player: {fileID: 5949108520220492582, guid: 52ed707012d8e84459f01496b096d1f6, type: 3}
+  hitProbe: {fileID: 126886733035378778, guid: ff791be9b749541429323cfde15ea5ce, type: 3}
+  player: {fileID: 2657903332869466965, guid: 99e07516b13b9b946b8aec75b8e8b791, type: 3}
   rifleProjectile: {fileID: 6901257101853662855, guid: bfdde63f6e95b13469b0dc78ccb35924,
     type: 3}
   rocketProjectile: {fileID: 1199107559721684683, guid: b72e2cc371e1c904d925f0d33a77285f,

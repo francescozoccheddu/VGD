@@ -8,8 +8,7 @@ namespace Wheeled.Core.Data
         #region Public Fields
 
         [Header("Player")]
-        public GameObject collisionProbe;
-        public GameObject corpse;
+        public GameObject hitProbe;
         public GameObject player;
 
         [Header("Offense")]

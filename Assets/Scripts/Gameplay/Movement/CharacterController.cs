@@ -3,12 +3,28 @@ using Wheeled.Gameplay.Movement;
 
 internal struct CharacterController
 {
+    #region Public Properties
 
-    private const float c_jumpSpeed = 10.0f;
+    public Vector3 Position { get => m_capsule.position; set => m_capsule.position = value; }
+    public Vector3 Velocity { get => m_capsule.velocity; set => m_capsule.velocity = value; }
+    public float Height { get => m_capsule.height; set => m_capsule.height = value; }
+    public bool IsGrounded => m_capsule.IsGrounded;
+
+    #endregion Public Properties
+
+    #region Public Fields
+
+    public float dashStamina;
+
+    #endregion Public Fields
+
+    #region Private Fields
+
+    private const float c_jumpSpeed = 5.0f;
     private const float c_dashSpeed = 20.0f;
     private const float c_moveAcceleration = 20.0f;
     private const float c_maxAccelerationSpeed = 6.0f;
-    private const float c_gravityY = -20.0f;
+    private const float c_gravityY = -10.0f;
     private const float c_dashRegenSpeed = 0.5f;
     private const float c_airMovementFactor = 0.5f;
     private const float c_maxSpeedXZ = 10.0f;
@@ -16,12 +32,10 @@ internal struct CharacterController
     private const float c_airDragXZ = 1.0f;
 
     private CapsuleController m_capsule;
-    public float dashStamina;
 
-    public Vector3 Position { get => m_capsule.position; set => m_capsule.position = value; }
-    public Vector3 Velocity { get => m_capsule.velocity; set => m_capsule.velocity = value; }
-    public float Height { get => m_capsule.height; set => m_capsule.height = value; }
-    public bool IsGrounded => m_capsule.IsGrounded;
+    #endregion Private Fields
+
+    #region Public Methods
 
     public static bool AreNearlyEqual(in CharacterController _a, in CharacterController _b)
     {
@@ -89,4 +103,5 @@ internal struct CharacterController
         return next;
     }
 
+    #endregion Public Methods
 }
