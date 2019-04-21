@@ -91,8 +91,7 @@ namespace Wheeled.Gameplay.PlayerView
             if (m_gameObject != null)
             {
                 ReachSightTarget();
-                ReachPositionTarget();
-                ReachDamperTarget();
+                ReachSimulationTarget();
             }
         }
 
@@ -123,20 +122,18 @@ namespace Wheeled.Gameplay.PlayerView
             // Position
             if (isPositionInterpolationEnabled)
             {
-                float lerpAlpha = Mathf.Min(1.0f, _deltaTime * positionInterpolationQuickness);
+                float lerpAlpha = Mathf.Min(0.9f, _deltaTime * positionInterpolationQuickness);
                 m_gameObject.transform.position = Vector3.LerpUnclamped(m_gameObject.transform.position, m_simulation.Position, lerpAlpha);
                 m_damperBehaviour.height = Mathf.Lerp(m_damperBehaviour.height, m_simulation.Height, lerpAlpha);
             }
             else
             {
-                ReachPositionTarget();
+                ReachSimulationTarget();
             }
-            // Damper
-            ReachDamperTarget();
             // Sight
             if (isSightInterpolationEnabled)
             {
-                float lerpAlpha = Mathf.Min(1.0f, _deltaTime * sightInterpolationQuickness);
+                float lerpAlpha = Mathf.Min(0.9f, _deltaTime * sightInterpolationQuickness);
                 m_sightBehaviour.turn = Mathf.Lerp(m_sightBehaviour.turn, m_sight.Turn, lerpAlpha);
                 m_sightBehaviour.lookUp = Mathf.Lerp(m_sightBehaviour.lookUp, m_sight.LookUp, lerpAlpha);
             }
@@ -163,18 +160,11 @@ namespace Wheeled.Gameplay.PlayerView
 
         #region Private Methods
 
-        private void ReachPositionTarget()
+        private void ReachSimulationTarget()
         {
             if (m_gameObject != null)
             {
                 m_gameObject.transform.position = m_simulation.Position;
-            }
-        }
-
-        private void ReachDamperTarget()
-        {
-            if (m_gameObject != null)
-            {
                 m_damperBehaviour.height = m_simulation.Height;
             }
         }

@@ -98,7 +98,10 @@ namespace Wheeled.Gameplay.Player
             m_manager = _manager;
             m_view = new View()
             {
-                IsLocal = IsLocal
+                IsLocal = IsLocal,
+                isSightInterpolationEnabled = !IsLocal,
+                isPositionInterpolationEnabled = true,
+                positionInterpolationQuickness = IsLocal ? 20.0f : 15.0f
             };
             m_historyDuration = 1.0;
             TimeOffset = 0.0;

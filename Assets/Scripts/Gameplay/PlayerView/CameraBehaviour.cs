@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 
 public class CameraBehaviour : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class CameraBehaviour : MonoBehaviour
         camera.enabled = _isLocal;
         foreach (MeshRenderer m in localNoSeeMeshes)
         {
-            m.enabled = !_isLocal;
+            m.shadowCastingMode = _isLocal ? ShadowCastingMode.ShadowsOnly : ShadowCastingMode.On;
         }
     }
 
