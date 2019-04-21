@@ -43,6 +43,7 @@ namespace Wheeled.Gameplay.PlayerView
         private CameraBehaviour m_cameraBehaviour;
         private SightBehaviour m_sightBehaviour;
         private DamperBehaviour m_damperBehaviour;
+        private Animator m_animator;
 
         private LifeState m_lastState;
         private CharacterController m_simulation;
@@ -77,10 +78,12 @@ namespace Wheeled.Gameplay.PlayerView
 
         public void ShootRocket()
         {
+            m_animator?.SetTrigger("Shoot Rocket");
         }
 
         public void ShootRifle()
         {
+            m_animator?.SetTrigger("Shoot Rifle");
         }
 
         public void SetRiflePower(float _power)
@@ -156,6 +159,7 @@ namespace Wheeled.Gameplay.PlayerView
             m_deathBehaviour = null;
             m_damperBehaviour = null;
             m_sightBehaviour = null;
+            m_animator = null;
             m_gameObject = null;
         }
 
@@ -190,6 +194,7 @@ namespace Wheeled.Gameplay.PlayerView
                 m_damperBehaviour = m_gameObject.GetComponent<DamperBehaviour>();
                 m_sightBehaviour = m_gameObject.GetComponent<SightBehaviour>();
                 m_deathBehaviour = m_gameObject.GetComponent<DeathBehaviour>();
+                m_animator = m_gameObject.GetComponent<Animator>();
                 m_cameraBehaviour.SetLocal(IsLocal);
                 ReachTarget();
             }

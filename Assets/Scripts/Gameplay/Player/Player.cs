@@ -44,7 +44,7 @@ namespace Wheeled.Gameplay.Player
         #endregion Public Methods
     }
 
-    internal abstract class Player : IReadOnlyPlayer, EventHistory<SpawnInfo>.ITarget
+    internal abstract class Player : IReadOnlyPlayer, EventHistory<SpawnInfo>.ITarget, EventHistory<bool>.ITarget
     {
         #region Public Properties
 
@@ -81,6 +81,7 @@ namespace Wheeled.Gameplay.Player
         private readonly LifeHistory m_lifeHistory;
         private readonly EventHistory<SpawnInfo> m_spawnHistory;
         private readonly WeaponsHistory m_weaponsHistory;
+        private readonly EventHistory<bool> m_shootHistory;
         private MovementHistory m_movementHistory;
         private InputHistory m_inputHistory;
         private bool m_isAlive;
@@ -102,6 +103,10 @@ namespace Wheeled.Gameplay.Player
                 isSightInterpolationEnabled = !IsLocal,
                 isPositionInterpolationEnabled = true,
                 positionInterpolationQuickness = IsLocal ? 20.0f : 15.0f
+            };
+            m_shootHistory = new EventHistory<bool>()
+            {
+                Target = this
             };
             m_historyDuration = 1.0;
             TimeOffset = 0.0;
@@ -133,18 +138,21 @@ namespace Wheeled.Gameplay.Player
         {
             if (_info.isRocket)
             {
+                m_weaponsHistory.PutRocketShot(_time);
                 RocketShotOffense offense = new RocketShotOffense(Id, _info.position, _info.sight.Direction);
                 m_manager.OffenseBackstage.PutRocket(_time, offense);
                 m_offenseStage.Put(_time, offense);
             }
             else
             {
+                m_weaponsHistory.PutRifleShot(_time);
                 m_weaponsHistory.CanShootRifle(_time, out float power);
                 power = Mathf.Max(Action.WeaponsHistory.c_rifleMinPower, power);
                 RifleShotOffense offense = new RifleShotOffense(Id, _info.position, _info.sight.Direction, power);
                 m_manager.OffenseBackstage.PutRifle(_time, offense);
                 m_offenseStage.Put(_time, offense);
             }
+            m_shootHistory.Put(_time, _info.isRocket);
             OnShotScheduled(_time, _info);
         }
 
@@ -224,6 +232,7 @@ namespace Wheeled.Gameplay.Player
             OnActorBreathed();
             m_offenseStage.Update(LocalTime);
             OnUpdated();
+            m_shootHistory.PerformUntil(LocalTime);
             UpdateView(health);
             Trim();
         }
@@ -235,6 +244,18 @@ namespace Wheeled.Gameplay.Player
             PutSight(_time.SimulationSteps(), snapshot.sight);
             m_view.Move(snapshot);
             m_view.ReachTarget();
+        }
+
+        void EventHistory<bool>.ITarget.Perform(double _time, bool _value)
+        {
+            if (_value)
+            {
+                m_view.ShootRocket();
+            }
+            else
+            {
+                m_view.ShootRifle();
+            }
         }
 
         #endregion Public Methods
