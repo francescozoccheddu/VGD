@@ -6,6 +6,7 @@ using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
+using Wheeled.Gameplay.SpawnManager;
 using Wheeled.HUD;
 
 namespace Wheeled.Networking.Server
