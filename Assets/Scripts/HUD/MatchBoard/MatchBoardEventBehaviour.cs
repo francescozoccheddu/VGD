@@ -11,12 +11,6 @@ namespace Wheeled.HUD
 
         #endregion Public Fields
 
-        #region Private Fields
-
-        private string m_cachedText;
-
-        #endregion Private Fields
-
         #region Public Methods
 
         public void Destroy()
@@ -49,10 +43,9 @@ namespace Wheeled.HUD
         private void Update()
         {
             string newText = GetText();
-            if (newText != m_cachedText)
+            if (text.text != newText)
             {
-                m_cachedText = newText;
-                text.text = m_cachedText;
+                text.text = newText;
             }
         }
 

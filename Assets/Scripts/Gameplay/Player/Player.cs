@@ -320,6 +320,8 @@ namespace Wheeled.Gameplay.Player
             }
             else
             {
+                m_weaponsHistory.CanShootRifle(LocalTime, out float riflePower);
+                m_view.RiflePower = riflePower;
                 m_view.Move(this.GetSnapshot(LocalTime));
                 m_view.State = LifeHistoryHelper.GetLifeState(_health);
                 m_view.Update(Time.deltaTime);

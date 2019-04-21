@@ -25,6 +25,8 @@ namespace Wheeled.Gameplay.PlayerView
             }
         }
 
+        public float RiflePower { get; set; }
+
         #endregion Public Properties
 
         #region Public Fields
@@ -43,13 +45,13 @@ namespace Wheeled.Gameplay.PlayerView
         private CameraBehaviour m_cameraBehaviour;
         private SightBehaviour m_sightBehaviour;
         private DamperBehaviour m_damperBehaviour;
+        private RifleDisplayBehaviour m_rifleDisplayBehaviour;
         private Animator m_animator;
 
         private LifeState m_lastState;
         private CharacterController m_simulation;
         private Sight m_sight;
         private bool m_isLocal;
-
         private GameObject m_explosion;
 
         #endregion Private Fields
@@ -84,10 +86,7 @@ namespace Wheeled.Gameplay.PlayerView
         public void ShootRifle()
         {
             m_animator?.SetTrigger("Shoot Rifle");
-        }
-
-        public void SetRiflePower(float _power)
-        {
+            m_rifleDisplayBehaviour?.Shoot(RiflePower);
         }
 
         public void ReachTarget()
@@ -125,6 +124,8 @@ namespace Wheeled.Gameplay.PlayerView
                 EnsureSpawned();
             }
 
+            m_rifleDisplayBehaviour.Power = RiflePower;
+
             // Position
             if (isPositionInterpolationEnabled)
             {
@@ -160,6 +161,7 @@ namespace Wheeled.Gameplay.PlayerView
             m_damperBehaviour = null;
             m_sightBehaviour = null;
             m_animator = null;
+            m_rifleDisplayBehaviour = null;
             m_gameObject = null;
         }
 
@@ -194,6 +196,7 @@ namespace Wheeled.Gameplay.PlayerView
                 m_damperBehaviour = m_gameObject.GetComponent<DamperBehaviour>();
                 m_sightBehaviour = m_gameObject.GetComponent<SightBehaviour>();
                 m_deathBehaviour = m_gameObject.GetComponent<DeathBehaviour>();
+                m_rifleDisplayBehaviour = m_gameObject.GetComponent<RifleDisplayBehaviour>();
                 m_animator = m_gameObject.GetComponent<Animator>();
                 m_cameraBehaviour.SetLocal(IsLocal);
                 ReachTarget();
