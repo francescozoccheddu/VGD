@@ -1,6 +1,8 @@
 ﻿using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.Scene;
+using Wheeled.HUD.CrossHair;
 
 namespace Wheeled.Gameplay.Player
 {
@@ -43,6 +45,7 @@ namespace Wheeled.Gameplay.Player
             {
                 Target = this
             };
+            DeathCamera.EnableDefault();
         }
 
         #endregion Public Constructors
@@ -98,6 +101,8 @@ namespace Wheeled.Gameplay.Player
         public void OnActorDied()
         {
             m_movementController.Pause();
+            CrossHairBehaviour.Set(false);
+            DeathCamera.Enable(m_player.GetSnapshot(m_player.LocalTime).simulation.Position);
         }
 
         public void OnDamageScheduled(double _time, DamageInfo _info)
@@ -109,6 +114,8 @@ namespace Wheeled.Gameplay.Player
         {
             m_movementController.Teleport(m_player.GetSnapshot(m_player.LocalTime), true);
             m_movementController.StartAt(m_player.LocalTime);
+            CrossHairBehaviour.Set(true);
+            DeathCamera.Disable();
         }
 
         public void OnActorBreathed()

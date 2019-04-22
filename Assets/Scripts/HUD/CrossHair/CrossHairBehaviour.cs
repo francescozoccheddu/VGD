@@ -7,9 +7,7 @@ namespace Wheeled.HUD.CrossHair
     {
         #region Public Fields
 
-        public RawImage rocketImage;
-        public RawImage rifleImage;
-        public CanvasGroup group;
+        public RawImage image;
 
         #endregion Public Fields
 
@@ -21,15 +19,9 @@ namespace Wheeled.HUD.CrossHair
 
         #region Internal Methods
 
-        internal static void SetBase(bool _active)
+        internal static void Set(bool _enabled)
         {
-            s_instance.group.alpha = _active ? 1.0f : 0.0f;
-        }
-
-        internal static void Set(bool _rifle, bool _rocket)
-        {
-            s_instance.rocketImage.enabled = _rifle;
-            s_instance.rifleImage.enabled = _rocket;
+            s_instance.image.enabled = _enabled;
         }
 
         #endregion Internal Methods
@@ -39,8 +31,7 @@ namespace Wheeled.HUD.CrossHair
         private void Start()
         {
             s_instance = this;
-            SetBase(false);
-            Set(true, true);
+            Set(false);
         }
 
         #endregion Private Methods

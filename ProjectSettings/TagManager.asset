@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - DefaultDeathCamera
   layers:
   - Default
   - TransparentFX
@@ -13,12 +14,12 @@ TagManager:
   - UI
   - 
   - 
-  - PostProcessing
-  - HitProbe
-  - CCWorld
-  - HDWorld
-  - HDandCCWorld
   - Jumppad
+  - Death camera volume
+  - CC world
+  - HD world
+  - HD and CC world
+  - 
   - 
   - 
   - 

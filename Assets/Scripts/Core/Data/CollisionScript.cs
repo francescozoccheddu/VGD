@@ -10,6 +10,7 @@ namespace Wheeled.Core.Data
         public LayerMask shoot;
         public LayerMask movement;
         public LayerMask jumpPad;
+        public LayerMask deathCameraVolume;
 
         #endregion Public Fields
     }
