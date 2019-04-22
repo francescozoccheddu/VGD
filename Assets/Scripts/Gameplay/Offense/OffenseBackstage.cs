@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Wheeled.Core.Data;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 
@@ -152,8 +153,9 @@ namespace Wheeled.Gameplay.Stage
                             }
                         }
                     }
-                    Vector3 end = offense.Origin + offense.Direction * c_maxRifleShotDistance;
-                    if (_probes.RayCast(offense.Origin, end, out HitProbePool.HitInfo hitInfo))
+                    Vector3 origin = GetOrigin();
+                    Vector3 end = origin + offense.Sight.Direction * RifleShotOffense.c_maxDistance;
+                    if (_probes.RayCast(origin, end, out HitProbePool.HitInfo hitInfo))
                     {
                         end = hitInfo.position;
                         if (hitInfo.playerId != null)
@@ -161,7 +163,7 @@ namespace Wheeled.Gameplay.Stage
                             float damage = (hitInfo.isCritical ? c_criticalDamage : c_damage) * offense.Power;
                             _target.Damage(Time, hitInfo.playerId.Value, offense, damage);
                         }
-                        ((RifleShotOffense) Offense).HitDistance = Vector3.Distance(hitInfo.position, Offense.Origin);
+                        ((RifleShotOffense) Offense).Hit = hitInfo.position;
                     }
                     _probes.Clear();
                     Dispose();
@@ -197,7 +199,7 @@ namespace Wheeled.Gameplay.Stage
             {
                 if (_time >= Time)
                 {
-                    double targetLifetime = Math.Min(_time - Time, c_maxRocketShotLifetime);
+                    double targetLifetime = Math.Min(_time - Time, RocketShotOffense.c_maxLifetime);
                     Vector3 position = GetPosition(m_lifetime);
                     while (m_lifetime < targetLifetime)
                     {
@@ -216,8 +218,8 @@ namespace Wheeled.Gameplay.Stage
                         Vector3 nextPosition = GetPosition(nextLifeTime);
                         if (_probes.RayCast(position, nextPosition, out HitProbePool.HitInfo hitInfo))
                         {
-                            float hitDistance = Vector3.Distance(hitInfo.position, Offense.Origin);
-                            double hitTime = Time + hitDistance / c_rocketShotVelocity;
+                            float hitDistance = Vector3.Distance(hitInfo.position, GetOrigin());
+                            double hitTime = Time + hitDistance / RocketShotOffense.c_velocity;
                             position = hitInfo.position;
                             IEnumerable<HitTarget> targets = _target?.ProvideHitTarget(hitTime, Offense);
                             if (targets != null)
@@ -241,7 +243,7 @@ namespace Wheeled.Gameplay.Stage
                                     _target.Damage(hitTime, t.playerId, Offense, damage);
                                 }
                             }
-                            ((RocketShotOffense) Offense).HitDistance = hitDistance;
+                            ((RocketShotOffense) Offense).Hit = hitInfo.position;
                             Dispose();
                             break;
                         }
@@ -252,7 +254,7 @@ namespace Wheeled.Gameplay.Stage
                         }
                     }
                     _probes.Clear();
-                    if (m_lifetime >= c_maxRocketShotLifetime)
+                    if (m_lifetime >= RocketShotOffense.c_maxLifetime)
                     {
                         Dispose();
                     }
@@ -266,7 +268,7 @@ namespace Wheeled.Gameplay.Stage
             private Vector3 GetPosition(double _elapsedTime)
             {
                 RocketShotOffense offense = (RocketShotOffense) Offense;
-                return offense.Origin + offense.Direction * (float) (_elapsedTime * c_rocketShotVelocity);
+                return GetOrigin() + offense.Sight.Direction * (float) (_elapsedTime * RocketShotOffense.c_velocity);
             }
 
             #endregion Private Methods
@@ -283,6 +285,12 @@ namespace Wheeled.Gameplay.Stage
             #endregion Public Constructors
 
             #region Public Methods
+
+            public Vector3 GetOrigin()
+            {
+                ShotOffense offense = (ShotOffense) Offense;
+                return offense.Origin + offense.Sight.Quaternion * ScriptManager.Sockets.raycastOrigin;
+            }
 
             public override void Update(double _time, OffenseBackstage _stage)
             {
@@ -322,14 +330,6 @@ namespace Wheeled.Gameplay.Stage
         public IValidationTarget ValidationTarget { get; set; }
 
         #endregion Public Properties
-
-        #region Public Fields
-
-        public const float c_maxRifleShotDistance = 100.0f;
-        public const double c_maxRocketShotLifetime = 5.0f;
-        public const float c_rocketShotVelocity = 20.0f;
-
-        #endregion Public Fields
 
         #region Private Fields
 

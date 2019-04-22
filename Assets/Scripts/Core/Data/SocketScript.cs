@@ -9,6 +9,7 @@ namespace Wheeled.Core.Data
 
         public Vector3 rifleBarrel;
         public Vector3 rocketBarrel;
+        public Vector3 raycastOrigin;
 
         #endregion Public Fields
     }

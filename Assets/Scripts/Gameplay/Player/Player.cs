@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
@@ -139,7 +138,7 @@ namespace Wheeled.Gameplay.Player
             if (_info.isRocket)
             {
                 m_weaponsHistory.PutRocketShot(_time);
-                RocketShotOffense offense = new RocketShotOffense(Id, _info.position, _info.sight.Direction);
+                RocketShotOffense offense = new RocketShotOffense(Id, _info.position, _info.sight);
                 m_manager.OffenseBackstage.PutRocket(_time, offense);
                 m_offenseStage.Put(_time, offense);
             }
@@ -148,7 +147,7 @@ namespace Wheeled.Gameplay.Player
                 m_weaponsHistory.PutRifleShot(_time);
                 m_weaponsHistory.CanShootRifle(_time, out float power);
                 power = Mathf.Max(Action.WeaponsHistory.c_rifleMinPower, power);
-                RifleShotOffense offense = new RifleShotOffense(Id, _info.position, _info.sight.Direction, power);
+                RifleShotOffense offense = new RifleShotOffense(Id, _info.position, _info.sight, power);
                 m_manager.OffenseBackstage.PutRifle(_time, offense);
                 m_offenseStage.Put(_time, offense);
             }

@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe06a7e45378b274391a5d8a561c654f, type: 3}
   m_Name: Sockets
   m_EditorClassIdentifier: 
-  rifleBarrel: {x: -1, y: 1, z: 1}
-  rocketBarrel: {x: 1, y: 1, z: 1}
+  rifleBarrel: {x: -0.29446, y: 0.13106, z: 0.3818}
+  rocketBarrel: {x: 0.3021, y: 0.13796, z: 0.32198}
+  raycastOrigin: {x: 0, y: 0.42, z: 0}

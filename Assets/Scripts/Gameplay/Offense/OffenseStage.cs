@@ -45,19 +45,17 @@ namespace Wheeled.Gameplay.Stage
                     m_behaviour = Object.Instantiate(ScriptManager.Actors.rocketProjectile).GetComponent<RocketProjectileBehaviour>();
                 }
                 double elapsed = _time - m_time;
-                float distance = (float) (elapsed * OffenseBackstage.c_rocketShotVelocity);
-                if (distance >= m_offense.HitDistance)
-                {
-                    distance = m_offense.HitDistance.Value;
-                }
-                Vector3 position = m_offense.Origin + m_offense.Direction * distance;
+                Vector3 origin = GetOrigin();
+                Vector3 end = GetEnd();
+                float progress = (float) (RocketShotOffense.c_velocity * elapsed / Vector3.Distance(origin, end));
+                Vector3 position = Vector3.Lerp(origin, end, progress);
                 m_behaviour.Move(position);
-                if (distance >= m_offense.HitDistance)
+                if (progress > 1.0f)
                 {
-                    m_behaviour.Explode(position);
-                }
-                if (elapsed >= OffenseBackstage.c_maxRocketShotLifetime || distance >= m_offense.HitDistance)
-                {
+                    if (m_offense.Hit != null)
+                    {
+                        m_behaviour.Explode(position);
+                    }
                     IsGone = true;
                     m_behaviour.Dissolve();
                 }
@@ -67,9 +65,19 @@ namespace Wheeled.Gameplay.Stage
 
             #region Private Methods
 
+            private Vector3 GetEnd()
+            {
+                return m_offense.Hit ?? (GetOrigin() + m_offense.Sight.Direction * (float) (RocketShotOffense.c_velocity * RocketShotOffense.c_maxLifetime));
+            }
+
+            private Vector3 GetOrigin()
+            {
+                return m_offense.Origin + m_offense.Sight.Quaternion * ScriptManager.Sockets.rocketBarrel;
+            }
+
             private Vector3 GetPosition(double _elapsedTime)
             {
-                return m_offense.Origin + m_offense.Direction * (float) (_elapsedTime * OffenseBackstage.c_rocketShotVelocity);
+                return GetOrigin() + m_offense.Sight.Direction * (float) (_elapsedTime * RocketShotOffense.c_velocity);
             }
 
             #endregion Private Methods
@@ -130,8 +138,9 @@ namespace Wheeled.Gameplay.Stage
                 case RifleShotOffense o:
                 {
                     RifleProjectileBehaviour behaviour = Object.Instantiate(ScriptManager.Actors.rifleProjectile).GetComponent<RifleProjectileBehaviour>();
-                    Vector3 end = o.Origin + o.Direction * (o.HitDistance ?? 100);
-                    behaviour.Shoot(o.Origin, end, o.HitDistance != null);
+                    Vector3 origin = o.Origin + o.Sight.Quaternion * ScriptManager.Sockets.rifleBarrel;
+                    Vector3 end = o.Hit ?? (o.Origin + o.Sight.Direction * RifleShotOffense.c_maxDistance);
+                    behaviour.Shoot(origin, end, o.Hit != null);
                 }
                 break;
             }

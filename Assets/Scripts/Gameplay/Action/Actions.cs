@@ -47,18 +47,18 @@ namespace Wheeled.Gameplay.Action
     {
         #region Public Properties
 
-        public Vector3 Direction { get; }
+        public Sight Sight { get; }
 
-        public float? HitDistance { get; set; }
+        public Vector3? Hit { get; set; }
 
         #endregion Public Properties
 
         #region Public Constructors
 
-        public ShotOffense(byte _offenderId, Vector3 _position, Vector3 _direction) : base(_offenderId, _position)
+        public ShotOffense(byte _offenderId, Vector3 _position, Sight _sight) : base(_offenderId, _position)
         {
-            Direction = _direction;
-            HitDistance = null;
+            Sight = _sight;
+            Hit = null;
         }
 
         #endregion Public Constructors
@@ -72,9 +72,16 @@ namespace Wheeled.Gameplay.Action
 
         #endregion Public Properties
 
+        #region Public Fields
+
+        public const double c_maxLifetime = 5.0f;
+        public const float c_velocity = 20.0f;
+
+        #endregion Public Fields
+
         #region Public Constructors
 
-        public RocketShotOffense(byte _offenderId, Vector3 _position, Vector3 _direction) : base(_offenderId, _position, _direction)
+        public RocketShotOffense(byte _offenderId, Vector3 _position, Sight _sight) : base(_offenderId, _position, _sight)
         {
         }
 
@@ -90,9 +97,15 @@ namespace Wheeled.Gameplay.Action
 
         #endregion Public Properties
 
+        #region Public Fields
+
+        public const float c_maxDistance = 100.0f;
+
+        #endregion Public Fields
+
         #region Public Constructors
 
-        public RifleShotOffense(byte _offenderId, Vector3 _position, Vector3 _direction, float _power) : base(_offenderId, _position, _direction)
+        public RifleShotOffense(byte _offenderId, Vector3 _position, Sight _sight, float _power) : base(_offenderId, _position, _sight)
         {
             Power = _power;
         }
