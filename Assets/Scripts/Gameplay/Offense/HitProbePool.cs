@@ -7,14 +7,40 @@ namespace Wheeled.Gameplay.Stage
 {
     internal sealed class HitProbePool
     {
+        #region Public Structs
+
+        public struct HitInfo
+        {
+            #region Public Fields
+
+            public bool isCritical;
+            public Vector3 normal;
+            public byte? playerId;
+            public Vector3 position;
+
+            #endregion Public Fields
+        }
+
+        #endregion Public Structs
+
+        #region Private Fields
+
         private const int c_worldLayerMask = 1 << 11 | 1 << 12;
         private readonly List<HitProbeBehaviour> m_probes;
         private int m_nextProbe;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public HitProbePool()
         {
             m_probes = new List<HitProbeBehaviour>();
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public void Add(byte _playerId, Snapshot _snapshot)
         {
@@ -24,7 +50,7 @@ namespace Wheeled.Gameplay.Stage
             }
             if (m_probes[m_nextProbe] == null)
             {
-                m_probes[m_nextProbe] = Object.Instantiate(ScriptManager.Actors.hitProbe).GetComponent<HitProbeBehaviour>();
+                m_probes[m_nextProbe] = Object.Instantiate(ScriptManager.Actors.collisionProbe).GetComponent<HitProbeBehaviour>();
             }
             m_probes[m_nextProbe].Set(_playerId, _snapshot);
             m_nextProbe++;
@@ -56,7 +82,7 @@ namespace Wheeled.Gameplay.Stage
         {
             Vector3 diff = _end - _start;
             Ray ray = new Ray(_start, diff);
-            int mask = c_worldLayerMask | (1 << ScriptManager.Actors.hitProbe.layer);
+            int mask = ScriptManager.Collisions.shoot | (1 << ScriptManager.Actors.collisionProbe.layer);
             if (Physics.Linecast(_start, _end, out RaycastHit hit, mask))
             {
                 GameObject gameObject = hit.collider.gameObject;
@@ -77,12 +103,6 @@ namespace Wheeled.Gameplay.Stage
             }
         }
 
-        public struct HitInfo
-        {
-            public bool isCritical;
-            public Vector3 normal;
-            public byte? playerId;
-            public Vector3 position;
-        }
+        #endregion Public Methods
     }
 }

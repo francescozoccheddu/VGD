@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 126886733035378776}
   - component: {fileID: 126886733035378779}
   - component: {fileID: 2964206902449682342}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: HitProbe
   m_TagString: Untagged
   m_Icon: {fileID: 0}

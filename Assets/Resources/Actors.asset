@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e94e6f60db472e74d8f585b7fb35f2da, type: 3}
   m_Name: Actors
   m_EditorClassIdentifier: 
-  hitProbe: {fileID: 126886733035378778, guid: ff791be9b749541429323cfde15ea5ce, type: 3}
+  collisionProbe: {fileID: 126886733035378778, guid: ff791be9b749541429323cfde15ea5ce,
+    type: 3}
   player: {fileID: 1008519635541092583, guid: d68cab5a56f39f442828f1715614cc34, type: 3}
   rifleProjectile: {fileID: 6901257101853662855, guid: bfdde63f6e95b13469b0dc78ccb35924,
     type: 3}
