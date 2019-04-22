@@ -62,7 +62,7 @@ internal struct CapsuleController
     private const float c_gameCeilingY = 5.0f;
     private const float c_gameFloorY = -5.0f;
     private const float c_height = 1.3f;
-    private const int c_maxMoveIteractions = 5;
+    private const int c_maxMoveIteractions = 2;
     private const float c_radius = 0.5f;
     private const float c_overShoot = 0.5f;
     private const float c_skin = 0.1f;
