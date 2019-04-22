@@ -3,6 +3,7 @@ using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
+using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Client
 {
@@ -30,7 +31,7 @@ namespace Wheeled.Networking.Client
 
             #region Public Constructors
 
-            public NetPlayer(ClientGameManager _manager, byte _id) : base(_manager, _id)
+            public NetPlayer(ClientGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
             {
                 m_replicationTapper = new TimeConstants.Tapper(1.0f);
                 m_wasAlive = false;

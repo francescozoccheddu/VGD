@@ -12,22 +12,37 @@ namespace Wheeled.Core
 {
     public sealed partial class GameLauncher
     {
-        private IGameHost m_host;
-        private bool m_isQuitting = false;
-
-        public event GameRoomDiscoverEventHandler OnGameRoomDiscovered;
+        #region Public Properties
 
         public bool IsBusy => m_host?.IsStarted == true;
         public bool IsServer { get; private set; }
+
+        #endregion Public Properties
+
+        #region Public Events
+
+        public event GameRoomDiscoverEventHandler OnGameRoomDiscovered;
+
+        #endregion Public Events
+
+        #region Private Fields
+
+        private IGameHost m_host;
+        private bool m_isQuitting = false;
+
+        #endregion Private Fields
+
+        #region Public Methods
 
         public void QuitGame()
         {
             if (m_host != null)
             {
-                m_host.Stop();
+                DestroyHost();
                 if (!m_isQuitting)
                 {
-                    LoadScene(ScriptManager.Scenes.menu);
+                    SceneManager.LoadScene(ScriptManager.Scenes.menu, LoadSceneMode.Single);
+                    Cursor.lockState = CursorLockMode.None;
                 }
             }
             else
@@ -72,6 +87,10 @@ namespace Wheeled.Core
                 Debug.LogWarning("DiscoveryServers has been ignored because a game is running or loading");
             }
         }
+
+        #endregion Public Methods
+
+        #region Private Methods
 
         private void DestroyHost()
         {
@@ -120,7 +139,7 @@ namespace Wheeled.Core
 
         private void LoadScene(int _scene)
         {
-            SceneManager.LoadSceneAsync(_scene, LoadSceneMode.Single).completed += SceneLoaded;
+            SceneManager.LoadSceneAsync(_scene, LoadSceneMode.Single).completed += GameSceneLoaded;
         }
 
         private void OnApplicationQuit()
@@ -138,9 +157,10 @@ namespace Wheeled.Core
             LoadScene(ScriptManager.Scenes.game[_room.map]);
         }
 
-        private void SceneLoaded(AsyncOperation _operation)
+        private void GameSceneLoaded(AsyncOperation _operation)
         {
             m_host?.GameReady();
+            Cursor.lockState = CursorLockMode.Locked;
         }
 
         private void UnregisterHostEvents()
@@ -155,5 +175,7 @@ namespace Wheeled.Core
                 }
             }
         }
+
+        #endregion Private Methods
     }
 }

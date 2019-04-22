@@ -1,6 +1,7 @@
 ﻿using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Player;
+using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Server
 {
@@ -24,7 +25,7 @@ namespace Wheeled.Networking.Server
 
             #region Public Constructors
 
-            public LocalPlayer(ServerGameManager _manager, byte _id) : base(_manager, _id)
+            public LocalPlayer(ServerGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
             {
                 m_playerController = new PlayerController(this);
             }
@@ -42,6 +43,12 @@ namespace Wheeled.Networking.Server
             {
                 base.OnActorSpawned();
                 m_playerController.OnActorSpawned();
+            }
+
+            protected override void OnActorDied()
+            {
+                base.OnActorDied();
+                m_playerController.OnActorDied();
             }
 
             protected override void OnUpdated()

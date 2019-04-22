@@ -7,6 +7,7 @@ using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Scene;
+using Wheeled.Gameplay.Stage;
 using Wheeled.HUD;
 
 namespace Wheeled.Networking.Server
@@ -46,7 +47,7 @@ namespace Wheeled.Networking.Server
 
             #region Protected Constructors
 
-            protected AuthoritativePlayer(ServerGameManager _manager, byte _id) : base(_manager, _id)
+            protected AuthoritativePlayer(ServerGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
             {
                 m_manager = _manager;
                 m_lastValidatedDeathTime = double.NegativeInfinity;
@@ -213,7 +214,7 @@ namespace Wheeled.Networking.Server
                 if (_node.time > m_lastValidatedExplosionTime)
                 {
                     m_lastValidatedExplosionTime = _node.time;
-                    m_manager.OffenseBackstage.PutExplosion(_node.time, new ExplosionOffense(Id, this.GetSnapshot(_node.time).simulation.Position));
+                    m_manager.m_offenseBackstage.PutExplosion(_node.time, new ExplosionOffense(Id, this.GetSnapshot(_node.time).simulation.Position));
                 }
             }
 

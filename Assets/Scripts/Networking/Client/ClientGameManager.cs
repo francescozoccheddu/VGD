@@ -14,9 +14,7 @@ namespace Wheeled.Networking.Client
     {
         #region Public Properties
 
-        public OffenseBackstage OffenseBackstage { get; }
         double IPlayerManager.Time => m_time;
-
         public MatchBoard MatchBoard { get; }
 
         #endregion Public Properties
@@ -37,6 +35,8 @@ namespace Wheeled.Networking.Client
 
         private const double c_localOffset = 0.025;
         private const float c_timeSmoothQuickness = 0.2f;
+        private readonly OffenseBackstage m_offenseBackstage;
+        private readonly OffenseBackstage m_localOffenseBackstage;
         private readonly LocalPlayer m_localPlayer;
         private readonly Dictionary<byte, Player> m_players;
         private readonly Client.IServer m_server;
@@ -52,7 +52,11 @@ namespace Wheeled.Networking.Client
         public ClientGameManager(Client.IServer _server, byte _id)
         {
             Debug.Log("ClientGameManager started");
-            OffenseBackstage = new OffenseBackstage
+            m_offenseBackstage = new OffenseBackstage
+            {
+                ValidationTarget = this
+            };
+            m_localOffenseBackstage = new OffenseBackstage
             {
                 ValidationTarget = this
             };
@@ -61,7 +65,7 @@ namespace Wheeled.Networking.Client
                 IsRunning = true
             };
             m_server = _server;
-            m_localPlayer = new LocalPlayer(this, _id)
+            m_localPlayer = new LocalPlayer(this, _id, m_localOffenseBackstage)
             {
                 HistoryDuration = 2.0,
                 MaxMovementInputStepsNotifyCount = 20,
@@ -94,7 +98,8 @@ namespace Wheeled.Networking.Client
                 {
                     p.TimeOffset = TimeConstants.Smooth(p.TimeOffset, -(owd + p.AverageReplicationInterval + c_netOffset), Time.deltaTime, c_timeSmoothQuickness);
                 }
-                OffenseBackstage.UpdateUntil(m_time);
+                m_offenseBackstage.UpdateUntil(m_time);
+                m_localOffenseBackstage.UpdateUntil(m_localPlayer.LocalTime);
                 foreach (Player p in m_players.Values)
                 {
                     p.Update();
@@ -146,7 +151,7 @@ namespace Wheeled.Networking.Client
             }
             else
             {
-                NetPlayer newNetPlayer = new NetPlayer(this, _id)
+                NetPlayer newNetPlayer = new NetPlayer(this, _id, m_offenseBackstage)
                 {
                     HistoryDuration = 2.0,
                 };

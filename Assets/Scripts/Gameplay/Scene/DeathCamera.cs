@@ -8,7 +8,7 @@ namespace Wheeled.Gameplay.Scene
         #region Private Fields
 
         private const float c_radius = 0.5f;
-        private static Camera s_lastCamera;
+        private static GameObject s_lastCamera;
 
         #endregion Private Fields
 
@@ -21,10 +21,9 @@ namespace Wheeled.Gameplay.Scene
             foreach (Collider collider in colliders)
             {
                 GameObject gameObject = collider.gameObject;
-                Camera camera = gameObject.GetComponent<Camera>();
-                if (camera != null)
+                if (gameObject != null)
                 {
-                    s_lastCamera = camera;
+                    s_lastCamera = gameObject;
                     break;
                 }
             }
@@ -34,29 +33,36 @@ namespace Wheeled.Gameplay.Scene
             }
             else
             {
-                s_lastCamera.enabled = true;
+                SetEnabled(true);
             }
         }
 
         public static void Disable()
         {
-            if (s_lastCamera != null)
-            {
-                s_lastCamera.enabled = false;
-            }
+            SetEnabled(false);
             s_lastCamera = null;
         }
 
         public static void EnableDefault()
         {
             Disable();
-            s_lastCamera = GameObject.FindWithTag("DefaultDeathCamera")?.GetComponent<Camera>();
-            if (s_lastCamera != null)
-            {
-                s_lastCamera.enabled = true;
-            }
+            s_lastCamera = GameObject.FindWithTag("DefaultDeathCamera");
+            SetEnabled(true);
         }
 
         #endregion Public Methods
+
+        #region Private Methods
+
+        private static void SetEnabled(bool _enable)
+        {
+            if (s_lastCamera != null)
+            {
+                s_lastCamera.GetComponent<Camera>().enabled = true;
+                s_lastCamera.GetComponent<AudioListener>().enabled = true;
+            }
+        }
+
+        #endregion Private Methods
     }
 }

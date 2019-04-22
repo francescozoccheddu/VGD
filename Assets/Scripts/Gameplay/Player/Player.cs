@@ -81,8 +81,9 @@ namespace Wheeled.Gameplay.Player
         private readonly EventHistory<SpawnInfo> m_spawnHistory;
         private readonly WeaponsHistory m_weaponsHistory;
         private readonly EventHistory<bool> m_shootHistory;
-        private MovementHistory m_movementHistory;
-        private InputHistory m_inputHistory;
+        private readonly MovementHistory m_movementHistory;
+        private readonly InputHistory m_inputHistory;
+        private readonly OffenseBackstage m_offenseBackstage;
         private bool m_isAlive;
         private double m_historyDuration;
         private double m_quitTime;
@@ -91,11 +92,12 @@ namespace Wheeled.Gameplay.Player
 
         #region Protected Constructors
 
-        protected Player(IPlayerManager _manager, byte _id)
+        protected Player(IPlayerManager _manager, byte _id, OffenseBackstage _offenseBackstage)
         {
             // Logic
             Id = _id;
             m_manager = _manager;
+            m_offenseBackstage = _offenseBackstage;
             m_view = new View()
             {
                 IsLocal = IsLocal,
@@ -139,7 +141,7 @@ namespace Wheeled.Gameplay.Player
             {
                 m_weaponsHistory.PutRocketShot(_time);
                 RocketShotOffense offense = new RocketShotOffense(Id, _info.position, _info.sight);
-                m_manager.OffenseBackstage.PutRocket(_time, offense);
+                m_offenseBackstage.PutRocket(_time, offense);
                 m_offenseStage.Put(_time, offense);
             }
             else
@@ -148,7 +150,7 @@ namespace Wheeled.Gameplay.Player
                 m_weaponsHistory.CanShootRifle(_time, out float power);
                 power = Mathf.Max(Action.WeaponsHistory.c_rifleMinPower, power);
                 RifleShotOffense offense = new RifleShotOffense(Id, _info.position, _info.sight, power);
-                m_manager.OffenseBackstage.PutRifle(_time, offense);
+                m_offenseBackstage.PutRifle(_time, offense);
                 m_offenseStage.Put(_time, offense);
             }
             m_shootHistory.Put(_time, _info.isRocket);

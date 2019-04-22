@@ -4,6 +4,7 @@ using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
+using Wheeled.Gameplay.Stage;
 
 namespace Wheeled.Networking.Server
 {
@@ -40,7 +41,7 @@ namespace Wheeled.Networking.Server
 
             #region Public Constructors
 
-            public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer) : base(_manager, _id)
+            public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
             {
                 Peer = _peer;
                 m_movementValidator = new MovementValidator(c_maxValidationAnticipation)

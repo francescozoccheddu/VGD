@@ -17,7 +17,6 @@ namespace Wheeled.Networking.Server
     {
         #region Public Properties
 
-        public OffenseBackstage OffenseBackstage { get; }
         double IPlayerManager.Time => m_time;
 
         public MatchBoard MatchBoard { get; }
@@ -40,10 +39,10 @@ namespace Wheeled.Networking.Server
         private readonly LocalPlayer m_localPlayer;
         private readonly List<AuthoritativePlayer> m_players;
         private readonly Updatable m_updatable;
+        private readonly OffenseBackstage m_offenseBackstage;
         private byte m_nextPlayerId;
         private double m_time;
         private float m_timeSinceLastReplication;
-
         private double m_lastRecapSyncTime;
 
         private double m_lastTimeSyncTime;
@@ -54,7 +53,7 @@ namespace Wheeled.Networking.Server
 
         public ServerGameManager()
         {
-            OffenseBackstage = new OffenseBackstage
+            m_offenseBackstage = new OffenseBackstage
             {
                 ValidationTarget = this
             };
@@ -63,7 +62,7 @@ namespace Wheeled.Networking.Server
                 IsRunning = true
             };
             m_time = 0.0;
-            m_localPlayer = new LocalPlayer(this, 0)
+            m_localPlayer = new LocalPlayer(this, 0, m_offenseBackstage)
             {
                 HistoryDuration = 2.0,
                 MaxMovementInputStepsReplicationCount = 5,
@@ -95,7 +94,7 @@ namespace Wheeled.Networking.Server
             {
                 player.Update();
             }
-            OffenseBackstage.UpdateUntil(m_time);
+            m_offenseBackstage.UpdateUntil(m_time);
             if (m_lastTimeSyncTime + c_roomUpdatePeriod <= m_time)
             {
                 m_lastTimeSyncTime = m_time;
@@ -210,7 +209,7 @@ namespace Wheeled.Networking.Server
         bool Server.IGameManager.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, Deserializer _reader)
         {
             // TODO decide whether accept it or not
-            NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer)
+            NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer, m_offenseBackstage)
             {
                 HistoryDuration = 3.0,
                 MaxMovementInputStepsReplicationCount = 20,

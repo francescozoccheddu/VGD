@@ -1,5 +1,4 @@
-﻿using Wheeled.Gameplay.Stage;
-using Wheeled.HUD;
+﻿using Wheeled.HUD;
 
 namespace Wheeled.Gameplay.Player
 {
@@ -7,7 +6,6 @@ namespace Wheeled.Gameplay.Player
     {
         #region Public Properties
 
-        OffenseBackstage OffenseBackstage { get; }
         MatchBoard MatchBoard { get; }
         double Time { get; }
 

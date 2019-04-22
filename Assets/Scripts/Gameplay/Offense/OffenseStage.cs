@@ -40,13 +40,13 @@ namespace Wheeled.Gameplay.Stage
 
             public void Update(double _time)
             {
-                if (m_behaviour == null)
-                {
-                    m_behaviour = Object.Instantiate(ScriptManager.Actors.rocketProjectile).GetComponent<RocketProjectileBehaviour>();
-                }
                 double elapsed = _time - m_time;
                 Vector3 origin = GetOrigin();
                 Vector3 end = GetEnd();
+                if (m_behaviour == null)
+                {
+                    m_behaviour = Object.Instantiate(ScriptManager.Actors.rocketProjectile, origin, Quaternion.FromToRotation(origin, end)).GetComponent<RocketProjectileBehaviour>();
+                }
                 float progress = (float) (RocketShotOffense.c_velocity * elapsed / Vector3.Distance(origin, end));
                 Vector3 position = Vector3.Lerp(origin, end, progress);
                 m_behaviour.Move(position);
