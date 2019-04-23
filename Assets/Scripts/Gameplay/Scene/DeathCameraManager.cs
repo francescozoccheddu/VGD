@@ -3,12 +3,12 @@ using Wheeled.Core.Data;
 
 namespace Wheeled.Gameplay.Scene
 {
-    internal static class DeathCamera
+    internal static class DeathCameraManager
     {
         #region Private Fields
 
         private const float c_radius = 0.5f;
-        private static GameObject s_lastCamera;
+        private static DeathCameraBehaviour s_lastCamera;
 
         #endregion Private Fields
 
@@ -20,10 +20,9 @@ namespace Wheeled.Gameplay.Scene
             Collider[] colliders = Physics.OverlapSphere(_position, c_radius, ScriptManager.Collisions.deathCameraVolume);
             foreach (Collider collider in colliders)
             {
-                GameObject gameObject = collider.gameObject;
-                if (gameObject != null)
+                s_lastCamera = collider.gameObject.GetComponent<DeathCameraBehaviour>();
+                if (s_lastCamera != null)
                 {
-                    s_lastCamera = gameObject;
                     break;
                 }
             }
@@ -46,7 +45,7 @@ namespace Wheeled.Gameplay.Scene
         public static void EnableDefault()
         {
             Disable();
-            s_lastCamera = GameObject.FindWithTag("DefaultDeathCamera");
+            s_lastCamera = GameObject.FindWithTag("DefaultDeathCamera").GetComponent<DeathCameraBehaviour>();
             SetEnabled(true);
         }
 
@@ -58,8 +57,7 @@ namespace Wheeled.Gameplay.Scene
         {
             if (s_lastCamera != null)
             {
-                s_lastCamera.GetComponent<Camera>().enabled = true;
-                s_lastCamera.GetComponent<AudioListener>().enabled = true;
+                s_lastCamera.SetEnabled(_enable);
             }
         }
 

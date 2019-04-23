@@ -34,6 +34,7 @@ namespace Wheeled.Networking.Server
 
             #region Private Fields
 
+            private const double c_spawnDelay = 0.5;
             private const double c_respawnWaitTime = 3.0;
 
             private double m_nextSpawnTime;
@@ -221,11 +222,12 @@ namespace Wheeled.Networking.Server
             private void Spawn()
             {
                 m_nextSpawnTime = double.NaN;
+                double spawnTime = m_manager.m_time + c_spawnDelay;
                 IEnumerable<Vector3> positions = from p in m_manager.m_players
-                                                 where !p.IsQuit(m_manager.m_time)
-                                                 && p.LifeHistory.IsAlive(m_manager.m_time)
-                                                 select p.GetSnapshot(m_manager.m_time).simulation.Position;
-                PutSpawn(m_manager.m_time + c_spawnDelay, new SpawnInfo()
+                                                 where !p.IsQuit(spawnTime)
+                                                 && p.LifeHistory.IsAlive(spawnTime)
+                                                 select p.GetSnapshot(spawnTime).simulation.Position;
+                PutSpawn(spawnTime, new SpawnInfo()
                 {
                     spawnPoint = SpawnManagerBehaviour.Spawn(positions)
                 });
@@ -243,11 +245,5 @@ namespace Wheeled.Networking.Server
         }
 
         #endregion Private Classes
-
-        #region Public Fields
-
-        public const double c_spawnDelay = 0.5;
-
-        #endregion Public Fields
     }
 }
