@@ -7,13 +7,15 @@ namespace Wheeled.HUD
     {
         #region Public Fields
 
-        public RawImage image;
-        public Text text;
+        public RawImage crossHairImage;
+        public CanvasGroup hitMarkerGroup;
+        public Text healthText;
 
         #endregion Public Fields
 
         #region Private Fields
 
+        private const float c_hitMarkerDuration = 2.0f;
         private static CrossHairBehaviour s_instance;
 
         #endregion Private Fields
@@ -23,21 +25,31 @@ namespace Wheeled.HUD
         internal static void SetHealth(int _health)
         {
             string newText = _health.ToString();
-            if (s_instance.text.text != newText)
+            if (s_instance.healthText.text != newText)
             {
-                s_instance.text.text = newText;
+                s_instance.healthText.text = newText;
             }
+        }
+
+        internal static void NotifyHit()
+        {
+            s_instance.hitMarkerGroup.alpha = 1.0f;
         }
 
         internal static void SetEnabled(bool _enabled)
         {
-            s_instance.image.enabled = _enabled;
-            s_instance.text.enabled = _enabled;
+            s_instance.crossHairImage.enabled = _enabled;
+            s_instance.healthText.enabled = _enabled;
         }
 
         #endregion Internal Methods
 
         #region Private Methods
+
+        private void Update()
+        {
+            s_instance.hitMarkerGroup.alpha -= Time.deltaTime * c_hitMarkerDuration;
+        }
 
         private void Start()
         {

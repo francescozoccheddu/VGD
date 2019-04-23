@@ -85,6 +85,7 @@ namespace Wheeled.Gameplay.Player
 
         void EventHistory<OffenseType>.ITarget.Perform(double _time, OffenseType _value)
         {
+            CrossHairBehaviour.NotifyHit();
         }
 
         void EventHistory<DamageInfo>.ITarget.Perform(double _time, DamageInfo _value)
