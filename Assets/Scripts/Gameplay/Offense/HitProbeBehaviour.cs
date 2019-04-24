@@ -6,9 +6,19 @@ namespace Wheeled.Gameplay.Stage
 {
     public sealed class HitProbeBehaviour : MonoBehaviour
     {
-        public Collider[] criticalColliders;
+        #region Internal Properties
 
         internal byte PlayerId { get; private set; }
+
+        #endregion Internal Properties
+
+        #region Public Fields
+
+        public Collider[] criticalColliders;
+
+        #endregion Public Fields
+
+        #region Internal Methods
 
         internal void Disable()
         {
@@ -27,5 +37,7 @@ namespace Wheeled.Gameplay.Stage
             transform.position = _snapshot.simulation.Position;
             transform.rotation = _snapshot.sight.Quaternion;
         }
+
+        #endregion Internal Methods
     }
 }

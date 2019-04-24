@@ -187,12 +187,12 @@ MonoBehaviour:
   torso: {fileID: 8416325899184927864}
   cameraArm: {fileID: 776610461}
   lookUp: 0
-  lookUpSpeed: 5
-  maxLookUpOffset: 30
+  lookUpSpeed: 8
+  maxLookUpOffset: 20
   headLookUpFactor: 0.3
   turn: 0
-  turnSpeed: 5
-  maxTurnOffset: 30
+  turnSpeed: 10
+  maxTurnOffset: 15
 --- !u!114 &407538881
 MonoBehaviour:
   m_ObjectHideFlags: 0

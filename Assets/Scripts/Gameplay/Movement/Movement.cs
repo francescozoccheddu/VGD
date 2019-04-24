@@ -4,10 +4,7 @@ namespace Wheeled.Gameplay.Movement
 {
     internal struct InputStep
     {
-        public bool dash;
-        public bool jump;
-        public float movementX;
-        public float movementZ;
+        #region Public Properties
 
         public InputStep Clamped
         {
@@ -18,7 +15,6 @@ namespace Wheeled.Gameplay.Movement
                 return clamped;
             }
         }
-
         public InputStep Predicted
         {
             get
@@ -29,6 +25,19 @@ namespace Wheeled.Gameplay.Movement
                 return predicted;
             }
         }
+
+        #endregion Public Properties
+
+        #region Public Fields
+
+        public bool dash;
+        public bool jump;
+        public float movementX;
+        public float movementZ;
+
+        #endregion Public Fields
+
+        #region Public Methods
 
         public static bool IsNearlyEqual(in InputStep _a, in InputStep _b)
         {
@@ -48,26 +57,29 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
+        #endregion Public Methods
+
+        #region Private Methods
+
         private static bool IsNearlyEqual(float _a, float _b)
         {
             return Mathf.Approximately(_a, _b);
         }
+
+        #endregion Private Methods
     }
 
     internal struct Sight
     {
-        private float m_lookUp;
-        private float m_turn;
-        public Vector3 Direction => Quaternion * Vector3.forward;
+        #region Public Properties
 
+        public Vector3 Direction => Quaternion * Vector3.forward;
         public float LookUp
         {
             get => m_lookUp;
-            set => m_lookUp = Mathf.Clamp(value, -40.0f, 80.0f);
+            set => m_lookUp = Mathf.Clamp(value, -40.0f, 50.0f);
         }
-
         public Quaternion Quaternion => Quaternion.Euler(m_lookUp, m_turn, 0.0f);
-
         public float Turn
         {
             get => m_turn;
@@ -81,6 +93,17 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
+        #endregion Public Properties
+
+        #region Private Fields
+
+        private float m_lookUp;
+        private float m_turn;
+
+        #endregion Private Fields
+
+        #region Public Methods
+
         public static Sight Lerp(in Sight _a, in Sight _b, float _progress)
         {
             Sight l;
@@ -88,18 +111,30 @@ namespace Wheeled.Gameplay.Movement
             l.m_lookUp = Mathf.LerpAngle(_a.LookUp, _b.LookUp, _progress);
             return l;
         }
+
+        #endregion Public Methods
     }
 
     internal struct SimulationStepInfo
     {
+        #region Public Fields
+
         public InputStep input;
         public CharacterController simulation;
+
+        #endregion Public Fields
     }
 
     internal struct Snapshot
     {
+        #region Public Fields
+
         public Sight sight;
         public CharacterController simulation;
+
+        #endregion Public Fields
+
+        #region Public Methods
 
         public static Snapshot Lerp(in Snapshot _a, in Snapshot _b, float _progress)
         {
@@ -108,5 +143,7 @@ namespace Wheeled.Gameplay.Movement
             l.sight = Sight.Lerp(_a.sight, _b.sight, _progress);
             return l;
         }
+
+        #endregion Public Methods
     }
 }

@@ -152,6 +152,7 @@ namespace Wheeled.Gameplay.Stage
                                 _probes.Add(t.playerId, t.snapshot);
                             }
                         }
+                        Physics.SyncTransforms();
                     }
                     Vector3 origin = GetOrigin();
                     Vector3 end = origin + offense.Sight.Direction * RifleShotOffense.c_maxDistance;
@@ -214,6 +215,7 @@ namespace Wheeled.Gameplay.Stage
                                     _probes.Add(t.playerId, t.snapshot);
                                 }
                             }
+                            Physics.SyncTransforms();
                         }
                         Vector3 nextPosition = GetPosition(nextLifeTime);
                         if (_probes.RayCast(position, nextPosition, out HitProbePool.HitInfo hitInfo))
