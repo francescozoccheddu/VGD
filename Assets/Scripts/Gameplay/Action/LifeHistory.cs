@@ -82,6 +82,7 @@ namespace Wheeled.Gameplay.Action
 
         private readonly LinkedListHistory<double, DamageInfo> m_damages;
         private readonly LinkedListHistory<double, int> m_health;
+        private HistoryNode<double, int>? m_trimmedNode;
 
         #endregion Private Fields
 
@@ -120,10 +121,15 @@ namespace Wheeled.Gameplay.Action
 
         public int GetHealth(double _time)
         {
-            HistoryNode<double, int>? healthNode = m_health.Last(_time);
+            return GetHealthOrNull(_time) ?? 0;
+        }
+
+        public int? GetHealthOrNull(double _time)
+        {
+            HistoryNode<double, int>? healthNode = GetLastHealthNode(_time);
             if (healthNode == null)
             {
-                return 0;
+                return null;
             }
             int health = healthNode.Value.value;
             foreach (HistoryNode<double, DamageInfo> damageNode in m_damages
@@ -136,6 +142,15 @@ namespace Wheeled.Gameplay.Action
 
         public void Trim(double _time)
         {
+            int? health = GetHealthOrNull(_time);
+            if (health != null)
+            {
+                m_trimmedNode = new HistoryNode<double, int>
+                {
+                    time = _time,
+                    value = health.Value
+                };
+            }
             m_health.ForgetOlder(_time, true);
             m_damages.ForgetOlder(_time, true);
         }
@@ -145,6 +160,10 @@ namespace Wheeled.Gameplay.Action
             _outDeath = null;
             _outExplosion = null;
             HistoryNode<double, int>? healthNode = m_health.Last(_time, _n => _n.value > 0);
+            if (m_trimmedNode?.value > 0 && m_trimmedNode?.time > healthNode?.time)
+            {
+                healthNode = m_trimmedNode;
+            }
             if (healthNode == null)
             {
                 return;
@@ -177,6 +196,23 @@ namespace Wheeled.Gameplay.Action
         }
 
         #endregion Public Methods
+
+        #region Private Methods
+
+        private HistoryNode<double, int>? GetLastHealthNode(double _time)
+        {
+            HistoryNode<double, int>? fromHistory = m_health.Last(_time);
+            if (fromHistory?.time < m_trimmedNode?.time != true)
+            {
+                return fromHistory;
+            }
+            else
+            {
+                return m_trimmedNode;
+            }
+        }
+
+        #endregion Private Methods
     }
 
     internal struct DamageNode

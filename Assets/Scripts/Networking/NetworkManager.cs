@@ -10,26 +10,104 @@ namespace Wheeled.Networking
 {
     internal sealed partial class NetworkManager
     {
-        public static readonly NetworkManager instance = new NetworkManager();
-        public IEventListener listener;
-        private static readonly NetDataWriter s_emptyDataWriter = new NetDataWriter(false, 0);
-        private readonly NetManager m_netManager;
+        #region Public Interfaces
 
-        private bool m_wasRunning;
-
-        private NetworkManager()
+        public interface IEventListener
         {
-            m_wasRunning = false;
-            m_netManager = new NetManager(this)
-            {
-                DiscoveryEnabled = true,
-                SimulatePacketLoss = false,
-                SimulationPacketLossChance = 5,
-                SimulateLatency = false,
-                SimulationMinLatency = 100,
-                SimulationMaxLatency = 150,
-            };
+            #region Public Methods
+
+            void ConnectedTo(Peer _peer);
+
+            void DisconnectedFrom(Peer _peer);
+
+            void Discovered(IPEndPoint _endPoint, Deserializer _reader);
+
+            DiscoveryRequestAction DiscoveryRequested(Deserializer _reader);
+
+            void LatencyUpdated(Peer _peer, double _latency);
+
+            void ReceivedFrom(Peer _peer, Deserializer _reader);
+
+            bool ShouldAcceptConnectionRequest(Peer _peer, Deserializer _reader);
+
+            void Stopped(StopCause _cause);
+
+            #endregion Public Methods
         }
+
+        #endregion Public Interfaces
+
+        #region Public Structs
+
+        public readonly struct Peer : IEquatable<Peer>
+        {
+            #region Public Properties
+
+            public bool IsValid => m_peer != null;
+            public object UserData => m_peer?.Tag;
+            public double Ping => m_peer?.Ping / 1000.0 ?? 0.0;
+            public float TimeSinceLastPacket => m_peer?.TimeSinceLastPacket ?? 0.0f;
+
+            #endregion Public Properties
+
+            #region Private Fields
+
+            private readonly NetPeer m_peer;
+
+            #endregion Private Fields
+
+            #region Public Constructors
+
+            public Peer(NetPeer _peer = null)
+            {
+                m_peer = _peer;
+            }
+
+            #endregion Public Constructors
+
+            #region Public Methods
+
+            public static bool operator !=(Peer _a, Peer _b)
+            {
+                return !(_a == _b);
+            }
+
+            public static bool operator ==(Peer _a, Peer _b)
+            {
+                return _a.Equals(_b);
+            }
+
+            public void Disconnect()
+            {
+                m_peer?.Disconnect();
+            }
+
+            public override bool Equals(object _other)
+            {
+                return (_other as Peer?)?.Equals(this) == true;
+            }
+
+            public bool Equals(Peer _other)
+            {
+                return _other.IsValid && IsValid && _other.m_peer.Id == m_peer.Id && _other.m_peer.ConnectionNum == m_peer.ConnectionNum;
+            }
+
+            public override int GetHashCode()
+            {
+                return (m_peer?.Id)?.GetHashCode() ?? 0;
+            }
+
+            public void Send(NetworkManager.SendMethod _method)
+            {
+                m_peer?.Send(Serializer.writer, (DeliveryMethod) _method);
+            }
+
+            #endregion Public Methods
+        }
+
+        #endregion Public Structs
+
+        #region Public Enums
 
         public enum DiscoveryRequestAction
         {
@@ -50,28 +128,50 @@ namespace Wheeled.Networking
             UnableToStart, Programmatically, NetworkError, UnexpectedStop
         }
 
-        public interface IEventListener
-        {
-            void ConnectedTo(Peer _peer);
+        #endregion Public Enums
 
-            void DisconnectedFrom(Peer _peer);
-
-            void Discovered(IPEndPoint _endPoint, Deserializer _reader);
-
-            DiscoveryRequestAction DiscoveryRequested(Deserializer _reader);
-
-            void LatencyUpdated(Peer _peer, double _latency);
-
-            void ReceivedFrom(Peer _peer, Deserializer _reader);
-
-            bool ShouldAcceptConnectionRequest(Peer _peer, Deserializer _reader);
-
-            void Stopped(StopCause _cause);
-        }
+        #region Public Properties
 
         public int Port => m_netManager.LocalPort;
-
         public bool IsRunning => m_netManager.IsRunning;
+
+        #endregion Public Properties
+
+        #region Public Fields
+
+        public static readonly NetworkManager instance = new NetworkManager();
+        public IEventListener listener;
+
+        #endregion Public Fields
+
+        #region Private Fields
+
+        private static readonly NetDataWriter s_emptyDataWriter = new NetDataWriter(false, 0);
+        private readonly NetManager m_netManager;
+
+        private bool m_wasRunning;
+
+        #endregion Private Fields
+
+        #region Private Constructors
+
+        private NetworkManager()
+        {
+            m_wasRunning = false;
+            m_netManager = new NetManager(this)
+            {
+                DiscoveryEnabled = true,
+                SimulatePacketLoss = false,
+                SimulationPacketLossChance = 5,
+                SimulateLatency = false,
+                SimulationMinLatency = 100,
+                SimulationMaxLatency = 150,
+            };
+        }
+
+        #endregion Private Constructors
+
+        #region Public Methods
 
         public Peer ConnectTo(IPEndPoint _endPoint, bool _sendData)
         {
@@ -161,6 +261,10 @@ namespace Wheeled.Networking
             NotifyIfNotRunning();
         }
 
+        #endregion Public Methods
+
+        #region Private Methods
+
         private void NotifyIfNotRunning()
         {
             if (!IsRunning)
@@ -178,56 +282,6 @@ namespace Wheeled.Networking
             }
         }
 
-        public readonly struct Peer : IEquatable<Peer>
-        {
-            private readonly NetPeer m_peer;
-
-            public Peer(NetPeer _peer = null)
-            {
-                m_peer = _peer;
-            }
-
-            public bool IsValid => m_peer != null;
-
-            public object UserData => m_peer?.Tag;
-            public double Ping => m_peer?.Ping / 1000.0 ?? 0.0;
-
-            public float TimeSinceLastPacket => m_peer?.TimeSinceLastPacket ?? 0.0f;
-
-            public static bool operator !=(Peer _a, Peer _b)
-            {
-                return !(_a == _b);
-            }
-
-            public static bool operator ==(Peer _a, Peer _b)
-            {
-                return _a.Equals(_b);
-            }
-
-            public void Disconnect()
-            {
-                m_peer?.Disconnect();
-            }
-
-            public override bool Equals(object _other)
-            {
-                return (_other as Peer?)?.Equals(this) == true;
-            }
-
-            public bool Equals(Peer _other)
-            {
-                return _other.IsValid && IsValid && _other.m_peer.Id == m_peer.Id;
-            }
-
-            public override int GetHashCode()
-            {
-                return (m_peer?.Id)?.GetHashCode() ?? 0;
-            }
-
-            public void Send(NetworkManager.SendMethod _method)
-            {
-                m_peer?.Send(Serializer.writer, (DeliveryMethod) _method);
-            }
-        }
+        #endregion Private Methods
     }
 }
