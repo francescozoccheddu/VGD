@@ -12,6 +12,59 @@ namespace Wheeled.Networking.Client
 {
     internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IPlayerManager, OffenseBackstage.IValidationTarget
     {
+        #region Private Classes
+
+        private abstract class ClientPlayer : Player
+        {
+            #region Private Fields
+
+            private readonly ClientGameManager m_manager;
+
+            private bool m_isQuit;
+
+            #endregion Private Fields
+
+            #region Protected Constructors
+
+            protected ClientPlayer(ClientGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
+            {
+                m_manager = _manager;
+            }
+
+            #endregion Protected Constructors
+
+            #region Public Methods
+
+            public void NotifyQuit()
+            {
+                if (!m_isQuit)
+                {
+                    m_isQuit = true;
+                    m_manager.MatchBoard.Put(m_manager.m_time, new MatchBoard.QuitEvent
+                    {
+                        player = this
+                    });
+                }
+            }
+
+            #endregion Public Methods
+
+            #region Protected Methods
+
+            protected override void OnUpdated()
+            {
+                base.OnUpdated();
+                if (!m_isQuit && IsQuit(m_manager.m_time))
+                {
+                    NotifyQuit();
+                }
+            }
+
+            #endregion Protected Methods
+        }
+
+        #endregion Private Classes
+
         #region Public Properties
 
         double IPlayerManager.Time => m_time;
@@ -35,10 +88,11 @@ namespace Wheeled.Networking.Client
 
         private const double c_localOffset = 0.025;
         private const float c_timeSmoothQuickness = 0.2f;
+        private const double c_quitForgetDelay = 5.0;
         private readonly OffenseBackstage m_offenseBackstage;
         private readonly OffenseBackstage m_localOffenseBackstage;
         private readonly LocalPlayer m_localPlayer;
-        private readonly Dictionary<byte, Player> m_players;
+        private readonly Dictionary<byte, ClientPlayer> m_players;
         private readonly Client.IServer m_server;
         private readonly Updatable m_updatable;
         private bool m_isRunning;
@@ -71,7 +125,7 @@ namespace Wheeled.Networking.Client
                 MaxMovementInputStepsNotifyCount = 20,
                 MaxMovementNotifyFrequency = 15
             };
-            m_players = new Dictionary<byte, Player>
+            m_players = new Dictionary<byte, ClientPlayer>
             {
                 { _id, m_localPlayer }
             };
@@ -104,6 +158,12 @@ namespace Wheeled.Networking.Client
                 {
                     p.Update();
                 }
+                double forgetTime = m_time - c_quitForgetDelay;
+                foreach (byte id in (from p in m_players where p.Value.IsQuit(forgetTime) select p.Key).ToList())
+                {
+                    m_players[id].NotifyQuit();
+                    m_players.Remove(id);
+                }
                 MatchBoard.UpdateUntil(m_time);
             }
         }
@@ -132,7 +192,7 @@ namespace Wheeled.Networking.Client
 
         bool OffenseBackstage.IValidationTarget.ShouldProcess(double _time, Offense _offense)
         {
-            if (m_players.TryGetValue(_offense.OffenderId, out Player player))
+            if (m_players.TryGetValue(_offense.OffenderId, out ClientPlayer player))
             {
                 return !player?.IsQuit(_time) == true;
             }
@@ -145,7 +205,7 @@ namespace Wheeled.Networking.Client
 
         private Player GetOrCreatePlayer(byte _id)
         {
-            if (m_players.TryGetValue(_id, out Player player))
+            if (m_players.TryGetValue(_id, out ClientPlayer player))
             {
                 return player;
             }

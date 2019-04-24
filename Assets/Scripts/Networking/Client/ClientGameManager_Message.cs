@@ -48,7 +48,7 @@ namespace Wheeled.Networking.Client
                 case Message.RecapSync:
                 {
                     _reader.ReadRecapSync(out double time, out IEnumerable<PlayerRecapInfo> infos);
-                    Dictionary<byte, Player> oldPlayers = new Dictionary<byte, Player>(m_players);
+                    Dictionary<byte, ClientPlayer> oldPlayers = new Dictionary<byte, ClientPlayer>(m_players);
                     foreach (PlayerRecapInfo info in infos)
                     {
                         Player player = GetOrCreatePlayer(info.id);
@@ -67,7 +67,7 @@ namespace Wheeled.Networking.Client
                 case Message.QuitReplication:
                 {
                     _reader.ReadQuitReplication(out double time, out byte id);
-                    if (m_players.TryGetValue(id, out Player player))
+                    if (m_players.TryGetValue(id, out ClientPlayer player))
                     {
                         player.PutQuit(time);
                     }

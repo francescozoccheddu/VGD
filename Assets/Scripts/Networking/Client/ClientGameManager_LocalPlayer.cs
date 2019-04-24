@@ -13,7 +13,7 @@ namespace Wheeled.Networking.Client
     {
         #region Private Classes
 
-        private sealed class LocalPlayer : Player
+        private sealed class LocalPlayer : ClientPlayer
         {
             #region Public Properties
 

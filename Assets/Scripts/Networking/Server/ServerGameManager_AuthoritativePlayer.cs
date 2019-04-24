@@ -138,6 +138,11 @@ namespace Wheeled.Networking.Server
             {
                 Serializer.WriteQuitReplication(_time, Id);
                 m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
+                m_manager.m_players.Remove(this);
+                m_manager.MatchBoard.Put(_time, new MatchBoard.QuitEvent
+                {
+                    player = this
+                });
             }
 
             protected override void OnShotScheduled(double _time, ShotInfo _info)

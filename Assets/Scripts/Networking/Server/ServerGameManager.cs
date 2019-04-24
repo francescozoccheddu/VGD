@@ -111,8 +111,7 @@ namespace Wheeled.Networking.Server
             if (m_lastRecapSyncTime + c_recapSyncPeriod <= m_time)
             {
                 m_lastRecapSyncTime = m_time;
-                double recapTime = m_time - c_validationDelay;
-                Serializer.WriteRecapSync(recapTime, from p in m_players select p.RecapInfo(recapTime));
+                WriteRecapSync();
                 SendAll(NetworkManager.SendMethod.Sequenced);
             }
             MatchBoard.UpdateUntil(m_time);
@@ -135,8 +134,7 @@ namespace Wheeled.Networking.Server
                 Serializer.WritePlayerIntroductionSync(netPlayer.Id, netPlayer.Info.Value);
                 SendAllBut(netPlayer.Peer, NetworkManager.SendMethod.ReliableUnordered);
                 // Recap
-                double recapTime = m_time - c_validationDelay;
-                Serializer.WriteRecapSync(recapTime, from p in m_players select p.RecapInfo(recapTime));
+                WriteRecapSync();
                 netPlayer.Peer.Send(NetworkManager.SendMethod.Unreliable);
             }
         }
@@ -197,8 +195,7 @@ namespace Wheeled.Networking.Server
                             Serializer.WritePlayerIntroductionSync(p.Id, p.Info.Value);
                             netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
                         }
-                        double recapTime = m_time - c_validationDelay;
-                        Serializer.WriteRecapSync(recapTime, from p in m_players select p.RecapInfo(recapTime));
+                        WriteRecapSync();
                         netPlayer.Peer.Send(NetworkManager.SendMethod.Unreliable);
                     }
                 }
@@ -208,7 +205,10 @@ namespace Wheeled.Networking.Server
 
         bool Server.IGameManager.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, Deserializer _reader)
         {
-            // TODO decide whether accept it or not
+            if (GetNetPlayerByPeer(_peer) != null)
+            {
+                return false;
+            }
             NetPlayer netPlayer = new NetPlayer(this, m_nextPlayerId++, _peer, m_offenseBackstage)
             {
                 HistoryDuration = 3.0,
@@ -266,6 +266,15 @@ namespace Wheeled.Networking.Server
         #endregion Public Methods
 
         #region Private Methods
+
+        private void WriteRecapSync()
+        {
+            double recapTime = m_time - c_validationDelay;
+            Serializer.WriteRecapSync(recapTime, from p
+                                                 in m_players
+                                                 where p.IsStarted && !p.IsQuit(recapTime)
+                                                 select p.RecapInfo(recapTime));
+        }
 
         private NetPlayer GetNetPlayerByPeer(NetworkManager.Peer _peer)
         {
