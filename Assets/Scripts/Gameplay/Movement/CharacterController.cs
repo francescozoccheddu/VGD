@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Wheeled.Core.Data;
 using Wheeled.Gameplay.Movement;
 
 internal struct CharacterController
@@ -79,6 +80,18 @@ internal struct CharacterController
             _movementXZ *= c_airMovementFactor;
         }
         next.m_capsule.velocity.y += c_gravityY * _deltaTime;
+        {
+            Vector3 offset = Vector3.up * (CapsuleController.c_height / 2.0f - CapsuleController.c_radius);
+            foreach (Collider collider in Physics.OverlapCapsule(next.Position + offset, next.Position - offset, CapsuleController.c_radius, ScriptManager.Collisions.jumpPad))
+            {
+                JumpPadBehaviour behaviour = collider.GetComponent<JumpPadBehaviour>();
+                if (behaviour != null)
+                {
+                    float force = behaviour.GetForce(next.Position);
+                    next.m_capsule.velocity.y += force * _deltaTime;
+                }
+            }
+        }
         Vector2 velocityXZ = next.m_capsule.velocity.ToVector2XZ();
         {
             float currentSpeed = velocityXZ.magnitude;
