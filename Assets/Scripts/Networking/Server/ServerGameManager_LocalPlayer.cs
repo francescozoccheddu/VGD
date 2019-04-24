@@ -32,6 +32,15 @@ namespace Wheeled.Networking.Server
 
             #endregion Public Constructors
 
+            #region Public Methods
+
+            public void PutHitConfirm(double _time, OffenseType _type)
+            {
+                m_playerController.PutHitConfirm(_time, _type);
+            }
+
+            #endregion Public Methods
+
             #region Protected Methods
 
             protected override int GetLastValidMovementStep()

@@ -87,7 +87,7 @@ namespace Wheeled.Networking.Server
             m_timeSinceLastReplication += Time.deltaTime;
             foreach (NetPlayer player in m_NetPlayers)
             {
-                double targetOffset = -Math.Min(Math.Max(player.AverageNotifyInterval, 0.0) + player.Ping / 2.0, c_validationDelay);
+                double targetOffset = -Math.Min(Math.Max(player.AverageNotifyInterval, 0.0) + player.Ping, c_validationDelay);
                 player.TimeOffset = TimeConstants.Smooth(player.TimeOffset, targetOffset, Time.deltaTime, c_timeSmoothQuickness);
             }
             foreach (AuthoritativePlayer player in m_players)
@@ -146,6 +146,8 @@ namespace Wheeled.Networking.Server
 
         void Server.IGameManager.LatencyUpdated(NetworkManager.Peer _peer, double _latency)
         {
+            GetNetPlayerByPeer(_peer)?.PingValue.Put(m_time, Mathf.RoundToInt((float) (_latency * 1000.0)));
+            UpdateScoreBoard();
         }
 
         void Server.IGameManager.ReceivedFrom(NetworkManager.Peer _peer, Deserializer _reader)
@@ -237,7 +239,7 @@ namespace Wheeled.Networking.Server
 
         IEnumerable<OffenseBackstage.HitTarget> OffenseBackstage.IValidationTarget.ProvideHitTarget(double _time, Offense _offense)
         {
-            double shooterDelay = (GetPlayerById(_offense.OffenderId) as NetPlayer)?.Peer.Ping / 2.0 + 1.0 / c_replicationRate + ClientGameManager.c_netOffset ?? 0.0;
+            double shooterDelay = (GetPlayerById(_offense.OffenderId) as NetPlayer)?.Peer.Ping + 1.0 / c_replicationRate + ClientGameManager.c_netOffset ?? 0.0;
             return from p
                    in m_players
                    where p.Id != _offense.OffenderId && p.LifeHistory.IsAlive(_time) && !p.IsQuit(_time)
@@ -266,6 +268,15 @@ namespace Wheeled.Networking.Server
         #endregion Public Methods
 
         #region Private Methods
+
+        private void UpdateScoreBoard()
+        {
+            IEnumerable<AuthoritativePlayer> players = from p
+                                                       in m_players
+                                                       where p.IsStarted && !p.IsQuit(m_time)
+                                                       select p;
+            ScoreBoardBehaviour.Update(players);
+        }
 
         private void WriteRecapSync()
         {

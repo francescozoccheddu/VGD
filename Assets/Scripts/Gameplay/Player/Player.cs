@@ -249,14 +249,22 @@ namespace Wheeled.Gameplay.Player
 
         void EventHistory<bool>.ITarget.Perform(double _time, bool _value)
         {
-            if (_value)
+            if (!IsQuit(_time))
             {
-                m_view.ShootRocket();
+                if (_value)
+                {
+                    m_view.ShootRocket();
+                }
+                else
+                {
+                    m_view.ShootRifle();
+                }
             }
-            else
-            {
-                m_view.ShootRifle();
-            }
+        }
+
+        public void Destroy()
+        {
+            m_view.Destroy();
         }
 
         #endregion Public Methods

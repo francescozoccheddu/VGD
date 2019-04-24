@@ -7,7 +7,7 @@ namespace Wheeled.HUD
     {
         #region Public Fields
 
-        public RawImage crossHairImage;
+        public GameObject crossHairGroup;
         public CanvasGroup hitMarkerGroup;
         public Text healthText;
 
@@ -38,8 +38,7 @@ namespace Wheeled.HUD
 
         internal static void SetEnabled(bool _enabled)
         {
-            s_instance.crossHairImage.enabled = _enabled;
-            s_instance.healthText.enabled = _enabled;
+            s_instance.crossHairGroup.SetActive(_enabled);
         }
 
         #endregion Internal Methods

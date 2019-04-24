@@ -133,6 +133,7 @@ namespace Wheeled.Networking.Client
             // Ready notify
             Serializer.WriteReady();
             m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
+            UpdateScoreBoard();
         }
 
         #endregion Public Constructors
@@ -141,8 +142,7 @@ namespace Wheeled.Networking.Client
 
         void Updatable.ITarget.Update()
         {
-            double owd = m_server.Ping / 2.0;
-            m_localPlayer.TimeOffset = TimeConstants.Smooth(m_localPlayer.TimeOffset, owd + 1.0 / m_localPlayer.MaxMovementNotifyFrequency + c_localOffset, Time.deltaTime, c_timeSmoothQuickness);
+            m_localPlayer.TimeOffset = TimeConstants.Smooth(m_localPlayer.TimeOffset, m_server.Ping + 1.0 / m_localPlayer.MaxMovementNotifyFrequency + c_localOffset, Time.deltaTime, c_timeSmoothQuickness);
             if (m_isRunning)
             {
                 m_time += Time.deltaTime;
@@ -150,7 +150,7 @@ namespace Wheeled.Networking.Client
                 m_time = TimeConstants.Smooth(m_time, m_targetTime, Time.deltaTime, c_timeSmoothQuickness);
                 foreach (NetPlayer p in m_NetPlayers)
                 {
-                    p.TimeOffset = TimeConstants.Smooth(p.TimeOffset, -(owd + p.AverageReplicationInterval + c_netOffset), Time.deltaTime, c_timeSmoothQuickness);
+                    p.TimeOffset = TimeConstants.Smooth(p.TimeOffset, -(m_server.Ping + p.AverageReplicationInterval + c_netOffset), Time.deltaTime, c_timeSmoothQuickness);
                 }
                 m_offenseBackstage.UpdateUntil(m_time);
                 m_localOffenseBackstage.UpdateUntil(m_localPlayer.LocalTime);
@@ -159,10 +159,11 @@ namespace Wheeled.Networking.Client
                     p.Update();
                 }
                 double forgetTime = m_time - c_quitForgetDelay;
-                foreach (byte id in (from p in m_players where p.Value.IsQuit(forgetTime) select p.Key).ToList())
+                foreach (KeyValuePair<byte, ClientPlayer> p in (from p in m_players where p.Value.IsQuit(forgetTime) select p).ToList())
                 {
-                    m_players[id].NotifyQuit();
-                    m_players.Remove(id);
+                    p.Value.NotifyQuit();
+                    p.Value.Destroy();
+                    m_players.Remove(p.Key);
                 }
                 MatchBoard.UpdateUntil(m_time);
             }
@@ -194,7 +195,7 @@ namespace Wheeled.Networking.Client
         {
             if (m_players.TryGetValue(_offense.OffenderId, out ClientPlayer player))
             {
-                return !player?.IsQuit(_time) == true;
+                return player?.IsQuit(_time) == false;
             }
             return false;
         }
@@ -202,6 +203,15 @@ namespace Wheeled.Networking.Client
         #endregion Public Methods
 
         #region Private Methods
+
+        private void UpdateScoreBoard()
+        {
+            IEnumerable<ClientPlayer> players = from p
+                                                in m_players
+                                                where !p.Value.IsQuit(m_time)
+                                                select p.Value;
+            ScoreBoardBehaviour.Update(players);
+        }
 
         private Player GetOrCreatePlayer(byte _id)
         {
@@ -220,6 +230,7 @@ namespace Wheeled.Networking.Client
                 {
                     player = newNetPlayer
                 });
+                UpdateScoreBoard();
                 return newNetPlayer;
             }
         }

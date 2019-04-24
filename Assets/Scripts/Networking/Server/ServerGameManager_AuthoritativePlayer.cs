@@ -95,6 +95,7 @@ namespace Wheeled.Networking.Server
                 {
                     IsStarted = true;
                     Spawn();
+                    m_manager.UpdateScoreBoard();
                 }
             }
 
@@ -132,6 +133,10 @@ namespace Wheeled.Networking.Server
             {
                 Serializer.WriteDamageOrderOrReplication(_time, Id, _info);
                 m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
+                if (_info.offenderId == m_manager.m_localPlayer.Id && _info.offenderId != Id)
+                {
+                    m_manager.m_localPlayer.PutHitConfirm(_time, _info.offenseType);
+                }
             }
 
             protected override void OnQuitScheduled(double _time)
@@ -143,6 +148,8 @@ namespace Wheeled.Networking.Server
                 {
                     player = this
                 });
+                Destroy();
+                m_manager.UpdateScoreBoard();
             }
 
             protected override void OnShotScheduled(double _time, ShotInfo _info)
@@ -210,8 +217,7 @@ namespace Wheeled.Networking.Server
                         offenseType = _node.damage.offenseType
                     });
                     m_manager.SendAll(NetworkManager.SendMethod.ReliableSequenced);
-
-                    Debug.LogFormat("{0} killed {1}", offenderId, Id);
+                    m_manager.UpdateScoreBoard();
                 }
             }
 

@@ -29,7 +29,7 @@ namespace Wheeled.Networking.Client
                 {
                     _reader.ReadTimeSync(out double time);
                     // Time
-                    m_targetTime = time + m_server.Ping / 2.0;
+                    m_targetTime = time + m_server.Ping;
                     if (!m_isRunning)
                     {
                         m_isRunning = true;
@@ -42,6 +42,7 @@ namespace Wheeled.Networking.Client
                 {
                     _reader.ReadPlayerIntroduction(out byte id, out PlayerInfo info);
                     GetOrCreatePlayer(id).Info = info;
+                    UpdateScoreBoard();
                 }
                 break;
 
@@ -61,6 +62,7 @@ namespace Wheeled.Networking.Client
                     {
                         oldPlayer.PutQuit(time);
                     }
+                    UpdateScoreBoard();
                 }
                 break;
 
@@ -71,6 +73,7 @@ namespace Wheeled.Networking.Client
                     {
                         player.PutQuit(time);
                     }
+                    UpdateScoreBoard();
                 }
                 break;
 
@@ -145,6 +148,7 @@ namespace Wheeled.Networking.Client
                         victim = victim,
                         offenseType = info.offenseType
                     });
+                    UpdateScoreBoard();
                 }
                 break;
 

@@ -185,7 +185,7 @@ namespace Wheeled.Gameplay.PlayerView
         {
             if (m_gameObject == null)
             {
-                m_gameObject = Object.Instantiate(ScriptManager.Actors.player, m_simulation.Position, m_sight.Quaternion);
+                m_gameObject = Object.Instantiate(ScriptManager.Actors.player, m_simulation.Position, Quaternion.identity);
                 m_cameraBehaviour = m_gameObject.GetComponent<CameraBehaviour>();
                 m_damperBehaviour = m_gameObject.GetComponent<DamperBehaviour>();
                 m_sightBehaviour = m_gameObject.GetComponent<SightBehaviour>();
