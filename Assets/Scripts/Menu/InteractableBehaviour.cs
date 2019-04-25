@@ -33,5 +33,14 @@ namespace Wheeled.Menu
         }
 
         #endregion Public Methods
+
+        #region Private Methods
+
+        private void OnEnable()
+        {
+            SetEnabled(false);
+        }
+
+        #endregion Private Methods
     }
 }

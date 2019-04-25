@@ -20,8 +20,7 @@ namespace Wheeled.Menu
         public void TextChanged(string _text)
         {
             bool enabled = !string.IsNullOrEmpty(_text);
-            interactable.SetEnabled(enabled);
-            saveButton.interactable = enabled;
+            SetEnabled(enabled);
         }
 
         public void Save()
@@ -29,5 +28,20 @@ namespace Wheeled.Menu
         }
 
         #endregion Public Methods
+
+        #region Private Methods
+
+        private void SetEnabled(bool _enabled)
+        {
+            interactable.SetEnabled(_enabled);
+            saveButton.interactable = _enabled;
+        }
+
+        private void OnEnable()
+        {
+            SetEnabled(false);
+        }
+
+        #endregion Private Methods
     }
 }
