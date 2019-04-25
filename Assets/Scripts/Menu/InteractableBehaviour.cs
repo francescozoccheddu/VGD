@@ -9,14 +9,9 @@ namespace Wheeled.Menu
 
         public Shadow shadow;
         public new RectTransform transform;
+        public float disabledScale = 0.65f;
 
         #endregion Public Fields
-
-        #region Private Fields
-
-        private const float c_disabledScale = 0.65f;
-
-        #endregion Private Fields
 
         #region Public Methods
 
@@ -24,7 +19,7 @@ namespace Wheeled.Menu
         {
             if (transform != null)
             {
-                transform.localScale = _enabled ? new Vector3(1, 1, 1) : new Vector3(c_disabledScale, c_disabledScale, c_disabledScale);
+                transform.localScale = _enabled ? new Vector3(1, 1, 1) : new Vector3(disabledScale, disabledScale, disabledScale);
             }
             if (shadow != null)
             {
