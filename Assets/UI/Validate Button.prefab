@@ -99,11 +99,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5932054405767705169, guid: c05386abbae1ec44e9942b7a40642797,
         type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 5932054405767705169, guid: c05386abbae1ec44e9942b7a40642797,
-        type: 3}
       propertyPath: m_AnchorMin.x
       value: 0.5
       objectReference: {fileID: 0}
@@ -143,6 +138,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 12800000, guid: df9bc176918580144ac10f0120b147f2,
         type: 3}
+    - target: {fileID: 6518606787735704143, guid: c05386abbae1ec44e9942b7a40642797,
+        type: 3}
+      propertyPath: m_FontData.m_MinSize
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5999809024391762216, guid: c05386abbae1ec44e9942b7a40642797,
         type: 3}
       propertyPath: m_Enabled
