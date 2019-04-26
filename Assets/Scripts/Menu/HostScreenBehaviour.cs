@@ -12,6 +12,12 @@ namespace Wheeled.Menu
 
         #endregion Public Fields
 
+        #region Private Fields
+
+        private int m_map = 0;
+
+        #endregion Private Fields
+
         #region Public Methods
 
         public void StartGame()
@@ -25,9 +31,10 @@ namespace Wheeled.Menu
         private void OnEnable()
         {
             arenaGroup.SetAllTogglesOff();
-            arenaGroup.transform.GetChild(0).GetComponent<Toggle>().isOn = true;
+            arenaGroup.transform.GetChild(m_map).GetComponent<Toggle>().isOn = true;
+            arenaGroup.NotifyChildToggleValueChanged();
             portField.text = "9060";
-            portField.onValueChanged.Invoke("9060");
+            portField.NotifyValueChanged();
         }
 
         #endregion Private Methods

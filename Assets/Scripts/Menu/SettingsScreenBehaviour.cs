@@ -54,11 +54,13 @@ namespace Wheeled.Menu
                 colorGroup.SetAllTogglesOff();
                 int color = PlayerPreferences.ColorIndex;
                 colorGroup.transform.GetChild(color).GetComponent<Toggle>().isOn = true;
+                colorGroup.NotifyChildToggleValueChanged();
             }
             {
                 headGroup.SetAllTogglesOff();
                 int head = PlayerPreferences.HeadIndex;
                 headGroup.transform.GetChild(head).GetComponent<Toggle>().isOn = true;
+                headGroup.NotifyChildToggleValueChanged();
             }
         }
 
