@@ -25,6 +25,11 @@ namespace Wheeled.Menu
             m_lastScreen = _screen;
         }
 
+        public void Quit()
+        {
+            Application.Quit();
+        }
+
         #endregion Public Methods
 
         #region Private Methods
