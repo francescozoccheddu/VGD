@@ -4,11 +4,11 @@ using Wheeled.Core.Data;
 
 namespace Wheeled.Menu
 {
-    internal sealed class ColorPreferenceTabBehaviour : MonoBehaviour
+    public sealed class ColorPreferenceTabBehaviour : MonoBehaviour
     {
-        #region Internal Properties
+        #region Public Properties
 
-        internal int ColorIndex
+        public int ColorIndex
         {
             get => m_colorIndex;
             set
@@ -18,7 +18,7 @@ namespace Wheeled.Menu
             }
         }
 
-        #endregion Internal Properties
+        #endregion Public Properties
 
         #region Public Fields
 

@@ -127,17 +127,6 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5932054405767705168, guid: c05386abbae1ec44e9942b7a40642797,
-        type: 3}
-      propertyPath: m_Interactable
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6518606787735704143, guid: c05386abbae1ec44e9942b7a40642797,
-        type: 3}
-      propertyPath: m_FontData.m_Font
-      value: 
-      objectReference: {fileID: 12800000, guid: df9bc176918580144ac10f0120b147f2,
-        type: 3}
     - target: {fileID: 6518606787735704143, guid: c05386abbae1ec44e9942b7a40642797,
         type: 3}
       propertyPath: m_FontData.m_MinSize
@@ -146,6 +135,11 @@ PrefabInstance:
     - target: {fileID: 5999809024391762216, guid: c05386abbae1ec44e9942b7a40642797,
         type: 3}
       propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5932054405767705168, guid: c05386abbae1ec44e9942b7a40642797,
+        type: 3}
+      propertyPath: m_Interactable
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

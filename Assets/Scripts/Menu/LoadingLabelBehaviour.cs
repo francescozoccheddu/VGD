@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace Wheeled.Menu
 {
-    internal sealed class LoadingLabelBehaviour : MonoBehaviour
+    public sealed class LoadingLabelBehaviour : MonoBehaviour
     {
         #region Public Fields
 

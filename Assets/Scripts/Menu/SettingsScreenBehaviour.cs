@@ -14,10 +14,6 @@ namespace Wheeled.Menu
         public ToggleGroup colorGroup;
         public InputField nameField;
 
-        [Header("Save Button")]
-        public Button saveButton;
-        public InteractableBehaviour interactable;
-
         [Header("Prefabs")]
         public GameObject colorTabPrefab;
         public GameObject headTabPrefab;
@@ -26,65 +22,47 @@ namespace Wheeled.Menu
 
         #region Public Methods
 
-        public void TextChanged(string _text)
-        {
-            bool enabled = !string.IsNullOrEmpty(_text);
-            SetSaveButtonEnabled(enabled);
-        }
-
         public void Save()
         {
             PlayerPreferences.ColorIndex = colorGroup
                 .ActiveToggles()
-                .FirstOrDefault(_t => _t.isOn)
+                .FirstOrDefault()
                 ?.GetComponent<ColorPreferenceTabBehaviour>()
                 .ColorIndex
                 ?? 0;
             PlayerPreferences.HeadIndex = headGroup
                 .ActiveToggles()
-                .FirstOrDefault(_t => _t.isOn)
+                .FirstOrDefault()
                 ?.GetComponent<HeadPreferenceTabBehaviour>()
                 .HeadIndex
                 ?? 0;
             PlayerPreferences.Name = nameField.text;
             PlayerPreferences.Save();
-            SetSaveButtonEnabled(false);
-        }
-
-        public void UpdateScreen()
-        {
-            {
-                string name = PlayerPreferences.Name ?? "";
-                nameField.text = name;
-                SetSaveButtonEnabled(PlayerPreferences.IsValidName(name));
-            }
-            {
-                colorGroup.allowSwitchOff = true;
-                int color = PlayerPreferences.ColorIndex;
-                foreach (Toggle tab in colorGroup.ActiveToggles())
-                {
-                    int index = tab.GetComponent<ColorPreferenceTabBehaviour>().ColorIndex;
-                    tab.isOn = index == color;
-                }
-                colorGroup.allowSwitchOff = false;
-            }
-            {
-                headGroup.allowSwitchOff = true;
-                int head = PlayerPreferences.HeadIndex;
-                foreach (Toggle tab in headGroup.ActiveToggles())
-                {
-                    int index = tab.GetComponent<HeadPreferenceTabBehaviour>().HeadIndex;
-                    tab.isOn = index == head;
-                }
-                headGroup.allowSwitchOff = false;
-            }
         }
 
         #endregion Public Methods
 
-        #region Internal Methods
+        #region Private Methods
 
-        internal void CreateTabs()
+        private void UpdateScreen()
+        {
+            {
+                string name = PlayerPreferences.Name ?? "";
+                nameField.text = name;
+            }
+            {
+                colorGroup.SetAllTogglesOff();
+                int color = PlayerPreferences.ColorIndex;
+                colorGroup.transform.GetChild(color).GetComponent<Toggle>().isOn = true;
+            }
+            {
+                headGroup.SetAllTogglesOff();
+                int head = PlayerPreferences.HeadIndex;
+                headGroup.transform.GetChild(head).GetComponent<Toggle>().isOn = true;
+            }
+        }
+
+        private void CreateTabs()
         {
             for (int i = 0; i < Scripts.PlayerPreferences.heads.Length; i++)
             {
@@ -92,13 +70,13 @@ namespace Wheeled.Menu
                 if (i >= headGroup.transform.childCount)
                 {
                     tab = Instantiate(headTabPrefab, headGroup.transform);
+                    tab.GetComponent<Toggle>().group = headGroup;
                 }
                 else
                 {
                     tab = headGroup.transform.GetChild(i).gameObject;
                 }
                 tab.GetComponent<HeadPreferenceTabBehaviour>().HeadIndex = i;
-                tab.GetComponent<Toggle>().group = headGroup;
             }
             for (int i = 0; i < Scripts.PlayerPreferences.colors.Length; i++)
             {
@@ -106,24 +84,14 @@ namespace Wheeled.Menu
                 if (i >= colorGroup.transform.childCount)
                 {
                     tab = Instantiate(colorTabPrefab, colorGroup.transform);
+                    tab.GetComponent<Toggle>().group = colorGroup;
                 }
                 else
                 {
                     tab = colorGroup.transform.GetChild(i).gameObject;
                 }
                 tab.GetComponent<ColorPreferenceTabBehaviour>().ColorIndex = i;
-                tab.GetComponent<Toggle>().group = colorGroup;
             }
-        }
-
-        #endregion Internal Methods
-
-        #region Private Methods
-
-        private void SetSaveButtonEnabled(bool _enabled)
-        {
-            interactable.SetEnabled(_enabled);
-            saveButton.interactable = _enabled;
         }
 
         private void OnEnable()
