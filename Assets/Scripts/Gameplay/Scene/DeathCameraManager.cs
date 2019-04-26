@@ -17,7 +17,7 @@ namespace Wheeled.Gameplay.Scene
         public static void Enable(Vector3 _position)
         {
             Disable();
-            Collider[] colliders = Physics.OverlapSphere(_position, c_radius, ScriptManager.Collisions.deathCameraVolume);
+            Collider[] colliders = Physics.OverlapSphere(_position, c_radius, Scripts.Collisions.deathCameraVolume);
             foreach (Collider collider in colliders)
             {
                 s_lastCamera = collider.gameObject.GetComponent<DeathCameraBehaviour>();

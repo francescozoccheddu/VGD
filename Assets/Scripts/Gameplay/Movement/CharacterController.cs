@@ -82,7 +82,7 @@ internal struct CharacterController
         next.m_capsule.velocity.y += c_gravityY * _deltaTime;
         {
             Vector3 offset = Vector3.up * (CapsuleController.c_height / 2.0f - CapsuleController.c_radius);
-            foreach (Collider collider in Physics.OverlapCapsule(next.Position + offset, next.Position - offset, CapsuleController.c_radius, ScriptManager.Collisions.jumpPad))
+            foreach (Collider collider in Physics.OverlapCapsule(next.Position + offset, next.Position - offset, CapsuleController.c_radius, Scripts.Collisions.jumpPad))
             {
                 JumpPadBehaviour behaviour = collider.GetComponent<JumpPadBehaviour>();
                 if (behaviour != null)

@@ -41,7 +41,7 @@ namespace Wheeled.Core
                 DestroyHost();
                 if (!m_isQuitting)
                 {
-                    SceneManager.LoadScene(ScriptManager.Scenes.menu, LoadSceneMode.Single);
+                    SceneManager.LoadScene(Scripts.Scenes.menu, LoadSceneMode.Single);
                     Cursor.lockState = CursorLockMode.None;
                 }
             }
@@ -68,7 +68,7 @@ namespace Wheeled.Core
             if (!IsBusy)
             {
                 EnsureServer().Start(_room);
-                LoadScene(ScriptManager.Scenes.game[0]);
+                LoadScene(Scripts.Scenes.game[0]);
             }
             else
             {
@@ -154,7 +154,7 @@ namespace Wheeled.Core
 
         private void RoomJoined(GameRoomInfo _room)
         {
-            LoadScene(ScriptManager.Scenes.game[_room.map]);
+            LoadScene(Scripts.Scenes.game[_room.map]);
         }
 
         private void GameSceneLoaded(AsyncOperation _operation)

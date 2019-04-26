@@ -45,7 +45,7 @@ namespace Wheeled.Gameplay.Stage
                 Vector3 end = GetEnd();
                 if (m_behaviour == null)
                 {
-                    m_behaviour = Object.Instantiate(ScriptManager.Actors.rocketProjectile, origin, Quaternion.FromToRotation(origin, end)).GetComponent<RocketProjectileBehaviour>();
+                    m_behaviour = Object.Instantiate(Scripts.Actors.rocketProjectile, origin, Quaternion.FromToRotation(origin, end)).GetComponent<RocketProjectileBehaviour>();
                 }
                 float progress = (float) (RocketShotOffense.c_velocity * elapsed / Vector3.Distance(origin, end));
                 Vector3 position = Vector3.Lerp(origin, end, progress);
@@ -72,7 +72,7 @@ namespace Wheeled.Gameplay.Stage
 
             private Vector3 GetOrigin()
             {
-                return m_offense.Origin + m_offense.Sight.Quaternion * ScriptManager.Sockets.rocketBarrel;
+                return m_offense.Origin + m_offense.Sight.Quaternion * Scripts.Sockets.rocketBarrel;
             }
 
             private Vector3 GetPosition(double _elapsedTime)
@@ -137,8 +137,8 @@ namespace Wheeled.Gameplay.Stage
 
                 case RifleShotOffense o:
                 {
-                    RifleProjectileBehaviour behaviour = Object.Instantiate(ScriptManager.Actors.rifleProjectile).GetComponent<RifleProjectileBehaviour>();
-                    Vector3 origin = o.Origin + o.Sight.Quaternion * ScriptManager.Sockets.rifleBarrel;
+                    RifleProjectileBehaviour behaviour = Object.Instantiate(Scripts.Actors.rifleProjectile).GetComponent<RifleProjectileBehaviour>();
+                    Vector3 origin = o.Origin + o.Sight.Quaternion * Scripts.Sockets.rifleBarrel;
                     Vector3 end = o.Hit ?? (o.Origin + o.Sight.Direction * RifleShotOffense.c_maxDistance);
                     behaviour.Shoot(origin, end, o.Hit != null);
                 }

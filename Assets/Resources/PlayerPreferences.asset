@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a20781febd773d45b07d70cea94276f, type: 3}
+  m_Name: PlayerPreferences
+  m_EditorClassIdentifier: 
+  heads:
+  - {fileID: 11400000, guid: 842d52afdb44b9043b1b4485729f8d7d, type: 2}
+  - {fileID: 11400000, guid: 41feb2878b2e7174dbdca1c40f002e05, type: 2}
+  - {fileID: 11400000, guid: c1f3f66ff328d744db90e5cd0eff531b, type: 2}
+  - {fileID: 11400000, guid: 0e9dfdf773e46384d998f3abb34a1bb6, type: 2}
+  colors:
+  - {r: 1, g: 0, b: 0.15532255, a: 1}
+  - {r: 1, g: 0.5082709, b: 0, a: 1}
+  - {r: 1, g: 0.99215686, b: 0, a: 1}
+  - {r: 0, g: 1, b: 0.076420784, a: 1}
+  - {r: 0, g: 1, b: 0.96636033, a: 1}
+  - {r: 0, g: 0.007976532, b: 1, a: 1}
+  - {r: 0.80290174, g: 0, b: 1, a: 1}

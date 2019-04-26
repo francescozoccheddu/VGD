@@ -50,7 +50,7 @@ namespace Wheeled.Gameplay.Stage
             }
             if (m_probes[m_nextProbe] == null)
             {
-                m_probes[m_nextProbe] = Object.Instantiate(ScriptManager.Actors.collisionProbe).GetComponent<HitProbeBehaviour>();
+                m_probes[m_nextProbe] = Object.Instantiate(Scripts.Actors.collisionProbe).GetComponent<HitProbeBehaviour>();
             }
             m_probes[m_nextProbe].Set(_playerId, _snapshot);
             m_nextProbe++;
@@ -82,7 +82,7 @@ namespace Wheeled.Gameplay.Stage
         {
             Vector3 diff = _end - _start;
             Ray ray = new Ray(_start, diff);
-            int mask = ScriptManager.Collisions.shoot | (1 << ScriptManager.Actors.collisionProbe.layer);
+            int mask = Scripts.Collisions.shoot | (1 << Scripts.Actors.collisionProbe.layer);
             if (Physics.Linecast(_start, _end, out RaycastHit hit, mask))
             {
                 GameObject gameObject = hit.collider.gameObject;

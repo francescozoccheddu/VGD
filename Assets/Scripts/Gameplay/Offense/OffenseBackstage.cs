@@ -291,7 +291,7 @@ namespace Wheeled.Gameplay.Stage
             public Vector3 GetOrigin()
             {
                 ShotOffense offense = (ShotOffense) Offense;
-                return offense.Origin + offense.Sight.Quaternion * ScriptManager.Sockets.raycastOrigin;
+                return offense.Origin + offense.Sight.Quaternion * Scripts.Sockets.raycastOrigin;
             }
 
             public override void Update(double _time, OffenseBackstage _stage)

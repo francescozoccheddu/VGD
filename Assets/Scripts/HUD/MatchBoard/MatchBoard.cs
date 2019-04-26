@@ -35,7 +35,7 @@ namespace Wheeled.HUD
 
             public void Instantiate()
             {
-                JoinEventBehaviour behaviour = Object.Instantiate(ScriptManager.Actors.joinEvent).GetComponent<JoinEventBehaviour>();
+                JoinEventBehaviour behaviour = Object.Instantiate(Scripts.Actors.joinEvent).GetComponent<JoinEventBehaviour>();
                 behaviour.Player = player;
                 MatchBoardBehaviour.Add(behaviour);
             }
@@ -57,7 +57,7 @@ namespace Wheeled.HUD
 
             public void Instantiate()
             {
-                KillEventBehaviour behaviour = Object.Instantiate(ScriptManager.Actors.killEvent).GetComponent<KillEventBehaviour>();
+                KillEventBehaviour behaviour = Object.Instantiate(Scripts.Actors.killEvent).GetComponent<KillEventBehaviour>();
                 behaviour.Killer = killer;
                 behaviour.Victim = victim;
                 behaviour.OffenseType = offenseType;
@@ -79,7 +79,7 @@ namespace Wheeled.HUD
 
             public void Instantiate()
             {
-                QuitEventBehaviour behaviour = Object.Instantiate(ScriptManager.Actors.quitEvent).GetComponent<QuitEventBehaviour>();
+                QuitEventBehaviour behaviour = Object.Instantiate(Scripts.Actors.quitEvent).GetComponent<QuitEventBehaviour>();
                 behaviour.Player = player;
                 MatchBoardBehaviour.Add(behaviour);
             }

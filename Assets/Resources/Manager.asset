@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28f4711af04928642b262f8a9c1c2bf8, type: 3}
+  m_Name: Manager
+  m_EditorClassIdentifier: 
+  collisions: {fileID: 11400000, guid: 7380019b7d551804e967837594d733ca, type: 2}
+  actors: {fileID: 11400000, guid: e9dadcb2035ca574abf7adf3d7764b91, type: 2}
+  playerPreferences: {fileID: 11400000, guid: bbd554593d54e3e48a07e6d36df52eab, type: 2}
+  scenes: {fileID: 11400000, guid: b681fad8ae341684380e8173990b02da, type: 2}
+  sockets: {fileID: 11400000, guid: 0abfb32f03bceca41a1c507cf7b8fa9d, type: 2}
