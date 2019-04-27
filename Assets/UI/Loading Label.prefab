@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5405541135393753897}
   - component: {fileID: 6420928229214229430}
   - component: {fileID: 2288495043715710860}
+  - component: {fileID: 866188352937955337}
   m_Layer: 5
   m_Name: Loading Label
   m_TagString: Untagged
@@ -94,3 +95,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 6420928229214229430}
   message: Loading
+--- !u!114 &866188352937955337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3046506636641371127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1679637790, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: 16
+  m_PreferredWidth: -1
+  m_PreferredHeight: 16
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
