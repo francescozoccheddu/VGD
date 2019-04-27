@@ -4,11 +4,11 @@ using Wheeled.Core.Data;
 
 namespace Wheeled.Menu
 {
-    public sealed class HeadPreferenceTabBehaviour : MonoBehaviour
+    public sealed class HeadPreferenceTabBehaviour : MonoBehaviour, ListBehaviour.IListItem
     {
         #region Public Properties
 
-        public int HeadIndex
+        int ListBehaviour.IListItem.Index
         {
             get => m_headIndex;
             set
