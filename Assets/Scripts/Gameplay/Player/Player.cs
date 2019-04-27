@@ -345,6 +345,8 @@ namespace Wheeled.Gameplay.Player
         #region Public Fields
 
         public string name;
+        public byte head;
+        public byte color;
 
         #endregion Public Fields
     }

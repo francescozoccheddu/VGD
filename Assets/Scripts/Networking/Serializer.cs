@@ -26,6 +26,11 @@ namespace Wheeled.Networking
 
         #region Public Methods
 
+        public static void WriteDiscoveryInfo(byte _arena)
+        {
+            writer.Put(_arena);
+        }
+
         public static void WriteMovementAndInputReplication(byte _id, int _step, IEnumerable<InputStep> _inputSteps, in Snapshot _snapshot)
         {
             writer.Reset();
@@ -104,11 +109,12 @@ namespace Wheeled.Networking
             writer.Put(_info);
         }
 
-        public static void WritePlayerWelcomeSync(byte _id)
+        public static void WritePlayerWelcomeSync(byte _id, byte _map)
         {
             writer.Reset();
             writer.Put(Message.PlayerWelcomeSync);
             writer.Put(_id);
+            writer.Put(_map);
             // Checksum
             writer.Put((byte) (255 - _id));
             writer.Put(_id);
@@ -152,6 +158,12 @@ namespace Wheeled.Networking
             writer.Reset();
             writer.Put(Message.KillSync);
             writer.Put(_time);
+            writer.Put(_info);
+        }
+
+        public static void WritePlayerInfo(PlayerInfo _info)
+        {
+            writer.Reset();
             writer.Put(_info);
         }
 
@@ -208,6 +220,8 @@ namespace Wheeled.Networking
         private static void Put(this NetDataWriter _netDataWriter, in PlayerInfo _value)
         {
             _netDataWriter.Put(_value.name);
+            _netDataWriter.Put(_value.color);
+            _netDataWriter.Put(_value.head);
         }
 
         private static byte ConvertHealth(int _health)

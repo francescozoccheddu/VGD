@@ -4,7 +4,7 @@ namespace Wheeled.Networking.Server
 {
     internal sealed partial class Server : NetworkManager.IEventListener
     {
-        #region NetworkManager.IEventListener
+        #region Public Methods
 
         void NetworkManager.IEventListener.ConnectedTo(NetworkManager.Peer _peer)
         {
@@ -24,7 +24,7 @@ namespace Wheeled.Networking.Server
         {
             if (m_game?.ShouldReplyToDiscoveryRequest() == true)
             {
-                // TODO Inject room data
+                Serializer.WriteDiscoveryInfo(RoomInfo.Value.map);
                 return NetworkManager.DiscoveryRequestAction.Reply;
             }
             else
@@ -54,6 +54,6 @@ namespace Wheeled.Networking.Server
             NotifyStopped(GameHostStopCause.NetworkError);
         }
 
-        #endregion NetworkManager.IEventListener
+        #endregion Public Methods
     }
 }

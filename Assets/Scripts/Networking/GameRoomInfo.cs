@@ -4,17 +4,13 @@ namespace Wheeled.Networking
 {
     public delegate void GameRoomDiscoverEventHandler(GameRoomInfo _room);
 
-    public readonly struct GameRoomInfo
+    public struct GameRoomInfo
     {
-        public readonly IPEndPoint endPoint;
-        public readonly byte map;
-        public readonly string name;
+        #region Public Fields
 
-        public GameRoomInfo(IPEndPoint _endPoint, string _name, byte _map)
-        {
-            endPoint = _endPoint;
-            name = _name;
-            map = _map;
-        }
+        public IPEndPoint endPoint;
+        public byte map;
+
+        #endregion Public Fields
     }
 }

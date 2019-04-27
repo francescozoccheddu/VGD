@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Wheeled.Core.Data;
 using Wheeled.Gameplay.Player;
 
 namespace Wheeled.HUD
@@ -43,7 +44,11 @@ namespace Wheeled.HUD
                     if (hasNext)
                     {
                         IReadOnlyPlayer player = enumerator.Current;
-                        entries[i].Set(player.Info?.name, player.Kills, player.Deaths, player.Ping, Color.white);
+                        int headIndex = player.Info?.head ?? 0;
+                        int colorIndex = player.Info?.color ?? 0;
+                        Texture2D icon = Scripts.PlayerPreferences.heads[headIndex].icon;
+                        Color color = Scripts.PlayerPreferences.colors[colorIndex];
+                        entries[i].Set(player.Info?.name, player.Kills, player.Deaths, player.Ping, player.Id, icon, color);
                     }
                 }
             }

@@ -4,25 +4,37 @@ namespace Wheeled.Networking.Client
 {
     internal sealed partial class Client : Client.IServer, NetworkManager.IEventListener, IGameHost
     {
+        #region Public Interfaces
+
         public interface IServer
         {
+            #region Public Properties
+
             double Ping { get; }
 
+            #endregion Public Properties
+
+            #region Public Methods
+
             void Send(NetworkManager.SendMethod _method);
+
+            #endregion Public Methods
         }
 
-        #region Client.IServer
+        #endregion Public Interfaces
+
+        #region Public Properties
 
         double IServer.Ping => m_server.Ping;
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         void IServer.Send(NetworkManager.SendMethod _method)
         {
             m_server.Send(_method);
         }
-
-        #endregion Client.IServer
-
-        #region NetworkManager.IEventListener
 
         void NetworkManager.IEventListener.ConnectedTo(NetworkManager.Peer _peer)
         {
@@ -44,8 +56,12 @@ namespace Wheeled.Networking.Client
 
         void NetworkManager.IEventListener.Discovered(IPEndPoint _endPoint, Deserializer _reader)
         {
-            // TODO Parse info
-            OnRoomDiscovered?.Invoke(new GameRoomInfo(_endPoint, "", 0));
+            _reader.ReadDiscoveryInfo(out byte arena);
+            OnRoomDiscovered?.Invoke(new GameRoomInfo
+            {
+                endPoint = _endPoint,
+                map = arena
+            });
         }
 
         NetworkManager.DiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(Deserializer _reader)
@@ -75,10 +91,14 @@ namespace Wheeled.Networking.Client
                     {
                         if (_reader.ReadMessageType() == Message.PlayerWelcomeSync)
                         {
-                            _reader.ReadPlayerWelcomeSync(out byte id);
+                            _reader.ReadPlayerWelcomeSync(out byte id, out byte map);
                             m_localPlayerId = id;
                             IsConnected = true;
-                            GameRoomInfo roomInfo = new GameRoomInfo(null, "", 0);
+                            GameRoomInfo roomInfo = new GameRoomInfo
+                            {
+                                endPoint = _peer.EndPoint,
+                                map = map
+                            };
                             RoomInfo = roomInfo;
                             OnConnected?.Invoke(roomInfo);
                         }
@@ -110,6 +130,6 @@ namespace Wheeled.Networking.Client
             NotifyStopped(GameHostStopCause.NetworkError);
         }
 
-        #endregion NetworkManager.IEventListener
+        #endregion Public Methods
     }
 }

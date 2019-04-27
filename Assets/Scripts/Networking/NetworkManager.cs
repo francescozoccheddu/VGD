@@ -44,9 +44,9 @@ namespace Wheeled.Networking
             #region Public Properties
 
             public bool IsValid => m_peer != null;
-            public object UserData => m_peer?.Tag;
             public double Ping => m_peer?.Ping / 1000.0 ?? 0.0;
             public float TimeSinceLastPacket => m_peer?.TimeSinceLastPacket ?? 0.0f;
+            public IPEndPoint EndPoint => m_peer?.EndPoint;
 
             #endregion Public Properties
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Wheeled.Core.Data;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
@@ -123,7 +124,8 @@ namespace Wheeled.Networking.Client
             {
                 HistoryDuration = 2.0,
                 MaxMovementInputStepsNotifyCount = 20,
-                MaxMovementNotifyFrequency = 15
+                MaxMovementNotifyFrequency = 15,
+                Info = PlayerPreferences.Info
             };
             m_players = new Dictionary<byte, ClientPlayer>
             {

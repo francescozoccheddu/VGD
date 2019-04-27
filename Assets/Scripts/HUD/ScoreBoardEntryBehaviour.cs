@@ -11,18 +11,29 @@ namespace Wheeled.HUD
         public Text killsText;
         public Text deathsText;
         public Text pingText;
+        public RawImage iconImage;
 
         #endregion Public Fields
 
         #region Internal Methods
 
-        internal void Set(string _name, int _kills, int _deaths, int _ping, Color _color)
+        internal void Set(string _name, int _kills, int _deaths, int _ping, int _id, Texture2D _icon, Color _color)
         {
-            nameText.text = _name ?? "Unknown";
-            nameText.fontStyle = _name == null ? FontStyle.Italic : FontStyle.Normal;
+            if (string.IsNullOrWhiteSpace(_name))
+            {
+                nameText.text = string.Format("Player {0}", _id);
+                nameText.fontStyle = FontStyle.Italic;
+            }
+            else
+            {
+                nameText.text = _name;
+                nameText.fontStyle = FontStyle.Normal;
+            }
             killsText.text = _kills.ToString();
             deathsText.text = _deaths.ToString();
             pingText.text = _ping.ToString();
+            iconImage.texture = _icon;
+            iconImage.color = _color;
             nameText.color = _color;
             killsText.color = _color;
             deathsText.color = _color;

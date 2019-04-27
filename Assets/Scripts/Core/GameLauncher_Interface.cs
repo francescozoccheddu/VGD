@@ -68,7 +68,7 @@ namespace Wheeled.Core
             if (!IsBusy)
             {
                 EnsureServer().Start(_room);
-                LoadScene(Scripts.Scenes.game[0]);
+                LoadScene(Scripts.Scenes.game[_room.map]);
             }
             else
             {
@@ -134,6 +134,7 @@ namespace Wheeled.Core
 
         private void GameStopped(GameHostStopCause _cause)
         {
+            Menu.ScreenManagerBehaviour.SetError(_cause.ToString());
             QuitGame();
         }
 

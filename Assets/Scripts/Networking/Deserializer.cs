@@ -107,9 +107,10 @@ namespace Wheeled.Networking
             _outInfos = ReadArray(ReadPlayerRecapInfo);
         }
 
-        public void ReadPlayerWelcomeSync(out byte _outId)
+        public void ReadPlayerWelcomeSync(out byte _outId, out byte _outMap)
         {
             _outId = ReadByte();
+            _outMap = ReadByte();
             // Checksum
             EnsureRead(ReadByte() == 255 - _outId);
             EnsureRead(ReadByte() == _outId);
@@ -142,6 +143,21 @@ namespace Wheeled.Networking
         {
             _outTime = ReadDouble();
             _outInfo = ReadKillInfo();
+        }
+
+        public void ReadDiscoveryInfo(out byte _outArena)
+        {
+            _outArena = ReadByte();
+        }
+
+        public PlayerInfo ReadPlayerInfo()
+        {
+            return new PlayerInfo
+            {
+                name = ReadString(),
+                color = ReadByte(),
+                head = ReadByte()
+            };
         }
 
         #endregion Public Methods
@@ -233,14 +249,6 @@ namespace Wheeled.Networking
         {
             EnsureRead(m_netDataReader.TryGetInt(out int value));
             return value;
-        }
-
-        private PlayerInfo ReadPlayerInfo()
-        {
-            return new PlayerInfo
-            {
-                name = ReadString(),
-            };
         }
 
         private PlayerRecapInfo ReadPlayerRecapInfo()

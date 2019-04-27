@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using UnityEngine;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Core.Data
 {
@@ -82,6 +83,13 @@ namespace Wheeled.Core.Data
                 }
             }
         }
+
+        public static PlayerInfo Info => new PlayerInfo
+        {
+            color = (byte) ColorIndex,
+            head = (byte) HeadIndex,
+            name = Name
+        };
 
         #endregion Public Properties
 

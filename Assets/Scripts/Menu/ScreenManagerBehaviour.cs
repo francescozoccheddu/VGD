@@ -7,16 +7,23 @@ namespace Wheeled.Menu
         #region Public Fields
 
         public GameObject menuScreen;
+        public GameObject errorScreen;
 
         #endregion Public Fields
 
         #region Private Fields
 
+        private static string s_errorMessage;
         private GameObject m_lastScreen;
 
         #endregion Private Fields
 
         #region Public Methods
+
+        public static void SetError(string _message)
+        {
+            s_errorMessage = _message;
+        }
 
         public void Navigate(GameObject _screen)
         {
@@ -36,7 +43,16 @@ namespace Wheeled.Menu
 
         private void Awake()
         {
-            Navigate(menuScreen);
+            if (s_errorMessage != null)
+            {
+                Navigate(errorScreen);
+                m_lastScreen.GetComponent<ErrorScreenBehaviour>().SetMessage(s_errorMessage);
+                s_errorMessage = null;
+            }
+            else
+            {
+                Navigate(menuScreen);
+            }
         }
 
         #endregion Private Methods

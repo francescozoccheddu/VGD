@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Net;
+using UnityEngine;
 using UnityEngine.UI;
+using Wheeled.Core;
 
 namespace Wheeled.Menu
 {
@@ -16,6 +18,9 @@ namespace Wheeled.Menu
 
         public void StartGame()
         {
+            IPAddress ip = IPAddress.Parse(ipField.text);
+            int port = int.Parse(portField.text);
+            GameLauncher.Instance.StartGameAsClient(new IPEndPoint(ip, port));
         }
 
         #endregion Public Methods

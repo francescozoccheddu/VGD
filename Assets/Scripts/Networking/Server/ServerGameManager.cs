@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Wheeled.Core.Data;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
@@ -66,8 +67,8 @@ namespace Wheeled.Networking.Server
             {
                 HistoryDuration = 2.0,
                 MaxMovementInputStepsReplicationCount = 5,
+                Info = PlayerPreferences.Info
             };
-            m_localPlayer.Info = new PlayerInfo();
             m_nextPlayerId = 1;
             m_players = new List<AuthoritativePlayer>
             {
@@ -122,7 +123,7 @@ namespace Wheeled.Networking.Server
             if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
             {
                 // Welcome
-                Serializer.WritePlayerWelcomeSync(netPlayer.Id);
+                Serializer.WritePlayerWelcomeSync(netPlayer.Id, 0);
                 netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
                 // Introduction (so that he knows the others)
                 foreach (AuthoritativePlayer p in m_players.Where(_p => _p != netPlayer))
@@ -192,7 +193,7 @@ namespace Wheeled.Networking.Server
                         netPlayer.Start();
                         Serializer.WriteTimeSync(m_time);
                         netPlayer.Peer.Send(NetworkManager.SendMethod.Sequenced);
-                        foreach (NetPlayer p in m_NetPlayers)
+                        foreach (Player p in m_players.Where(_p => _p != netPlayer && _p.IsStarted && !_p.IsQuit(m_time)))
                         {
                             Serializer.WritePlayerIntroductionSync(p.Id, p.Info.Value);
                             netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
@@ -216,13 +217,13 @@ namespace Wheeled.Networking.Server
                 HistoryDuration = 3.0,
                 MaxMovementInputStepsReplicationCount = 20,
                 MaxValidationDelay = c_validationDelay,
-                DamageValidationDelay = c_validationDelay
+                DamageValidationDelay = c_validationDelay,
+                Info = _reader.ReadPlayerInfo()
             };
             MatchBoard.Put(m_time, new MatchBoard.JoinEvent
             {
                 player = netPlayer
             });
-            netPlayer.Info = new PlayerInfo();
             m_players.Add(netPlayer);
             return true;
         }

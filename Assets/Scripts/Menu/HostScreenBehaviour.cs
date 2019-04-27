@@ -1,5 +1,9 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using System.Net;
+using UnityEngine;
 using UnityEngine.UI;
+using Wheeled.Core;
+using Wheeled.Networking;
 
 namespace Wheeled.Menu
 {
@@ -22,6 +26,13 @@ namespace Wheeled.Menu
 
         public void StartGame()
         {
+            int port = int.Parse(portField.text);
+            int arena = arenaGroup.ActiveToggles().First().GetComponent<HostArenaEntryBehaviour>().arena;
+            GameLauncher.Instance.StartGameAsServer(new GameRoomInfo
+            {
+                endPoint = new IPEndPoint(IPAddress.Loopback, port),
+                map = (byte) arena
+            });
         }
 
         #endregion Public Methods

@@ -1,9 +1,54 @@
 ﻿using System.Net;
+using Wheeled.Core.Data;
 
 namespace Wheeled.Networking.Client
 {
     internal sealed partial class Client : IGameHost
     {
+        #region Public Delegates
+
+        public delegate void ConnectEventHandler(GameRoomInfo _room);
+
+        #endregion Public Delegates
+
+        #region Public Interfaces
+
+        public interface IGameManager
+        {
+            #region Public Methods
+
+            void LatencyUpdated(double _latency);
+
+            void Received(Deserializer _reader);
+
+            void Stopped();
+
+            #endregion Public Methods
+        }
+
+        #endregion Public Interfaces
+
+        #region Public Properties
+
+        public bool IsConnected { get; private set; }
+        public bool IsPlaying => m_game != null;
+        public bool IsStarted => m_server.IsValid;
+        public GameRoomInfo? RoomInfo { get; private set; }
+
+        #endregion Public Properties
+
+        #region Public Events
+
+        public event ConnectEventHandler OnConnected;
+
+        public event GameRoomDiscoverEventHandler OnRoomDiscovered;
+
+        public event GameHostStopped OnStopped;
+
+        #endregion Public Events
+
+        #region Private Fields
+
         private IGameManager m_game;
 
         private byte m_localPlayerId;
@@ -11,6 +56,10 @@ namespace Wheeled.Networking.Client
         private NetworkManager.Peer m_server;
 
         private bool m_wasStarted;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public Client()
         {
@@ -21,27 +70,9 @@ namespace Wheeled.Networking.Client
             RoomInfo = null;
         }
 
-        public delegate void ConnectEventHandler(GameRoomInfo _room);
+        #endregion Public Constructors
 
-        public event ConnectEventHandler OnConnected;
-
-        public event GameRoomDiscoverEventHandler OnRoomDiscovered;
-
-        public event GameHostStopped OnStopped;
-
-        public interface IGameManager
-        {
-            void LatencyUpdated(double _latency);
-
-            void Received(Deserializer _reader);
-
-            void Stopped();
-        }
-
-        public bool IsConnected { get; private set; }
-        public bool IsPlaying => m_game != null;
-        public bool IsStarted => m_server.IsValid;
-        public GameRoomInfo? RoomInfo { get; private set; }
+        #region Public Methods
 
         public void Start(IPEndPoint _endPoint)
         {
@@ -51,7 +82,8 @@ namespace Wheeled.Networking.Client
             }
             NetworkManager.instance.listener = this;
             NetworkManager.instance.StartOnAvailablePort();
-            m_server = NetworkManager.instance.ConnectTo(_endPoint, false);
+            Serializer.WritePlayerInfo(PlayerPreferences.Info);
+            m_server = NetworkManager.instance.ConnectTo(_endPoint, true);
             m_wasStarted = true;
         }
 
@@ -76,6 +108,10 @@ namespace Wheeled.Networking.Client
             NotifyStopped(GameHostStopCause.Programmatically);
         }
 
+        #endregion Public Methods
+
+        #region Private Methods
+
         private void Cleanup()
         {
             m_server.Disconnect();
@@ -94,5 +130,7 @@ namespace Wheeled.Networking.Client
                 OnStopped?.Invoke(_cause);
             }
         }
+
+        #endregion Private Methods
     }
 }
