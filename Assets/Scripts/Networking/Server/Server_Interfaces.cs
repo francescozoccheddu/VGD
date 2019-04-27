@@ -25,7 +25,7 @@ namespace Wheeled.Networking.Server
             if (m_game?.ShouldReplyToDiscoveryRequest() == true)
             {
                 Serializer.WriteDiscoveryInfo(RoomInfo.Value.map);
-                return NetworkManager.DiscoveryRequestAction.Reply;
+                return NetworkManager.DiscoveryRequestAction.ReplyWithData;
             }
             else
             {
