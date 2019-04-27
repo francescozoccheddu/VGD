@@ -1,35 +1,23 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine.UI;
 using Wheeled.Core.Data;
 
 namespace Wheeled.Menu
 {
-    public sealed class HeadPreferenceTabBehaviour : MonoBehaviour, ListBehaviour.IListItem
+    public sealed class HeadPreferenceTabBehaviour : ListBehaviour.ListItemBehaviour
     {
-        #region Public Properties
-
-        int ListBehaviour.IListItem.Index
-        {
-            get => m_headIndex;
-            set
-            {
-                m_headIndex = value;
-                image.texture = Scripts.PlayerPreferences.heads[value].icon;
-            }
-        }
-
-        #endregion Public Properties
-
         #region Public Fields
 
         public RawImage image;
 
         #endregion Public Fields
 
-        #region Private Fields
+        #region Protected Methods
 
-        private int m_headIndex;
+        protected override void SetIndex(int _index)
+        {
+            image.texture = Scripts.PlayerPreferences.heads[_index].icon;
+        }
 
-        #endregion Private Fields
+        #endregion Protected Methods
     }
 }

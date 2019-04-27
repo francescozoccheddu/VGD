@@ -3,12 +3,12 @@
 namespace Wheeled.Core.Data
 {
     [CreateAssetMenu]
-    public sealed class SceneScript : ScriptableObject
+    public sealed class ArenaScript : ScriptableObject
     {
         #region Public Fields
 
-        public ArenaScript[] arenas;
-        public int menuSceneBuildIndex;
+        public new string name;
+        public int buildIndex;
 
         #endregion Public Fields
     }

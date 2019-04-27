@@ -19,6 +19,31 @@ namespace Wheeled.Menu
 
         #endregion Public Interfaces
 
+        #region Public Classes
+
+        public abstract class ListItemBehaviour : MonoBehaviour, IListItem
+        {
+            #region Public Properties
+
+            public int Index { get => m_index; set => SetIndex(m_index = value); }
+
+            #endregion Public Properties
+
+            #region Private Fields
+
+            private int m_index;
+
+            #endregion Private Fields
+
+            #region Protected Methods
+
+            protected abstract void SetIndex(int _index);
+
+            #endregion Protected Methods
+        }
+
+        #endregion Public Classes
+
         #region Public Fields
 
         public GameObject itemPrefab;

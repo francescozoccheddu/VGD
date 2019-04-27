@@ -3,7 +3,7 @@
 namespace Wheeled.Core.Data
 {
     [CreateAssetMenu]
-    internal sealed class ManagerScript : ScriptableObject
+    public sealed class ManagerScript : ScriptableObject
     {
         #region Public Fields
 
