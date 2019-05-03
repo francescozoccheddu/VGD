@@ -14,6 +14,7 @@ namespace Wheeled.Menu
         #region Private Fields
 
         private static string s_errorMessage;
+        private static ScreenManagerBehaviour s_instance;
         private GameObject m_lastScreen;
 
         #endregion Private Fields
@@ -22,7 +23,14 @@ namespace Wheeled.Menu
 
         public static void SetError(string _message)
         {
-            s_errorMessage = _message;
+            if (s_instance == null)
+            {
+                s_errorMessage = _message;
+            }
+            else
+            {
+                s_instance.DisplayError(_message);
+            }
         }
 
         public void Navigate(GameObject _screen)
@@ -41,17 +49,35 @@ namespace Wheeled.Menu
 
         #region Private Methods
 
+        private void DisplayError(string _message)
+        {
+            Navigate(errorScreen);
+            m_lastScreen.GetComponent<ErrorScreenBehaviour>().SetMessage(_message);
+        }
+
         private void Awake()
         {
             if (s_errorMessage != null)
             {
-                Navigate(errorScreen);
-                m_lastScreen.GetComponent<ErrorScreenBehaviour>().SetMessage(s_errorMessage);
+                DisplayError(s_errorMessage);
                 s_errorMessage = null;
             }
             else
             {
                 Navigate(menuScreen);
+            }
+        }
+
+        private void OnEnable()
+        {
+            s_instance = this;
+        }
+
+        private void OnDisable()
+        {
+            if (s_instance == this)
+            {
+                s_instance = null;
             }
         }
 

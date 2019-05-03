@@ -41,7 +41,10 @@ namespace Wheeled.Core
                 DestroyHost();
                 if (!m_isQuitting)
                 {
-                    SceneManager.LoadScene(Scripts.Scenes.menuSceneBuildIndex, LoadSceneMode.Single);
+                    if (SceneManager.GetActiveScene().buildIndex != Scripts.Scenes.menuSceneBuildIndex)
+                    {
+                        SceneManager.LoadScene(Scripts.Scenes.menuSceneBuildIndex, LoadSceneMode.Single);
+                    }
                     Cursor.lockState = CursorLockMode.None;
                 }
             }
