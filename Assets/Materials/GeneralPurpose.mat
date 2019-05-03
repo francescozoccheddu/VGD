@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: VertexColor
+  m_Name: GeneralPurpose
   m_Shader: {fileID: 4800000, guid: 4a417db579beefc4e809f395563cabf0, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
