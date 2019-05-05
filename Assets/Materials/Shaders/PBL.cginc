@@ -2,6 +2,7 @@
 #define _INC_PBL
 
 #include "Input.cginc"
+#include "Common.cginc"
 
 fixed easeMaterial (fixed _x)
 {
@@ -16,7 +17,7 @@ inline void calcMaterial (in fixed _in, out fixed _smoothness, out fixed _metall
 	_metallic = lerp (0.0, 0.85, emat);
 }
 
-inline void pbl (in Input _in, in fixed3 _paintColor, in fixed _paintMaterial, in fixed _emissiveMaterial, in fixed _alpha, inout SurfaceOutputStandard _out)
+inline void pbl (in Input _in, in fixed3 _paintColor, in fixed _paintMaterial, in fixed _emissiveMaterial, in fixed _emissiveIntensity, in fixed _alpha, inout SurfaceOutputStandard _out)
 {
 	bool emissive = isEmissive (_in);
 	bool paint = isPaint (_in);
@@ -24,7 +25,7 @@ inline void pbl (in Input _in, in fixed3 _paintColor, in fixed _paintMaterial, i
 	calcMaterial (material, _out.Smoothness, _out.Metallic);
 	_out.Albedo = paint ? _paintColor : getAlbedo(_in);
 	_out.Alpha = _alpha;
-	_out.Emission = _out.Albedo * emissive;
+	_out.Emission = emissive ? getEmission (_out.Albedo, _emissiveIntensity) : fixed3 (0.0, 0.0, 0.0);
 	_out.Occlusion = 1.0;
 }
 
