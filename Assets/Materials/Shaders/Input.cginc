@@ -11,13 +11,11 @@ static const fixed c_paintAlpha = 0.95;
 
 inline bool isEmissive (in Input _in)
 {
-	return false;
 	return _in.color.a <= c_emissiveAlpha;
 }
 
 inline bool isPaint (in Input _in)
 {
-	return false;
 	return _in.color.a >= c_paintAlpha;
 }
 

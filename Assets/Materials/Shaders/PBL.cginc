@@ -3,10 +3,17 @@
 
 #include "Input.cginc"
 
+fixed easeMaterial (fixed _x)
+{
+	half t = _x; half b = 0; half c = 1; half d = 1;
+	return c * (t /= d) * t + b;
+}
+
 inline void calcMaterial (in fixed _in, out fixed _smoothness, out fixed _metallic)
 {
-	_smoothness = lerp (0.2, 0.8, _in);
-	_metallic = lerp (0.9, 0.1, _in);
+	fixed emat = easeMaterial (_in);
+	_smoothness = lerp (0.0, 0.8, emat);
+	_metallic = lerp (0.0, 0.85, emat);
 }
 
 inline void pbl (in Input _in, in fixed3 _paintColor, in fixed _paintMaterial, in fixed _emissiveMaterial, in fixed _alpha, inout SurfaceOutputStandard _out)

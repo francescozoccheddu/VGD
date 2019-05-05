@@ -27,7 +27,7 @@ Shader "Wheeled/Transparent"
 
 		CGPROGRAM
 
-			#pragma surface main Standard fullforwardshadows alpha:premul
+			#pragma surface main Standard alpha:premul
 
 			fixed3 _PaintColor;
 			fixed _PaintMaterial;
@@ -59,7 +59,7 @@ Shader "Wheeled/Transparent"
 
 		CGPROGRAM
 
-			#pragma surface main BlinnPhong alpha
+			#pragma surface main BlinnPhong alpha:blend
 
 			fixed3 _PaintColor;
 			fixed _PaintMaterial;
