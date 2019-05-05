@@ -4,13 +4,7 @@ Shader "Wheeled/Transparent"
 
 	Properties 
 	{
-		[Header (Paint mode)]
-		_PaintMaterial ("Material", Range (0.0, 1.0)) = 0.5
-		_PaintColor ("Albedo", Color) = (1.0, 1.0, 1.0, 1.0)
-		[Header (Emissive mode)]
-		_EmissiveMaterial ("Material", Range (0.0, 1.0)) = 0.5
-		_EmissiveIntensity ("Intensity", Range (0.0, 1.0)) = 0.5
-		[Header(Transparency)]
+		_PaintColor ("Paint color", Color) = (1.0, 1.0, 1.0, 1.0)
 		_Alpha ("Alpha", Range (0.0, 1.0)) = 0.5
 	}
 		
@@ -28,25 +22,17 @@ Shader "Wheeled/Transparent"
 
 		CGPROGRAM
 
-			#pragma surface main Standard alpha:premul
+			#pragma surface surf Standard vertex:vert alpha:premul
 
 			fixed3 _PaintColor;
-			fixed _PaintMaterial;
-			fixed _EmissiveMaterial;
-			fixed _EmissiveIntensity;
 			fixed _Alpha;
 
 			#include "PBL.cginc"
 
-			void main (in Input _in, inout SurfaceOutputStandard _out)
-			{
-				pbl (_in, _PaintColor, _PaintMaterial, _EmissiveMaterial, _EmissiveIntensity, _Alpha, _out);
-			}
-
 		ENDCG
 
 	}
-
+		
 	SubShader 
 	{
 
@@ -61,20 +47,12 @@ Shader "Wheeled/Transparent"
 
 		CGPROGRAM
 
-			#pragma surface main BlinnPhong alpha:blend
+			#pragma surface surf BlinnPhong vertex:vert alpha:blend
 
 			fixed3 _PaintColor;
-			fixed _PaintMaterial;
-			fixed _EmissiveMaterial;
-			fixed _EmissiveIntensity;
 			fixed _Alpha;
 
 			#include "Fallback.cginc"
-
-			void main (in Input _in, inout SurfaceOutput _out)
-			{
-				fallback (_in, _PaintColor, _PaintMaterial, _EmissiveMaterial, _EmissiveIntensity, _Alpha, _out);
-			}
 
 		ENDCG
 	

@@ -2,30 +2,26 @@
 #define _INC_PBL
 
 #include "Input.cginc"
-#include "Common.cginc"
 
-fixed easeMaterial (fixed _x)
+fixed _pbl_easeMaterial (fixed _x)
 {
 	half t = _x; half b = 0; half c = 1; half d = 1;
 	return c * (t /= d) * t + b;
 }
 
-inline void calcMaterial (in fixed _in, out fixed _smoothness, out fixed _metallic)
+inline void _pbl_calcMaterial (in fixed _in, out fixed _smoothness, out fixed _metallic)
 {
-	fixed emat = easeMaterial (_in);
+	fixed emat = _pbl_easeMaterial (_in);
 	_smoothness = lerp (0.0, 0.8, emat);
 	_metallic = lerp (0.0, 0.85, emat);
 }
 
-inline void pbl (in Input _in, in fixed3 _paintColor, in fixed _paintMaterial, in fixed _emissiveMaterial, in fixed _emissiveIntensity, in fixed _alpha, inout SurfaceOutputStandard _out)
+inline void surf (in Input _in, inout SurfaceOutputStandard _out)
 {
-	bool emissive = isEmissive (_in);
-	bool paint = isPaint (_in);
-	fixed material = emissive ? _emissiveMaterial : (paint ? _paintMaterial : getMaterial(_in));
-	calcMaterial (material, _out.Smoothness, _out.Metallic);
-	_out.Albedo = paint ? _paintColor : getAlbedo(_in);
-	_out.Alpha = _alpha;
-	_out.Emission = emissive ? getEmission (_out.Albedo, _emissiveIntensity) : fixed3 (0.0, 0.0, 0.0);
+	_pbl_calcMaterial (_in.material, _out.Smoothness, _out.Metallic);
+	_out.Albedo = _in.albedo;
+	_out.Alpha = _Alpha;
+	_out.Emission = _in.emission;
 	_out.Occlusion = 1.0;
 }
 

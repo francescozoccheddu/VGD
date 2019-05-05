@@ -3,30 +3,30 @@
 
 struct Input
 {
-	fixed4 color : COLOR0;
+	fixed3 albedo;
+	fixed material;
+	fixed3 emission;
 };
 
-static const fixed c_emissiveAlpha = 0.05;
-static const fixed c_paintAlpha = 0.95;
-
-inline bool isEmissive (in Input _in)
+inline fixed3 _input_calcEmission (in fixed3 _albedo, in fixed _intensity)
 {
-	return _in.color.a <= c_emissiveAlpha;
+	fixed3 a = _intensity > 0.5 ? _albedo : fixed3 (0.0, 0.0, 0.0);
+	fixed3 b = _intensity > 0.5 ? fixed3 (1.0, 1.0, 1.0) : _albedo;
+	fixed s = frac (_intensity * 2.0);
+	return lerp (a, b, s);
 }
 
-inline bool isPaint (in Input _in)
+inline fixed3 _input_calcAlbedo (in fixed3 _color, in fixed3 _paintColor, in fixed _tint)
 {
-	return _in.color.a >= c_paintAlpha;
+	return lerp (_color, _paintColor, _tint);
 }
 
-inline fixed getMaterial (in Input _in)
+void vert (inout appdata_full _in, out Input _out)
 {
-	return (_in.color.a - c_emissiveAlpha) / (c_paintAlpha - c_emissiveAlpha);
-}
-
-inline fixed3 getAlbedo (in Input _in)
-{
-	return _in.color.rgb;
+	UNITY_INITIALIZE_OUTPUT (Input, _out);
+	_out.albedo = _input_calcAlbedo (_in.color.rgb, _PaintColor, _in.texcoord.y);
+	_out.material = _in.color.a;
+	_out.emission = _input_calcEmission (_out.albedo, _in.texcoord.x);
 }
 
 #endif
