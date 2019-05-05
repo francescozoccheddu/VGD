@@ -4,9 +4,11 @@ Shader "Wheeled/Opaque"
 
 	Properties 
 	{
-		_PaintColor ( "Paint color", Color ) = (1.0, 1.0, 1.0, 1.0)
-		_PaintMaterial ( "Paint material", Range (0.0, 1.0) ) = 0.5
-		_EmissiveMaterial ( "Emissive material", Range (0.0, 1.0) ) = 0.5
+		[Header(Paint mode)]
+		_PaintColor ( "Albedo", Color ) = (1.0, 1.0, 1.0, 1.0)
+		_PaintMaterial ( "Material", Range (0.0, 1.0) ) = 0.5
+		[Header(Emissive mode)]
+		_EmissiveMaterial ( "Material", Range (0.0, 1.0) ) = 0.5
 	}
 
 	SubShader 
