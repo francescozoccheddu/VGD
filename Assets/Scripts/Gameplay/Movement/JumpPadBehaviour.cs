@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Wheeled.Gameplay.Movement
 {
@@ -41,6 +42,26 @@ namespace Wheeled.Gameplay.Movement
             }
             float factor = factorXZ * factorY;
             return force * factor;
+        }
+
+        private readonly HashSet<Rigidbody> m_rigidbodies = new HashSet<Rigidbody>();
+
+        private void OnTriggerEnter(Collider _other)
+        {
+            m_rigidbodies.Add(_other.attachedRigidbody);
+        }
+
+        private void OnTriggerExit(Collider _other)
+        {
+            m_rigidbodies.Remove(_other.attachedRigidbody);
+        }
+
+        private void Update()
+        {
+            foreach (var rb in m_rigidbodies)
+            {
+                rb.AddForce(0.0f, force, 0.0f, ForceMode.Force);
+            }
         }
 
         #endregion Internal Methods

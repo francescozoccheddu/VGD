@@ -58,7 +58,7 @@ namespace Wheeled.Networking.Client
                         player.KillsValue.Put(time, info.kills);
                         oldPlayers.Remove(info.id);
                     }
-                    foreach (NetPlayer oldPlayer in oldPlayers.Values)
+                    foreach (ClientPlayer oldPlayer in oldPlayers.Values)
                     {
                         oldPlayer.PutQuit(time);
                     }

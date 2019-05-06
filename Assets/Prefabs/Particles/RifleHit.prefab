@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4963357755490578148}
   - component: {fileID: 3586077117036965835}
   - component: {fileID: 2596682526122643195}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: RifleHit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2410,7 +2410,7 @@ ParticleSystem:
     randomizePerFrame: 0
   ExternalForcesModule:
     serializedVersion: 2
-    enabled: 0
+    enabled: 1
     multiplierCurve:
       serializedVersion: 2
       minMaxState: 0

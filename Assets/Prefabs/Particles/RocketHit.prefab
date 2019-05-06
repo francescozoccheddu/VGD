@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1879089094957725661}
   - component: {fileID: 7944579314579645124}
   - component: {fileID: 3391632451066348438}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: RocketHit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2348,7 +2348,7 @@ ParticleSystem:
     randomizePerFrame: 0
   ExternalForcesModule:
     serializedVersion: 2
-    enabled: 0
+    enabled: 1
     multiplierCurve:
       serializedVersion: 2
       minMaxState: 0

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 903883604539835852}
   - component: {fileID: 2043498261942247362}
   - component: {fileID: 3739184498288033542}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Ray
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -122,7 +122,7 @@ GameObject:
   - component: {fileID: 2260265151107981865}
   - component: {fileID: 6185666138883945388}
   - component: {fileID: 3823166888782029550}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: RifleProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2537,7 +2537,7 @@ ParticleSystem:
     randomizePerFrame: 0
   ExternalForcesModule:
     serializedVersion: 2
-    enabled: 0
+    enabled: 1
     multiplierCurve:
       serializedVersion: 2
       minMaxState: 0

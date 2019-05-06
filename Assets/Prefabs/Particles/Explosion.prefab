@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 915107185693429474}
   - component: {fileID: 8388718649660592548}
   - component: {fileID: 7764774304084684966}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Explosion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2348,7 +2348,7 @@ ParticleSystem:
     randomizePerFrame: 0
   ExternalForcesModule:
     serializedVersion: 2
-    enabled: 0
+    enabled: 1
     multiplierCurve:
       serializedVersion: 2
       minMaxState: 0
