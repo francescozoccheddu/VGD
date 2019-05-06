@@ -5,7 +5,7 @@ namespace Wheeled.Gameplay.Movement
 {
     public class JumpPadBehaviour : MonoBehaviour
     {
-        #region Public Fields
+        
 
         [Header("Inner radius")]
         public float innerRadiusXZ;
@@ -18,9 +18,7 @@ namespace Wheeled.Gameplay.Movement
         [Header("Force")]
         public float force = 50.0f;
 
-        #endregion Public Fields
-
-        #region Internal Methods
+        
 
         internal float GetForce(Vector3 _position)
         {
@@ -64,6 +62,6 @@ namespace Wheeled.Gameplay.Movement
             }
         }
 
-        #endregion Internal Methods
+        
     }
 }

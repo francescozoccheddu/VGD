@@ -107,7 +107,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1794852450753955574}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a8ab853ec8aad84286d469dfdb2999d, type: 3}
+  m_Script: {fileID: 11500000, guid: 42c3524cd4f06174e96ba27d667dbb3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6901257101853662855
@@ -2594,7 +2594,7 @@ ParticleSystem:
     influenceFilter: 0
     influenceMask:
       serializedVersion: 2
-      m_Bits: 4294967295
+      m_Bits: 98304
     influenceList: []
   ClampVelocityModule:
     enabled: 0

@@ -97,7 +97,6 @@ internal struct CharacterController
             float currentSpeed = velocityXZ.magnitude;
             float compliance = Mathf.Max(Vector2.Dot(velocityXZ.normalized, _movementXZ.normalized), 0.0f);
             float clampFactor = 1.0f - Mathf.Clamp01(currentSpeed / c_maxAccelerationSpeed) * compliance;
-            Lebug.Log("ClampFactor", clampFactor);
             velocityXZ += Vector2.ClampMagnitude(_movementXZ, clampFactor) * _deltaTime * c_moveAcceleration;
         }
         {
@@ -109,8 +108,6 @@ internal struct CharacterController
                 velocityXZ = velocityXZ * (targetMagnitude / targetSpeed);
                 next.m_capsule.velocity = velocityXZ.ToVector3XZ(next.m_capsule.velocity.y);
             }
-            Lebug.Log("SpeedXZ", next.m_capsule.velocity.ToVector2XZ().magnitude);
-            Lebug.Log("SpeedY", next.m_capsule.velocity.y);
         }
         next.m_capsule = next.m_capsule.Simulate(_deltaTime);
         return next;

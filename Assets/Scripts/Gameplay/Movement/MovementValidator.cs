@@ -171,7 +171,6 @@ namespace Wheeled.Gameplay.Movement
                 m_trustedSteps = 0;
                 if (!CharacterController.AreNearlyEqual(m_last.simulation, m_buffer[bufInd].simulation.Value))
                 {
-                    Lebug.Log("WrongData", ++m_wrongData);
                     SendCorrection();
                 }
             }
@@ -180,7 +179,6 @@ namespace Wheeled.Gameplay.Movement
                 m_trustedSteps++;
                 if (m_trustedSteps > m_maxTrustedSteps)
                 {
-                    Lebug.Log("NoData", ++m_noData);
                     SendCorrection();
                 }
             }

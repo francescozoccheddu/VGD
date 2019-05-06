@@ -7,9 +7,8 @@ namespace Wheeled.Gameplay.PlayerView
 {
     internal sealed class View
     {
-        #region Public Properties
 
-        public LifeState State { get; set; }
+        public ELifeState State { get; set; }
 
         public bool IsLocal
         {
@@ -24,20 +23,15 @@ namespace Wheeled.Gameplay.PlayerView
             }
         }
 
+        public Color Color { get => m_color; set => m_color = value; }
+        public GameObject Head { get => m_head; set => m_head = value; }
+
         public float RiflePower { get; set; }
-
-        #endregion Public Properties
-
-        #region Public Fields
 
         public bool isPositionInterpolationEnabled;
         public bool isSightInterpolationEnabled;
         public float positionInterpolationQuickness;
         public float sightInterpolationQuickness;
-
-        #endregion Public Fields
-
-        #region Private Fields
 
         private GameObject m_gameObject;
         private DeathBehaviour m_deathBehaviour;
@@ -47,19 +41,17 @@ namespace Wheeled.Gameplay.PlayerView
         private RifleDisplayBehaviour m_rifleDisplayBehaviour;
         private Animator m_animator;
 
-        private LifeState m_lastState;
+        private ELifeState m_lastState;
         private CharacterController m_simulation;
         private Sight m_sight;
         private bool m_isLocal;
         private GameObject m_explosion;
-
-        #endregion Private Fields
-
-        #region Public Constructors
+        private GameObject m_head;
+        private Color m_color;
 
         public View()
         {
-            m_lastState = State = LifeState.Dead;
+            m_lastState = State = ELifeState.Unknown;
             isPositionInterpolationEnabled = false;
             isSightInterpolationEnabled = false;
             positionInterpolationQuickness = 4.0f;
@@ -67,27 +59,19 @@ namespace Wheeled.Gameplay.PlayerView
             m_isLocal = false;
         }
 
-        #endregion Public Constructors
-
-        #region Public Methods
-
         public void Move(in Snapshot _snapshot)
         {
             m_simulation = _snapshot.simulation;
             m_sight = _snapshot.sight;
         }
 
-        public void ShootRocket()
-        {
-            m_animator?.SetTrigger("Shoot Rocket");
-        }
+        public void ShootRocket() => m_animator?.SetTrigger("Shoot Rocket");
 
         public void ShootRifle()
         {
             m_animator?.SetTrigger("Shoot Rifle");
             m_rifleDisplayBehaviour?.Shoot(RiflePower);
         }
-
         public void ReachTarget()
         {
             if (m_gameObject != null)
@@ -99,49 +83,53 @@ namespace Wheeled.Gameplay.PlayerView
 
         public void Update(float _deltaTime)
         {
-            EnsureSpawned();
-
-            // Life
-            if (m_lastState != LifeState.Exploded && State == LifeState.Exploded && m_explosion == null)
+            if (State == ELifeState.Alive)
             {
-                m_explosion = Object.Instantiate(Scripts.Actors.explosion, m_simulation.Position, Quaternion.identity);
+                // Spawn
+                EnsureSpawned();
+                if (m_deathBehaviour.IsDead)
+                {
+                    Destroy();
+                    EnsureSpawned();
+                }
+                // Move
+                if (isPositionInterpolationEnabled)
+                {
+                    float lerpAlpha = Mathf.Min(0.9f, _deltaTime * positionInterpolationQuickness);
+                    m_gameObject.transform.position = Vector3.LerpUnclamped(m_gameObject.transform.position, m_simulation.Position, lerpAlpha);
+                    m_damperBehaviour.height = Mathf.Lerp(m_damperBehaviour.height, m_simulation.Height, lerpAlpha);
+                }
+                else
+                {
+                    ReachSimulationTarget();
+                }
+                // Sight
+                if (isSightInterpolationEnabled)
+                {
+                    float lerpAlpha = Mathf.Min(0.9f, _deltaTime * sightInterpolationQuickness);
+                    m_sightBehaviour.Turn = Mathf.Lerp(m_sightBehaviour.Turn, m_sight.Turn, lerpAlpha);
+                    m_sightBehaviour.LookUp = Mathf.Lerp(m_sightBehaviour.LookUp, m_sight.LookUp, lerpAlpha);
+                }
+                else
+                {
+                    ReachSightTarget();
+                }
+                m_rifleDisplayBehaviour.Power = RiflePower;
             }
-            m_lastState = State;
-
-            if (State != LifeState.Alive && !m_deathBehaviour.IsDead)
-            {
-                m_deathBehaviour.Die(m_simulation.Velocity);
-            }
-            else if (State == LifeState.Alive && m_deathBehaviour.IsDead)
+            else if (State == ELifeState.Unknown)
             {
                 Destroy();
-                EnsureSpawned();
-            }
-
-            m_rifleDisplayBehaviour.Power = RiflePower;
-
-            // Position
-            if (isPositionInterpolationEnabled)
-            {
-                float lerpAlpha = Mathf.Min(0.9f, _deltaTime * positionInterpolationQuickness);
-                m_gameObject.transform.position = Vector3.LerpUnclamped(m_gameObject.transform.position, m_simulation.Position, lerpAlpha);
-                m_damperBehaviour.height = Mathf.Lerp(m_damperBehaviour.height, m_simulation.Height, lerpAlpha);
             }
             else
             {
-                ReachSimulationTarget();
+                m_deathBehaviour?.Die(m_simulation.Velocity);
+                if (State == ELifeState.Exploded && m_lastState != ELifeState.Exploded && m_explosion == null)
+                {
+                    m_explosion = Object.Instantiate(Scripts.Actors.explosion, m_simulation.Position, Quaternion.identity);
+                }
+
             }
-            // Sight
-            if (isSightInterpolationEnabled)
-            {
-                float lerpAlpha = Mathf.Min(0.9f, _deltaTime * sightInterpolationQuickness);
-                m_sightBehaviour.turn = Mathf.Lerp(m_sightBehaviour.turn, m_sight.Turn, lerpAlpha);
-                m_sightBehaviour.lookUp = Mathf.Lerp(m_sightBehaviour.lookUp, m_sight.LookUp, lerpAlpha);
-            }
-            else
-            {
-                ReachSightTarget();
-            }
+            m_lastState = State;
         }
 
         public void Destroy()
@@ -159,10 +147,6 @@ namespace Wheeled.Gameplay.PlayerView
             m_gameObject = null;
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void ReachSimulationTarget()
         {
             if (m_gameObject != null)
@@ -176,11 +160,11 @@ namespace Wheeled.Gameplay.PlayerView
         {
             if (m_gameObject != null)
             {
-                m_sightBehaviour.turn = m_sight.Turn;
-                m_sightBehaviour.lookUp = m_sight.LookUp;
+                m_sightBehaviour.Turn = m_sight.Turn;
+                m_sightBehaviour.LookUp = m_sight.LookUp;
+                m_sightBehaviour.ReachTarget();
             }
         }
-
         private void EnsureSpawned()
         {
             if (m_gameObject == null)
@@ -191,12 +175,12 @@ namespace Wheeled.Gameplay.PlayerView
                 m_sightBehaviour = m_gameObject.GetComponent<SightBehaviour>();
                 m_deathBehaviour = m_gameObject.GetComponent<DeathBehaviour>();
                 m_rifleDisplayBehaviour = m_gameObject.GetComponent<RifleDisplayBehaviour>();
+                m_rifleDisplayBehaviour.Power = RiflePower;
                 m_animator = m_gameObject.GetComponent<Animator>();
                 m_cameraBehaviour.SetLocal(IsLocal);
                 ReachTarget();
             }
         }
 
-        #endregion Private Methods
     }
 }
