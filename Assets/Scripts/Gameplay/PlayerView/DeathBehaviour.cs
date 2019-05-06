@@ -6,6 +6,9 @@ namespace Wheeled.Gameplay.PlayerView
     {
         #region Public Properties
 
+        public CameraBehaviour cameraBehaviour;
+        public RifleDisplayBehaviour rifleDisplayBehaviour;
+
         public bool IsDead { get; private set; }
 
         #endregion Public Properties
@@ -17,9 +20,20 @@ namespace Wheeled.Gameplay.PlayerView
             if (!IsDead)
             {
                 IsDead = true;
-                // Test only
-                gameObject.SetActive(false);
-                GetComponent<CameraBehaviour>().camera.enabled = false;
+                cameraBehaviour.camera.enabled = false;
+                rifleDisplayBehaviour.text.enabled = false;
+                // TODO Disable behaviours
+                foreach (Collider c in GetComponentsInChildren<Collider>())
+                {
+                    c.enabled = true;
+                }
+                foreach (Rigidbody rb in GetComponentsInChildren<Rigidbody>())
+                {
+                    rb.detectCollisions = true;
+                    rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+                    rb.isKinematic = false;
+                    rb.velocity = _velocity;
+                }
             }
         }
 

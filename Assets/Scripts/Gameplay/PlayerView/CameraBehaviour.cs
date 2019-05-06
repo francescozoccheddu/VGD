@@ -6,7 +6,7 @@ public class CameraBehaviour : MonoBehaviour
     #region Public Fields
 
     public new Camera camera;
-    public MeshRenderer[] localNoSeeMeshes;
+    public Transform[] localNoSeeNodes;
 
     #endregion Public Fields
 
@@ -15,9 +15,12 @@ public class CameraBehaviour : MonoBehaviour
     internal void SetLocal(bool _isLocal)
     {
         camera.enabled = _isLocal;
-        foreach (MeshRenderer m in localNoSeeMeshes)
+        foreach (var t in localNoSeeNodes)
         {
-            m.shadowCastingMode = _isLocal ? ShadowCastingMode.ShadowsOnly : ShadowCastingMode.On;
+            foreach (MeshRenderer m in t.GetComponentsInChildren<MeshRenderer>())
+            {
+                m.shadowCastingMode = _isLocal ? ShadowCastingMode.ShadowsOnly : ShadowCastingMode.On;
+            }
         }
     }
 
