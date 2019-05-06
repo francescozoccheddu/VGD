@@ -5,7 +5,6 @@ Shader "Wheeled/Particles/Transparent"
 	Properties
 	{
 		_Material ("Material", Range (0.0, 1.0)) = 0.5
-		_Emission ("Emission", Range (0.0, 1.0)) = 0.5
 		_Alpha ("Alpha", Range (0.0, 1.0)) = 0.5
 	}
 
@@ -23,10 +22,9 @@ Shader "Wheeled/Particles/Transparent"
 
 		CGPROGRAM
 
-			#pragma surface surf Standard alpha:premul
+			#pragma surface surf Standard vertex:vert alpha:premul
 
 			fixed _Material;
-			fixed _Emission;
 			fixed _Alpha;
 
 			#include "ParticlesSurface.cginc"
@@ -34,7 +32,5 @@ Shader "Wheeled/Particles/Transparent"
 		ENDCG
 
 	}
-
-	Fallback "VertexLit"
 
 }
