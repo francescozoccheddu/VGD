@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a396a173857e9004a9012b6185f4c433, type: 3}
   m_Name: Angie
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
+  prefab: {fileID: 4471437543183632801, guid: 8e09d3cb44116b0418591838b53937b0, type: 3}
   icon: {fileID: 2800000, guid: 49762cfd5b55a0349840f5c52339585b, type: 3}

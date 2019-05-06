@@ -1,7 +1,7 @@
 import c4d
 from c4d import documents
 
-tagnames = ["Wheeled emission map", "Wheeled tint map"]
+tagnames = ["Wheeled tint map", "Wheeled emission map"]
 defaults = [0.0, 0.0]
 
 def calcCoord(data, default, index):

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a396a173857e9004a9012b6185f4c433, type: 3}
   m_Name: Bobby
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
+  prefab: {fileID: 2835341978927407723, guid: af4bc9404e5d92f45aeb8a0b5aa33392, type: 3}
   icon: {fileID: 2800000, guid: 330d552d2c871f84da112434eb386eab, type: 3}

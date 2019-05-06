@@ -18,7 +18,7 @@ namespace Wheeled.Gameplay.Movement
         [Header("Force")]
         public float force = 50.0f;
 
-        
+        public const float c_averageViewMass = 3.0f;
 
         internal float GetForce(Vector3 _position)
         {
@@ -56,9 +56,10 @@ namespace Wheeled.Gameplay.Movement
 
         private void Update()
         {
+            m_rigidbodies.RemoveWhere(_rb => _rb == null);
             foreach (var rb in m_rigidbodies)
             {
-                rb.AddForce(0.0f, force, 0.0f, ForceMode.Force);
+                rb.AddForce(0.0f, force * c_averageViewMass, 0.0f, ForceMode.Force);
             }
         }
 

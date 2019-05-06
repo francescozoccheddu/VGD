@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Wheeled.Core.Data;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
@@ -49,7 +50,18 @@ namespace Wheeled.Gameplay.Player
 
         public double HistoryDuration { get => m_historyDuration; set { Debug.Assert(value >= 0.0); m_historyDuration = value; } }
         public byte Id { get; }
-        public PlayerInfo? Info { get; set; }
+        public PlayerInfo? Info
+        {
+            get => m_info;
+            set
+            {
+                if (value != null)
+                {
+                    m_view.Head = Scripts.PlayerPreferences.heads[value.Value.head].prefab;
+                }
+                m_info = value;
+            }
+        }
         public abstract bool IsLocal { get; }
         public double LocalTime => m_manager.Time + TimeOffset;
         public double TimeOffset { get; set; }
@@ -87,6 +99,7 @@ namespace Wheeled.Gameplay.Player
         private bool m_isAlive;
         private double m_historyDuration;
         private double m_quitTime;
+        private PlayerInfo? m_info;
 
         #endregion Private Fields
 

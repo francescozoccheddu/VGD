@@ -10,9 +10,6 @@ namespace Wheeled.Gameplay.Movement
         private SimulationStepInfo m_last;
         private int m_maxTrustedSteps;
         private int m_trustedSteps;
-        // DEBUG
-        private int m_noData = 0;
-        private int m_wrongData = 0;
 
         public MovementValidator(double _duration)
         {

@@ -12,6 +12,8 @@ public class CameraBehaviour : MonoBehaviour
 
     #region Internal Methods
 
+    internal bool IsLocal { get; private set; }
+
     internal void SetLocal(bool _isLocal)
     {
         camera.enabled = _isLocal;
@@ -22,6 +24,7 @@ public class CameraBehaviour : MonoBehaviour
                 m.shadowCastingMode = _isLocal ? ShadowCastingMode.ShadowsOnly : ShadowCastingMode.On;
             }
         }
+        IsLocal = _isLocal;
     }
 
     #endregion Internal Methods

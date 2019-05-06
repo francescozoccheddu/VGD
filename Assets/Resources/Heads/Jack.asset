@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a396a173857e9004a9012b6185f4c433, type: 3}
   m_Name: Jack
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
+  prefab: {fileID: 5801368042590578153, guid: 83909f08ca0b60e478956bee9a1dde97, type: 3}
   icon: {fileID: 2800000, guid: e4641e35b49fcc546afdd4b91b8e4a80, type: 3}

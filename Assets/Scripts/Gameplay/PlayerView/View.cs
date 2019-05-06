@@ -7,7 +7,6 @@ namespace Wheeled.Gameplay.PlayerView
 {
     internal sealed class View
     {
-
         public ELifeState State { get; set; }
 
         public bool IsLocal
@@ -24,7 +23,18 @@ namespace Wheeled.Gameplay.PlayerView
         }
 
         public Color Color { get => m_color; set => m_color = value; }
-        public GameObject Head { get => m_head; set => m_head = value; }
+        public GameObject Head
+        {
+            get => m_head;
+            set
+            {
+                if (m_gameObject != null)
+                {
+                    m_gameObject.GetComponent<HeadBehaviour>().SetHead(value);
+                }
+                m_head = value;
+            }
+        }
 
         public float RiflePower { get; set; }
 
@@ -57,6 +67,7 @@ namespace Wheeled.Gameplay.PlayerView
             positionInterpolationQuickness = 4.0f;
             sightInterpolationQuickness = 2.0f;
             m_isLocal = false;
+            m_head = Scripts.PlayerPreferences.heads[0].prefab;
         }
 
         public void Move(in Snapshot _snapshot)
@@ -174,6 +185,7 @@ namespace Wheeled.Gameplay.PlayerView
                 m_damperBehaviour = m_gameObject.GetComponent<DamperBehaviour>();
                 m_sightBehaviour = m_gameObject.GetComponent<SightBehaviour>();
                 m_deathBehaviour = m_gameObject.GetComponent<DeathBehaviour>();
+                m_gameObject.GetComponent<HeadBehaviour>().SetHead(m_head);
                 m_rifleDisplayBehaviour = m_gameObject.GetComponent<RifleDisplayBehaviour>();
                 m_rifleDisplayBehaviour.Power = RiflePower;
                 m_animator = m_gameObject.GetComponent<Animator>();

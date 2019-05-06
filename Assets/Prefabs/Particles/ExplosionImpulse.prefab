@@ -48,7 +48,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 16384
   radius: 2
-  force: 9.6
+  force: 40
 --- !u!330 &8098195661706648504
 ParticleSystemForceField:
   m_ObjectHideFlags: 0
@@ -243,9 +243,9 @@ ParticleSystemForceField:
         - serializedVersion: 3
           time: 0.2
           value: 0
-          inSlope: 0
+          inSlope: 5
           outSlope: 0
-          tangentMode: 136
+          tangentMode: 5
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334

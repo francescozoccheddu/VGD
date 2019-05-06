@@ -13,7 +13,7 @@ namespace Wheeled.Gameplay
         public LayerMask layerMask;
         [Range(0.1f, 10.0f)]
         public float radius;
-        [Range(1.0f, 30.0f)]
+        [Range(8.0f, 80.0f)]
         public float force;
 
         protected void Apply(float _intensity)

@@ -9,7 +9,6 @@ namespace Wheeled.Core.Data
 
         public GameObject prefab;
         public Texture2D icon;
-        public string defaultName;
 
         #endregion Public Fields
     }
