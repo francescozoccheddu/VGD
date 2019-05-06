@@ -20,9 +20,12 @@ namespace Wheeled.Gameplay.PlayerView
             if (!IsDead)
             {
                 IsDead = true;
-                cameraBehaviour.camera.enabled = false;
+                cameraBehaviour.SetLocal(false);
                 rifleDisplayBehaviour.text.enabled = false;
-                // TODO Disable behaviours
+                rifleDisplayBehaviour.enabled = false;
+                GetComponent<DamperBehaviour>().enabled = false;
+                GetComponent<SightBehaviour>().enabled = false;
+                // TODO Disable behaviourss
                 foreach (Collider c in GetComponentsInChildren<Collider>())
                 {
                     c.enabled = true;

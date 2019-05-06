@@ -26,11 +26,4 @@ public class CameraBehaviour : MonoBehaviour
 
     #endregion Internal Methods
 
-    #region Private Methods
-
-    private void Start()
-    {
-    }
-
-    #endregion Private Methods
 }
