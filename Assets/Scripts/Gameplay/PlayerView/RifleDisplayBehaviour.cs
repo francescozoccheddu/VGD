@@ -13,8 +13,8 @@ public class RifleDisplayBehaviour : MonoBehaviour
 
     public Text text;
 
-    public Color baseColor;
-    public Color fixColor;
+    public Color BaseColor { get; set; } = Color.red;
+    public Color FixColor { get; set; } = Color.gray;
 
     #endregion Public Fields
 
@@ -55,7 +55,7 @@ public class RifleDisplayBehaviour : MonoBehaviour
         {
             text.text = newText;
         }
-        text.color = fix ? fixColor : baseColor;
+        text.color = fix ? FixColor : BaseColor;
     }
 
     #endregion Private Methods

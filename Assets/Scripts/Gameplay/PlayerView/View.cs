@@ -22,7 +22,19 @@ namespace Wheeled.Gameplay.PlayerView
             }
         }
 
-        public Color Color { get => m_color; set => m_color = value; }
+        public Color Color
+        {
+            get => m_color;
+            set
+            {
+                if (m_gameObject != null)
+                {
+                    m_gameObject.GetComponent<MaterialBehaviour>().Color = value;
+                    m_rifleDisplayBehaviour.BaseColor = value;
+                }
+                m_color = value;
+            }
+        }
         public GameObject Head
         {
             get => m_head;
@@ -185,9 +197,11 @@ namespace Wheeled.Gameplay.PlayerView
                 m_damperBehaviour = m_gameObject.GetComponent<DamperBehaviour>();
                 m_sightBehaviour = m_gameObject.GetComponent<SightBehaviour>();
                 m_deathBehaviour = m_gameObject.GetComponent<DeathBehaviour>();
+                m_gameObject.GetComponent<MaterialBehaviour>().Color = m_color;
                 m_gameObject.GetComponent<HeadBehaviour>().SetHead(m_head);
                 m_rifleDisplayBehaviour = m_gameObject.GetComponent<RifleDisplayBehaviour>();
                 m_rifleDisplayBehaviour.Power = RiflePower;
+                m_rifleDisplayBehaviour.BaseColor = m_color;
                 m_animator = m_gameObject.GetComponent<Animator>();
                 m_cameraBehaviour.SetLocal(IsLocal);
                 ReachTarget();
