@@ -10,9 +10,6 @@ namespace Wheeled.Gameplay.Movement
         private SimulationStepInfo m_last;
         private int m_maxTrustedSteps;
         private int m_trustedSteps;
-        // DEBUG
-        private int m_noData = 0;
-        private int m_wrongData = 0;
 
         public MovementValidator(double _duration)
         {
@@ -171,7 +168,6 @@ namespace Wheeled.Gameplay.Movement
                 m_trustedSteps = 0;
                 if (!CharacterController.AreNearlyEqual(m_last.simulation, m_buffer[bufInd].simulation.Value))
                 {
-                    Lebug.Log("WrongData", ++m_wrongData);
                     SendCorrection();
                 }
             }
@@ -180,7 +176,6 @@ namespace Wheeled.Gameplay.Movement
                 m_trustedSteps++;
                 if (m_trustedSteps > m_maxTrustedSteps)
                 {
-                    Lebug.Log("NoData", ++m_noData);
                     SendCorrection();
                 }
             }

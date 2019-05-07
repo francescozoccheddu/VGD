@@ -185,7 +185,7 @@ namespace Wheeled.Networking.Client
         {
             return from p
                   in m_players.Values
-                   where p.Id != _offense.OffenderId && p.LifeHistory.IsAlive(_time) && !p.IsQuit(_time)
+                   where p.Id != _offense.OffenderId && p.LifeHistory.IsAlive(_time - 0.1) && !p.IsQuit(_time)
                    select new OffenseBackstage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time + p.TimeOffset) };
         }
 

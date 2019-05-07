@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Wheeled.Core.Data;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
@@ -49,7 +50,18 @@ namespace Wheeled.Gameplay.Player
 
         public double HistoryDuration { get => m_historyDuration; set { Debug.Assert(value >= 0.0); m_historyDuration = value; } }
         public byte Id { get; }
-        public PlayerInfo? Info { get; set; }
+        public PlayerInfo? Info
+        {
+            get => m_info;
+            set
+            {
+                if (value != null)
+                {
+                    m_view.Head = Scripts.PlayerPreferences.heads[value.Value.head].prefab;
+                }
+                m_info = value;
+            }
+        }
         public abstract bool IsLocal { get; }
         public double LocalTime => m_manager.Time + TimeOffset;
         public double TimeOffset { get; set; }
@@ -87,6 +99,7 @@ namespace Wheeled.Gameplay.Player
         private bool m_isAlive;
         private double m_historyDuration;
         private double m_quitTime;
+        private PlayerInfo? m_info;
 
         #endregion Private Fields
 
@@ -220,17 +233,24 @@ namespace Wheeled.Gameplay.Player
         public void Update()
         {
             m_spawnHistory.PerformUntil(LocalTime);
-            int health = LifeHistory.GetHealth(LocalTime);
-            if (m_isAlive && !LifeHistoryHelper.IsAlive(health))
+            int? health = LifeHistory.GetHealthOrNull(LocalTime);
+            if (health != null)
             {
-                OnActorDied();
+                bool isAlive = LifeHistoryHelper.IsAlive(health.Value);
+                if (m_isAlive && !isAlive)
+                {
+                    OnActorDied();
+                }
+                else if (!m_isAlive && isAlive)
+                {
+                    OnActorSpawned();
+                }
+                m_isAlive = isAlive;
+                if (isAlive)
+                {
+                    OnActorBreathed();
+                }
             }
-            else if (!m_isAlive && LifeHistoryHelper.IsAlive(health))
-            {
-                OnActorSpawned();
-            }
-            m_isAlive = LifeHistoryHelper.IsAlive(health);
-            OnActorBreathed();
             m_offenseStage.Update(LocalTime);
             OnUpdated();
             m_shootHistory.PerformUntil(LocalTime);
@@ -321,7 +341,7 @@ namespace Wheeled.Gameplay.Player
             m_movementHistory.Trim(lastStep);
         }
 
-        private void UpdateView(int _health)
+        private void UpdateView(int? _health)
         {
             if (IsQuit(LocalTime))
             {

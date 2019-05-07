@@ -99,7 +99,6 @@ internal struct CapsuleController
         next.MoveY(_deltaTime);
         next.MoveXZ(_deltaTime);
         next.CalculateHeight();
-        Lebug.Log("Height", next.height);
         return next;
     }
 
@@ -150,7 +149,6 @@ internal struct CapsuleController
                 if (distance < movementDistance)
                 {
                     velocity = Slide(velocity, hit.normal);
-                    DebugExtension.DebugArrow(hit.point, velocity.normalized * 2.0f);
                 }
 
                 _deltaTime *= 1.0f - Mathf.Clamp01(distance / movementDistance);
@@ -161,7 +159,6 @@ internal struct CapsuleController
                 _deltaTime = 0.0f;
             }
         }
-        Lebug.Log("MovementIterations", iterations - 1);
     }
 
     private Vector3 Slide(in Vector3 _velocity, in Vector3 _normal)
@@ -177,7 +174,6 @@ internal struct CapsuleController
             float oldY = velocity.y;
             velocity.y = 0;
             velocity += Slide(Vector3.up * oldY, _normal);
-            DebugExtension.DebugArrow(position, velocity.normalized * 3.0f, Color.yellow);
         }
         else
         {

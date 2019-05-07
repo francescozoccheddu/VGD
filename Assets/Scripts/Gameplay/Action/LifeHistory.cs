@@ -8,7 +8,7 @@ namespace Wheeled.Gameplay.Action
     {
         #region Public Methods
 
-        int GetHealth(double _time);
+        int? GetHealthOrNull(double _time);
 
         void GetLastDeathInfo(double _time, out DamageNode? _outDeath, out DamageNode? _outExplosion);
 
@@ -19,20 +19,29 @@ namespace Wheeled.Gameplay.Action
     {
         #region Public Methods
 
-        public static LifeState GetLifeState(int _health)
+        public static ELifeState GetLifeState(int? _health)
         {
-            if (IsExploded(_health))
+            if (_health == null)
             {
-                return LifeState.Exploded;
+                return ELifeState.Unknown;
             }
-            else if (IsAlive(_health))
+            else if (IsExploded(_health.Value))
             {
-                return LifeState.Alive;
+                return ELifeState.Exploded;
+            }
+            else if (IsAlive(_health.Value))
+            {
+                return ELifeState.Alive;
             }
             else
             {
-                return LifeState.Dead;
+                return ELifeState.Dead;
             }
+        }
+
+        public static int GetHealth(this IReadOnlyLifeHistory _history, double _time)
+        {
+            return _history.GetHealthOrNull(_time) ?? 0;
         }
 
         public static bool IsAlive(int _health)
@@ -55,9 +64,9 @@ namespace Wheeled.Gameplay.Action
             return IsExploded(_history.GetHealth(_time));
         }
 
-        public static LifeState GetLifeState(this IReadOnlyLifeHistory _history, double _time)
+        public static ELifeState GetLifeState(this IReadOnlyLifeHistory _history, double _time)
         {
-            return GetLifeState(_history.GetHealth(_time));
+            return GetLifeState(_history.GetHealthOrNull(_time));
         }
 
         public static double? GetTimeSinceLastDeath(this IReadOnlyLifeHistory _history, double _time)
@@ -98,17 +107,6 @@ namespace Wheeled.Gameplay.Action
 
         #region Public Methods
 
-        public DamageInfo PutDamage(double _time, int _damage, byte _offenderId, OffenseType _offenseType)
-        {
-            return new DamageInfo
-            {
-                damage = _damage,
-                maxHealth = GetHealth(_time) - _damage,
-                offenderId = _offenderId,
-                offenseType = _offenseType
-            };
-        }
-
         public void PutDamage(double _time, DamageInfo _info)
         {
             m_damages.Add(_time, _info);
@@ -117,11 +115,6 @@ namespace Wheeled.Gameplay.Action
         public void PutHealth(double _time, int _health)
         {
             m_health.Set(_time, _health);
-        }
-
-        public int GetHealth(double _time)
-        {
-            return GetHealthOrNull(_time) ?? 0;
         }
 
         public int? GetHealthOrNull(double _time)
@@ -225,8 +218,8 @@ namespace Wheeled.Gameplay.Action
         #endregion Public Fields
     }
 
-    public enum LifeState
+    public enum ELifeState
     {
-        Alive, Dead, Exploded
+        Alive, Dead, Exploded, Unknown
     }
 }
