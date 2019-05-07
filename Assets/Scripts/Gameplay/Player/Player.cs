@@ -58,6 +58,7 @@ namespace Wheeled.Gameplay.Player
                 if (value != null)
                 {
                     m_view.Head = Scripts.PlayerPreferences.heads[value.Value.head].prefab;
+                    m_view.Color = Scripts.PlayerPreferences.colors[value.Value.color];
                 }
                 m_info = value;
             }
