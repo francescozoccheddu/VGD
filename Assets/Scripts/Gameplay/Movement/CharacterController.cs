@@ -21,7 +21,7 @@ internal struct CharacterController
 
     #region Private Fields
 
-    private const float c_jumpSpeed = 5.0f;
+    private const float c_jumpSpeed = 4.0f;
     private const float c_dashSpeed = 20.0f;
     private const float c_moveAcceleration = 20.0f;
     private const float c_maxAccelerationSpeed = 6.0f;
