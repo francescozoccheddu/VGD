@@ -76,8 +76,8 @@ namespace Wheeled.Gameplay.PlayerView
             m_lastState = State = ELifeState.Unknown;
             isPositionInterpolationEnabled = false;
             isSightInterpolationEnabled = false;
-            positionInterpolationQuickness = 4.0f;
-            sightInterpolationQuickness = 2.0f;
+            positionInterpolationQuickness = 20.0f;
+            sightInterpolationQuickness = 5.0f;
             m_isLocal = false;
             m_head = Scripts.PlayerPreferences.heads[0].prefab;
         }

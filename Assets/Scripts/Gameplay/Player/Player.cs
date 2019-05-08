@@ -115,9 +115,10 @@ namespace Wheeled.Gameplay.Player
             m_view = new View()
             {
                 IsLocal = IsLocal,
+                sightInterpolationQuickness = 5.0f,
                 isSightInterpolationEnabled = !IsLocal,
                 isPositionInterpolationEnabled = true,
-                positionInterpolationQuickness = IsLocal ? 20.0f : 15.0f
+                positionInterpolationQuickness = IsLocal ? 25.0f : 20.0f
             };
             m_shootHistory = new EventHistory<bool>()
             {
