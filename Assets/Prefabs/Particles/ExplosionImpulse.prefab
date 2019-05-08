@@ -226,7 +226,7 @@ ParticleSystemForceField:
     m_GravityCurve:
       serializedVersion: 2
       minMaxState: 1
-      scalar: 5
+      scalar: 7
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -235,15 +235,15 @@ ParticleSystemForceField:
           time: 0
           value: -1
           inSlope: 0
-          outSlope: 5
+          outSlope: 4
           tangentMode: 65
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.2
+          time: 0.25
           value: 0
-          inSlope: 5
+          inSlope: 4
           outSlope: 0
           tangentMode: 5
           weightedMode: 0
