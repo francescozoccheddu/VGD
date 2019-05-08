@@ -1,23 +1,15 @@
-﻿using UnityEngine.UI;
+﻿using UnityEngine;
+using UnityEngine.UI;
 using Wheeled.Core.Data;
 
 namespace Wheeled.Menu
 {
-    public sealed class HostArenaEntryBehaviour : ListBehaviour.ListItemBehaviour
+    public sealed class HostArenaEntryBehaviour : ToggleGroupBehaviour.ItemPresenterBehaviour
     {
-        #region Public Fields
 
         public Text text;
 
-        #endregion Public Fields
+        protected override void Present(object _item) => text.text = ((ArenaScript) _item).name;
 
-        #region Protected Methods
-
-        protected override void SetIndex(int _index)
-        {
-            text.text = Scripts.Scenes.arenas[_index].name.ToUpper();
-        }
-
-        #endregion Protected Methods
     }
 }
