@@ -240,12 +240,13 @@ namespace Wheeled.Networking.Server
 
         IEnumerable<OffenseBackstage.HitTarget> OffenseBackstage.IValidationTarget.ProvideHitTarget(double _time, Offense _offense)
         {
-            double shooterDelay = (GetPlayerById(_offense.OffenderId) as NetPlayer)?.Peer.Ping + 1.0 / c_replicationRate + ClientGameManager.c_netOffset ?? 0.0;
+            double realTime = _time - GetPlayerById(_offense.OffenderId)?.TimeOffset ?? 0.0;
+            double offenderDelay = (GetPlayerById(_offense.OffenderId) as NetPlayer)?.Peer.Ping + 1.0 / c_replicationRate + ClientGameManager.c_netOffset ?? 0.0;
             return from p
                    in m_players
-                   where p.Id != _offense.OffenderId && p.LifeHistory.IsAlive(_time) && !p.IsQuit(_time)
-                   let delay = _offense.OffenderId == m_localPlayer.Id ? p.TimeOffset : shooterDelay
-                   select new OffenseBackstage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time - delay) };
+                   let time = realTime - (_offense.OffenderId == m_localPlayer.Id ? -p.TimeOffset : offenderDelay)
+                   where p.Id != _offense.OffenderId && p.LifeHistory.IsAlive(time) && !p.IsQuit(time)
+                   select new OffenseBackstage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(time) };
         }
 
         void OffenseBackstage.IValidationTarget.Damage(double _time, byte _offendedId, Offense _offense, float _damage)

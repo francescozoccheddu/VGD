@@ -58,7 +58,7 @@ namespace Wheeled.HUD
 
         #region Private Methods
 
-        private void OnEnable()
+        private void Awake()
         {
             s_instance = this;
         }

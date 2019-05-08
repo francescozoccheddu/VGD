@@ -183,23 +183,30 @@ namespace Wheeled.Networking.Client
 
         IEnumerable<OffenseBackstage.HitTarget> OffenseBackstage.IValidationTarget.ProvideHitTarget(double _time, Offense _offense)
         {
+            double realTime = _time - GetPlayerById(_offense.OffenderId)?.TimeOffset ?? 0.0;
             return from p
-                  in m_players.Values
-                   where p.Id != _offense.OffenderId && p.LifeHistory.IsAlive(_time - 0.1) && !p.IsQuit(_time)
-                   select new OffenseBackstage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(_time + p.TimeOffset) };
+                   in m_players.Values
+                   let time = realTime + p.TimeOffset
+                   where p.Id != _offense.OffenderId && p.LifeHistory.IsAlive(time) && !p.IsQuit(time)
+                   select new OffenseBackstage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(time) };
         }
 
         void OffenseBackstage.IValidationTarget.Damage(double _time, byte _offendedId, Offense _offense, float _damage)
         {
         }
 
+        private ClientPlayer GetPlayerById(byte _id)
+        {
+            if (m_players.TryGetValue(_id, out ClientPlayer player))
+            {
+                return player;
+            }
+            return null;
+        }
+
         bool OffenseBackstage.IValidationTarget.ShouldProcess(double _time, Offense _offense)
         {
-            if (m_players.TryGetValue(_offense.OffenderId, out ClientPlayer player))
-            {
-                return player?.IsQuit(_time) == false;
-            }
-            return false;
+            return GetPlayerById(_offense.OffenderId)?.IsQuit(_time) == false;
         }
 
         #endregion Public Methods
