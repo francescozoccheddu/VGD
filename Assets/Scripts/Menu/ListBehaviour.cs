@@ -5,8 +5,7 @@ using UnityEngine.UI;
 
 namespace Wheeled.Menu
 {
-    [RequireComponent(typeof(ToggleGroup))]
-    public sealed class ToggleGroupBehaviour : MonoBehaviour
+    public sealed class ListBehaviour : MonoBehaviour
     {
 
         public interface IItemTemplate
@@ -38,8 +37,11 @@ namespace Wheeled.Menu
                 }
             }
         }
-        public GameObject template;
+
+        public GameObject listPresenter;
+        public GameObject itemPresenter;
         private object[] m_items;
+        private ToggleGroup m_group;
 
         public object Value { get => Items[Index]; set => Index = Array.IndexOf(Items, value); }
 
@@ -47,11 +49,10 @@ namespace Wheeled.Menu
         {
             get
             {
-                ToggleGroup group = GetComponent<ToggleGroup>();
-                IItemTemplate presenter = group.ActiveToggles().FirstOrDefault().GetComponent<IItemTemplate>();
+                IItemTemplate presenter = m_group.ActiveToggles().FirstOrDefault().GetComponent<IItemTemplate>();
                 return presenter == null ? -1 : Array.IndexOf(Items, presenter.Item);
             }
-            set => transform.GetChild(value).GetComponent<Toggle>().isOn = true;
+            set => m_group.transform.GetChild(value).GetComponent<Toggle>().isOn = true;
         }
 
         public void Create()
@@ -59,11 +60,11 @@ namespace Wheeled.Menu
             Destroy();
             if (Items != null)
             {
-                ToggleGroup group = GetComponent<ToggleGroup>();
+                m_group = Instantiate(listPresenter, transform).GetComponent<ToggleGroup>();
                 foreach (object item in Items)
                 {
-                    GameObject presenter = Instantiate(template, transform);
-                    presenter.GetComponent<Toggle>().group = group;
+                    GameObject presenter = Instantiate(itemPresenter, m_group.transform);
+                    presenter.GetComponent<Toggle>().group = m_group;
                     presenter.GetComponent<IItemTemplate>().Item = item;
                 }
                 Index = 0;
@@ -72,10 +73,11 @@ namespace Wheeled.Menu
 
         public void Destroy()
         {
-            foreach (Transform child in transform)
+            if (m_group?.gameObject != null)
             {
-                Destroy(child.gameObject);
+                Destroy(m_group.gameObject);
             }
+            m_group = null;
         }
 
         private void OnEnable() => Create();

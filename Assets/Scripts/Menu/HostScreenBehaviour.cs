@@ -11,7 +11,7 @@ namespace Wheeled.Menu
     {
         #region Public Fields
 
-        public ToggleGroupBehaviour arenaList;
+        public ListBehaviour arenaList;
         public InputField portField;
 
         #endregion Public Fields

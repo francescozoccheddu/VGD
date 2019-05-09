@@ -9,8 +9,8 @@ namespace Wheeled.Menu
     {
         #region Public Fields
 
-        public ToggleGroupBehaviour colorList;
-        public ToggleGroupBehaviour headList;
+        public ListBehaviour colorList;
+        public ListBehaviour headList;
         public InputField nameField;
 
         #endregion Public Fields

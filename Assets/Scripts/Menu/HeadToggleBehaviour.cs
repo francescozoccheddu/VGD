@@ -9,7 +9,7 @@ using Wheeled.Core.Data;
 
 namespace Wheeled.Menu
 {
-    public sealed class HeadToggleBehaviour : ToggleGroupBehaviour.ItemPresenterBehaviour
+    public sealed class HeadToggleBehaviour : ListBehaviour.ItemPresenterBehaviour
     {
         public RawImage image;
 

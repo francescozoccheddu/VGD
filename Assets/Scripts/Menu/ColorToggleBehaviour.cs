@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace Wheeled.Menu
 {
-    public sealed class ColorToggleBehaviour : ToggleGroupBehaviour.ItemPresenterBehaviour
+    public sealed class ColorToggleBehaviour : ListBehaviour.ItemPresenterBehaviour
     {
         public Graphic graphic;
 

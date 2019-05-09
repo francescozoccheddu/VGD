@@ -4,7 +4,7 @@ using Wheeled.Core.Data;
 
 namespace Wheeled.Menu
 {
-    public sealed class HostArenaEntryBehaviour : ToggleGroupBehaviour.ItemPresenterBehaviour
+    public sealed class HostArenaEntryBehaviour : ListBehaviour.ItemPresenterBehaviour
     {
 
         public Text text;
