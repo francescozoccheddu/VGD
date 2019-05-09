@@ -54,7 +54,7 @@ namespace Wheeled.Menu
                     m_hosts.Add(_info.endPoint, _info.map);
                     loadingLabel.SetActive(false);
                     GameObject entry = Instantiate(arenaEntryPrefab, m_group.transform);
-                    entry.GetComponent<HostArenaEntryBehaviour>().Index = _info.map;
+                    //entry.GetComponent<HostArenaEntryBehaviour>().Index = _info.map;
                     entry.GetComponent<Toggle>().group = m_group;
                 }
             }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,85 +7,96 @@ namespace Wheeled.Menu
 {
     public sealed class ListBehaviour : MonoBehaviour
     {
-        #region Public Interfaces
 
-        public interface IListItem
+        public interface IItemTemplate
         {
-            #region Public Properties
 
-            int Index { get; set; }
+            object Item { get; set; }
 
-            #endregion Public Properties
+        }
+        public abstract class ItemPresenterBehaviour : MonoBehaviour, IItemTemplate
+        {
+
+            public object Item { get => m_item; set { m_item = value; Present(value); } }
+
+            protected abstract void Present(object _item);
+
+            private object m_item;
+
         }
 
-        #endregion Public Interfaces
-
-        #region Public Classes
-
-        public abstract class ListItemBehaviour : MonoBehaviour, IListItem
+        public object[] Items
         {
-            #region Public Properties
-
-            public int Index { get => m_index; set => SetIndex(m_index = value); }
-
-            #endregion Public Properties
-
-            #region Private Fields
-
-            private int m_index;
-
-            #endregion Private Fields
-
-            #region Protected Methods
-
-            protected abstract void SetIndex(int _index);
-
-            #endregion Protected Methods
+            get => m_items;
+            set
+            {
+                if (m_items != Items)
+                {
+                    Index = -1;
+                }
+                m_items = value;
+                if (enabled)
+                {
+                    Create();
+                }
+            }
         }
 
-        #endregion Public Classes
-
-        #region Public Fields
-
-        public GameObject itemPrefab;
-        public GameObject groupPrefab;
-
-        #endregion Public Fields
-
-        #region Private Fields
-
+        public GameObject listPresenter;
+        public GameObject itemPresenter;
+        private object[] m_items;
         private ToggleGroup m_group;
 
-        #endregion Private Fields
+        public object Value { get => Items[Index]; set => Index = Array.IndexOf(Items, value); }
 
-        #region Public Methods
-
-        public void CreateChilds(int _count)
+        public int Index
         {
-            if (m_group != null)
+            get
+            {
+                IItemTemplate presenter = m_group?.ActiveToggles().FirstOrDefault().GetComponent<IItemTemplate>();
+                return presenter == null ? -1 : Array.IndexOf(Items, presenter.Item);
+            }
+            set
+            {
+                if (value < 0)
+                {
+                    m_group.SetAllTogglesOff();
+                }
+                else
+                {
+                    m_group.transform.GetChild(value).GetComponent<Toggle>().isOn = true;
+                }
+            }
+        }
+
+        public void Create()
+        {
+            Destroy();
+            if (Items != null)
+            {
+                int index = Index;
+                m_group = Instantiate(listPresenter, transform).GetComponent<ToggleGroup>();
+                foreach (object item in Items)
+                {
+                    GameObject presenter = Instantiate(itemPresenter, m_group.transform);
+                    presenter.GetComponent<Toggle>().group = m_group;
+                    presenter.GetComponent<IItemTemplate>().Item = item;
+                }
+                Index = index;
+            }
+        }
+
+        public void Destroy()
+        {
+            if (m_group?.gameObject != null)
             {
                 Destroy(m_group.gameObject);
             }
-            m_group = Instantiate(groupPrefab, transform).GetComponent<ToggleGroup>();
-            m_group.allowSwitchOff = false;
-            for (int i = 0; i < _count; i++)
-            {
-                GameObject item = Instantiate(itemPrefab, m_group.transform);
-                item.GetComponent<Toggle>().group = m_group;
-                item.GetComponent<IListItem>().Index = i;
-            }
+            m_group = null;
         }
 
-        public int GetSelectedIndex()
-        {
-            return m_group.ActiveToggles().FirstOrDefault().GetComponent<IListItem>().Index;
-        }
+        private void OnEnable() => Create();
 
-        public void SetSelectedIndex(int _index)
-        {
-            m_group.transform.GetChild(_index).GetComponent<Toggle>().isOn = true;
-        }
-
-        #endregion Public Methods
     }
+
 }
