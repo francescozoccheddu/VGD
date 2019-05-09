@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using UnityEngine.UI;
 using Wheeled.Core.Data;
 
@@ -8,8 +9,8 @@ namespace Wheeled.Menu
     {
         #region Public Fields
 
-        public ListBehaviour colorList;
-        public ListBehaviour headList;
+        public ToggleGroupBehaviour colorList;
+        public ToggleGroupBehaviour headList;
         public InputField nameField;
 
         #endregion Public Fields
@@ -18,8 +19,8 @@ namespace Wheeled.Menu
 
         public void Save()
         {
-            PlayerPreferences.ColorIndex = colorList.GetSelectedIndex();
-            PlayerPreferences.HeadIndex = headList.GetSelectedIndex();
+            PlayerPreferences.ColorIndex = colorList.Index;
+            PlayerPreferences.HeadIndex = headList.Index;
             PlayerPreferences.Name = nameField.text;
             PlayerPreferences.Save();
         }
@@ -31,20 +32,14 @@ namespace Wheeled.Menu
         private void UpdateScreen()
         {
             nameField.text = PlayerPreferences.Name ?? "";
-            colorList.SetSelectedIndex(PlayerPreferences.ColorIndex);
-            headList.SetSelectedIndex(PlayerPreferences.HeadIndex);
-        }
-
-        private void CreateTabs()
-        {
-            colorList.CreateChilds(Scripts.PlayerPreferences.colors.Length);
-            headList.CreateChilds(Scripts.PlayerPreferences.heads.Length);
+            colorList.Index = PlayerPreferences.ColorIndex;
+            headList.Index = PlayerPreferences.HeadIndex;
         }
 
         private void OnEnable()
         {
-            CreateTabs();
-            UpdateScreen();
+            colorList.Items = Scripts.PlayerPreferences.colors.Cast<object>().ToArray();
+            headList.Items = Scripts.PlayerPreferences.heads;
         }
 
         #endregion Private Methods

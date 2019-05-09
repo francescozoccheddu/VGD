@@ -26,10 +26,22 @@ namespace Wheeled.Menu
 
         }
 
-        public UnityEngine.Object[] items;
+        public object[] Items
+        {
+            get => m_items;
+            set
+            {
+                m_items = value;
+                if (enabled)
+                {
+                    Create();
+                }
+            }
+        }
         public GameObject template;
+        private object[] m_items;
 
-        public object Value { get => items[Index]; set => Index = Array.IndexOf(items, value); }
+        public object Value { get => Items[Index]; set => Index = Array.IndexOf(Items, value); }
 
         public int Index
         {
@@ -37,19 +49,24 @@ namespace Wheeled.Menu
             {
                 ToggleGroup group = GetComponent<ToggleGroup>();
                 IItemTemplate presenter = group.ActiveToggles().FirstOrDefault().GetComponent<IItemTemplate>();
-                return presenter == null ? -1 : Array.IndexOf(items, presenter.Item);
+                return presenter == null ? -1 : Array.IndexOf(Items, presenter.Item);
             }
             set => transform.GetChild(value).GetComponent<Toggle>().isOn = true;
         }
 
         public void Create()
         {
-            ToggleGroup group = GetComponent<ToggleGroup>();
-            foreach (UnityEngine.Object item in items)
+            Destroy();
+            if (Items != null)
             {
-                GameObject presenter = Instantiate(template, transform);
-                presenter.GetComponent<Toggle>().group = group;
-                presenter.GetComponent<IItemTemplate>().Item = item;
+                ToggleGroup group = GetComponent<ToggleGroup>();
+                foreach (object item in Items)
+                {
+                    GameObject presenter = Instantiate(template, transform);
+                    presenter.GetComponent<Toggle>().group = group;
+                    presenter.GetComponent<IItemTemplate>().Item = item;
+                }
+                Index = 0;
             }
         }
 
@@ -61,26 +78,8 @@ namespace Wheeled.Menu
             }
         }
 
-        private void OnValidate()
-        {
-            UnityEditor.EditorApplication.delayCall += () =>
-            {
-                foreach (Transform child in transform)
-                {
-                    DestroyImmediate(child.gameObject);
-                }
-            };
-            if (items != null && template != null)
-            {
-                Create();
-            }
-        }
-
-        private void OnEnable()
-        {
-            Destroy();
-            Create();
-        }
+        private void OnEnable() => Create();
 
     }
+
 }

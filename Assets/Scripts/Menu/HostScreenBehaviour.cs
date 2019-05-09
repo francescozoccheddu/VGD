@@ -11,7 +11,7 @@ namespace Wheeled.Menu
     {
         #region Public Fields
 
-        public ListBehaviour arenaList;
+        public ToggleGroupBehaviour arenaList;
         public InputField portField;
 
         #endregion Public Fields
@@ -21,7 +21,7 @@ namespace Wheeled.Menu
         public void StartGame()
         {
             int port = int.Parse(portField.text);
-            int arena = arenaList.GetSelectedIndex();
+            int arena = arenaList.Index;
             GameLauncher.Instance.StartGameAsServer(new GameRoomInfo
             {
                 endPoint = new IPEndPoint(IPAddress.Loopback, port),
@@ -35,8 +35,6 @@ namespace Wheeled.Menu
 
         private void OnEnable()
         {
-            arenaList.CreateChilds(Scripts.Scenes.arenas.Length);
-            arenaList.SetSelectedIndex(0);
             portField.text = "9060";
             portField.NotifyValueChanged();
         }
