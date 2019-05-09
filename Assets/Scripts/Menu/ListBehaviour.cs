@@ -30,6 +30,10 @@ namespace Wheeled.Menu
             get => m_items;
             set
             {
+                if (m_items != Items)
+                {
+                    Index = -1;
+                }
                 m_items = value;
                 if (enabled)
                 {
@@ -49,10 +53,20 @@ namespace Wheeled.Menu
         {
             get
             {
-                IItemTemplate presenter = m_group.ActiveToggles().FirstOrDefault().GetComponent<IItemTemplate>();
+                IItemTemplate presenter = m_group?.ActiveToggles().FirstOrDefault().GetComponent<IItemTemplate>();
                 return presenter == null ? -1 : Array.IndexOf(Items, presenter.Item);
             }
-            set => m_group.transform.GetChild(value).GetComponent<Toggle>().isOn = true;
+            set
+            {
+                if (value < 0)
+                {
+                    m_group.SetAllTogglesOff();
+                }
+                else
+                {
+                    m_group.transform.GetChild(value).GetComponent<Toggle>().isOn = true;
+                }
+            }
         }
 
         public void Create()
@@ -60,6 +74,7 @@ namespace Wheeled.Menu
             Destroy();
             if (Items != null)
             {
+                int index = Index;
                 m_group = Instantiate(listPresenter, transform).GetComponent<ToggleGroup>();
                 foreach (object item in Items)
                 {
@@ -67,7 +82,7 @@ namespace Wheeled.Menu
                     presenter.GetComponent<Toggle>().group = m_group;
                     presenter.GetComponent<IItemTemplate>().Item = item;
                 }
-                Index = 0;
+                Index = index;
             }
         }
 
