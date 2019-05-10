@@ -11,30 +11,32 @@ namespace Wheeled.Menu
         public interface IItemTemplate
         {
 
-            object Item { get; set; }
+            int Index { get; set; }
 
         }
+
         public abstract class ItemPresenterBehaviour : MonoBehaviour, IItemTemplate
         {
 
-            public object Item { get => m_item; set { m_item = value; Present(value); } }
+            public int Index { get => m_index; set { m_index = value; Present(value); } }
 
-            protected abstract void Present(object _item);
+            protected abstract void Present(int _index);
 
-            private object m_item;
+            private int m_index;
 
         }
 
-        public object[] Items
+        public int Count
         {
-            get => m_items;
+            get => m_count;
             set
             {
-                if (m_items != Items)
+                if (value <= 0)
                 {
-                    Index = -1;
+                    throw new ArgumentException("Positive int required", nameof(Count));
                 }
-                m_items = value;
+                m_count = value;
+                m_lastIndex = 0;
                 if (enabled)
                 {
                     Create();
@@ -44,45 +46,39 @@ namespace Wheeled.Menu
 
         public GameObject listPresenter;
         public GameObject itemPresenter;
-        private object[] m_items;
         private ToggleGroup m_group;
-
-        public object Value { get => Items[Index]; set => Index = Array.IndexOf(Items, value); }
+        private int m_count;
+        private int m_lastIndex;
 
         public int Index
         {
             get
             {
-                IItemTemplate presenter = m_group?.ActiveToggles().FirstOrDefault().GetComponent<IItemTemplate>();
-                return presenter == null ? -1 : Array.IndexOf(Items, presenter.Item);
+                return m_group?.ActiveToggles().FirstOrDefault()?.GetComponent<IItemTemplate>()?.Index ?? -1;
             }
             set
             {
-                if (value < 0)
-                {
-                    m_group.SetAllTogglesOff();
-                }
-                else
+                if (m_group != null)
                 {
                     m_group.transform.GetChild(value).GetComponent<Toggle>().isOn = true;
                 }
+                m_lastIndex = value;
             }
         }
 
         public void Create()
         {
             Destroy();
-            if (Items != null)
+            if (m_count >= 0)
             {
-                int index = Index;
                 m_group = Instantiate(listPresenter, transform).GetComponent<ToggleGroup>();
-                foreach (object item in Items)
+                for (int i=0; i < m_count; i++)
                 {
                     GameObject presenter = Instantiate(itemPresenter, m_group.transform);
                     presenter.GetComponent<Toggle>().group = m_group;
-                    presenter.GetComponent<IItemTemplate>().Item = item;
+                    presenter.GetComponent<IItemTemplate>().Index = i;
                 }
-                Index = index;
+                Index = m_lastIndex;
             }
         }
 

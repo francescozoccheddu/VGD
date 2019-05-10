@@ -9,7 +9,7 @@ namespace Wheeled.Menu
 
         public Text text;
 
-        protected override void Present(object _item) => text.text = ((ArenaScript) _item).name;
+        protected override void Present(int _index) => text.text = Scripts.Scenes.arenas[_index].name;
 
     }
 }

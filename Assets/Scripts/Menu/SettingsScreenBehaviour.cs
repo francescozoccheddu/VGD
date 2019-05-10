@@ -38,8 +38,9 @@ namespace Wheeled.Menu
 
         private void OnEnable()
         {
-            colorList.Items = Scripts.PlayerPreferences.colors.Cast<object>().ToArray();
-            headList.Items = Scripts.PlayerPreferences.heads;
+            colorList.Count = Scripts.PlayerPreferences.colors.Length;
+            headList.Count = Scripts.PlayerPreferences.heads.Length;
+            UpdateScreen();
         }
 
         #endregion Private Methods

@@ -30,9 +30,7 @@ namespace Wheeled.Menu
         private void OnEnable()
         {
             ipField.text = "";
-            ipField.NotifyValueChanged();
             portField.text = "9060";
-            portField.NotifyValueChanged();
         }
 
         #endregion Private Methods

@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 1071915581617789049}
   - component: {fileID: 3874122283629598940}
   - component: {fileID: 3291322211299638371}
-  - component: {fileID: 1233287166888902837}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -118,22 +117,6 @@ MonoBehaviour:
   m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
---- !u!114 &1233287166888902837
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1291014297734755972}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9023a7e81621a614d9fcf4e35fa8f442, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 3023211856774332145}
-  color: {r: 0, g: 0.5283019, b: 0.05570788, a: 0}
-  original: {fileID: 5189851656562207115, guid: 2881ae374054fc449a1e28a3ae5d52a4,
-    type: 3}
 --- !u!1001 &7057868214311884666
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -145,6 +128,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Interactable
+      objectReference: {fileID: 0}
+    - target: {fileID: 5189851656562207115, guid: 2881ae374054fc449a1e28a3ae5d52a4,
+        type: 3}
+      propertyPath: m_FontData.m_Alignment
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3730162006870373025, guid: 2881ae374054fc449a1e28a3ae5d52a4,
         type: 3}
@@ -215,11 +203,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5189851656562207115, guid: 2881ae374054fc449a1e28a3ae5d52a4,
-        type: 3}
-      propertyPath: m_FontData.m_Alignment
-      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2881ae374054fc449a1e28a3ae5d52a4, type: 3}

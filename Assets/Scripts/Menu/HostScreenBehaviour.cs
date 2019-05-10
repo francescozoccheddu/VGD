@@ -36,8 +36,8 @@ namespace Wheeled.Menu
         private void OnEnable()
         {
             portField.text = "9060";
-            portField.NotifyValueChanged();
-            arenaList.Items = Scripts.Scenes.arenas;
+            arenaList.Count = Scripts.Scenes.arenas.Length;
+            arenaList.Index = 0;
         }
 
         #endregion Private Methods

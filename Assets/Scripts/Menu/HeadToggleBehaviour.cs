@@ -13,6 +13,6 @@ namespace Wheeled.Menu
     {
         public RawImage image;
 
-        protected override void Present(object _item) => image.texture = ((HeadScript) _item).icon;
+        protected override void Present(int _index) => image.texture = Scripts.PlayerPreferences.heads[_index].icon;
     }
 }
