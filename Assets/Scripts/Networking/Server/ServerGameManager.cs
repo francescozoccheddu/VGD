@@ -48,11 +48,13 @@ namespace Wheeled.Networking.Server
 
         private double m_lastTimeSyncTime;
 
+        private readonly byte m_arena;
+
         #endregion Private Fields
 
         #region Public Constructors
 
-        public ServerGameManager()
+        public ServerGameManager(byte _arena)
         {
             m_offenseBackstage = new OffenseBackstage
             {
@@ -75,6 +77,7 @@ namespace Wheeled.Networking.Server
                 m_localPlayer
             };
             MatchBoard = new MatchBoard();
+            m_arena = _arena;
             m_localPlayer.Start();
         }
 
@@ -123,7 +126,7 @@ namespace Wheeled.Networking.Server
             if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
             {
                 // Welcome
-                Serializer.WritePlayerWelcomeSync(netPlayer.Id, 0);
+                Serializer.WritePlayerWelcomeSync(netPlayer.Id, m_arena);
                 netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
                 // Introduction (so that he knows the others)
                 foreach (AuthoritativePlayer p in m_players.Where(_p => _p != netPlayer))

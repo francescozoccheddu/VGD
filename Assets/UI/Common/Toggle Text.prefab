@@ -105,7 +105,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 3
   m_Spacing: 5
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
@@ -262,6 +262,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Interactable
       objectReference: {fileID: 0}
+    - target: {fileID: 5189851656562207115, guid: 2881ae374054fc449a1e28a3ae5d52a4,
+        type: 3}
+      propertyPath: m_Text
+      value: '>'
+      objectReference: {fileID: 0}
     - target: {fileID: 3730162006870373025, guid: 2881ae374054fc449a1e28a3ae5d52a4,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -366,11 +371,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5189851656562207115, guid: 2881ae374054fc449a1e28a3ae5d52a4,
-        type: 3}
-      propertyPath: m_Text
-      value: '>'
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2881ae374054fc449a1e28a3ae5d52a4, type: 3}

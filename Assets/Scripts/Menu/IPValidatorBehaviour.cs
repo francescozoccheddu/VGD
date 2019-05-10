@@ -1,24 +1,41 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Sockets;
+using UnityEngine.Events;
 
 namespace Wheeled.Menu
 {
+
     public sealed class IPValidatorBehaviour : ValidatorBehaviour
     {
         #region Public Methods
 
+        [Serializable]
+        public sealed class ChangedEvent : UnityEvent<IPAddress> { }
+
+        public ChangedEvent changed;
+
         public static bool IsValidIP(string _string)
+        {
+            return ParseIP(_string) != null;
+        }
+        public static IPAddress ParseIP(string _string)
         {
             if (IPAddress.TryParse(_string, out IPAddress address))
             {
-                return address.AddressFamily == AddressFamily.InterNetwork;
+                if (address.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return address;
+                }
             }
-            return false;
+            return null;
         }
 
         public void Validate(string _string)
         {
-            validated.Invoke(IsValidIP(_string));
+            var ip = ParseIP(_string);
+            validated.Invoke(ip != null);
+            changed.Invoke(ip);
         }
 
         #endregion Public Methods

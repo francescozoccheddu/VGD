@@ -21,8 +21,6 @@ void vert (inout appdata_full _in, out Input _out)
 	_out.albedo = _input_calcAlbedo (_in.color.rgb, _PaintColor, _in.texcoord.x);
 	_out.material = _in.color.a;
 	_out.emission = calcEmission (_out.albedo, _in.texcoord.y);
-	// TODO remove
-	_out.albedo = _out.emission;
 }
 
 #endif

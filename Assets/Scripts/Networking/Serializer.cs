@@ -28,6 +28,7 @@ namespace Wheeled.Networking
 
         public static void WriteDiscoveryInfo(byte _arena)
         {
+            writer.Reset();
             writer.Put(_arena);
         }
 

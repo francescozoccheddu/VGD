@@ -81,7 +81,7 @@ namespace Wheeled.Networking.Server
         {
             if (m_game == null && IsStarted)
             {
-                m_game = new ServerGameManager();
+                m_game = new ServerGameManager(RoomInfo.Value.map);
             }
         }
 

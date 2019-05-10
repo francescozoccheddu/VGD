@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,15 +13,19 @@ namespace Wheeled.Menu
         #region Public Fields
 
         public GameObject loadingLabel;
-        public GameObject arenaEntryPrefab;
+        public GameObject listGroup;
+        public GameObject hostTogglePrefab;
         public GameObject listPrefab;
+        public InputField ipField;
+        public InputField portField;
+        public Transform listContent;
 
         #endregion Public Fields
 
         #region Private Fields
 
         private const float c_discoverPeriod = 1.0f;
-        private readonly Dictionary<IPEndPoint, int> m_hosts = new Dictionary<IPEndPoint, int>();
+        private readonly HashSet<IPEndPoint> m_hosts = new HashSet<IPEndPoint>();
         private ToggleGroup m_group;
         private int m_port;
 
@@ -28,11 +33,36 @@ namespace Wheeled.Menu
 
         #region Public Methods
 
-        public void PortChanged(string _port)
+        public void PortChanged(int? _port)
         {
-            if (PortValidatorBehaviour.IsValidPort(_port))
+            if (_port != null)
             {
-                m_port = int.Parse(_port);
+                m_port = _port.Value;
+            }
+            UpdateCurrent(IPValidatorBehaviour.ParseIP(ipField.text), _port);
+        }
+
+        public void IPChanged(IPAddress _ip)
+        {
+            UpdateCurrent(_ip, PortValidatorBehaviour.ParsePort(portField.text));
+        }
+
+        private void UpdateCurrent(IPAddress _ip, int? _port)
+        {
+            if (m_group != null)
+            {
+                Debug.LogFormat("Update current: ip = {0}", _ip?.ToString() ?? "null");
+                IPEndPoint endPoint = null;
+                if (_ip != null && _port != null)
+                {
+                    endPoint = new IPEndPoint(_ip, _port.Value);
+                }
+                for (int i = 0; i < m_group.transform.childCount; i++)
+                {
+                    var child = m_group.transform.GetChild(i);
+                    bool isOn = child.GetComponent<HostToggleBehaviour>().EndPoint.Equals(endPoint);
+                    child.GetComponent<Toggle>().SetIsOnWithoutNotify(isOn);
+                }
             }
         }
 
@@ -40,22 +70,51 @@ namespace Wheeled.Menu
 
         #region Private Methods
 
-        private void Discover()
-        {
-            GameLauncher.Instance.StartServerDiscovery(m_port);
-        }
+        private void Discover() => GameLauncher.Instance.StartServerDiscovery(m_port);
 
         private void Discovered(GameRoomInfo _info)
         {
             if (m_group != null)
             {
-                if (!m_hosts.ContainsKey(_info.endPoint))
+                if (!m_hosts.Contains(_info.endPoint))
                 {
-                    m_hosts.Add(_info.endPoint, _info.map);
                     loadingLabel.SetActive(false);
-                    GameObject entry = Instantiate(arenaEntryPrefab, m_group.transform);
-                    //entry.GetComponent<HostArenaEntryBehaviour>().Index = _info.map;
-                    entry.GetComponent<Toggle>().group = m_group;
+                    listGroup.SetActive(true);
+                    GameObject entry = Instantiate(hostTogglePrefab, m_group.transform);
+                    Toggle toggle = entry.GetComponent<Toggle>();
+                    toggle.group = m_group;
+                    toggle.onValueChanged.AddListener(_isOn =>
+                    {
+                        Debug.LogFormat("Toggle {0} changed: isOn = {1}", _info.endPoint, _isOn);
+                        if (_isOn)
+                        {
+                            ipField.text = _info.endPoint.Address.MapToIPv4().ToString();
+                            portField.text = _info.endPoint.Port.ToString();
+                        }
+                        else
+                        {
+                            IPAddress address = IPValidatorBehaviour.ParseIP(ipField.text);
+                            int? port = PortValidatorBehaviour.ParsePort(portField.text);
+                            if (address != null && port != null)
+                            {
+                                IPEndPoint endPoint = new IPEndPoint(address, port.Value);
+                                if (endPoint.Equals(_info.endPoint))
+                                {
+                                    ipField.text = "";
+                                }
+                            }
+                        }
+                    });
+                    HostToggleBehaviour toggleBehaviour = entry.GetComponent<HostToggleBehaviour>();
+                    toggleBehaviour.Arena = _info.map;
+                    toggleBehaviour.EndPoint = _info.endPoint;
+                    m_hosts.Add(_info.endPoint);
+                }
+                else
+                {
+                    HostToggleBehaviour toggleBehaviour = m_group.GetComponentsInChildren<HostToggleBehaviour>()
+                        .FirstOrDefault(_c => _c.EndPoint.Equals(_info.endPoint));
+                    toggleBehaviour.Arena = _info.map;
                 }
             }
         }
@@ -65,13 +124,14 @@ namespace Wheeled.Menu
             Stop();
             GameLauncher.Instance.OnGameRoomDiscovered += Discovered;
             m_port = 9060;
-            m_group = Instantiate(listPrefab, transform).GetComponent<ToggleGroup>();
+            m_group = Instantiate(listPrefab, listContent).GetComponent<ToggleGroup>();
             loadingLabel.SetActive(true);
             InvokeRepeating(nameof(Discover), c_discoverPeriod, c_discoverPeriod);
         }
 
         private void Stop()
         {
+            CancelInvoke();
             GameLauncher.Instance.OnGameRoomDiscovered -= Discovered;
             m_hosts.Clear();
             if (m_group != null)
@@ -79,13 +139,10 @@ namespace Wheeled.Menu
                 Destroy(m_group.gameObject);
             }
             m_group = null;
-            CancelInvoke();
+            listGroup.SetActive(false);
         }
 
-        private void OnDisable()
-        {
-            Stop();
-        }
+        private void OnDisable() => Stop();
 
         #endregion Private Methods
     }

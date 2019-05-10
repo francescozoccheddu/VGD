@@ -10,28 +10,30 @@ namespace Wheeled.Menu
     public sealed class HeadFanBehaviour : MonoBehaviour
     {
 
-        [Range(1.0f, 50.0f)]
-        public float acceleration = 10.0f;
+        [Range(200.0f, 2000.0f)]
+        public float acceleration = 500.0f;
+        [Range(200.0f, 2000.0f)]
+        public float deceleration = 500.0f;
 
         private float m_speed;
         private float m_target;
 
         public void SetSpeed(float _speed)
         {
-            m_speed = _speed;
+            m_speed = Mathf.Abs(_speed);
             m_target = 0.0f;
         }
 
         public void Accelerate(float _targetSpeed)
         {
-            m_target = _targetSpeed;
+            m_target = Mathf.Abs(_targetSpeed);
         }
 
         private void Update()
         {
             if (m_speed > m_target)
             {
-                m_speed -= acceleration * Time.deltaTime;
+                m_speed -= deceleration * Time.deltaTime;
                 if (m_speed < m_target)
                 {
                     m_speed = m_target;
