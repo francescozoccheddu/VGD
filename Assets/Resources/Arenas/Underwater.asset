@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Underwater
   m_EditorClassIdentifier: 
   name: Underwater
+  icon: {fileID: 2800000, guid: f035eb2a1a36ec94aae5b09946f5f4e5, type: 3}
   buildIndex: 2

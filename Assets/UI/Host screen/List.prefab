@@ -51,7 +51,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   listPresenter: {fileID: 1244460625403145307, guid: 41bf1d811297c0443b69d5c05e8f1404,
     type: 3}
-  itemPresenter: {fileID: 8068791332156698953, guid: 4935921e53477584a8a2bb53c2544e40,
+  itemPresenter: {fileID: 5555462142435786182, guid: be762b4adc744394ca1db4c94f36280c,
     type: 3}
 --- !u!114 &-2915906737914412871
 MonoBehaviour:

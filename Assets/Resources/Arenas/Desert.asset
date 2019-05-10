@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Desert
   m_EditorClassIdentifier: 
   name: Desert
+  icon: {fileID: 2800000, guid: 6493ffb3f48ace344a351da85e1013ff, type: 3}
   buildIndex: 1

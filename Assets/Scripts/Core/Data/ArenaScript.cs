@@ -8,6 +8,7 @@ namespace Wheeled.Core.Data
         #region Public Fields
 
         public new string name;
+        public Texture2D icon;
         public int buildIndex;
 
         #endregion Public Fields

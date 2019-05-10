@@ -1,0 +1,36 @@
+Adobe After Effects v11.0 (Windows 64) render log for project “Arena icons.aep”
+
+Rendering started on 5/11/2019 at 12:16:52 AM
+
+
+  5/11/2019 12:16:53 AM: Starting composition “Observatory”.
+
+
+  Output To: C:\Users\franc\Desktop\Observatory (0-00-00-00).png
+  
+  5/11/2019 12:16:53 AM: Finished composition “Observatory”.
+
+
+
+  5/11/2019 12:16:53 AM: Starting composition “Underwater”.
+
+
+  Output To: C:\Users\franc\Desktop\Underwater (0-00-00-00).png
+  
+  5/11/2019 12:16:53 AM: Finished composition “Underwater”.
+
+
+
+  5/11/2019 12:16:53 AM: Starting composition “Desert”.
+
+
+  Output To: C:\Users\franc\Desktop\Desert (0-00-00-00).png
+  
+  5/11/2019 12:16:53 AM: Finished composition “Desert”.
+
+
+
+  Total Time Elapsed: 1 Seconds
+
+Log closed on 5/11/2019 at 12:16:53 AM
+

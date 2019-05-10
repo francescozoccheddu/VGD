@@ -7,9 +7,9 @@ namespace Wheeled.Menu
     public sealed class ArenaToggleBehaviour : ListBehaviour.ItemPresenterBehaviour
     {
 
-        public Text text;
+        public RawImage image;
 
-        protected override void Present(int _index) => text.text = Scripts.Scenes.arenas[_index].name;
+        protected override void Present(int _index) => image.texture = Scripts.Scenes.arenas[_index].icon;
 
     }
 }

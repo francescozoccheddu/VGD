@@ -303,6 +303,11 @@ PrefabInstance:
       propertyPath: m_Text
       value: Placeholder
       objectReference: {fileID: 0}
+    - target: {fileID: 920012561154519324, guid: bbdeb9ab8580bb94bb15fd5776542efe,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0.49019608
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bbdeb9ab8580bb94bb15fd5776542efe, type: 3}
 --- !u!224 &3954516494120451728 stripped
@@ -334,6 +339,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Interactable
+      objectReference: {fileID: 0}
+    - target: {fileID: 5189851656562207115, guid: 2881ae374054fc449a1e28a3ae5d52a4,
+        type: 3}
+      propertyPath: m_FontData.m_HorizontalOverflow
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5189851656562207115, guid: 2881ae374054fc449a1e28a3ae5d52a4,
+        type: 3}
+      propertyPath: m_Text
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3730162006870373025, guid: 2881ae374054fc449a1e28a3ae5d52a4,
         type: 3}
@@ -409,16 +424,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5189851656562207115, guid: 2881ae374054fc449a1e28a3ae5d52a4,
-        type: 3}
-      propertyPath: m_FontData.m_HorizontalOverflow
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5189851656562207115, guid: 2881ae374054fc449a1e28a3ae5d52a4,
-        type: 3}
-      propertyPath: m_Text
-      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2881ae374054fc449a1e28a3ae5d52a4, type: 3}
