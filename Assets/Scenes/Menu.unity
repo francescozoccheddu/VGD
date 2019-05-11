@@ -1046,12 +1046,12 @@ Camera:
   serializedVersion: 2
   m_ClearFlags: 2
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
-  m_projectionMatrixMode: 1
-  m_GateFitMode: 2
+  m_projectionMatrixMode: 2
+  m_GateFitMode: 4
   m_FOVAxisMode: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
-  m_FocalLength: 50
+  m_FocalLength: 36
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -1060,7 +1060,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 36
+  field of view: 36.869896
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -1085,13 +1085,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 247181818}
-  m_LocalRotation: {x: 0.040443443, y: 0.13150235, z: -0.005368933, w: 0.990476}
-  m_LocalPosition: {x: 0.117, y: 0.134, z: -2.573}
+  m_LocalRotation: {x: 0.04054026, y: 0.111376114, z: -0.0045473175, w: 0.99294066}
+  m_LocalPosition: {x: 0.085, y: 0.15, z: -2.59}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 4.676, y: 12.8, z: 0}
 --- !u!114 &251984098 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -6926794947348062382, guid: 24bd846ee20512346b1bb1ecc79a112f,
