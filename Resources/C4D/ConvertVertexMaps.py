@@ -10,6 +10,7 @@ def calcCoord(data, default, index):
 def calcUV(data, index):
     x = calcCoord(data[0], defaults[0], index)
     y = calcCoord(data[1], defaults[1], index)
+    print(x, y)
     return c4d.Vector(x, y, 0.0)
 
 def main():
