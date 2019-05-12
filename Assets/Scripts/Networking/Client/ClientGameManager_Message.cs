@@ -142,7 +142,7 @@ namespace Wheeled.Networking.Client
                     Player victim = GetOrCreatePlayer(info.victimId);
                     killer.KillsValue.Put(time, info.killerKills);
                     victim.DeathsValue.Put(time, info.victimDeaths);
-                    MatchBoard.Put(m_time, new MatchBoard.KillEvent
+                    MatchBoard.Put(m_time, new EventBoardDispatcher.KillEvent
                     {
                         killer = killer,
                         victim = victim,

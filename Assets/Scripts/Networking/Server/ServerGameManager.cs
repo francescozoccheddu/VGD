@@ -20,7 +20,7 @@ namespace Wheeled.Networking.Server
 
         double IPlayerManager.Time => m_time;
 
-        public MatchBoard MatchBoard { get; }
+        public EventBoardDispatcher MatchBoard { get; }
 
         #endregion Public Properties
 
@@ -76,7 +76,7 @@ namespace Wheeled.Networking.Server
             {
                 m_localPlayer
             };
-            MatchBoard = new MatchBoard();
+            MatchBoard = new EventBoardDispatcher();
             m_arena = _arena;
             m_localPlayer.Start();
         }
@@ -223,7 +223,7 @@ namespace Wheeled.Networking.Server
                 DamageValidationDelay = c_validationDelay,
                 Info = _reader.ReadPlayerInfo()
             };
-            MatchBoard.Put(m_time, new MatchBoard.JoinEvent
+            MatchBoard.Put(m_time, new EventBoardDispatcher.JoinEvent
             {
                 player = netPlayer
             });

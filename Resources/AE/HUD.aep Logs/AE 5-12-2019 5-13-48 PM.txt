@@ -1,0 +1,36 @@
+Adobe After Effects v11.0 (Windows 64) render log for project “HUD.aep”
+
+Rendering started on 5/12/2019 at 5:13:48 PM
+
+
+  5/12/2019 5:13:48 PM: Starting composition “HitMarker”.
+
+
+  Output To: C:\Users\franc\Desktop\HitMarker_[#####].png
+  
+  5/12/2019 5:13:48 PM: Finished composition “HitMarker”.
+
+
+
+  5/12/2019 5:13:48 PM: Starting composition “DamageMarker”.
+
+
+  Output To: C:\Users\franc\Desktop\DamageMarker_[#####].png
+  
+  5/12/2019 5:13:48 PM: Finished composition “DamageMarker”.
+
+
+
+  5/12/2019 5:13:48 PM: Starting composition “CrossHair”.
+
+
+  Output To: C:\Users\franc\Desktop\CrossHair_[#####].png
+  
+  5/12/2019 5:13:48 PM: Finished composition “CrossHair”.
+
+
+
+  Total Time Elapsed: 0 Seconds
+
+Log closed on 5/12/2019 at 5:13:48 PM
+

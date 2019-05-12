@@ -41,7 +41,7 @@ namespace Wheeled.Networking.Client
                 if (!m_isQuit)
                 {
                     m_isQuit = true;
-                    m_manager.MatchBoard.Put(m_manager.m_time, new MatchBoard.QuitEvent
+                    m_manager.MatchBoard.Put(m_manager.m_time, new EventBoardDispatcher.QuitEvent
                     {
                         player = this
                     });
@@ -69,7 +69,7 @@ namespace Wheeled.Networking.Client
         #region Public Properties
 
         double IPlayerManager.Time => m_time;
-        public MatchBoard MatchBoard { get; }
+        public EventBoardDispatcher MatchBoard { get; }
 
         #endregion Public Properties
 
@@ -131,7 +131,7 @@ namespace Wheeled.Networking.Client
             {
                 { _id, m_localPlayer }
             };
-            MatchBoard = new MatchBoard();
+            MatchBoard = new EventBoardDispatcher();
             // Ready notify
             Serializer.WriteReady();
             m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
@@ -235,7 +235,7 @@ namespace Wheeled.Networking.Client
                     HistoryDuration = 2.0,
                 };
                 m_players.Add(_id, newNetPlayer);
-                MatchBoard.Put(m_time, new MatchBoard.JoinEvent
+                MatchBoard.Put(m_time, new EventBoardDispatcher.JoinEvent
                 {
                     player = newNetPlayer
                 });

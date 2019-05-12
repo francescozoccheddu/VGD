@@ -6,7 +6,7 @@ namespace Wheeled.Gameplay.Player
     {
         #region Public Properties
 
-        MatchBoard MatchBoard { get; }
+        EventBoardDispatcher MatchBoard { get; }
         double Time { get; }
 
         #endregion Public Properties

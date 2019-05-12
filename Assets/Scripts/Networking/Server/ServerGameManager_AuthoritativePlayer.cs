@@ -145,7 +145,7 @@ namespace Wheeled.Networking.Server
                 Serializer.WriteQuitReplication(_time, Id);
                 m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
                 m_manager.m_players.Remove(this);
-                m_manager.MatchBoard.Put(_time, new MatchBoard.QuitEvent
+                m_manager.MatchBoard.Put(_time, new EventBoardDispatcher.QuitEvent
                 {
                     player = this
                 });
@@ -211,7 +211,7 @@ namespace Wheeled.Networking.Server
                         victimDeaths = (byte) Deaths,
                         killerKills = (byte) (killer?.Kills ?? 0)
                     });
-                    m_manager.MatchBoard.Put(m_manager.m_time, new MatchBoard.KillEvent
+                    m_manager.MatchBoard.Put(m_manager.m_time, new EventBoardDispatcher.KillEvent
                     {
                         killer = killer,
                         victim = this,
