@@ -3,6 +3,7 @@ using Wheeled.Core.Data;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Player;
+using Wheeled.UI.HUD;
 
 namespace Wheeled.HUD
 {
@@ -38,7 +39,7 @@ namespace Wheeled.HUD
                 IReadOnlyPlayer player = this.player;
                 EventBoardBehaviour.AddMain(() =>
                 {
-                    return string.Format("{0} joined the game", GetPlayerName(player));
+                    return string.Format("{0} joined the game", player.GetColoredName());
                 });
             }
 
@@ -85,7 +86,7 @@ namespace Wheeled.HUD
                 }
                 EventBoardBehaviour.AddMain(() =>
                 {
-                    return string.Format(format, GetPlayerName(killer), GetPlayerName(victim), cause);
+                    return string.Format(format, killer.GetColoredName(), victim.GetColoredName(), cause);
                 });
             }
 
@@ -107,7 +108,7 @@ namespace Wheeled.HUD
                 IReadOnlyPlayer player = this.player;
                 EventBoardBehaviour.AddMain(() =>
                 {
-                    return string.Format("{0} left the game", GetPlayerName(player));
+                    return string.Format("{0} left the game", player.GetColoredName());
                 });
             }
 
@@ -135,21 +136,6 @@ namespace Wheeled.HUD
         #endregion Public Constructors
 
         #region Public Methods
-
-        private static string GetPlayerName(IReadOnlyPlayer _player)
-        {
-            string name = _player?.Info?.name.Trim();
-            Color color = Scripts.PlayerPreferences.colors[_player?.Info?.color ?? 0];
-            string format = string.Format("<color=\"#{0}\">{{0}}</color>", ColorUtility.ToHtmlStringRGB(color));
-            if (string.IsNullOrEmpty(name))
-            {
-                return string.Format(format, string.Format("<i>{0}</i>", _player.Id));
-            }
-            else
-            {
-                return string.Format(format, string.Format("<b>{0}</b>", name));
-            }
-        }
 
         public void Put(double _time, IEvent _event)
         {
