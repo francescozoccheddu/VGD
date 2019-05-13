@@ -3,6 +3,7 @@ using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Scene;
 using Wheeled.HUD;
+using Wheeled.UI.HUD;
 
 namespace Wheeled.Gameplay.Player
 {
@@ -85,11 +86,12 @@ namespace Wheeled.Gameplay.Player
 
         void EventHistory<OffenseType>.ITarget.Perform(double _time, OffenseType _value)
         {
-            CrossHairBehaviour.NotifyHit();
+            InGameHUD.Instance.hitMarker.Hit();
         }
 
         void EventHistory<DamageInfo>.ITarget.Perform(double _time, DamageInfo _value)
         {
+            InGameHUD.Instance.healthIndicator.NotifyDamage();
         }
 
         public void OnUpdated()
@@ -102,7 +104,7 @@ namespace Wheeled.Gameplay.Player
         public void OnActorDied()
         {
             m_movementController.Pause();
-            CrossHairBehaviour.SetEnabled(false);
+            InGameHUD.Instance.SetAlive(false);
             DeathCameraManager.Enable(m_player.GetSnapshot(m_player.LocalTime).simulation.Position);
         }
 
@@ -115,13 +117,15 @@ namespace Wheeled.Gameplay.Player
         {
             m_movementController.Teleport(m_player.GetSnapshot(m_player.LocalTime), true);
             m_movementController.StartAt(m_player.LocalTime);
-            CrossHairBehaviour.SetEnabled(true);
+            InGameHUD.Instance.SetAlive(true);
             DeathCameraManager.Disable();
         }
 
         public void OnActorBreathed()
         {
-            CrossHairBehaviour.SetHealth(m_player.LifeHistory.GetHealth(m_player.LocalTime));
+            InGameHUD.Instance.healthIndicator.Health = m_player.LifeHistory.GetHealth(m_player.LocalTime);
+            InGameHUD.Instance.crossHairBehaviour.IsLeftEnabled = m_player.WeaponsHistory.CanShootRifle(m_player.LocalTime, out _);
+            InGameHUD.Instance.crossHairBehaviour.IsRightEnabled = m_player.WeaponsHistory.CanShootRocket(m_player.LocalTime);
             m_movementController.UpdateUntil(m_player.LocalTime);
             m_player.PutSight(m_movementController.Step, m_movementController.RawSnapshot.sight);
         }

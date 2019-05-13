@@ -65,13 +65,13 @@ namespace Wheeled.HUD
                 switch (offenseType)
                 {
                     case OffenseType.Rifle:
-                    cause = "by laser";
+                    cause = "laser";
                     break;
                     case OffenseType.Rocket:
-                    cause = "by rocket";
+                    cause = "rocket";
                     break;
                     case OffenseType.Explosion:
-                    cause = "by explosion";
+                    cause = "explosion";
                     break;
                 }
                 string format;
