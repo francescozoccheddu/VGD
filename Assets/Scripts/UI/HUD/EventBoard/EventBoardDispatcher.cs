@@ -139,13 +139,15 @@ namespace Wheeled.HUD
         private static string GetPlayerName(IReadOnlyPlayer _player)
         {
             string name = _player?.Info?.name.Trim();
+            Color color = Scripts.PlayerPreferences.colors[_player?.Info?.color ?? 0];
+            string format = string.Format("<color=\"#{0}\">{{0}}</color>", ColorUtility.ToHtmlStringRGB(color));
             if (string.IsNullOrEmpty(name))
             {
-                return string.Format("<i>Player {0}</i>", _player.Id);
+                return string.Format(format, string.Format("<i>{0}</i>", _player.Id));
             }
             else
             {
-                return string.Format("<b>{0}</b>", name);
+                return string.Format(format, string.Format("<b>{0}</b>", name));
             }
         }
 

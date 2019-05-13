@@ -12,7 +12,8 @@ namespace Wheeled.UI.HUD
 
         public HitMarkerBehaviour hitMarker;
         public HealthIndicatorBehaviour healthIndicator;
-        public CrossHairBehaviour crossHairBehaviour;
+        public CrossHairBehaviour leftCrossHair;
+        public CrossHairBehaviour rightCrossHair;
 
         public CanvasGroup aliveOnlyGroup;
 

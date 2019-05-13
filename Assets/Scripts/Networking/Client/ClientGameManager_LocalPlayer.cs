@@ -124,6 +124,11 @@ namespace Wheeled.Networking.Client
 
             #region Private Methods
 
+            protected override void OnInfoSetup()
+            {
+                base.OnInfoSetup();
+                m_playerController.OnInfoSetup();
+            }
             private void NotifyMovement()
             {
                 m_timeSinceLastMovementNotify = 0.0f;

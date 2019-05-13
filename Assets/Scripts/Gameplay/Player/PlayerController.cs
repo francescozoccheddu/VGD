@@ -1,4 +1,6 @@
-﻿using Wheeled.Core.Utils;
+﻿using UnityEngine;
+using Wheeled.Core.Data;
+using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Scene;
@@ -84,6 +86,12 @@ namespace Wheeled.Gameplay.Player
             m_player.PutInput(_step, _input);
         }
 
+        public void OnInfoSetup()
+        {
+            Color color = Scripts.PlayerPreferences.colors[m_player.Info.Value.color];
+            InGameHUD.Instance.leftCrossHair.Color = InGameHUD.Instance.rightCrossHair.Color = color;
+        }
+
         void EventHistory<OffenseType>.ITarget.Perform(double _time, OffenseType _value)
         {
             InGameHUD.Instance.hitMarker.Hit();
@@ -124,8 +132,8 @@ namespace Wheeled.Gameplay.Player
         public void OnActorBreathed()
         {
             InGameHUD.Instance.healthIndicator.Health = m_player.LifeHistory.GetHealth(m_player.LocalTime);
-            InGameHUD.Instance.crossHairBehaviour.IsLeftEnabled = m_player.WeaponsHistory.CanShootRifle(m_player.LocalTime, out _);
-            InGameHUD.Instance.crossHairBehaviour.IsRightEnabled = m_player.WeaponsHistory.CanShootRocket(m_player.LocalTime);
+            InGameHUD.Instance.leftCrossHair.IsEnabled = m_player.WeaponsHistory.CanShootRifle(m_player.LocalTime, out _);
+            InGameHUD.Instance.rightCrossHair.IsEnabled = m_player.WeaponsHistory.CanShootRocket(m_player.LocalTime);
             m_movementController.UpdateUntil(m_player.LocalTime);
             m_player.PutSight(m_movementController.Step, m_movementController.RawSnapshot.sight);
         }

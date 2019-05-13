@@ -25,28 +25,19 @@ namespace Wheeled.Networking.Server
 
             #region Public Constructors
 
-            public LocalPlayer(ServerGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
-            {
-                m_playerController = new PlayerController(this);
-            }
+            public LocalPlayer(ServerGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage) => m_playerController = new PlayerController(this);
 
             #endregion Public Constructors
 
             #region Public Methods
 
-            public void PutHitConfirm(double _time, OffenseType _type)
-            {
-                m_playerController.PutHitConfirm(_time, _type);
-            }
+            public void PutHitConfirm(double _time, OffenseType _type) => m_playerController.PutHitConfirm(_time, _type);
 
             #endregion Public Methods
 
             #region Protected Methods
 
-            protected override int GetLastValidMovementStep()
-            {
-                return LocalTime.SimulationSteps();
-            }
+            protected override int GetLastValidMovementStep() => LocalTime.SimulationSteps();
 
             protected override void OnActorSpawned()
             {
@@ -78,9 +69,12 @@ namespace Wheeled.Networking.Server
                 m_playerController.OnActorBreathed();
             }
 
-            protected override void SendReplication(NetworkManager.SendMethod _method)
+            protected override void SendReplication(NetworkManager.SendMethod _method) => m_manager.SendAll(_method);
+
+            protected override void OnInfoSetup()
             {
-                m_manager.SendAll(_method);
+                base.OnInfoSetup();
+                m_playerController.OnInfoSetup();
             }
 
             #endregion Protected Methods
