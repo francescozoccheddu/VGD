@@ -107,7 +107,7 @@ namespace Wheeled.Gameplay.Player
         void EventHistory<DamagePerformInfo>.ITarget.Perform(double _time, DamagePerformInfo _value)
         {
             InGameHUDBehaviour.Instance.healthIndicator.NotifyDamage();
-            if (_value.origin != null)
+            if (_value.origin != null && _value.info.offenderId != m_player.Id)
             {
                 DamageMarkerManagerBehaviour.Instance.Add(_value.origin.Value);
             }
