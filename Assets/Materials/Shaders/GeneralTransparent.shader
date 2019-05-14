@@ -22,7 +22,7 @@ Shader "Wheeled/General/Transparent"
 
 		CGPROGRAM
 
-			#pragma surface surf Standard vertex:vert alpha:premul
+			#pragma surface surf Standard vertex:vert alpha:fade
 
 			fixed3 _PaintColor;
 			fixed _Alpha;
