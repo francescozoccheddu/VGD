@@ -159,7 +159,7 @@ namespace Wheeled.Networking.Server
             // TODO Catch exception
             switch (_reader.ReadMessageType())
             {
-                case Message.MovementNotify:
+                case EMessage.MovementNotify:
                 {
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
@@ -169,7 +169,7 @@ namespace Wheeled.Networking.Server
                 }
                 break;
 
-                case Message.ShootNotify:
+                case EMessage.ShootNotify:
                 {
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
@@ -179,7 +179,7 @@ namespace Wheeled.Networking.Server
                 }
                 break;
 
-                case Message.KazeNotify:
+                case EMessage.KazeNotify:
                 {
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {
@@ -189,7 +189,7 @@ namespace Wheeled.Networking.Server
                 }
                 break;
 
-                case Message.ReadyNotify:
+                case EMessage.ReadyNotify:
                 {
                     if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
                     {

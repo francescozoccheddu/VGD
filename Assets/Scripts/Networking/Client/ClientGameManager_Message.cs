@@ -25,7 +25,7 @@ namespace Wheeled.Networking.Client
             {
                 #region Room messages
 
-                case Message.TimeSync:
+                case EMessage.TimeSync:
                 {
                     _reader.ReadTimeSync(out double time);
                     // Time
@@ -38,7 +38,7 @@ namespace Wheeled.Networking.Client
                 }
                 break;
 
-                case Message.PlayerIntroductionSync:
+                case EMessage.PlayerIntroductionSync:
                 {
                     _reader.ReadPlayerIntroduction(out byte id, out PlayerInfo info);
                     GetOrCreatePlayer(id).Info = info;
@@ -46,7 +46,7 @@ namespace Wheeled.Networking.Client
                 }
                 break;
 
-                case Message.RecapSync:
+                case EMessage.RecapSync:
                 {
                     _reader.ReadRecapSync(out double time, out IEnumerable<PlayerRecapInfo> infos);
                     Dictionary<byte, ClientPlayer> oldPlayers = new Dictionary<byte, ClientPlayer>(m_players);
@@ -66,7 +66,7 @@ namespace Wheeled.Networking.Client
                 }
                 break;
 
-                case Message.QuitReplication:
+                case EMessage.QuitReplication:
                 {
                     _reader.ReadQuitReplication(out double time, out byte id);
                     if (m_players.TryGetValue(id, out ClientPlayer player))
@@ -81,7 +81,7 @@ namespace Wheeled.Networking.Client
 
                 #region Movement messages
 
-                case Message.SimulationOrder:
+                case EMessage.SimulationOrder:
                 {
                     _reader.ReadSimulationOrder(out int step, out SimulationStepInfo simulation);
                     if (m_isRunning && step > m_time.CeilingSimulationSteps() + c_maxStepAdvance)
@@ -92,7 +92,7 @@ namespace Wheeled.Networking.Client
                 }
                 break;
 
-                case Message.MovementReplication:
+                case EMessage.MovementReplication:
                 {
                     _reader.ReadMovementReplication(out byte id, out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
                     if (m_isRunning && step > m_time.CeilingSimulationSteps() + c_maxStepAdvance)
@@ -109,14 +109,14 @@ namespace Wheeled.Networking.Client
 
                 #region Action messages
 
-                case Message.SpawnOrderOrReplication:
+                case EMessage.SpawnOrderOrReplication:
                 {
                     _reader.ReadSpawnOrderOrReplication(out double time, out byte id, out SpawnInfo spawnInfo);
                     GetOrCreatePlayer(id).PutSpawn(time, spawnInfo);
                 }
                 break;
 
-                case Message.DamageOrderOrReplication:
+                case EMessage.DamageOrderOrReplication:
                 {
                     _reader.ReadDamageOrderOrReplication(out double time, out byte id, out DamageInfo info);
                     GetOrCreatePlayer(id).PutDamage(time, info);
@@ -127,7 +127,7 @@ namespace Wheeled.Networking.Client
                 }
                 break;
 
-                case Message.ShootReplication:
+                case EMessage.ShootReplication:
                 {
                     _reader.ReadShotReplication(out double time, out byte id, out ShotInfo info);
                     NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
@@ -135,7 +135,7 @@ namespace Wheeled.Networking.Client
                 }
                 break;
 
-                case Message.KillSync:
+                case EMessage.KillSync:
                 {
                     _reader.ReadKillSync(out double time, out KillInfo info);
                     Player killer = GetOrCreatePlayer(info.killerId);

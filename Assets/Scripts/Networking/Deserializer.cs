@@ -36,9 +36,9 @@ namespace Wheeled.Networking
 
         #region Public Methods
 
-        public Message ReadMessageType()
+        public EMessage ReadMessageType()
         {
-            return ReadEnum<Message>();
+            return ReadEnum<EMessage>();
         }
 
         public void ReadMovementNotify(out int _outStep, out IEnumerable<InputStep> _outInputSteps, out Snapshot _outSnapshot)

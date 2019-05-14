@@ -35,7 +35,7 @@ namespace Wheeled.Networking
         public static void WriteMovementAndInputReplication(byte _id, int _step, IEnumerable<InputStep> _inputSteps, in Snapshot _snapshot)
         {
             writer.Reset();
-            writer.Put(Message.MovementReplication);
+            writer.Put(EMessage.MovementReplication);
             writer.Put(_id);
             writer.Put(_step);
             writer.Put(_snapshot);
@@ -45,7 +45,7 @@ namespace Wheeled.Networking
         public static void WriteMovementNotify(int _firstStep, IEnumerable<InputStep> _steps, in Snapshot _snapshot)
         {
             writer.Reset();
-            writer.Put(Message.MovementNotify);
+            writer.Put(EMessage.MovementNotify);
             writer.Put(_firstStep);
             writer.Put(_snapshot);
             writer.Put(_steps, (_writer, _item) => _writer.Put(_item));
@@ -54,7 +54,7 @@ namespace Wheeled.Networking
         public static void WriteSimulationCorrection(int _step, in SimulationStepInfo _simulationStepInfo)
         {
             writer.Reset();
-            writer.Put(Message.SimulationOrder);
+            writer.Put(EMessage.SimulationOrder);
             writer.Put(_step);
             writer.Put(_simulationStepInfo);
         }
@@ -62,7 +62,7 @@ namespace Wheeled.Networking
         public static void WriteDamageOrderOrReplication(double _time, byte _id, DamageInfo _info)
         {
             writer.Reset();
-            writer.Put(Message.DamageOrderOrReplication);
+            writer.Put(EMessage.DamageOrderOrReplication);
             writer.Put(_time);
             writer.Put(_id);
             writer.Put(_info);
@@ -71,7 +71,7 @@ namespace Wheeled.Networking
         public static void WriteKazeNotify(double _time, KazeInfo _info)
         {
             writer.Reset();
-            writer.Put(Message.KazeNotify);
+            writer.Put(EMessage.KazeNotify);
             writer.Put(_time);
             writer.Put(_info);
         }
@@ -79,7 +79,7 @@ namespace Wheeled.Networking
         public static void WriteShootNotify(double _time, ShotInfo _info)
         {
             writer.Reset();
-            writer.Put(Message.ShootNotify);
+            writer.Put(EMessage.ShootNotify);
             writer.Put(_time);
             writer.Put(_info);
         }
@@ -87,7 +87,7 @@ namespace Wheeled.Networking
         public static void WriteShootReplication(double _time, byte _id, ShotInfo _info)
         {
             writer.Reset();
-            writer.Put(Message.ShootReplication);
+            writer.Put(EMessage.ShootReplication);
             writer.Put(_time);
             writer.Put(_id);
             writer.Put(_info);
@@ -96,7 +96,7 @@ namespace Wheeled.Networking
         public static void WriteSpawnOrderOrReplication(double _time, byte _id, SpawnInfo _info)
         {
             writer.Reset();
-            writer.Put(Message.SpawnOrderOrReplication);
+            writer.Put(EMessage.SpawnOrderOrReplication);
             writer.Put(_time);
             writer.Put(_id);
             writer.Put(_info);
@@ -105,7 +105,7 @@ namespace Wheeled.Networking
         public static void WritePlayerIntroductionSync(byte _id, PlayerInfo _info)
         {
             writer.Reset();
-            writer.Put(Message.PlayerIntroductionSync);
+            writer.Put(EMessage.PlayerIntroductionSync);
             writer.Put(_id);
             writer.Put(_info);
         }
@@ -113,7 +113,7 @@ namespace Wheeled.Networking
         public static void WritePlayerWelcomeSync(byte _id, byte _map)
         {
             writer.Reset();
-            writer.Put(Message.PlayerWelcomeSync);
+            writer.Put(EMessage.PlayerWelcomeSync);
             writer.Put(_id);
             writer.Put(_map);
             // Checksum
@@ -125,7 +125,7 @@ namespace Wheeled.Networking
         public static void WriteQuitReplication(double _time, byte _id)
         {
             writer.Reset();
-            writer.Put(Message.QuitReplication);
+            writer.Put(EMessage.QuitReplication);
             writer.Put(_time);
             writer.Put(_id);
         }
@@ -133,13 +133,13 @@ namespace Wheeled.Networking
         public static void WriteReady()
         {
             writer.Reset();
-            writer.Put(Message.ReadyNotify);
+            writer.Put(EMessage.ReadyNotify);
         }
 
         public static void WriteRecapSync(double _time, IEnumerable<PlayerRecapInfo> _recaps)
         {
             writer.Reset();
-            writer.Put(Message.RecapSync);
+            writer.Put(EMessage.RecapSync);
             writer.Put(_time);
             writer.Put(_recaps, (_writer, _item) => _writer.Put(_item));
         }
@@ -147,7 +147,7 @@ namespace Wheeled.Networking
         public static void WriteTimeSync(double _time)
         {
             writer.Reset();
-            writer.Put(Message.TimeSync);
+            writer.Put(EMessage.TimeSync);
             writer.Put(_time);
             // Checksum
             ulong bytes = Convert.ToUInt64(_time);
@@ -157,7 +157,7 @@ namespace Wheeled.Networking
         public static void WriteKillSync(double _time, KillInfo _info)
         {
             writer.Reset();
-            writer.Put(Message.KillSync);
+            writer.Put(EMessage.KillSync);
             writer.Put(_time);
             writer.Put(_info);
         }

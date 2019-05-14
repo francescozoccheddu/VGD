@@ -5,7 +5,7 @@ using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Gameplay.PlayerView
 {
-    internal sealed class View
+    internal sealed class PlayerView
     {
         public ELifeState State { get; set; }
 
@@ -71,7 +71,7 @@ namespace Wheeled.Gameplay.PlayerView
         private GameObject m_head;
         private Color m_color;
 
-        public View()
+        public PlayerView()
         {
             m_lastState = State = ELifeState.Unknown;
             isPositionInterpolationEnabled = false;
