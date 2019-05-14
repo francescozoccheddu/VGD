@@ -90,7 +90,7 @@ namespace Wheeled.Gameplay.Player
         private readonly IPlayerManager m_manager;
         // Components
         private readonly OffenseStage m_offenseStage;
-        private readonly View m_view;
+        private readonly PlayerView.PlayerView m_view;
         private readonly LifeHistory m_lifeHistory;
         private readonly EventHistory<SpawnInfo> m_spawnHistory;
         private readonly WeaponsHistory m_weaponsHistory;
@@ -113,7 +113,7 @@ namespace Wheeled.Gameplay.Player
             Id = _id;
             m_manager = _manager;
             m_offenseBackstage = _offenseBackstage;
-            m_view = new View()
+            m_view = new PlayerView.PlayerView()
             {
                 IsLocal = IsLocal,
                 sightInterpolationQuickness = 5.0f,

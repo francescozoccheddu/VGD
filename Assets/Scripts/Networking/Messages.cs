@@ -17,7 +17,7 @@
     // Replication: Server tells Client about someone else
     // Order: Server tells Client about itself
     // Sync: Server tells Client about the room
-    internal enum Message
+    internal enum EMessage
     {
         // Movement
         MovementNotify, SimulationOrder, MovementReplication,

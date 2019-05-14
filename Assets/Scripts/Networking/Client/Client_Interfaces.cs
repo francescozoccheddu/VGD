@@ -89,7 +89,7 @@ namespace Wheeled.Networking.Client
                 {
                     try
                     {
-                        if (_reader.ReadMessageType() == Message.PlayerWelcomeSync)
+                        if (_reader.ReadMessageType() == EMessage.PlayerWelcomeSync)
                         {
                             _reader.ReadPlayerWelcomeSync(out byte id, out byte map);
                             m_localPlayerId = id;
