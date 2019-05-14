@@ -132,8 +132,6 @@ internal struct CapsuleController
     private void MoveXZ(float _deltaTime)
     {
         const float capsulePointOffset = c_height / 2.0f - c_radius;
-        float initialDistance = velocity.magnitude * _deltaTime;
-        float initialDeltaTime = _deltaTime;
         int iterations = 0;
         while (iterations++ < c_maxMoveIteractions && velocity != Vector3.zero && _deltaTime > 0.0f)
         {
@@ -169,15 +167,11 @@ internal struct CapsuleController
 
     private void ConvertCollisionY(in Vector3 _normal)
     {
-        if (velocity.y != 0.0f && (velocity.y > 0.0f || Vector3.Angle(_normal, Vector3.up) > c_maxSlopeAngle))
+        if (velocity.y != 0.0f)
         {
             float oldY = velocity.y;
             velocity.y = 0;
             velocity += Slide(Vector3.up * oldY, _normal);
-        }
-        else
-        {
-            velocity.y = 0;
         }
     }
 
@@ -224,7 +218,6 @@ internal struct CapsuleController
 
             Vector3 startingPosition = position - direction * (c_height / 2.0f - c_radius);
 
-            bool isFalling = sign < 0.0f;
             float moveShootDistance = amountDistance + c_overShoot + c_skin;
             float shootDistance = sphereBodyDistance + moveShootDistance;
             if (Physics.SphereCast(startingPosition, c_radius, direction, out RaycastHit hit, shootDistance, Scripts.Collisions.movement))

@@ -14,6 +14,7 @@ namespace Wheeled.HUD
         public Text deathsText;
         public Text pingText;
         public RawImage iconImage;
+        public RawImage background;
 
         internal void Set(IReadOnlyPlayer _player)
         {
@@ -28,6 +29,7 @@ namespace Wheeled.HUD
             pingText.text = _player.Ping.ToString();
             iconImage.color = color;
             iconImage.texture = Scripts.PlayerPreferences.heads[_player.Info?.head ?? 0].icon;
+            background.enabled = _player.IsLocal;
         }
 
     }

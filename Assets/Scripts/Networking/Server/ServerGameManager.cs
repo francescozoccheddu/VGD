@@ -67,8 +67,8 @@ namespace Wheeled.Networking.Server
             m_time = 0.0;
             m_localPlayer = new LocalPlayer(this, 0, m_offenseBackstage)
             {
-                HistoryDuration = 2.0,
-                MaxMovementInputStepsReplicationCount = 5,
+                HistoryDuration = 3.0,
+                MaxMovementInputStepsReplicationCount = 10,
                 Info = PlayerPreferences.Info
             };
             m_nextPlayerId = 1;
