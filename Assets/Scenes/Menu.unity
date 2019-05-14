@@ -1127,7 +1127,7 @@ GameObject:
   - component: {fileID: 247181819}
   m_Layer: 0
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4243,6 +4243,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 575553740, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1501283749 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 920012561154519324, guid: bbdeb9ab8580bb94bb15fd5776542efe,
+    type: 3}
+  m_PrefabInstance: {fileID: 2271882997625626667}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1578987094
@@ -8549,7 +8561,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e155d2145f0996840aeffb2549161d7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  messageLabel: {fileID: 0}
+  messageLabel: {fileID: 1501283749}
 --- !u!224 &7704663165161737618
 RectTransform:
   m_ObjectHideFlags: 0

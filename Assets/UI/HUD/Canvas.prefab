@@ -860,6 +860,7 @@ RectTransform:
   - {fileID: 4836973447113047987}
   - {fileID: 7091563781791536222}
   - {fileID: 1939709360251795553}
+  - {fileID: 7726855422050544458}
   m_Father: {fileID: 4836973447129098924}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -880,6 +881,56 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!1 &9166654862239616538
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7726855422050544458}
+  - component: {fileID: 2715869248483009938}
+  m_Layer: 5
+  m_Name: DamageMarker Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7726855422050544458
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9166654862239616538}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5128130369392018926}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2715869248483009938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9166654862239616538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34b52567ac647df4591be57237e050ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  markerPrefab: {fileID: 7449171666907059506, guid: 1b7668d29a687d34a9514674c9f026d7,
+    type: 3}
 --- !u!1001 &1328465691908095756
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1334,6 +1385,12 @@ PrefabInstance:
       objectReference: {fileID: 2800000, guid: 5e6e17bedd17fca42b3cfab91320b8e2, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a24161438c7621a46820aec27d597dcf, type: 3}
+--- !u!224 &3490910363940182815 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2228250277551645498, guid: a24161438c7621a46820aec27d597dcf,
+    type: 3}
+  m_PrefabInstance: {fileID: 3359229748952954917}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &662178566445278397 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2859476033820351640, guid: a24161438c7621a46820aec27d597dcf,
@@ -1346,12 +1403,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b37314f39651dbb4bbfba0657ae7485a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &3490910363940182815 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2228250277551645498, guid: a24161438c7621a46820aec27d597dcf,
-    type: 3}
-  m_PrefabInstance: {fileID: 3359229748952954917}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6010419801183805547
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1476,6 +1527,12 @@ PrefabInstance:
       objectReference: {fileID: 2800000, guid: 3b13c3a4b9452894fac292470b2923c9, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a24161438c7621a46820aec27d597dcf, type: 3}
+--- !u!224 &5585898558062150481 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2228250277551645498, guid: a24161438c7621a46820aec27d597dcf,
+    type: 3}
+  m_PrefabInstance: {fileID: 6010419801183805547}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &8414882151166786803 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2859476033820351640, guid: a24161438c7621a46820aec27d597dcf,
@@ -1488,12 +1545,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b37314f39651dbb4bbfba0657ae7485a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &5585898558062150481 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2228250277551645498, guid: a24161438c7621a46820aec27d597dcf,
-    type: 3}
-  m_PrefabInstance: {fileID: 6010419801183805547}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6326662064598869585
 PrefabInstance:
   m_ObjectHideFlags: 0

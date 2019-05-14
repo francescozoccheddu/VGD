@@ -1,4 +1,5 @@
-﻿using Wheeled.Gameplay;
+﻿using UnityEngine;
+using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Stage;
@@ -60,7 +61,8 @@ namespace Wheeled.Networking.Server
             protected override void OnDamageScheduled(double _time, DamageInfo _info)
             {
                 base.OnDamageScheduled(_time, _info);
-                m_playerController.OnDamageScheduled(_time, _info);
+                Vector3? position = m_manager.GetPlayerById(_info.offenderId)?.GetSnapshot(_time).simulation.Position;
+                m_playerController.OnDamageScheduled(_time, _info, position);
             }
 
             protected override void OnActorBreathed()

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Wheeled.UI.HUD
 {
-    public sealed class InGameHUD : MonoBehaviour
+    public sealed class InGameHUDBehaviour : MonoBehaviour
     {
 
         public HitMarkerBehaviour hitMarker;
@@ -17,7 +17,7 @@ namespace Wheeled.UI.HUD
 
         public CanvasGroup aliveOnlyGroup;
 
-        public static InGameHUD Instance { get; private set; }
+        public static InGameHUDBehaviour Instance { get; private set; }
 
         public void SetAlive(bool _alive)
         {
