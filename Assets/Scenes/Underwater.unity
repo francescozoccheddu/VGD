@@ -137,7 +137,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &24372136
 Transform:
@@ -220,7 +220,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &97010186
 Transform:
@@ -263,7 +263,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 1260251172}
-  audioListener: {fileID: 1260251171}
 --- !u!1 &201272694
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,7 +279,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &201272695
 Transform:
@@ -393,7 +392,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &319244850
 Transform:
@@ -476,7 +475,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &325181322
 Transform:
@@ -659,7 +658,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &371037599
 Transform:
@@ -702,7 +701,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 1657947171}
-  audioListener: {fileID: 1657947170}
 --- !u!1001 &433184889
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -930,6 +928,221 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8769824309091688118, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8769824309091688118, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2400874596882843839, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2400874596882843839, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2400874596882843839, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2400874596882843839, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2400874596882843839, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2400874596882843839, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5662621483769203874, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5662621483769203874, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5662621483769203874, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5662621483769203874, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5662621483769203874, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5662621483769203874, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923637534854870753, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923637534854870753, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923637534854870753, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923637534854870753, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923637534854870753, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923637534854870753, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6314632965618943896, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6314632965618943896, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6314632965618943896, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6314632965618943896, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6314632965618943896, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6314632965618943896, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7703015609883331345, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7703015609883331345, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7703015609883331345, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7703015609883331345, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7703015609883331345, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7703015609883331345, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3535269154348142758, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3535269154348142758, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3535269154348142758, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3535269154348142758, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3535269154348142758, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3535269154348142758, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4946766194952730250, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4946766194952730250, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4946766194952730250, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4946766194952730250, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4946766194952730250, guid: 87a0a8d932393d949a252926da11943f,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87a0a8d932393d949a252926da11943f, type: 3}
 --- !u!1 &454109008
@@ -948,7 +1161,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &454109009
 Transform:
@@ -991,7 +1204,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 887063353}
-  audioListener: {fileID: 887063352}
 --- !u!1 &509443202
 GameObject:
   m_ObjectHideFlags: 0
@@ -1008,7 +1220,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &509443203
 Transform:
@@ -1222,7 +1434,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &573236910
 Transform:
@@ -1251,7 +1463,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 573236913}
-  audioListener: {fileID: 573236912}
 --- !u!81 &573236912
 AudioListener:
   m_ObjectHideFlags: 0
@@ -1319,7 +1530,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &585954420
 Transform:
@@ -1402,7 +1613,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &604386665
 Transform:
@@ -1485,7 +1696,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &665175825
 Transform:
@@ -1528,7 +1739,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 1271725251}
-  audioListener: {fileID: 1271725250}
 --- !u!1 &709662882
 GameObject:
   m_ObjectHideFlags: 0
@@ -1545,7 +1755,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &709662883
 Transform:
@@ -1588,7 +1798,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 1473204793}
-  audioListener: {fileID: 1473204792}
 --- !u!1 &775629350
 GameObject:
   m_ObjectHideFlags: 0
@@ -1605,7 +1814,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &775629351
 Transform:
@@ -1648,7 +1857,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 1702307069}
-  audioListener: {fileID: 1702307068}
 --- !u!1 &830973040
 GameObject:
   m_ObjectHideFlags: 0
@@ -1665,7 +1873,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &830973041
 Transform:
@@ -1748,7 +1956,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &887063351
 Transform:
@@ -1867,7 +2075,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &938151225
 Transform:
@@ -1950,7 +2158,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &944502252
 Transform:
@@ -1993,7 +2201,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 319244852}
-  audioListener: {fileID: 319244851}
 --- !u!1 &1040191505
 GameObject:
   m_ObjectHideFlags: 0
@@ -2010,7 +2217,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1040191506
 Transform:
@@ -2053,7 +2260,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 585954422}
-  audioListener: {fileID: 585954421}
 --- !u!1 &1102031715
 GameObject:
   m_ObjectHideFlags: 0
@@ -2070,7 +2276,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1102031716
 Transform:
@@ -2113,7 +2319,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 830973043}
-  audioListener: {fileID: 830973042}
 --- !u!1 &1121658768
 GameObject:
   m_ObjectHideFlags: 0
@@ -2160,7 +2365,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1129156933
 Transform:
@@ -2203,7 +2408,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 1557015102}
-  audioListener: {fileID: 1557015101}
 --- !u!1 &1129466637
 GameObject:
   m_ObjectHideFlags: 0
@@ -3086,7 +3290,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1260251170
 Transform:
@@ -3169,7 +3373,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1271725249
 Transform:
@@ -3252,7 +3456,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1314563836
 Transform:
@@ -3295,7 +3499,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 938151227}
-  audioListener: {fileID: 938151226}
 --- !u!1 &1442659837
 GameObject:
   m_ObjectHideFlags: 0
@@ -3312,7 +3515,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1442659838
 Transform:
@@ -3395,7 +3598,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1473204791
 Transform:
@@ -3478,7 +3681,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1495562232
 Transform:
@@ -3521,7 +3724,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 604386667}
-  audioListener: {fileID: 604386666}
 --- !u!1001 &1509116510
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3638,7 +3840,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1557015100
 Transform:
@@ -3779,7 +3981,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1600062541
 Transform:
@@ -3822,7 +4024,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 24372138}
-  audioListener: {fileID: 24372137}
 --- !u!1 &1646930843
 GameObject:
   m_ObjectHideFlags: 0
@@ -3839,7 +4040,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1646930844
 Transform:
@@ -3882,7 +4083,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 325181324}
-  audioListener: {fileID: 325181323}
 --- !u!1 &1657947168
 GameObject:
   m_ObjectHideFlags: 0
@@ -3899,7 +4099,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1657947169
 Transform:
@@ -3982,7 +4182,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1702307067
 Transform:
@@ -4095,7 +4295,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1763382959
 Transform:
@@ -4138,7 +4338,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 509443205}
-  audioListener: {fileID: 509443204}
 --- !u!1 &1781550098
 GameObject:
   m_ObjectHideFlags: 0
@@ -4185,7 +4384,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1912053668
 Transform:
@@ -4228,7 +4427,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 1442659840}
-  audioListener: {fileID: 1442659839}
 --- !u!1 &1963517629
 GameObject:
   m_ObjectHideFlags: 0
@@ -4245,7 +4443,7 @@ GameObject:
   m_TagString: DefaultDeathCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1963517630
 Transform:
@@ -4288,7 +4486,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 201272697}
-  audioListener: {fileID: 201272696}
 --- !u!1 &2004838179
 GameObject:
   m_ObjectHideFlags: 0
@@ -4363,7 +4560,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &2111409376
 Transform:
