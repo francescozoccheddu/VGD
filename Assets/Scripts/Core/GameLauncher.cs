@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
-
+using Wheeled.Core.Data;
+using Wheeled.Gameplay.PlayerView;
 using Wheeled.Networking;
 
 namespace Wheeled.Core

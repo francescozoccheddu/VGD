@@ -6,7 +6,6 @@ namespace Wheeled.Core.Data
     {
         #region Public Properties
 
-        public static SocketScript Sockets => s_ManagerScript.sockets;
         public static SceneScript Scenes => s_ManagerScript.scenes;
         public static PlayerPreferencesScript PlayerPreferences => s_ManagerScript.playerPreferences;
         public static CollisionScript Collisions => s_ManagerScript.collisions;
