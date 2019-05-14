@@ -1,12 +1,16 @@
-﻿using Wheeled.Core.Utils;
+﻿using UnityEngine;
+using Wheeled.Core.Data;
+using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Scene;
 using Wheeled.HUD;
+using Wheeled.UI.HUD;
+using Wheeled.UI.HUD.DamageMarker;
 
 namespace Wheeled.Gameplay.Player
 {
-    internal sealed class PlayerController : MovementController.ICommitTarget, ActionController.ITarget, EventHistory<DamageInfo>.ITarget, EventHistory<OffenseType>.ITarget
+    internal sealed class PlayerController : MovementController.ICommitTarget, ActionController.ITarget, EventHistory<PlayerController.DamagePerformInfo>.ITarget, EventHistory<OffenseType>.ITarget
     {
         #region Public Properties
 
@@ -18,7 +22,7 @@ namespace Wheeled.Gameplay.Player
 
         private readonly ActionController m_actionController;
         private readonly MovementController m_movementController;
-        private readonly EventHistory<DamageInfo> m_damageHistory;
+        private readonly EventHistory<DamagePerformInfo> m_damageHistory;
         private readonly EventHistory<OffenseType> m_hitConfirmHistory;
         private readonly Player m_player;
 
@@ -37,7 +41,7 @@ namespace Wheeled.Gameplay.Player
             {
                 target = this
             };
-            m_damageHistory = new EventHistory<DamageInfo>
+            m_damageHistory = new EventHistory<DamagePerformInfo>
             {
                 Target = this
             };
@@ -51,6 +55,12 @@ namespace Wheeled.Gameplay.Player
         #endregion Public Constructors
 
         #region Public Methods
+
+        struct DamagePerformInfo
+        {
+            public DamageInfo info;
+            public Vector3? origin;
+        }
 
         public void Teleport(CharacterController _snapshot)
         {
@@ -83,13 +93,24 @@ namespace Wheeled.Gameplay.Player
             m_player.PutInput(_step, _input);
         }
 
-        void EventHistory<OffenseType>.ITarget.Perform(double _time, OffenseType _value)
+        public void OnInfoSetup()
         {
-            CrossHairBehaviour.NotifyHit();
+            Color color = Scripts.PlayerPreferences.colors[m_player.Info.Value.color];
+            InGameHUDBehaviour.Instance.leftCrossHair.Color = InGameHUDBehaviour.Instance.rightCrossHair.Color = color;
         }
 
-        void EventHistory<DamageInfo>.ITarget.Perform(double _time, DamageInfo _value)
+        void EventHistory<OffenseType>.ITarget.Perform(double _time, OffenseType _value)
         {
+            InGameHUDBehaviour.Instance.hitMarker.Hit();
+        }
+
+        void EventHistory<DamagePerformInfo>.ITarget.Perform(double _time, DamagePerformInfo _value)
+        {
+            InGameHUDBehaviour.Instance.healthIndicator.NotifyDamage();
+            if (_value.origin != null)
+            {
+                DamageMarkerManagerBehaviour.Instance.Add(_value.origin.Value);
+            }
         }
 
         public void OnUpdated()
@@ -102,26 +123,28 @@ namespace Wheeled.Gameplay.Player
         public void OnActorDied()
         {
             m_movementController.Pause();
-            CrossHairBehaviour.SetEnabled(false);
+            InGameHUDBehaviour.Instance.SetAlive(false);
             DeathCameraManager.Enable(m_player.GetSnapshot(m_player.LocalTime).simulation.Position);
         }
 
-        public void OnDamageScheduled(double _time, DamageInfo _info)
+        public void OnDamageScheduled(double _time, DamageInfo _info, Vector3? _offenderPosition)
         {
-            m_damageHistory.Put(_time, _info);
+            m_damageHistory.Put(_time, new DamagePerformInfo { info = _info, origin = _offenderPosition });
         }
 
         public void OnActorSpawned()
         {
             m_movementController.Teleport(m_player.GetSnapshot(m_player.LocalTime), true);
             m_movementController.StartAt(m_player.LocalTime);
-            CrossHairBehaviour.SetEnabled(true);
+            InGameHUDBehaviour.Instance.SetAlive(true);
             DeathCameraManager.Disable();
         }
 
         public void OnActorBreathed()
         {
-            CrossHairBehaviour.SetHealth(m_player.LifeHistory.GetHealth(m_player.LocalTime));
+            InGameHUDBehaviour.Instance.healthIndicator.Health = m_player.LifeHistory.GetHealth(m_player.LocalTime);
+            InGameHUDBehaviour.Instance.leftCrossHair.IsEnabled = m_player.WeaponsHistory.CanShootRifle(m_player.LocalTime, out _);
+            InGameHUDBehaviour.Instance.rightCrossHair.IsEnabled = m_player.WeaponsHistory.CanShootRocket(m_player.LocalTime);
             m_movementController.UpdateUntil(m_player.LocalTime);
             m_player.PutSight(m_movementController.Step, m_movementController.RawSnapshot.sight);
         }

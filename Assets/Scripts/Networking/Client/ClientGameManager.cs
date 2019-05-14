@@ -219,7 +219,7 @@ namespace Wheeled.Networking.Client
                                                 in m_players
                                                 where !p.Value.IsQuit(m_time)
                                                 select p.Value;
-            ScoreBoardBehaviour.Update(players);
+            ScoreBoardBehaviour.UpdateEntriesMain(players);
         }
 
         private Player GetOrCreatePlayer(byte _id)

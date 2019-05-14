@@ -203,6 +203,10 @@ namespace Wheeled.Networking.Server
                         killer = m_manager.GetPlayerById(offenderId);
                         killer?.KillsValue.Put(_node.time, killer.Kills + 1);
                     }
+                    else
+                    {
+                        killer = this;
+                    }
                     Serializer.WriteKillSync(_node.time, new KillInfo
                     {
                         killerId = offenderId,

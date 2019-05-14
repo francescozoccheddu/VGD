@@ -9,14 +9,13 @@ namespace Wheeled.Assets.Scripts.HUD
         #region Public Fields
 
         public Text text;
-        public CanvasGroup group;
+        public Animator animator;
 
         #endregion Public Fields
 
         #region Private Fields
 
-        private const float c_fadeOutDuration = 4.0f;
-        private const int c_quitTime = 3;
+        private const int c_quitTime = 2;
         private float m_elapsedTime;
 
         #endregion Private Fields
@@ -33,13 +32,13 @@ namespace Wheeled.Assets.Scripts.HUD
                 {
                     GameLauncher.Instance.QuitGame();
                 }
-                group.alpha = 1.0f;
+                animator.SetBool("IsVisible", true);
             }
             else
             {
                 m_elapsedTime = 0.0f;
-                text.text = "Hold <b>ESC</b> to leave game";
-                group.alpha = Mathf.Max(0.0f, group.alpha - Time.deltaTime / c_fadeOutDuration);
+                text.text = "Hold <b>ESC</b> to quit";
+                animator.SetBool("IsVisible", false);
             }
         }
 

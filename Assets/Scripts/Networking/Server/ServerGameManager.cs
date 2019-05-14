@@ -280,7 +280,7 @@ namespace Wheeled.Networking.Server
                                                        in m_players
                                                        where p.IsStarted && !p.IsQuit(m_time)
                                                        select p;
-            ScoreBoardBehaviour.Update(players);
+            ScoreBoardBehaviour.UpdateEntriesMain(players);
         }
 
         private void WriteRecapSync()

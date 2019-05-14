@@ -80,7 +80,8 @@ namespace Wheeled.Networking.Client
             protected override void OnDamageScheduled(double _time, DamageInfo _info)
             {
                 base.OnDamageScheduled(_time, _info);
-                m_playerController.OnDamageScheduled(_time, _info);
+                Vector3? position = m_manager.GetPlayerById(_info.offenderId)?.GetSnapshot(_time).simulation.Position;
+                m_playerController.OnDamageScheduled(_time, _info, position);
             }
 
             protected override void OnActorDied()
@@ -124,6 +125,11 @@ namespace Wheeled.Networking.Client
 
             #region Private Methods
 
+            protected override void OnInfoSetup()
+            {
+                base.OnInfoSetup();
+                m_playerController.OnInfoSetup();
+            }
             private void NotifyMovement()
             {
                 m_timeSinceLastMovementNotify = 0.0f;

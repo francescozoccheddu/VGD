@@ -55,12 +55,13 @@ namespace Wheeled.Gameplay.Player
             get => m_info;
             set
             {
+                m_info = value;
                 if (value != null)
                 {
                     m_view.Head = Scripts.PlayerPreferences.heads[value.Value.head].prefab;
                     m_view.Color = Scripts.PlayerPreferences.colors[value.Value.color];
+                    OnInfoSetup();
                 }
-                m_info = value;
             }
         }
         public abstract bool IsLocal { get; }
@@ -326,6 +327,10 @@ namespace Wheeled.Gameplay.Player
         }
 
         protected virtual void OnUpdated()
+        {
+        }
+
+        protected virtual void OnInfoSetup()
         {
         }
 
