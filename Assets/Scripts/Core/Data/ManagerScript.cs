@@ -15,8 +15,6 @@ namespace Wheeled.Core.Data
 
         public SceneScript scenes;
 
-        public SocketScript sockets;
-
         #endregion Public Fields
     }
 }

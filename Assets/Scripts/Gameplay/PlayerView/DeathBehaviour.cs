@@ -15,10 +15,13 @@ namespace Wheeled.Gameplay.PlayerView
 
         #region Internal Methods
 
+        public Animator animator;
+
         internal void Die(Vector3 _velocity)
         {
             if (!IsDead)
             {
+                animator.SetBool("Is Died", true);
                 IsDead = true;
                 cameraBehaviour.SetLocal(false);
                 rifleDisplayBehaviour.text.enabled = false;
@@ -39,6 +42,7 @@ namespace Wheeled.Gameplay.PlayerView
                 }
             }
         }
+
 
         #endregion Internal Methods
     }

@@ -275,6 +275,7 @@ GameObject:
   - component: {fileID: 2964551817911105733}
   - component: {fileID: 2627837773892069451}
   - component: {fileID: 4470069646685005518}
+  - component: {fileID: 3353325244034781835}
   m_Layer: 5
   m_Name: ScoreBoard Entry
   m_TagString: Untagged
@@ -347,6 +348,7 @@ MonoBehaviour:
   deathsText: {fileID: 3716286207668470081}
   pingText: {fileID: 1069156615414975944}
   iconImage: {fileID: 1973734208981582158}
+  background: {fileID: 3353325244034781835}
 --- !u!222 &2627837773892069451
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -375,6 +377,33 @@ MonoBehaviour:
   m_FlexibleWidth: 1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &3353325244034781835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9189779907143704743}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -98529514, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.101960786}
+  m_RaycastTarget: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1001 &943531663941211981
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -386,11 +415,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Name
-      objectReference: {fileID: 0}
-    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
-        type: 3}
-      propertyPath: m_Text
-      value: name
       objectReference: {fileID: 0}
     - target: {fileID: 3348563891618855143, guid: ce785f9b21762d241814be105e43623c,
         type: 3}
@@ -497,6 +521,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
+        type: 3}
+      propertyPath: m_Text
+      value: name
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce785f9b21762d241814be105e43623c, type: 3}
 --- !u!224 &2549147420452237226 stripped
@@ -528,16 +557,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Ping
-      objectReference: {fileID: 0}
-    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
-        type: 3}
-      propertyPath: m_Text
-      value: ping
-      objectReference: {fileID: 0}
-    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
-        type: 3}
-      propertyPath: m_FontData.m_Alignment
-      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3348563891618855143, guid: ce785f9b21762d241814be105e43623c,
         type: 3}
@@ -644,6 +663,16 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
+        type: 3}
+      propertyPath: m_Text
+      value: ping
+      objectReference: {fileID: 0}
+    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
+        type: 3}
+      propertyPath: m_FontData.m_Alignment
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce785f9b21762d241814be105e43623c, type: 3}
 --- !u!1 &5808626787698194551 stripped
@@ -681,16 +710,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Kills
-      objectReference: {fileID: 0}
-    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
-        type: 3}
-      propertyPath: m_Text
-      value: kills
-      objectReference: {fileID: 0}
-    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
-        type: 3}
-      propertyPath: m_FontData.m_Alignment
-      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3348563891618855143, guid: ce785f9b21762d241814be105e43623c,
         type: 3}
@@ -797,6 +816,16 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
+        type: 3}
+      propertyPath: m_Text
+      value: kills
+      objectReference: {fileID: 0}
+    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
+        type: 3}
+      propertyPath: m_FontData.m_Alignment
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce785f9b21762d241814be105e43623c, type: 3}
 --- !u!224 &8248935516245608941 stripped
@@ -834,16 +863,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Deaths
-      objectReference: {fileID: 0}
-    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
-        type: 3}
-      propertyPath: m_Text
-      value: deaths
-      objectReference: {fileID: 0}
-    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
-        type: 3}
-      propertyPath: m_FontData.m_Alignment
-      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3348563891618855143, guid: ce785f9b21762d241814be105e43623c,
         type: 3}
@@ -949,6 +968,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
+        type: 3}
+      propertyPath: m_Text
+      value: deaths
+      objectReference: {fileID: 0}
+    - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
+        type: 3}
+      propertyPath: m_FontData.m_Alignment
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce785f9b21762d241814be105e43623c, type: 3}

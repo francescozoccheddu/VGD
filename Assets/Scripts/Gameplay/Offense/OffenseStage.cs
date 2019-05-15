@@ -3,6 +3,7 @@ using UnityEngine;
 using Wheeled.Core.Data;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
+using Wheeled.Gameplay.PlayerView;
 
 namespace Wheeled.Gameplay.Stage
 {
@@ -72,7 +73,7 @@ namespace Wheeled.Gameplay.Stage
 
             private Vector3 GetOrigin()
             {
-                return m_offense.Origin + m_offense.Sight.Quaternion * Scripts.Sockets.rocketBarrel;
+                return SocketsManagerBehaviour.Instance.rocket.GetPosition(m_offense.Origin, m_offense.Sight);
             }
 
             private Vector3 GetPosition(double _elapsedTime)
@@ -138,7 +139,7 @@ namespace Wheeled.Gameplay.Stage
                 case RifleShotOffense o:
                 {
                     RifleProjectileBehaviour behaviour = Object.Instantiate(Scripts.Actors.rifleProjectile).GetComponent<RifleProjectileBehaviour>();
-                    Vector3 origin = o.Origin + o.Sight.Quaternion * Scripts.Sockets.rifleBarrel;
+                    Vector3 origin = SocketsManagerBehaviour.Instance.rifle.GetPosition(o.Origin, o.Sight);
                     Vector3 end = o.Hit ?? (o.Origin + o.Sight.Direction * RifleShotOffense.c_maxDistance);
                     behaviour.Shoot(origin, end, o.Hit != null);
                 }

@@ -5,25 +5,9 @@ public class MaterialBehaviour : MonoBehaviour
 
     public Material opaque;
     public Material transparent;
-    private float m_alpha = 1.0f;
     private Color m_color = Color.red;
 
-    public float Alpha
-    {
-        get => m_alpha;
-        set
-        {
-            m_alpha = value;
-            if (m_material != null && m_alpha < 1.0f && !m_isTransparent)
-            {
-                DestroyMaterial();
-                m_isTransparent = true;
-                m_material = Instantiate(transparent);
-                SetMaterial();
-            }
-            SetAlpha();
-        }
-    }
+    public float alpha = 1.0f;
 
     public Color Color
     {
@@ -57,7 +41,7 @@ public class MaterialBehaviour : MonoBehaviour
 
     private void SetColor() => m_material.SetColor("_PaintColor", m_color);
 
-    private void SetAlpha() => m_material.SetFloat("_Alpha", m_alpha);
+    private void SetAlpha() => m_material.SetFloat("_Alpha", alpha);
 
     private void Start()
     {
@@ -65,6 +49,25 @@ public class MaterialBehaviour : MonoBehaviour
         m_material = Instantiate(opaque);
         SetColor();
         SetMaterial();
+    }
+
+    private void Update()
+    {
+        if (m_material != null)
+        {
+            if (alpha < 1.0f && !m_isTransparent)
+            {
+                DestroyMaterial();
+                m_isTransparent = true;
+                m_material = Instantiate(transparent);
+                SetMaterial();
+                SetColor();
+            }
+            if (m_isTransparent)
+            {
+                SetAlpha();
+            }
+        }
     }
 
     private void OnDestroy() => DestroyMaterial();

@@ -5,7 +5,7 @@ public class CameraBehaviour : MonoBehaviour
 {
     #region Public Fields
 
-    public new Camera camera;
+    public new GameObject camera;
     public Transform[] localNoSeeNodes;
 
     #endregion Public Fields
@@ -16,7 +16,7 @@ public class CameraBehaviour : MonoBehaviour
 
     internal void SetLocal(bool _isLocal)
     {
-        camera.enabled = _isLocal;
+        camera.gameObject.SetActive(_isLocal);
         foreach (var t in localNoSeeNodes)
         {
             foreach (MeshRenderer m in t.GetComponentsInChildren<MeshRenderer>())

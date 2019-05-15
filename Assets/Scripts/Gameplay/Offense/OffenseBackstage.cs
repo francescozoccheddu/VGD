@@ -4,6 +4,7 @@ using UnityEngine;
 using Wheeled.Core.Data;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Gameplay.PlayerView;
 
 namespace Wheeled.Gameplay.Stage
 {
@@ -291,7 +292,7 @@ namespace Wheeled.Gameplay.Stage
             public Vector3 GetOrigin()
             {
                 ShotOffense offense = (ShotOffense) Offense;
-                return offense.Origin + offense.Sight.Quaternion * Scripts.Sockets.raycastOrigin;
+                return SocketsManagerBehaviour.Instance.eye.GetPosition(offense.Origin, offense.Sight);
             }
 
             public override void Update(double _time, OffenseBackstage _stage)

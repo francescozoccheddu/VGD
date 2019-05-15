@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Wheeled.Gameplay.PlayerView;
 
 namespace Wheeled.Core.Data
 {
@@ -15,11 +16,6 @@ namespace Wheeled.Core.Data
         public GameObject rifleProjectile;
         public GameObject rocketProjectile;
         public GameObject explosion;
-
-        [Header("MatchBoard")]
-        public GameObject joinEvent;
-        public GameObject quitEvent;
-        public GameObject killEvent;
 
         #endregion Public Fields
     }
