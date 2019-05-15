@@ -29,7 +29,7 @@ namespace Wheeled.UI.HUD
 
         public static string GetColoredName(this IReadOnlyPlayer _player)
         {
-            return string.Format("<color=\"{0}\">{1}</color>", ColorUtility.ToHtmlStringRGB(_player.GetColor()), _player.GetName());
+            return string.Format("<color=\"#{0}\">{1}</color>", ColorUtility.ToHtmlStringRGB(_player.GetColor()), _player.GetName());
         }
 
         public static Color GetColor(this IReadOnlyPlayer _player)

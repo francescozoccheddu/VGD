@@ -24,11 +24,14 @@ namespace Wheeled.Gameplay.PlayerView
             }
         }
 
-        private void SetMaterial()
+        public void SetMaterial()
         {
-            foreach (MeshRenderer r in GetComponentsInChildren<MeshRenderer>())
+            if (m_material != null)
             {
-                r.sharedMaterial = m_material;
+                foreach (MeshRenderer r in GetComponentsInChildren<MeshRenderer>())
+                {
+                    r.sharedMaterial = m_material;
+                }
             }
         }
 
