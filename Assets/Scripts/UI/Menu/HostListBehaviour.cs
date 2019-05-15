@@ -10,8 +10,6 @@ namespace Wheeled.Menu
 {
     public sealed class HostListBehaviour : MonoBehaviour
     {
-        #region Public Fields
-
         public GameObject loadingLabel;
         public GameObject listGroup;
         public GameObject hostTogglePrefab;
@@ -20,18 +18,10 @@ namespace Wheeled.Menu
         public InputField portField;
         public Transform listContent;
 
-        #endregion Public Fields
-
-        #region Private Fields
-
         private const float c_discoverPeriod = 1.0f;
         private readonly HashSet<IPEndPoint> m_hosts = new HashSet<IPEndPoint>();
         private ToggleGroup m_group;
         private int m_port;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public void PortChanged(int? _port)
         {
@@ -65,10 +55,6 @@ namespace Wheeled.Menu
                 }
             }
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         private void Discover() => GameLauncher.Instance.StartServerDiscovery(m_port);
 
@@ -143,7 +129,5 @@ namespace Wheeled.Menu
         }
 
         private void OnDisable() => Stop();
-
-        #endregion Private Methods
     }
 }

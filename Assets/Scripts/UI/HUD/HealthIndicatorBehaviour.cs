@@ -25,8 +25,6 @@ namespace Wheeled.UI.HUD
         private float m_health;
 
         public void NotifyDamage() => text.color = damageColor;
-
-
         private void Update()
         {
             m_health = Mathf.Lerp(m_health, Health, Time.deltaTime * textInterpolationQuickness);

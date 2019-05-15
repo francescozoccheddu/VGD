@@ -8,21 +8,17 @@ using UnityEngine;
 
 namespace Wheeled.Networking
 {
-    internal sealed partial class NetworkManager
+    public sealed partial class NetworkManager
     {
-        #region Public Interfaces
-
         public interface IEventListener
         {
-            #region Public Methods
-
             void ConnectedTo(Peer _peer);
 
             void DisconnectedFrom(Peer _peer);
 
             void Discovered(IPEndPoint _endPoint, Deserializer _reader);
 
-            DiscoveryRequestAction DiscoveryRequested(Deserializer _reader);
+            EDiscoveryRequestAction DiscoveryRequested(Deserializer _reader);
 
             void LatencyUpdated(Peer _peer, double _latency);
 
@@ -30,42 +26,22 @@ namespace Wheeled.Networking
 
             bool ShouldAcceptConnectionRequest(Peer _peer, Deserializer _reader);
 
-            void Stopped(StopCause _cause);
-
-            #endregion Public Methods
+            void Stopped(EStopCause _cause);
         }
-
-        #endregion Public Interfaces
-
-        #region Public Structs
 
         public readonly struct Peer : IEquatable<Peer>
         {
-            #region Public Properties
-
             public bool IsValid => m_peer != null;
             public double Ping => m_peer?.Ping / 1000.0 ?? 0.0;
             public float TimeSinceLastPacket => m_peer?.TimeSinceLastPacket ?? 0.0f;
             public IPEndPoint EndPoint => m_peer?.EndPoint;
 
-            #endregion Public Properties
-
-            #region Private Fields
-
             private readonly NetPeer m_peer;
-
-            #endregion Private Fields
-
-            #region Public Constructors
 
             public Peer(NetPeer _peer = null)
             {
                 m_peer = _peer;
             }
-
-            #endregion Public Constructors
-
-            #region Public Methods
 
             public static bool operator !=(Peer _a, Peer _b)
             {
@@ -97,24 +73,18 @@ namespace Wheeled.Networking
                 return (m_peer?.Id)?.GetHashCode() ?? 0;
             }
 
-            public void Send(NetworkManager.SendMethod _method)
+            public void Send(NetworkManager.ESendMethod _method)
             {
                 m_peer?.Send(Serializer.writer, (DeliveryMethod) _method);
             }
-
-            #endregion Public Methods
         }
 
-        #endregion Public Structs
-
-        #region Public Enums
-
-        public enum DiscoveryRequestAction
+        public enum EDiscoveryRequestAction
         {
             Ignore, Reply, ReplyWithData
         }
 
-        public enum SendMethod
+        public enum ESendMethod
         {
             Unreliable = LiteNetLib.DeliveryMethod.Unreliable,
             Sequenced = LiteNetLib.DeliveryMethod.Sequenced,
@@ -123,37 +93,21 @@ namespace Wheeled.Networking
             ReliableOrdered = LiteNetLib.DeliveryMethod.ReliableOrdered
         }
 
-        public enum StopCause
+        public enum EStopCause
         {
             UnableToStart, Programmatically, NetworkError, UnexpectedStop
         }
 
-        #endregion Public Enums
-
-        #region Public Properties
-
         public int Port => m_netManager.LocalPort;
         public bool IsRunning => m_netManager.IsRunning;
 
-        #endregion Public Properties
-
-        #region Public Fields
-
         public static readonly NetworkManager instance = new NetworkManager();
         public IEventListener listener;
-
-        #endregion Public Fields
-
-        #region Private Fields
 
         private static readonly NetDataWriter s_emptyDataWriter = new NetDataWriter(false, 0);
         private readonly NetManager m_netManager;
 
         private bool m_wasRunning;
-
-        #endregion Private Fields
-
-        #region Private Constructors
 
         private NetworkManager()
         {
@@ -168,10 +122,6 @@ namespace Wheeled.Networking
                 SimulationMaxLatency = 150,
             };
         }
-
-        #endregion Private Constructors
-
-        #region Public Methods
 
         public Peer ConnectTo(IPEndPoint _endPoint, bool _sendData)
         {
@@ -220,7 +170,7 @@ namespace Wheeled.Networking
             }
             if (!IsRunning)
             {
-                NotifyStopped(StopCause.UnableToStart);
+                NotifyStopped(EStopCause.UnableToStart);
             }
         }
 
@@ -234,7 +184,7 @@ namespace Wheeled.Networking
             m_netManager.Start(_port);
             if (!IsRunning)
             {
-                NotifyStopped(StopCause.UnableToStart);
+                NotifyStopped(EStopCause.UnableToStart);
             }
         }
 
@@ -243,7 +193,7 @@ namespace Wheeled.Networking
             if (IsRunning)
             {
                 m_netManager.Stop();
-                NotifyStopped(StopCause.Programmatically);
+                NotifyStopped(EStopCause.Programmatically);
             }
         }
 
@@ -260,19 +210,15 @@ namespace Wheeled.Networking
             NotifyIfNotRunning();
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void NotifyIfNotRunning()
         {
             if (!IsRunning)
             {
-                NotifyStopped(StopCause.UnexpectedStop);
+                NotifyStopped(EStopCause.UnexpectedStop);
             }
         }
 
-        private void NotifyStopped(StopCause _cause)
+        private void NotifyStopped(EStopCause _cause)
         {
             if (m_wasRunning)
             {
@@ -280,7 +226,5 @@ namespace Wheeled.Networking
                 listener?.Stopped(_cause);
             }
         }
-
-        #endregion Private Methods
     }
 }

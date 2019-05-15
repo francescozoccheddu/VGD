@@ -10,31 +10,17 @@ using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking
 {
-    internal sealed class Deserializer
+    public sealed class Deserializer
     {
-        #region Public Classes
-
         public sealed class DeserializationException : Exception { }
-
-        #endregion Public Classes
-
-        #region Private Fields
 
         private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double) + sizeof(ushort)];
         private readonly NetDataReader m_netDataReader;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public Deserializer(NetDataReader _netDataReader)
         {
             m_netDataReader = _netDataReader;
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public EMessage ReadMessageType()
         {
@@ -160,10 +146,6 @@ namespace Wheeled.Networking
             };
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private static void EnsureRead(bool _read)
         {
             if (!_read)
@@ -210,7 +192,7 @@ namespace Wheeled.Networking
                 damage = ReadHealth(),
                 maxHealth = ReadHealth(),
                 offenderId = ReadByte(),
-                offenseType = ReadEnum<OffenseType>()
+                offenseType = ReadEnum<EOffenseType>()
             };
         }
 
@@ -367,12 +349,10 @@ namespace Wheeled.Networking
             {
                 killerId = ReadByte(),
                 victimId = ReadByte(),
-                offenseType = ReadEnum<OffenseType>(),
+                offenseType = ReadEnum<EOffenseType>(),
                 killerKills = ReadByte(),
                 victimDeaths = ReadByte()
             };
         }
-
-        #endregion Private Methods
     }
 }

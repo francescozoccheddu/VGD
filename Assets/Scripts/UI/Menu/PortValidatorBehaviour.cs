@@ -5,8 +5,6 @@ namespace Wheeled.Menu
 {
     public sealed class PortValidatorBehaviour : ValidatorBehaviour
     {
-        #region Public Methods
-
         [Serializable]
         public sealed class ChangedEvent : UnityEvent<int?> { }
 
@@ -35,7 +33,5 @@ namespace Wheeled.Menu
             validated.Invoke(port != null);
             changed.Invoke(port);
         }
-
-        #endregion Public Methods
     }
 }

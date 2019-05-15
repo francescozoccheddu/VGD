@@ -279,7 +279,7 @@ namespace LiteNetLib.Ntp
         /// <summary>
         /// Initializes packet from received data.
         /// </summary>
-        internal NtpPacket(byte[] bytes)
+        public NtpPacket(byte[] bytes)
         {
             if (bytes.Length < 48)
                 throw new ArgumentException("SNTP reply packet must be at least 48 bytes long.", "bytes");
@@ -299,7 +299,7 @@ namespace LiteNetLib.Ntp
             return packet;
         }
 
-        internal void ValidateRequest()
+        public void ValidateRequest()
         {
             if (Mode != NtpMode.Client)
                 throw new InvalidOperationException("This is not a request SNTP packet.");
@@ -309,7 +309,7 @@ namespace LiteNetLib.Ntp
                 throw new InvalidOperationException("TransmitTimestamp must be set in request packet.");
         }
 
-        internal void ValidateReply()
+        public void ValidateReply()
         {
             if (Mode != NtpMode.Server)
                 throw new InvalidOperationException("This is not a reply SNTP packet.");

@@ -163,9 +163,9 @@ namespace LiteNetLib
         }
 
         // ===========================================
-        // Internal and debug log related stuff
+        // public and debug log related stuff
         // ===========================================
-        internal static void PrintInterfaceInfos()
+        public static void PrintInterfaceInfos()
         {
             NetDebug.WriteForce(NetLogLevel.Info, "IPv6Support: {0}", NetSocket.IPv6Support);
             try
@@ -194,7 +194,7 @@ namespace LiteNetLib
             }
         }
 
-        internal static int RelativeSequenceNumber(int number, int expected)
+        public static int RelativeSequenceNumber(int number, int expected)
         {
             return (number - expected + NetConstants.MaxSequence + NetConstants.HalfMaxSequence) % NetConstants.MaxSequence - NetConstants.HalfMaxSequence;
         }

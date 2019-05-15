@@ -4,23 +4,13 @@ using UnityEngine;
 
 namespace Wheeled.Core.Utils
 {
-    internal sealed class ArrayHistory<TValue> : IHistory<int, TValue>
+    public sealed class ArrayHistory<TValue> : IHistory<int, TValue>
     {
-        #region Private Structs
-
         private struct Node
         {
-            #region Public Fields
-
             public TValue value;
             public bool isSet;
-
-            #endregion Public Fields
         }
-
-        #endregion Private Structs
-
-        #region Public Properties
 
         public int Duration
         {
@@ -38,38 +28,18 @@ namespace Wheeled.Core.Utils
             }
         }
 
-        #endregion Public Properties
-
-        #region Private Properties
-
         private int m_Newest => m_oldest + Duration - 1;
-
-        #endregion Private Properties
-
-        #region Private Fields
 
         private int m_oldest;
 
         private Node[] m_array;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public ArrayHistory(int _duration = 64)
         {
             m_array = new Node[_duration];
         }
 
-        #endregion Public Constructors
-
-        #region Private Indexers
-
         private ref Node this[int _index] => ref m_array[_index % Duration];
-
-        #endregion Private Indexers
-
-        #region Public Methods
 
         public void ExtendToFit(int _time)
         {
@@ -251,15 +221,9 @@ namespace Wheeled.Core.Utils
             }
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private bool Contains(int _time)
         {
             return _time >= m_oldest && _time <= m_Newest;
         }
-
-        #endregion Private Methods
     }
 }

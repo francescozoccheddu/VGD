@@ -5,8 +5,6 @@ namespace Wheeled.Core.Data
     [CreateAssetMenu]
     public sealed class ManagerScript : ScriptableObject
     {
-        #region Public Fields
-
         public CollisionScript collisions;
 
         public ActorScript actors;
@@ -14,7 +12,5 @@ namespace Wheeled.Core.Data
         public PlayerPreferencesScript playerPreferences;
 
         public SceneScript scenes;
-
-        #endregion Public Fields
     }
 }

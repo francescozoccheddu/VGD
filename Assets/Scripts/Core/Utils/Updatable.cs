@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Wheeled.Core.Utils
 {
-    internal sealed class Updatable
+    public sealed class Updatable
     {
         public readonly bool dontDestroyOnLoad;
 

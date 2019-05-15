@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace LiteNetLib
 {
-    internal sealed class ReliableChannel : BaseChannel
+    public sealed class ReliableChannel : BaseChannel
     {
         private sealed class PendingPacket
         {

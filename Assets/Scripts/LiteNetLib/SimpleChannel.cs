@@ -1,6 +1,6 @@
 namespace LiteNetLib
 {
-    internal sealed class SimpleChannel : BaseChannel
+    public sealed class SimpleChannel : BaseChannel
     {
         public SimpleChannel(NetPeer peer) : base(peer)
         {

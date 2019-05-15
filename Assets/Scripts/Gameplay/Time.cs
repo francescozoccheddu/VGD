@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Wheeled.Gameplay
 {
-    internal static class TimeConstants
+    public static class TimeConstants
     {
         public const double c_simulationStep = 1 / 30.0f;
 

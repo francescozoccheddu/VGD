@@ -6,21 +6,11 @@ namespace Wheeled.Assets.Scripts.HUD
 {
     public sealed class QuitBehaviour : MonoBehaviour
     {
-        #region Public Fields
-
         public Text text;
         public Animator animator;
 
-        #endregion Public Fields
-
-        #region Private Fields
-
         private const int c_quitTime = 2;
         private float m_elapsedTime;
-
-        #endregion Private Fields
-
-        #region Private Methods
 
         private void Update()
         {
@@ -41,7 +31,5 @@ namespace Wheeled.Assets.Scripts.HUD
                 animator.SetBool("IsVisible", false);
             }
         }
-
-        #endregion Private Methods
     }
 }

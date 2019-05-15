@@ -8,29 +8,19 @@ using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
-using Wheeled.Gameplay.Stage;
+using Wheeled.Gameplay.Offense;
 using Wheeled.HUD;
 using Wheeled.Networking.Client;
 
 namespace Wheeled.Networking.Server
 {
-    internal sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget, IPlayerManager, OffenseBackstage.IValidationTarget
+    public sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget, IPlayerManager, OffenseBackstage.IValidationTarget
     {
-        #region Public Properties
-
         double IPlayerManager.Time => m_time;
 
         public EventBoardDispatcher MatchBoard { get; }
 
-        #endregion Public Properties
-
-        #region Private Properties
-
         private IEnumerable<NetPlayer> m_NetPlayers => m_players.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
-
-        #endregion Private Properties
-
-        #region Private Fields
 
         private const int c_replicationRate = 10;
         private const double c_validationDelay = 0.3;
@@ -49,10 +39,6 @@ namespace Wheeled.Networking.Server
         private double m_lastTimeSyncTime;
 
         private readonly byte m_arena;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public ServerGameManager(byte _arena)
         {
@@ -80,10 +66,6 @@ namespace Wheeled.Networking.Server
             m_arena = _arena;
             m_localPlayer.Start();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         void Updatable.ITarget.Update()
         {
@@ -116,7 +98,7 @@ namespace Wheeled.Networking.Server
             {
                 m_lastRecapSyncTime = m_time;
                 WriteRecapSync();
-                SendAll(NetworkManager.SendMethod.Sequenced);
+                SendAll(NetworkManager.ESendMethod.Sequenced);
             }
             MatchBoard.UpdateUntil(m_time);
         }
@@ -127,19 +109,19 @@ namespace Wheeled.Networking.Server
             {
                 // Welcome
                 Serializer.WritePlayerWelcomeSync(netPlayer.Id, m_arena);
-                netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
+                netPlayer.Peer.Send(NetworkManager.ESendMethod.ReliableUnordered);
                 // Introduction (so that he knows the others)
                 foreach (AuthoritativePlayer p in m_players.Where(_p => _p != netPlayer))
                 {
                     Serializer.WritePlayerIntroductionSync(p.Id, p.Info.Value);
-                    netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
+                    netPlayer.Peer.Send(NetworkManager.ESendMethod.ReliableUnordered);
                 }
                 // Introduction (so that the others know him)
                 Serializer.WritePlayerIntroductionSync(netPlayer.Id, netPlayer.Info.Value);
-                SendAllBut(netPlayer.Peer, NetworkManager.SendMethod.ReliableUnordered);
+                SendAllBut(netPlayer.Peer, NetworkManager.ESendMethod.ReliableUnordered);
                 // Recap
                 WriteRecapSync();
-                netPlayer.Peer.Send(NetworkManager.SendMethod.Unreliable);
+                netPlayer.Peer.Send(NetworkManager.ESendMethod.Unreliable);
             }
         }
 
@@ -195,14 +177,14 @@ namespace Wheeled.Networking.Server
                     {
                         netPlayer.Start();
                         Serializer.WriteTimeSync(m_time);
-                        netPlayer.Peer.Send(NetworkManager.SendMethod.Sequenced);
+                        netPlayer.Peer.Send(NetworkManager.ESendMethod.Sequenced);
                         foreach (Player p in m_players.Where(_p => _p != netPlayer && _p.IsStarted && !_p.IsQuit(m_time)))
                         {
                             Serializer.WritePlayerIntroductionSync(p.Id, p.Info.Value);
-                            netPlayer.Peer.Send(NetworkManager.SendMethod.ReliableUnordered);
+                            netPlayer.Peer.Send(NetworkManager.ESendMethod.ReliableUnordered);
                         }
                         WriteRecapSync();
-                        netPlayer.Peer.Send(NetworkManager.SendMethod.Unreliable);
+                        netPlayer.Peer.Send(NetworkManager.ESendMethod.Unreliable);
                     }
                 }
                 break;
@@ -270,10 +252,6 @@ namespace Wheeled.Networking.Server
             return !GetPlayerById(_offense.OffenderId)?.IsQuit(_time) == true;
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void UpdateScoreBoard()
         {
             IEnumerable<AuthoritativePlayer> players = from p
@@ -312,7 +290,7 @@ namespace Wheeled.Networking.Server
             return _outNetPlayer != null;
         }
 
-        private void SendAll(NetworkManager.SendMethod _method)
+        private void SendAll(NetworkManager.ESendMethod _method)
         {
             foreach (NetPlayer netPlayer in m_NetPlayers)
             {
@@ -320,7 +298,7 @@ namespace Wheeled.Networking.Server
             }
         }
 
-        private void SendAllBut(NetworkManager.Peer _peer, NetworkManager.SendMethod _method)
+        private void SendAllBut(NetworkManager.Peer _peer, NetworkManager.ESendMethod _method)
         {
             foreach (NetPlayer netPlayer in m_NetPlayers.Where(_p => _p.Peer != _peer))
             {
@@ -331,9 +309,7 @@ namespace Wheeled.Networking.Server
         private void SendRoomSync()
         {
             Serializer.WriteTimeSync(m_time);
-            SendAll(NetworkManager.SendMethod.Sequenced);
+            SendAll(NetworkManager.ESendMethod.Sequenced);
         }
-
-        #endregion Private Methods
     }
 }

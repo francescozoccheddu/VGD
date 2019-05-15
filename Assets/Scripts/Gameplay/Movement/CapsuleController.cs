@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 using Wheeled.Core.Data;
 
-internal static class CapsuleControllerHelper
+public static class CapsuleControllerHelper
 {
-    #region Public Methods
-
     public static Vector3 ToVector3XZ(this Vector2 _vector, float _y = 0.0f)
     {
         return new Vector3(_vector.x, _y, _vector.y);
@@ -37,29 +35,17 @@ internal static class CapsuleControllerHelper
         return Vector3.Angle(_a, _b) <= _maxAngleOffset
             && AreNearlyEqual(_a.magnitude, _b.magnitude, _maxMagnitudeOffset);
     }
-
-    #endregion Public Methods
 }
 
-internal struct CapsuleController
+public struct CapsuleController
 {
-    #region Public Properties
-
     public bool IsGrounded => height <= c_skin + c_groundOffset;
-
-    #endregion Public Properties
-
-    #region Public Fields
 
     public const float c_height = 1.3f;
     public const float c_radius = 0.5f;
     public Vector3 position;
     public Vector3 velocity;
     public float height;
-
-    #endregion Public Fields
-
-    #region Private Fields
 
     private const float c_gameCeilingY = 5.0f;
     private const float c_gameFloorY = -5.0f;
@@ -70,10 +56,6 @@ internal struct CapsuleController
     private const float c_maxSlopeAngle = 50.0f;
     private const float c_maxHeight = 10.0f;
     private static readonly Vector3 s_emergencyRespawnPoint = new Vector3(0.0f, 5.0f, 0.0f);
-
-    #endregion Private Fields
-
-    #region Public Methods
 
     public static bool AreNearlyEqual(in CapsuleController _a, in CapsuleController _b)
     {
@@ -101,10 +83,6 @@ internal struct CapsuleController
         next.CalculateHeight();
         return next;
     }
-
-    #endregion Public Methods
-
-    #region Private Methods
 
     private void EmergencyDepenetrationY()
     {
@@ -241,6 +219,4 @@ internal struct CapsuleController
             }
         }
     }
-
-    #endregion Private Methods
 }

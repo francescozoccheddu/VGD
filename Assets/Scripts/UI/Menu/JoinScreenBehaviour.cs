@@ -7,14 +7,8 @@ namespace Wheeled.Menu
 {
     public sealed class JoinScreenBehaviour : MonoBehaviour
     {
-        #region Public Fields
-
         public InputField ipField;
         public InputField portField;
-
-        #endregion Public Fields
-
-        #region Public Methods
 
         public void StartGame()
         {
@@ -23,16 +17,10 @@ namespace Wheeled.Menu
             GameLauncher.Instance.StartGameAsClient(new IPEndPoint(ip, port));
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void OnEnable()
         {
             ipField.text = "";
             portField.text = "9060";
         }
-
-        #endregion Private Methods
     }
 }

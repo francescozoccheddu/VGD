@@ -2,41 +2,21 @@
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Player;
-using Wheeled.Gameplay.Stage;
+using Wheeled.Gameplay.Offense;
 
 namespace Wheeled.Networking.Server
 {
-    internal sealed partial class ServerGameManager
+    public sealed partial class ServerGameManager
     {
-        #region Private Classes
-
         private sealed class LocalPlayer : AuthoritativePlayer
         {
-            #region Public Properties
-
             public override bool IsLocal => true;
-
-            #endregion Public Properties
-
-            #region Private Fields
 
             private readonly PlayerController m_playerController;
 
-            #endregion Private Fields
-
-            #region Public Constructors
-
             public LocalPlayer(ServerGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage) => m_playerController = new PlayerController(this);
 
-            #endregion Public Constructors
-
-            #region Public Methods
-
-            public void PutHitConfirm(double _time, OffenseType _type) => m_playerController.PutHitConfirm(_time, _type);
-
-            #endregion Public Methods
-
-            #region Protected Methods
+            public void PutHitConfirm(double _time, EOffenseType _type) => m_playerController.PutHitConfirm(_time, _type);
 
             protected override int GetLastValidMovementStep() => LocalTime.SimulationSteps();
 
@@ -71,17 +51,13 @@ namespace Wheeled.Networking.Server
                 m_playerController.OnActorBreathed();
             }
 
-            protected override void SendReplication(NetworkManager.SendMethod _method) => m_manager.SendAll(_method);
+            protected override void SendReplication(NetworkManager.ESendMethod _method) => m_manager.SendAll(_method);
 
             protected override void OnInfoSetup()
             {
                 base.OnInfoSetup();
                 m_playerController.OnInfoSetup();
             }
-
-            #endregion Protected Methods
         }
-
-        #endregion Private Classes
     }
 }

@@ -3,16 +3,10 @@ using Wheeled.Core.Data;
 
 namespace Wheeled.Gameplay.Scene
 {
-    internal static class DeathCameraManager
+    public static class DeathCameraManager
     {
-        #region Private Fields
-
         private const float c_radius = 0.5f;
         private static DeathCameraBehaviour s_lastCamera;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public static void Enable(Vector3 _position)
         {
@@ -49,10 +43,6 @@ namespace Wheeled.Gameplay.Scene
             SetEnabled(true);
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private static void SetEnabled(bool _enable)
         {
             if (s_lastCamera != null)
@@ -60,7 +50,5 @@ namespace Wheeled.Gameplay.Scene
                 s_lastCamera.SetEnabled(_enable);
             }
         }
-
-        #endregion Private Methods
     }
 }

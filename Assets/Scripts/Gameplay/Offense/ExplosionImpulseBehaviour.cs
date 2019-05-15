@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Wheeled.Gameplay
+namespace Wheeled.Gameplay.Offense
 {
     public class ExplosionImpulseBehaviour : MonoBehaviour
     {

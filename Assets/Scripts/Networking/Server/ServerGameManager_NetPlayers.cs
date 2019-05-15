@@ -4,26 +4,18 @@ using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
-using Wheeled.Gameplay.Stage;
+using Wheeled.Gameplay.Offense;
 
 namespace Wheeled.Networking.Server
 {
-    internal sealed partial class ServerGameManager
+    public sealed partial class ServerGameManager
     {
-        #region Private Classes
-
         private sealed class NetPlayer : AuthoritativePlayer, MovementValidator.ITarget, ActionValidator.ITarget
         {
-            #region Public Properties
-
             public float AverageNotifyInterval => m_notifyTapper.AverageInterval;
             public override bool IsLocal => false;
             public double MaxValidationDelay { get => m_maxValidationDelay; set { Debug.Assert(value >= 0.0); m_actionValidator.MaxDelay = value; m_maxValidationDelay = value; } }
             public NetworkManager.Peer Peer { get; }
-
-            #endregion Public Properties
-
-            #region Private Fields
 
             private const int c_maxCorrectionFrequency = 5;
             private const double c_maxValidationAnticipation = 4.0f;
@@ -36,10 +28,6 @@ namespace Wheeled.Networking.Server
             private float m_timeSinceLastCorrection;
             private int m_lastNotifyStep;
             private bool m_wasAlive;
-
-            #endregion Private Fields
-
-            #region Public Constructors
 
             public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
             {
@@ -58,10 +46,6 @@ namespace Wheeled.Networking.Server
                 m_lastNotifyStep = -1;
                 m_notifyTapper = new TimeConstants.Tapper(0.0f);
             }
-
-            #endregion Public Constructors
-
-            #region Public Methods
 
             public void TryKaze(double _time, KazeInfo _info)
             {
@@ -100,7 +84,7 @@ namespace Wheeled.Networking.Server
                 {
                     m_timeSinceLastCorrection = 0.0f;
                     Serializer.WriteSimulationCorrection(_step, _simulation);
-                    Peer.Send(NetworkManager.SendMethod.Unreliable);
+                    Peer.Send(NetworkManager.ESendMethod.Unreliable);
                 }
             }
 
@@ -113,10 +97,6 @@ namespace Wheeled.Networking.Server
                 PutInput(_step, _input);
                 PutSimulation(_step, _simulation);
             }
-
-            #endregion Public Methods
-
-            #region Protected Methods
 
             protected override int GetLastValidMovementStep()
             {
@@ -147,7 +127,7 @@ namespace Wheeled.Networking.Server
                 m_movementValidator.IsRunning = false;
             }
 
-            protected override void SendReplication(NetworkManager.SendMethod _method)
+            protected override void SendReplication(NetworkManager.ESendMethod _method)
             {
                 m_manager.SendAllBut(Peer, _method);
             }
@@ -159,10 +139,6 @@ namespace Wheeled.Networking.Server
                 m_movementValidator.UpdateUntil(validationStep);
             }
 
-            #endregion Protected Methods
-
-            #region Private Methods
-
             private void UpdateNotifyTapper()
             {
                 bool isAlive = LifeHistory.IsAlive(m_manager.m_time);
@@ -172,10 +148,6 @@ namespace Wheeled.Networking.Server
                 }
                 m_wasAlive = isAlive;
             }
-
-            #endregion Private Methods
         }
-
-        #endregion Private Classes
     }
 }

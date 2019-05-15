@@ -8,32 +8,20 @@ using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Scene;
-using Wheeled.Gameplay.Stage;
+using Wheeled.Gameplay.Offense;
 using Wheeled.HUD;
 
 namespace Wheeled.Networking.Server
 {
-    internal sealed partial class ServerGameManager
+    public sealed partial class ServerGameManager
     {
-        #region Private Classes
-
         private abstract class AuthoritativePlayer : Player
         {
-            #region Public Properties
-
             public int MaxMovementInputStepsReplicationCount { get => m_maxMovementInputStepsSendCount; set { Debug.Assert(value >= 0); m_maxMovementInputStepsSendCount = value; } }
             public double DamageValidationDelay { get => m_damageValidationDelay; set { Debug.Assert(value >= 0); m_damageValidationDelay = value; } }
             public bool IsStarted { get; private set; }
 
-            #endregion Public Properties
-
-            #region Protected Fields
-
             protected readonly ServerGameManager m_manager;
-
-            #endregion Protected Fields
-
-            #region Private Fields
 
             private const double c_spawnDelay = 0.5;
             private const double c_respawnWaitTime = 3.0;
@@ -45,10 +33,6 @@ namespace Wheeled.Networking.Server
             private int m_maxMovementInputStepsSendCount;
             private double m_damageValidationDelay;
 
-            #endregion Private Fields
-
-            #region Protected Constructors
-
             protected AuthoritativePlayer(ServerGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
             {
                 m_manager = _manager;
@@ -56,10 +40,6 @@ namespace Wheeled.Networking.Server
                 m_lastValidatedExplosionTime = double.NegativeInfinity;
                 m_nextSpawnTime = double.NaN;
             }
-
-            #endregion Protected Constructors
-
-            #region Public Methods
 
             public PlayerRecapInfo RecapInfo(double _time)
             {
@@ -86,7 +66,7 @@ namespace Wheeled.Networking.Server
                     }
                     IEnumerable<InputStep> inputSequence = InputHistory.GetReversedInputSequence(lastMovementStep, maxStepsCount);
                     Serializer.WriteMovementAndInputReplication(Id, lastMovementStep, inputSequence, this.GetSnapshot(lastMovementStep.SimulationPeriod()));
-                    SendReplication(NetworkManager.SendMethod.Unreliable);
+                    SendReplication(NetworkManager.ESendMethod.Unreliable);
                 }
             }
 
@@ -106,7 +86,7 @@ namespace Wheeled.Networking.Server
                 if (node != null)
                 {
                     DamageInfo info = node.Value.damage;
-                    if (info.offenderId == Id || info.offenseType != OffenseType.Explosion)
+                    if (info.offenderId == Id || info.offenseType != EOffenseType.Explosion)
                     {
                         return info.offenderId;
                     }
@@ -117,10 +97,6 @@ namespace Wheeled.Networking.Server
                 }
                 return null;
             }
-
-            #endregion Public Methods
-
-            #region Protected Methods
 
             protected abstract int GetLastValidMovementStep();
 
@@ -133,7 +109,7 @@ namespace Wheeled.Networking.Server
             protected override void OnDamageScheduled(double _time, DamageInfo _info)
             {
                 Serializer.WriteDamageOrderOrReplication(_time, Id, _info);
-                m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
+                m_manager.SendAll(NetworkManager.ESendMethod.ReliableUnordered);
                 if (_info.offenderId == m_manager.m_localPlayer.Id && _info.offenderId != Id)
                 {
                     m_manager.m_localPlayer.PutHitConfirm(_time, _info.offenseType);
@@ -143,7 +119,7 @@ namespace Wheeled.Networking.Server
             protected override void OnQuitScheduled(double _time)
             {
                 Serializer.WriteQuitReplication(_time, Id);
-                m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
+                m_manager.SendAll(NetworkManager.ESendMethod.ReliableUnordered);
                 m_manager.m_players.Remove(this);
                 m_manager.MatchBoard.Put(_time, new EventBoardDispatcher.QuitEvent
                 {
@@ -156,20 +132,16 @@ namespace Wheeled.Networking.Server
             protected override void OnShotScheduled(double _time, ShotInfo _info)
             {
                 Serializer.WriteShootReplication(_time, Id, _info);
-                m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
+                m_manager.SendAll(NetworkManager.ESendMethod.ReliableUnordered);
             }
 
             protected override void OnSpawnScheduled(double _time, SpawnInfo _info)
             {
                 Serializer.WriteSpawnOrderOrReplication(_time, Id, _info);
-                m_manager.SendAll(NetworkManager.SendMethod.ReliableUnordered);
+                m_manager.SendAll(NetworkManager.ESendMethod.ReliableUnordered);
             }
 
-            protected abstract void SendReplication(NetworkManager.SendMethod _method);
-
-            #endregion Protected Methods
-
-            #region Private Methods
+            protected abstract void SendReplication(NetworkManager.ESendMethod _method);
 
             private void ValidateDamage()
             {
@@ -195,7 +167,7 @@ namespace Wheeled.Networking.Server
                     byte offenderId = _node.damage.offenderId;
                     if (offenderId != Id)
                     {
-                        if (_node.damage.offenseType == OffenseType.Explosion)
+                        if (_node.damage.offenseType == EOffenseType.Explosion)
                         {
                             offenderId = m_manager.GetPlayerById(offenderId)
                                 ?.GetExplosionOffenderIdRecursive(_node.time) ?? offenderId;
@@ -221,7 +193,7 @@ namespace Wheeled.Networking.Server
                         victim = this,
                         offenseType = _node.damage.offenseType
                     });
-                    m_manager.SendAll(NetworkManager.SendMethod.ReliableSequenced);
+                    m_manager.SendAll(NetworkManager.ESendMethod.ReliableSequenced);
                     m_manager.UpdateScoreBoard();
                 }
             }
@@ -256,10 +228,6 @@ namespace Wheeled.Networking.Server
                     Spawn();
                 }
             }
-
-            #endregion Private Methods
         }
-
-        #endregion Private Classes
     }
 }

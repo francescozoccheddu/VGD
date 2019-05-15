@@ -2,36 +2,18 @@
 
 namespace Wheeled.Networking.Client
 {
-    internal sealed partial class Client : Client.IServer, NetworkManager.IEventListener, IGameHost
+    public sealed partial class Client : Client.IServer, NetworkManager.IEventListener, IGameHost
     {
-        #region Public Interfaces
-
         public interface IServer
         {
-            #region Public Properties
-
             double Ping { get; }
 
-            #endregion Public Properties
-
-            #region Public Methods
-
-            void Send(NetworkManager.SendMethod _method);
-
-            #endregion Public Methods
+            void Send(NetworkManager.ESendMethod _method);
         }
-
-        #endregion Public Interfaces
-
-        #region Public Properties
 
         double IServer.Ping => m_server.Ping;
 
-        #endregion Public Properties
-
-        #region Public Methods
-
-        void IServer.Send(NetworkManager.SendMethod _method)
+        void IServer.Send(NetworkManager.ESendMethod _method)
         {
             m_server.Send(_method);
         }
@@ -50,7 +32,7 @@ namespace Wheeled.Networking.Client
             {
                 bool wasConnected = IsConnected;
                 Cleanup();
-                NotifyStopped(wasConnected ? GameHostStopCause.Disconnected : GameHostStopCause.UnableToConnect);
+                NotifyStopped(wasConnected ? EGameHostStopCause.Disconnected : EGameHostStopCause.UnableToConnect);
             }
         }
 
@@ -64,9 +46,9 @@ namespace Wheeled.Networking.Client
             });
         }
 
-        NetworkManager.DiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(Deserializer _reader)
+        NetworkManager.EDiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(Deserializer _reader)
         {
-            return NetworkManager.DiscoveryRequestAction.Ignore;
+            return NetworkManager.EDiscoveryRequestAction.Ignore;
         }
 
         void NetworkManager.IEventListener.LatencyUpdated(NetworkManager.Peer _peer, double _latency)
@@ -106,7 +88,7 @@ namespace Wheeled.Networking.Client
                     catch (Deserializer.DeserializationException)
                     {
                         Cleanup();
-                        NotifyStopped(GameHostStopCause.UnableToConnect);
+                        NotifyStopped(EGameHostStopCause.UnableToConnect);
                     }
                 }
                 else
@@ -125,11 +107,9 @@ namespace Wheeled.Networking.Client
             return false;
         }
 
-        void NetworkManager.IEventListener.Stopped(NetworkManager.StopCause _cause)
+        void NetworkManager.IEventListener.Stopped(NetworkManager.EStopCause _cause)
         {
-            NotifyStopped(GameHostStopCause.NetworkError);
+            NotifyStopped(EGameHostStopCause.NetworkError);
         }
-
-        #endregion Public Methods
     }
 }

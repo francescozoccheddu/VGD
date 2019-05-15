@@ -4,68 +4,34 @@ using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Gameplay.Action
 {
-    internal sealed class ActionValidator
+    public sealed class ActionValidator
     {
-        #region Public Interfaces
-
         public interface ITarget
         {
-            #region Public Methods
-
             void Kaze(double _time, KazeInfo _info);
 
             void Shoot(double _time, ShotInfo _info);
-
-            #endregion Public Methods
         }
-
-        #endregion Public Interfaces
-
-        #region Private Interfaces
 
         private interface INode
         {
         }
 
-        #endregion Private Interfaces
-
-        #region Private Structs
-
         private struct KazeNode : INode
         {
-            #region Internal Fields
-
-            internal KazeInfo info;
-
-            #endregion Internal Fields
+            public KazeInfo info;
         }
 
         private struct ShotNode : INode
         {
-            #region Public Fields
-
             public ShotInfo info;
-
-            #endregion Public Fields
         }
-
-        #endregion Private Structs
-
-        #region Public Properties
 
         public double MaxAnticipation { get => m_maxAnticipation; set { Debug.Assert(value > 0.0); m_maxAnticipation = value; } }
         public double MaxDelay { get => m_maxDelay; set { Debug.Assert(value >= 0.0); m_maxDelay = value; } }
         public ITarget Target { get; set; }
 
-        #endregion Public Properties
-
-        #region Public Fields
-
         public const double c_maxKazeWaitAfterDeath = 2.0;
-
-        #endregion Public Fields
-
-        #region Private Fields
 
         private const float c_maxShotPositionTolerance = 0.5f;
         private const float c_maxKazePositionTolerance = 0.8f;
@@ -74,19 +40,11 @@ namespace Wheeled.Gameplay.Action
         private double m_maxDelay;
         private double? m_time;
 
-        #endregion Private Fields
-
-        #region Public Constructors
-
         public ActionValidator()
         {
             m_history = new LinkedListHistory<double, INode>();
             MaxAnticipation = 1.0;
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public void PutKaze(double _time, KazeInfo _info)
         {
@@ -145,7 +103,5 @@ namespace Wheeled.Gameplay.Action
             }
             m_history.ForgetAndOlder(_time);
         }
-
-        #endregion Public Methods
     }
 }

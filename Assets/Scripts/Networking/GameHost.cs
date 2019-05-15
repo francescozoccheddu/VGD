@@ -1,13 +1,13 @@
 ﻿namespace Wheeled.Networking
 {
-    internal delegate void GameHostStopped(GameHostStopCause _cause);
+    public delegate void GameHostStopped(EGameHostStopCause _cause);
 
-    internal enum GameHostStopCause
+    public enum EGameHostStopCause
     {
         Programmatically, NetworkError, Disconnected, UnableToConnect
     }
 
-    internal interface IGameHost
+    public interface IGameHost
     {
         event GameHostStopped OnStopped;
 

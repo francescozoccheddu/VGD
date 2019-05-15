@@ -6,35 +6,23 @@ using Wheeled.Core.Utils;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Player;
-using Wheeled.Gameplay.Stage;
+using Wheeled.Gameplay.Offense;
 using Wheeled.HUD;
 
 namespace Wheeled.Networking.Client
 {
-    internal sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IPlayerManager, OffenseBackstage.IValidationTarget
+    public sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IPlayerManager, OffenseBackstage.IValidationTarget
     {
-        #region Private Classes
-
         private abstract class ClientPlayer : Player
         {
-            #region Private Fields
-
             private readonly ClientGameManager m_manager;
 
             private bool m_isQuit;
-
-            #endregion Private Fields
-
-            #region Protected Constructors
 
             protected ClientPlayer(ClientGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
             {
                 m_manager = _manager;
             }
-
-            #endregion Protected Constructors
-
-            #region Public Methods
 
             public void NotifyQuit()
             {
@@ -48,10 +36,6 @@ namespace Wheeled.Networking.Client
                 }
             }
 
-            #endregion Public Methods
-
-            #region Protected Methods
-
             protected override void OnUpdated()
             {
                 base.OnUpdated();
@@ -60,32 +44,14 @@ namespace Wheeled.Networking.Client
                     NotifyQuit();
                 }
             }
-
-            #endregion Protected Methods
         }
-
-        #endregion Private Classes
-
-        #region Public Properties
 
         double IPlayerManager.Time => m_time;
         public EventBoardDispatcher MatchBoard { get; }
 
-        #endregion Public Properties
-
-        #region Private Properties
-
         private IEnumerable<NetPlayer> m_NetPlayers => m_players.Values.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
 
-        #endregion Private Properties
-
-        #region Public Fields
-
         public const double c_netOffset = 0.025;
-
-        #endregion Public Fields
-
-        #region Private Fields
 
         private const double c_localOffset = 0.025;
         private const float c_timeSmoothQuickness = 0.2f;
@@ -99,10 +65,6 @@ namespace Wheeled.Networking.Client
         private bool m_isRunning;
         private double m_targetTime;
         private double m_time;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public ClientGameManager(Client.IServer _server, byte _id)
         {
@@ -134,13 +96,9 @@ namespace Wheeled.Networking.Client
             MatchBoard = new EventBoardDispatcher();
             // Ready notify
             Serializer.WriteReady();
-            m_server.Send(NetworkManager.SendMethod.ReliableUnordered);
+            m_server.Send(NetworkManager.ESendMethod.ReliableUnordered);
             UpdateScoreBoard();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         void Updatable.ITarget.Update()
         {
@@ -209,10 +167,6 @@ namespace Wheeled.Networking.Client
             return GetPlayerById(_offense.OffenderId)?.IsQuit(_time) == false;
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void UpdateScoreBoard()
         {
             IEnumerable<ClientPlayer> players = from p
@@ -243,7 +197,5 @@ namespace Wheeled.Networking.Client
                 return newNetPlayer;
             }
         }
-
-        #endregion Private Methods
     }
 }

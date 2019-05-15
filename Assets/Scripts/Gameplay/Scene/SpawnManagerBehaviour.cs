@@ -6,30 +6,16 @@ namespace Wheeled.Gameplay.Scene
 {
     public sealed class SpawnManagerBehaviour : MonoBehaviour
     {
-        #region Public Fields
-
         public Transform[] points;
 
-        #endregion Public Fields
-
-        #region Private Fields
-
         private static SpawnManagerBehaviour s_instance;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public SpawnManagerBehaviour()
         {
             s_instance = this;
         }
 
-        #endregion Public Constructors
-
-        #region Internal Methods
-
-        internal static int Spawn(IEnumerable<Vector3> _players)
+        public static int Spawn(IEnumerable<Vector3> _players)
         {
             float maxDistance = 0;
             int point = 0;
@@ -50,7 +36,7 @@ namespace Wheeled.Gameplay.Scene
             return point;
         }
 
-        internal static Snapshot Get(int _id)
+        public static Snapshot Get(int _id)
         {
             Transform point = s_instance.points[_id];
             return new Snapshot
@@ -59,7 +45,5 @@ namespace Wheeled.Gameplay.Scene
                 simulation = new CharacterController { Position = point.position }
             };
         }
-
-        #endregion Internal Methods
     }
 }

@@ -5,10 +5,8 @@ using System.Net.Sockets;
 
 namespace Wheeled.Networking
 {
-    internal sealed partial class NetworkManager : INetEventListener
+    public sealed partial class NetworkManager : INetEventListener
     {
-        #region INetEventListener
-
         void INetEventListener.OnConnectionRequest(ConnectionRequest _request)
         {
             if (listener?.ShouldAcceptConnectionRequest(new Peer(_request.Peer), new Deserializer(_request.Data)) == true)
@@ -25,7 +23,7 @@ namespace Wheeled.Networking
         {
             if (!IsRunning)
             {
-                NotifyStopped(StopCause.NetworkError);
+                NotifyStopped(EStopCause.NetworkError);
             }
         }
 
@@ -43,14 +41,14 @@ namespace Wheeled.Networking
         {
             if (_messageType == UnconnectedMessageType.DiscoveryRequest)
             {
-                DiscoveryRequestAction? action = listener?.DiscoveryRequested(new Deserializer(_reader));
+                EDiscoveryRequestAction? action = listener?.DiscoveryRequested(new Deserializer(_reader));
                 switch (action)
                 {
-                    case DiscoveryRequestAction.Reply:
+                    case EDiscoveryRequestAction.Reply:
                     m_netManager.SendDiscoveryResponse(new byte[0], _remoteEndPoint);
                     break;
 
-                    case DiscoveryRequestAction.ReplyWithData:
+                    case EDiscoveryRequestAction.ReplyWithData:
                     m_netManager.SendDiscoveryResponse(Serializer.writer, _remoteEndPoint);
                     break;
                 }
@@ -71,6 +69,4 @@ namespace Wheeled.Networking
             listener?.DisconnectedFrom(new Peer(_peer));
         }
     }
-
-    #endregion INetEventListener
 }

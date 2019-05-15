@@ -91,7 +91,7 @@ namespace LiteNetLib.Utils
             _writer = new NetDataWriter();
         }
 
-        private bool RegisterNestedTypeInternal<T>(Func<T> constructor) where T : INetSerializable
+        private bool RegisterNestedTypepublic<T>(Func<T> constructor) where T : INetSerializable
         {
             var t = typeof(T);
             if (_registeredNestedTypes.ContainsKey(t))
@@ -121,7 +121,7 @@ namespace LiteNetLib.Utils
         /// <returns>True - if register successful, false - if type already registered</returns>
         public bool RegisterNestedType<T>() where T : struct, INetSerializable
         {
-            return RegisterNestedTypeInternal(() => new T());
+            return RegisterNestedTypepublic(() => new T());
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace LiteNetLib.Utils
         /// <returns>True - if register successful, false - if type already registered</returns>
         public bool RegisterNestedType<T>(Func<T> constructor) where T : class, INetSerializable
         {
-            return RegisterNestedTypeInternal(constructor);
+            return RegisterNestedTypepublic(constructor);
         }
 
         /// <summary>
@@ -175,7 +175,7 @@ namespace LiteNetLib.Utils
             return (Action<TClass, TProperty>)CreateDelegate(typeof(Action<TClass, TProperty>), info);
         }
 
-        private StructInfo RegisterInternal<T>()
+        private StructInfo Registerpublic<T>()
         {
             Type t = typeof(T);
             string typeName = t.FullName;
@@ -498,7 +498,7 @@ namespace LiteNetLib.Utils
         /// <exception cref="InvalidTypeException"><typeparamref name="T"/>'s fields are not supported, or it has no fields</exception>
         public void Register<T>()
         {
-            RegisterInternal<T>();
+            Registerpublic<T>();
         }
 
         /// <summary>
@@ -509,7 +509,7 @@ namespace LiteNetLib.Utils
         /// <exception cref="InvalidTypeException"><typeparamref name="T"/>'s fields are not supported, or it has no fields</exception>
         public T Deserialize<T>(NetDataReader reader) where T : class, new()
         {
-            var info = RegisterInternal<T>();
+            var info = Registerpublic<T>();
             info.Reference = new T();
             try
             {
@@ -531,7 +531,7 @@ namespace LiteNetLib.Utils
         /// <exception cref="InvalidTypeException"><typeparamref name="T"/>'s fields are not supported, or it has no fields</exception>
         public bool Deserialize<T>(NetDataReader reader, T target) where T : class, new()
         {
-            var info = RegisterInternal<T>();
+            var info = Registerpublic<T>();
             info.Reference = target;
             try
             {
@@ -552,7 +552,7 @@ namespace LiteNetLib.Utils
         /// <exception cref="InvalidTypeException"><typeparamref name="T"/>'s fields are not supported, or it has no fields</exception>
         public void Serialize<T>(NetDataWriter writer, T obj) where T : class, new()
         {
-            RegisterInternal<T>().Write(writer, obj);
+            Registerpublic<T>().Write(writer, obj);
         }
 
         /// <summary>

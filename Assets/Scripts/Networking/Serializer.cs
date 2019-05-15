@@ -10,21 +10,11 @@ using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking
 {
-    internal static class Serializer
+    public static class Serializer
     {
-        #region Public Fields
-
         public static readonly NetDataWriter writer = new NetDataWriter(true, 128);
 
-        #endregion Public Fields
-
-        #region Private Fields
-
         private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double)];
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public static void WriteDiscoveryInfo(byte _arena)
         {
@@ -168,10 +158,6 @@ namespace Wheeled.Networking
             writer.Put(_info);
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private static void Put(this NetDataWriter _netDataWriter, Enum _value)
         {
             _netDataWriter.Put(Convert.ToByte(_value));
@@ -289,7 +275,5 @@ namespace Wheeled.Networking
             _netDataWriter.Put(_value.killerKills);
             _netDataWriter.Put(_value.victimDeaths);
         }
-
-        #endregion Private Methods
     }
 }

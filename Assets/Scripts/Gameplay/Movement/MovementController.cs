@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Wheeled.Gameplay.Movement
 {
-    internal sealed partial class MovementController
+    public sealed partial class MovementController
     {
         public ICommitTarget target;
 

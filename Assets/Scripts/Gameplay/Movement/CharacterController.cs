@@ -2,24 +2,14 @@
 using Wheeled.Core.Data;
 using Wheeled.Gameplay.Movement;
 
-internal struct CharacterController
+public struct CharacterController
 {
-    #region Public Properties
-
     public Vector3 Position { get => m_capsule.position; set => m_capsule.position = value; }
     public Vector3 Velocity { get => m_capsule.velocity; set => m_capsule.velocity = value; }
     public float Height { get => m_capsule.height; set => m_capsule.height = value; }
     public bool IsGrounded => m_capsule.IsGrounded;
 
-    #endregion Public Properties
-
-    #region Public Fields
-
     public float dashStamina;
-
-    #endregion Public Fields
-
-    #region Private Fields
 
     private const float c_jumpSpeed = 4.0f;
     private const float c_dashSpeed = 20.0f;
@@ -33,10 +23,6 @@ internal struct CharacterController
     private const float c_airDragXZ = 1.0f;
 
     private CapsuleController m_capsule;
-
-    #endregion Private Fields
-
-    #region Public Methods
 
     public static bool AreNearlyEqual(in CharacterController _a, in CharacterController _b)
     {
@@ -112,6 +98,4 @@ internal struct CharacterController
         next.m_capsule = next.m_capsule.Simulate(_deltaTime);
         return next;
     }
-
-    #endregion Public Methods
 }

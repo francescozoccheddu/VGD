@@ -4,21 +4,15 @@ using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Action
 {
-    internal interface IReadOnlyLifeHistory
+    public interface IReadOnlyLifeHistory
     {
-        #region Public Methods
-
         int? GetHealthOrNull(double _time);
 
         void GetLastDeathInfo(double _time, out DamageNode? _outDeath, out DamageNode? _outExplosion);
-
-        #endregion Public Methods
     }
 
-    internal static class LifeHistoryHelper
+    public static class LifeHistoryHelper
     {
-        #region Public Methods
-
         public static ELifeState GetLifeState(int? _health)
         {
             if (_health == null)
@@ -74,38 +68,22 @@ namespace Wheeled.Gameplay.Action
             _history.GetLastDeathInfo(_time, out DamageNode? node, out _);
             return _time - node?.time;
         }
-
-        #endregion Public Methods
     }
 
-    internal class LifeHistory : IReadOnlyLifeHistory
+    public class LifeHistory : IReadOnlyLifeHistory
     {
-        #region Public Fields
-
         public const int c_fullHealth = 100;
         public const int c_explosionHealth = -50;
-
-        #endregion Public Fields
-
-        #region Private Fields
 
         private readonly LinkedListHistory<double, DamageInfo> m_damages;
         private readonly LinkedListHistory<double, int> m_health;
         private HistoryNode<double, int>? m_trimmedNode;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public LifeHistory()
         {
             m_damages = new LinkedListHistory<double, DamageInfo>();
             m_health = new LinkedListHistory<double, int>();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public void PutDamage(double _time, DamageInfo _info)
         {
@@ -188,10 +166,6 @@ namespace Wheeled.Gameplay.Action
             }
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private HistoryNode<double, int>? GetLastHealthNode(double _time)
         {
             HistoryNode<double, int>? fromHistory = m_health.Last(_time);
@@ -204,18 +178,12 @@ namespace Wheeled.Gameplay.Action
                 return m_trimmedNode;
             }
         }
-
-        #endregion Private Methods
     }
 
-    internal struct DamageNode
+    public struct DamageNode
     {
-        #region Public Fields
-
         public double time;
         public DamageInfo damage;
-
-        #endregion Public Fields
     }
 
     public enum ELifeState

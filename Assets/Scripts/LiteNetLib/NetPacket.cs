@@ -3,7 +3,7 @@ using LiteNetLib.Utils;
 
 namespace LiteNetLib
 {
-    internal enum PacketProperty : byte
+    public enum PacketProperty : byte
     {
         Unreliable,             //0
         ReliableUnordered,      //1
@@ -32,7 +32,7 @@ namespace LiteNetLib
         InvalidProtocol         //24
     }
 
-    internal sealed class NetPacket
+    public sealed class NetPacket
     {
         private const int LastProperty = 24;
         //Header
@@ -163,7 +163,7 @@ namespace LiteNetLib
         }
     }
 
-    internal sealed class NetConnectRequestPacket
+    public sealed class NetConnectRequestPacket
     {
         public const int HeaderSize = 13;
         public readonly long ConnectionTime;
@@ -211,7 +211,7 @@ namespace LiteNetLib
         }
     }
 
-    internal sealed class NetConnectAcceptPacket
+    public sealed class NetConnectAcceptPacket
     {
         public const int Size = 11;
         public readonly long ConnectionId;

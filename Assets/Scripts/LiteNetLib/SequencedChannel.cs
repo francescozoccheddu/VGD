@@ -1,6 +1,6 @@
 namespace LiteNetLib
 {
-    internal sealed class SequencedChannel : BaseChannel
+    public sealed class SequencedChannel : BaseChannel
     {
         private int _localSequence;
         private ushort _remoteSequence;

@@ -14,7 +14,7 @@ namespace Wheeled.Gameplay.PlayerView
 
         public Transform socket;
 
-        internal void SetHead(GameObject _head)
+        public void SetHead(GameObject _head)
         {
             if (m_head != null)
             {

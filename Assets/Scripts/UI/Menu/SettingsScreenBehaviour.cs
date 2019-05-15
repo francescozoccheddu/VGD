@@ -7,15 +7,9 @@ namespace Wheeled.Menu
 {
     public sealed class SettingsScreenBehaviour : MonoBehaviour
     {
-        #region Public Fields
-
         public ListBehaviour colorList;
         public ListBehaviour headList;
         public InputField nameField;
-
-        #endregion Public Fields
-
-        #region Public Methods
 
         public void Save()
         {
@@ -24,10 +18,6 @@ namespace Wheeled.Menu
             PlayerPreferences.Name = nameField.text;
             PlayerPreferences.Save();
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         private void UpdateScreen()
         {
@@ -42,7 +32,5 @@ namespace Wheeled.Menu
             headList.Count = Scripts.PlayerPreferences.heads.Length;
             UpdateScreen();
         }
-
-        #endregion Private Methods
     }
 }

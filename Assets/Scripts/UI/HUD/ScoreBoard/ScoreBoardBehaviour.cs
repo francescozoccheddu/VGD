@@ -20,12 +20,12 @@ namespace Wheeled.HUD
 
         private static ScoreBoardBehaviour s_instance;
 
-        internal static void UpdateEntriesMain(IEnumerable<IReadOnlyPlayer> _players)
+        public static void UpdateEntriesMain(IEnumerable<IReadOnlyPlayer> _players)
         {
             s_instance.UpdateEntries(_players);
         }
 
-        internal void UpdateEntries(IEnumerable<IReadOnlyPlayer> _players)
+        public void UpdateEntries(IEnumerable<IReadOnlyPlayer> _players)
         {
             int i = 0;
             foreach (var player in _players)

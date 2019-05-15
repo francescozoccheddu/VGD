@@ -4,22 +4,12 @@ namespace Wheeled.Menu
 {
     public sealed class ScreenManagerBehaviour : MonoBehaviour
     {
-        #region Public Fields
-
         public GameObject menuScreen;
         public GameObject errorScreen;
-
-        #endregion Public Fields
-
-        #region Private Fields
 
         private static string s_errorMessage;
         private static ScreenManagerBehaviour s_instance;
         private GameObject m_lastScreen;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public static void SetError(string _message)
         {
@@ -44,10 +34,6 @@ namespace Wheeled.Menu
         {
             Application.Quit();
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         private void DisplayError(string _message)
         {
@@ -80,7 +66,5 @@ namespace Wheeled.Menu
                 s_instance = null;
             }
         }
-
-        #endregion Private Methods
     }
 }

@@ -5,23 +5,13 @@ namespace Wheeled.Menu
 {
     public sealed class LoadingLabelBehaviour : MonoBehaviour
     {
-        #region Public Fields
-
         public Text text;
         public string message;
-
-        #endregion Public Fields
-
-        #region Private Fields
 
         private const int c_totalDotCount = 3;
         private const float c_period = 1 / 2.0f;
 
         private int m_dotCount;
-
-        #endregion Private Fields
-
-        #region Private Methods
 
         private void OnEnable()
         {
@@ -40,7 +30,5 @@ namespace Wheeled.Menu
         {
             CancelInvoke();
         }
-
-        #endregion Private Methods
     }
 }

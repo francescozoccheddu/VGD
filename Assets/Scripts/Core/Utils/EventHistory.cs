@@ -1,42 +1,20 @@
 ﻿namespace Wheeled.Core.Utils
 {
-    internal sealed class EventHistory<T>
+    public sealed class EventHistory<T>
     {
-        #region Public Interfaces
-
         public interface ITarget
         {
-            #region Public Methods
-
             void Perform(double _time, T _value);
-
-            #endregion Public Methods
         }
-
-        #endregion Public Interfaces
-
-        #region Public Properties
 
         public ITarget Target { get; set; }
 
-        #endregion Public Properties
-
-        #region Private Fields
-
         private readonly LinkedListHistory<double, T> m_history;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public EventHistory()
         {
             m_history = new LinkedListHistory<double, T>();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public void Put(double _time, T _value)
         {
@@ -51,7 +29,5 @@
             }
             m_history.ForgetAndOlder(_time);
         }
-
-        #endregion Public Methods
     }
 }

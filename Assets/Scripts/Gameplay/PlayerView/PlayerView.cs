@@ -5,7 +5,7 @@ using Wheeled.Gameplay.Movement;
 
 namespace Wheeled.Gameplay.PlayerView
 {
-    internal sealed class PlayerView
+    public sealed class PlayerView
     {
         public ELifeState State { get; set; }
 

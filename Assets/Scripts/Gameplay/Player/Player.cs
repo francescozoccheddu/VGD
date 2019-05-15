@@ -5,14 +5,12 @@ using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.PlayerView;
 using Wheeled.Gameplay.Scene;
-using Wheeled.Gameplay.Stage;
+using Wheeled.Gameplay.Offense;
 
 namespace Wheeled.Gameplay.Player
 {
-    internal interface IReadOnlyPlayer
+    public interface IReadOnlyPlayer
     {
-        #region Public Properties
-
         byte Id { get; }
         PlayerInfo? Info { get; }
         bool IsLocal { get; }
@@ -28,26 +26,18 @@ namespace Wheeled.Gameplay.Player
         IReadOnlyLifeHistory LifeHistory { get; }
         IReadOnlyWeaponsHistory WeaponsHistory { get; }
         IReadOnlyMovementHistory MovementHistory { get; }
-
-        #endregion Public Properties
     }
 
-    internal static class PlayerHelper
+    public static class PlayerHelper
     {
-        #region Public Methods
-
         public static Snapshot GetSnapshot(this IReadOnlyPlayer _player, double _time)
         {
             return _player.MovementHistory.GetSnapshot(_time, _player.InputHistory);
         }
-
-        #endregion Public Methods
     }
 
-    internal abstract class Player : IReadOnlyPlayer, EventHistory<SpawnInfo>.ITarget, EventHistory<bool>.ITarget
+    public abstract class Player : IReadOnlyPlayer, EventHistory<SpawnInfo>.ITarget, EventHistory<bool>.ITarget
     {
-        #region Public Properties
-
         public double HistoryDuration { get => m_historyDuration; set { Debug.Assert(value >= 0.0); m_historyDuration = value; } }
         public byte Id { get; }
         public PlayerInfo? Info
@@ -82,10 +72,6 @@ namespace Wheeled.Gameplay.Player
         public int Deaths => DeathsValue.Value;
         public int Kills => KillsValue.Value;
 
-        #endregion Public Properties
-
-        #region Private Fields
-
         // Logic
         private readonly IPlayerManager m_manager;
         // Components
@@ -102,10 +88,6 @@ namespace Wheeled.Gameplay.Player
         private double m_historyDuration;
         private double m_quitTime;
         private PlayerInfo? m_info;
-
-        #endregion Private Fields
-
-        #region Protected Constructors
 
         protected Player(IPlayerManager _manager, byte _id, OffenseBackstage _offenseBackstage)
         {
@@ -147,10 +129,6 @@ namespace Wheeled.Gameplay.Player
             m_offenseStage = new OffenseStage();
         }
 
-        #endregion Protected Constructors
-
-        #region Public Methods
-
         public void PutShot(double _time, ShotInfo _info)
         {
             if (_info.isRocket)
@@ -186,7 +164,7 @@ namespace Wheeled.Gameplay.Player
                 damage = 0,
                 maxHealth = Gameplay.Action.LifeHistory.c_explosionHealth,
                 offenderId = Id,
-                offenseType = OffenseType.Explosion
+                offenseType = EOffenseType.Explosion
             });
             OnKazeScheduled(_time, _info);
         }
@@ -290,10 +268,6 @@ namespace Wheeled.Gameplay.Player
             m_view.Destroy();
         }
 
-        #endregion Public Methods
-
-        #region Protected Methods
-
         protected virtual void OnQuitScheduled(double _time)
         {
         }
@@ -334,10 +308,6 @@ namespace Wheeled.Gameplay.Player
         {
         }
 
-        #endregion Protected Methods
-
-        #region Private Methods
-
         private void Trim()
         {
             double lastTime = m_manager.Time - HistoryDuration;
@@ -363,18 +333,12 @@ namespace Wheeled.Gameplay.Player
                 m_view.Update(Time.deltaTime);
             }
         }
-
-        #endregion Private Methods
     }
 
-    internal struct PlayerInfo
+    public struct PlayerInfo
     {
-        #region Public Fields
-
         public string name;
         public byte head;
         public byte color;
-
-        #endregion Public Fields
     }
 }

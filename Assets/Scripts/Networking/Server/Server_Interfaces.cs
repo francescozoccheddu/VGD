@@ -2,10 +2,8 @@
 
 namespace Wheeled.Networking.Server
 {
-    internal sealed partial class Server : NetworkManager.IEventListener
+    public sealed partial class Server : NetworkManager.IEventListener
     {
-        #region Public Methods
-
         void NetworkManager.IEventListener.ConnectedTo(NetworkManager.Peer _peer)
         {
             m_game?.ConnectedTo(_peer);
@@ -20,16 +18,16 @@ namespace Wheeled.Networking.Server
         {
         }
 
-        NetworkManager.DiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(Deserializer _reader)
+        NetworkManager.EDiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(Deserializer _reader)
         {
             if (m_game?.ShouldReplyToDiscoveryRequest() == true)
             {
                 Serializer.WriteDiscoveryInfo(RoomInfo.Value.map);
-                return NetworkManager.DiscoveryRequestAction.ReplyWithData;
+                return NetworkManager.EDiscoveryRequestAction.ReplyWithData;
             }
             else
             {
-                return NetworkManager.DiscoveryRequestAction.Ignore;
+                return NetworkManager.EDiscoveryRequestAction.Ignore;
             }
         }
 
@@ -48,12 +46,10 @@ namespace Wheeled.Networking.Server
             return m_game?.ShouldAcceptConnectionRequest(_peer, _reader) == true;
         }
 
-        void NetworkManager.IEventListener.Stopped(NetworkManager.StopCause _cause)
+        void NetworkManager.IEventListener.Stopped(NetworkManager.EStopCause _cause)
         {
             Cleanup();
-            NotifyStopped(GameHostStopCause.NetworkError);
+            NotifyStopped(EGameHostStopCause.NetworkError);
         }
-
-        #endregion Public Methods
     }
 }

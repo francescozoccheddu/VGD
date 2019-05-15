@@ -12,12 +12,12 @@ using System.Threading;
 
 namespace LiteNetLib
 {
-    internal interface INetSocketListener
+    public interface INetSocketListener
     {
         void OnMessageReceived(byte[] data, int length, SocketError errorCode, IPEndPoint remoteEndPoint);
     }
 
-    internal sealed class NetSocket
+    public sealed class NetSocket
     {
         private Socket _udpSocketv4;
         private Socket _udpSocketv6;
@@ -26,7 +26,7 @@ namespace LiteNetLib
         private volatile bool _running;
         private readonly INetSocketListener _listener;
         private static readonly IPAddress MulticastAddressV6 = IPAddress.Parse("FF02:0:0:0:0:0:0:1");
-        internal static readonly bool IPv6Support;
+        public static readonly bool IPv6Support;
 
         public int LocalPort { get; private set; }
 

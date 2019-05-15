@@ -4,10 +4,8 @@ using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Core.Data
 {
-    internal static class PlayerPreferences
+    public static class PlayerPreferences
     {
-        #region Public Properties
-
         public static int HeadIndex
         {
             get
@@ -91,10 +89,6 @@ namespace Wheeled.Core.Data
             name = Name
         };
 
-        #endregion Public Properties
-
-        #region Public Methods
-
         public static void Save()
         {
             PlayerPrefs.Save();
@@ -105,10 +99,6 @@ namespace Wheeled.Core.Data
             return _name != null && _name.All(char.IsLetterOrDigit) && _name.Length > 0 && _name.Length <= 16;
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private static bool IsValidColorIndex(int _index)
         {
             return _index >= 0 && _index < Scripts.PlayerPreferences.colors.Length;
@@ -118,7 +108,5 @@ namespace Wheeled.Core.Data
         {
             return _index >= 0 && _index < Scripts.PlayerPreferences.heads.Length;
         }
-
-        #endregion Private Methods
     }
 }

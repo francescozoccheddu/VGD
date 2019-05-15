@@ -5,8 +5,6 @@ namespace Wheeled.Gameplay.Movement
 {
     public class JumpPadBehaviour : MonoBehaviour
     {
-        
-
         [Header("Inner radius")]
         public float innerRadiusXZ;
         public float innerRadiusY;
@@ -20,7 +18,7 @@ namespace Wheeled.Gameplay.Movement
 
         public const float c_averageViewMass = 3.0f;
 
-        internal float GetForce(Vector3 _position)
+        public float GetForce(Vector3 _position)
         {
             float factorXZ, factorY;
             {
@@ -62,7 +60,5 @@ namespace Wheeled.Gameplay.Movement
                 rb.AddForce(0.0f, force * c_averageViewMass, 0.0f, ForceMode.Force);
             }
         }
-
-        
     }
 }

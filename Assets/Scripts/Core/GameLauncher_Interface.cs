@@ -12,27 +12,13 @@ namespace Wheeled.Core
 {
     public sealed partial class GameLauncher
     {
-        #region Public Properties
-
         public bool IsBusy => m_host?.IsStarted == true;
         public bool IsServer { get; private set; }
 
-        #endregion Public Properties
-
-        #region Public Events
-
         public event GameRoomDiscoverEventHandler OnGameRoomDiscovered;
-
-        #endregion Public Events
-
-        #region Private Fields
 
         private IGameHost m_host;
         private bool m_isQuitting = false;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public void QuitGame()
         {
@@ -91,10 +77,6 @@ namespace Wheeled.Core
             }
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void DestroyHost()
         {
             UnregisterHostEvents();
@@ -135,7 +117,7 @@ namespace Wheeled.Core
             }
         }
 
-        private void GameStopped(GameHostStopCause _cause)
+        private void GameStopped(EGameHostStopCause _cause)
         {
             Menu.ScreenManagerBehaviour.SetError(_cause.ToString());
             QuitGame();
@@ -179,7 +161,5 @@ namespace Wheeled.Core
                 }
             }
         }
-
-        #endregion Private Methods
     }
 }

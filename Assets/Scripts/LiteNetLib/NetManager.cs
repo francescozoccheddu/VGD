@@ -19,13 +19,13 @@ namespace LiteNetLib
         private readonly NetManager _manager;
         private readonly NetEvent _evt;
 
-        internal NetPacketReader(NetManager manager, NetEvent evt)
+        public NetPacketReader(NetManager manager, NetEvent evt)
         {
             _manager = manager;
             _evt = evt;
         }
 
-        internal void SetSource(NetPacket packet)
+        public void SetSource(NetPacket packet)
         {
             if (packet == null)
             {
@@ -49,7 +49,7 @@ namespace LiteNetLib
         }
     }
 
-    internal sealed class NetEvent
+    public sealed class NetEvent
     {
         public enum EType
         {
@@ -125,7 +125,7 @@ namespace LiteNetLib
         private int _lastPeerId;
         private readonly Queue<int> _peerIds;
 
-        internal readonly NetPacketPool NetPacketPool;
+        public readonly NetPacketPool NetPacketPool;
 
         //config section
         /// <summary>
@@ -150,7 +150,7 @@ namespace LiteNetLib
 
         /// <summary>
         /// If NetManager doesn't receive any packet from remote peer during this time then connection will be closed
-        /// (including library internal keepalive packets)
+        /// (including library public keepalive packets)
         /// </summary>
         public int DisconnectTimeout = 5000;
 
@@ -297,11 +297,11 @@ namespace LiteNetLib
         private void RemovePeer(NetPeer peer)
         {
             _peersLock.EnterWriteLock();
-            RemovePeerInternal(peer);
+            RemovePeerpublic(peer);
             _peersLock.ExitWriteLock();
         }
 
-        private void RemovePeerInternal(NetPeer peer)
+        private void RemovePeerpublic(NetPeer peer)
         {
             if (!_peersDict.Remove(peer.EndPoint))
             {
@@ -350,24 +350,24 @@ namespace LiteNetLib
             _peerIds = new Queue<int>();
         }
 
-        internal void ConnectionLatencyUpdated(NetPeer fromPeer, int latency)
+        public void ConnectionLatencyUpdated(NetPeer fromPeer, int latency)
         {
             CreateEvent(NetEvent.EType.ConnectionLatencyUpdated, fromPeer, latency: latency);
         }
 
-        internal int SendRawAndRecycle(NetPacket packet, IPEndPoint remoteEndPoint)
+        public int SendRawAndRecycle(NetPacket packet, IPEndPoint remoteEndPoint)
         {
             int result = SendRaw(packet.RawData, 0, packet.Size, remoteEndPoint);
             NetPacketPool.Recycle(packet);
             return result;
         }
 
-        internal int SendRaw(NetPacket packet, IPEndPoint remoteEndPoint)
+        public int SendRaw(NetPacket packet, IPEndPoint remoteEndPoint)
         {
             return SendRaw(packet.RawData, 0, packet.Size, remoteEndPoint);
         }
 
-        internal int SendRaw(byte[] message, int start, int length, IPEndPoint remoteEndPoint)
+        public int SendRaw(byte[] message, int start, int length, IPEndPoint remoteEndPoint)
         {
             if (!IsRunning)
             {
@@ -409,7 +409,7 @@ namespace LiteNetLib
             return result;
         }
 
-        internal void DisconnectPeerForce(NetPeer peer,
+        public void DisconnectPeerForce(NetPeer peer,
             DisconnectReason reason,
             SocketError socketErrorCode,
             NetPacket eventData)
@@ -548,7 +548,7 @@ namespace LiteNetLib
             }
         }
 
-        internal void RecycleEvent(NetEvent evt)
+        public void RecycleEvent(NetEvent evt)
         {
             evt.Peer = null;
             evt.ErrorCode = 0;
@@ -617,7 +617,7 @@ namespace LiteNetLib
                     _peersLock.EnterWriteLock();
                     for (int i = 0; i < peersToRemove.Count; i++)
                     {
-                        RemovePeerInternal(peersToRemove[i]);
+                        RemovePeerpublic(peersToRemove[i]);
                     }
 
                     _peersLock.ExitWriteLock();
@@ -932,7 +932,7 @@ namespace LiteNetLib
             }
         }
 
-        internal void ReceiveFromPeer(NetPacket packet, IPEndPoint remoteEndPoint)
+        public void ReceiveFromPeer(NetPacket packet, IPEndPoint remoteEndPoint)
         {
             if (!TryGetPeer(remoteEndPoint, out NetPeer fromPeer))
             {

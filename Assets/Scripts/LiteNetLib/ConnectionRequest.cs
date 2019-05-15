@@ -17,7 +17,7 @@ namespace LiteNetLib
         PeerToPeer
     }
 
-    internal interface IConnectionRequestListener
+    public interface IConnectionRequestListener
     {
         void OnConnectionSolved(ConnectionRequest request, byte[] rejectData, int start, int length);
     }
@@ -32,16 +32,16 @@ namespace LiteNetLib
         public ConnectionRequestResult Result { get; private set; }
         public ConnectionRequestType Type { get; private set; }
 
-        internal readonly long ConnectionId;
-        internal readonly byte ConnectionNumber;
-        internal readonly NetPeer Peer;
+        public readonly long ConnectionId;
+        public readonly byte ConnectionNumber;
+        public readonly NetPeer Peer;
 
         private bool TryActivate()
         {
             return Interlocked.CompareExchange(ref _used, 1, 0) == 0;
         }
 
-        internal ConnectionRequest(
+        public ConnectionRequest(
             long connectionId,
             byte connectionNumber,
             ConnectionRequestType type,

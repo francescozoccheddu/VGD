@@ -1,7 +1,7 @@
 ﻿namespace Wheeled.Core.Utils
 {
 
-    internal sealed class SingleValueHistory<T>
+    public sealed class SingleValueHistory<T>
     {
 
         private double? m_time;

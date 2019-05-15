@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace Wheeled.Core.Utils
 {
-    internal sealed class LinkedListHistory<TTime, TValue> : LinkedListSimpleHistory<HistoryNode<TTime, TValue>, TTime>, IHistory<TTime, TValue> where TTime : struct, IComparable<TTime>
+    public sealed class LinkedListHistory<TTime, TValue> : LinkedListSimpleHistory<HistoryNode<TTime, TValue>, TTime>, IHistory<TTime, TValue> where TTime : struct, IComparable<TTime>
     {
-        #region Public Methods
-
         public void Add(TTime _time, TValue _value)
         {
             Add(_time, new HistoryNode<TTime, TValue> { time = _time, value = _value });
@@ -16,19 +14,11 @@ namespace Wheeled.Core.Utils
         {
             Set(_time, new HistoryNode<TTime, TValue> { time = _time, value = _value });
         }
-
-        #endregion Public Methods
     }
 
-    internal class LinkedListSimpleHistory<TNode, TComparer> : ISimpleHistory<TNode, TComparer> where TNode : struct, IComparable<TComparer> where TComparer : struct
+    public class LinkedListSimpleHistory<TNode, TComparer> : ISimpleHistory<TNode, TComparer> where TNode : struct, IComparable<TComparer> where TComparer : struct
     {
-        #region Private Fields
-
         private readonly LinkedList<TNode> m_list = new LinkedList<TNode>();
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public void Add(TComparer _time, TNode _value)
         {
@@ -131,10 +121,6 @@ namespace Wheeled.Core.Utils
             }
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private LinkedListNode<TNode> GetNode(TComparer _time, bool _allowBefore, bool _allowAfter)
         {
             LinkedListNode<TNode> listNode;
@@ -190,14 +176,10 @@ namespace Wheeled.Core.Utils
             }
             return node;
         }
-
-        #endregion Private Methods
     }
 
-    internal class LinkedListSimpleHistory<T> : LinkedListSimpleHistory<T, T> where T : struct, IComparable<T>
+    public class LinkedListSimpleHistory<T> : LinkedListSimpleHistory<T, T> where T : struct, IComparable<T>
     {
-        #region Public Methods
-
         public void Add(T _node)
         {
             Add(_node, _node);
@@ -207,7 +189,5 @@ namespace Wheeled.Core.Utils
         {
             Set(_node, _node);
         }
-
-        #endregion Public Methods
     }
 }

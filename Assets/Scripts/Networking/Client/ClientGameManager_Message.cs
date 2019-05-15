@@ -8,23 +8,15 @@ using Wheeled.HUD;
 
 namespace Wheeled.Networking.Client
 {
-    internal sealed partial class ClientGameManager
+    public sealed partial class ClientGameManager
     {
-        #region Private Fields
-
         private const int c_maxStepAdvance = 30;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         void Client.IGameManager.Received(Deserializer _reader)
         {
             // TODO Catch exception
             switch (_reader.ReadMessageType())
             {
-                #region Room messages
-
                 case EMessage.TimeSync:
                 {
                     _reader.ReadTimeSync(out double time);
@@ -77,10 +69,6 @@ namespace Wheeled.Networking.Client
                 }
                 break;
 
-                #endregion Room messages
-
-                #region Movement messages
-
                 case EMessage.SimulationOrder:
                 {
                     _reader.ReadSimulationOrder(out int step, out SimulationStepInfo simulation);
@@ -104,10 +92,6 @@ namespace Wheeled.Networking.Client
                     player?.Move(step, inputSteps, snapshot);
                 }
                 break;
-
-                #endregion Movement messages
-
-                #region Action messages
 
                 case EMessage.SpawnOrderOrReplication:
                 {
@@ -151,11 +135,7 @@ namespace Wheeled.Networking.Client
                     UpdateScoreBoard();
                 }
                 break;
-
-                #endregion Action messages
             }
         }
-
-        #endregion Public Methods
     }
 }
