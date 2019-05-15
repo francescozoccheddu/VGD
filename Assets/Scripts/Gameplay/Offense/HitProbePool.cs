@@ -3,44 +3,26 @@ using UnityEngine;
 using Wheeled.Core.Data;
 using Wheeled.Gameplay.Movement;
 
-namespace Wheeled.Gameplay.Stage
+namespace Wheeled.Gameplay.Offense
 {
-    internal sealed class HitProbePool
+    public sealed class HitProbePool
     {
-        #region Public Structs
-
         public struct HitInfo
         {
-            #region Public Fields
-
             public bool isCritical;
             public Vector3 normal;
             public byte? playerId;
             public Vector3 position;
-
-            #endregion Public Fields
         }
-
-        #endregion Public Structs
-
-        #region Private Fields
 
         private const int c_worldLayerMask = 1 << 11 | 1 << 12;
         private readonly List<HitProbeBehaviour> m_probes;
         private int m_nextProbe;
 
-        #endregion Private Fields
-
-        #region Public Constructors
-
         public HitProbePool()
         {
             m_probes = new List<HitProbeBehaviour>();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public void Add(byte _playerId, Snapshot _snapshot)
         {
@@ -102,7 +84,5 @@ namespace Wheeled.Gameplay.Stage
                 return false;
             }
         }
-
-        #endregion Public Methods
     }
 }

@@ -6,34 +6,22 @@ using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.PlayerView;
 
-namespace Wheeled.Gameplay.Stage
+namespace Wheeled.Gameplay.Offense
 {
-    internal sealed class OffenseBackstage
+    public sealed class OffenseBackstage
     {
-        #region Public Interfaces
-
         public interface IValidationTarget
         {
-            #region Public Methods
+            IEnumerable<HitTarget> ProvideHitTarget(double _time, Action.Offense _offense);
 
-            IEnumerable<HitTarget> ProvideHitTarget(double _time, Offense _offense);
+            void Damage(double _time, byte _offendedId, Action.Offense _offense, float _damage);
 
-            void Damage(double _time, byte _offendedId, Offense _offense, float _damage);
-
-            bool ShouldProcess(double _time, Offense _offense);
-
-            #endregion Public Methods
+            bool ShouldProcess(double _time, Action.Offense _offense);
         }
-
-        #endregion Public Interfaces
-
-        #region Private Classes
 
         private abstract class PendingOffense
         {
-            #region Public Properties
-
-            public Offense Offense { get; }
+            public Action.Offense Offense { get; }
 
             public bool IsGone { get; private set; }
 
@@ -41,20 +29,12 @@ namespace Wheeled.Gameplay.Stage
 
             public double Time { get; }
 
-            #endregion Public Properties
-
-            #region Public Constructors
-
-            public PendingOffense(double _time, Offense _offense)
+            public PendingOffense(double _time, Action.Offense _offense)
             {
                 IsGone = false;
                 Time = _time;
                 Offense = _offense;
             }
-
-            #endregion Public Constructors
-
-            #region Public Methods
 
             public abstract void Update(double _time, OffenseBackstage _stage);
 
@@ -62,29 +42,17 @@ namespace Wheeled.Gameplay.Stage
             {
                 IsGone = true;
             }
-
-            #endregion Public Methods
         }
 
         private class PendingExplosionOffense : PendingOffense
         {
-            #region Private Fields
-
             private const float c_fullDamage = 1.0f;
             private const float c_innerRadius = 2.0f;
             private const float c_outerRadius = 5.0f;
 
-            #endregion Private Fields
-
-            #region Public Constructors
-
             public PendingExplosionOffense(double _time, ExplosionOffense _offense) : base(_time, _offense)
             {
             }
-
-            #endregion Public Constructors
-
-            #region Public Methods
 
             public override void Update(double _time, OffenseBackstage _stage)
             {
@@ -115,28 +83,16 @@ namespace Wheeled.Gameplay.Stage
                     Dispose();
                 }
             }
-
-            #endregion Public Methods
         }
 
         private sealed class PendingRifleShotOffense : PendingShotOffense
         {
-            #region Private Fields
-
             private const float c_criticalDamage = 2.0f;
             private const float c_damage = 0.7f;
-
-            #endregion Private Fields
-
-            #region Public Constructors
 
             public PendingRifleShotOffense(double _time, RifleShotOffense _offense) : base(_time, _offense)
             {
             }
-
-            #endregion Public Constructors
-
-            #region Protected Methods
 
             protected override void UpdateTrajectory(double _time, HitProbePool _probes, IValidationTarget _target)
             {
@@ -171,31 +127,19 @@ namespace Wheeled.Gameplay.Stage
                     Dispose();
                 }
             }
-
-            #endregion Protected Methods
         }
 
         private sealed class PendingRocketShotOffense : PendingShotOffense
         {
-            #region Private Fields
-
             private const float c_fullDamage = 1.0f;
             private const double c_hitTestDuration = 0.5;
             private const float c_innerRadius = 2.0f;
             private const float c_outerRadius = 5.0f;
             private double m_lifetime;
 
-            #endregion Private Fields
-
-            #region Public Constructors
-
             public PendingRocketShotOffense(double _time, RocketShotOffense _offense) : base(_time, _offense)
             {
             }
-
-            #endregion Public Constructors
-
-            #region Protected Methods
 
             protected override void UpdateTrajectory(double _time, HitProbePool _probes, IValidationTarget _target)
             {
@@ -264,30 +208,18 @@ namespace Wheeled.Gameplay.Stage
                 }
             }
 
-            #endregion Protected Methods
-
-            #region Private Methods
-
             private Vector3 GetPosition(double _elapsedTime)
             {
                 RocketShotOffense offense = (RocketShotOffense) Offense;
                 return GetOrigin() + offense.Sight.Direction * (float) (_elapsedTime * RocketShotOffense.c_velocity);
             }
-
-            #endregion Private Methods
         }
 
         private abstract class PendingShotOffense : PendingOffense
         {
-            #region Public Constructors
-
             public PendingShotOffense(double _time, ShotOffense _offense) : base(_time, _offense)
             {
             }
-
-            #endregion Public Constructors
-
-            #region Public Methods
 
             public Vector3 GetOrigin()
             {
@@ -303,55 +235,25 @@ namespace Wheeled.Gameplay.Stage
                 }
             }
 
-            #endregion Public Methods
-
-            #region Protected Methods
-
             protected abstract void UpdateTrajectory(double _time, HitProbePool _probes, IValidationTarget _target);
-
-            #endregion Protected Methods
         }
-
-        #endregion Private Classes
-
-        #region Public Structs
 
         public struct HitTarget
         {
-            #region Public Fields
-
             public byte playerId;
             public Snapshot snapshot;
-
-            #endregion Public Fields
         }
-
-        #endregion Public Structs
-
-        #region Public Properties
 
         public IValidationTarget ValidationTarget { get; set; }
 
-        #endregion Public Properties
-
-        #region Private Fields
-
         private readonly List<PendingOffense> m_offenses;
         private readonly HitProbePool m_probePool;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public OffenseBackstage()
         {
             m_offenses = new List<PendingOffense>();
             m_probePool = new HitProbePool();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public void PutExplosion(double _time, ExplosionOffense _offense)
         {
@@ -386,7 +288,5 @@ namespace Wheeled.Gameplay.Stage
             }
             m_offenses.RemoveAll(_p => _p.IsGone);
         }
-
-        #endregion Public Methods
     }
 }

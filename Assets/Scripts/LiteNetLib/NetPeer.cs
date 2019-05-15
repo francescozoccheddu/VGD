@@ -23,7 +23,7 @@ namespace LiteNetLib
         Any = Incoming | Outcoming | Connected | ShutdownRequested
     }
 
-    internal enum ConnectRequestResult
+    public enum ConnectRequestResult
     {
         None,
         P2PConnection, //when peer connecting
@@ -31,7 +31,7 @@ namespace LiteNetLib
         NewConnection  //when peer was disconnected
     }
 
-    internal enum DisconnectResult
+    public enum DisconnectResult
     {
         None,
         Reject,
@@ -61,10 +61,10 @@ namespace LiteNetLib
         private readonly object _flushLock = new object();
         private readonly object _sendLock = new object();
 
-        internal NetPeer NextPeer;
-        internal NetPeer PrevPeer;
+        public NetPeer NextPeer;
+        public NetPeer PrevPeer;
 
-        internal byte ConnectionNum
+        public byte ConnectionNum
         {
             get { return _connectNum; }
             private set
@@ -128,9 +128,9 @@ namespace LiteNetLib
         public ConnectionState ConnectionState { get { return _connectionState; } }
 
         /// <summary>
-        /// Connection time for internal purposes
+        /// Connection time for public purposes
         /// </summary>
-        internal long ConnectTime { get { return _connectTime; } }
+        public long ConnectTime { get { return _connectTime; } }
 
         /// <summary>
         /// Peer id can be used as key in your dictionary of peers
@@ -170,7 +170,7 @@ namespace LiteNetLib
         }
 
         /// <summary>
-        /// Time since last packet received (including internal library packets)
+        /// Time since last packet received (including public library packets)
         /// </summary>
         public int TimeSinceLastPacket { get { return _timeSinceLastPacket; } }
 
@@ -183,7 +183,7 @@ namespace LiteNetLib
 
         public int PacketsCountInReliableOrderedQueue { get { return _reliableOrderedChannel.PacketsInQueue; } }
 
-        internal double ResendDelay { get { return _resendDelay; } }
+        public double ResendDelay { get { return _resendDelay; } }
 
         /// <summary>
 		/// Application defined object containing data about the connection
@@ -196,7 +196,7 @@ namespace LiteNetLib
         public readonly NetStatistics Statistics;
 
         //incoming connection constructor
-        internal NetPeer(NetManager netManager, IPEndPoint remoteEndPoint, int id)
+        public NetPeer(NetManager netManager, IPEndPoint remoteEndPoint, int id)
         {
             Id = id;
             Statistics = new NetStatistics();
@@ -217,7 +217,7 @@ namespace LiteNetLib
         }
 
         //"Connect to" constructor
-        internal NetPeer(NetManager netManager, IPEndPoint remoteEndPoint, int id, byte connectNum, NetDataWriter connectData) 
+        public NetPeer(NetManager netManager, IPEndPoint remoteEndPoint, int id, byte connectNum, NetDataWriter connectData) 
             : this(netManager, remoteEndPoint, id)
         {
             _connectTime = DateTime.UtcNow.Ticks;
@@ -235,7 +235,7 @@ namespace LiteNetLib
         }
 
         //"Accept" incoming constructor
-        internal void Accept(long connectId, byte connectNum)
+        public void Accept(long connectId, byte connectNum)
         {
             _connectTime = connectId;
             _connectionState = ConnectionState.Connected;
@@ -249,7 +249,7 @@ namespace LiteNetLib
             NetDebug.Write(NetLogLevel.Trace, "[CC] ConnectId: {0}", _connectTime);
         }
 
-        internal bool ProcessConnectAccept(NetConnectAcceptPacket packet)
+        public bool ProcessConnectAccept(NetConnectAcceptPacket packet)
         {
             if (_connectionState != ConnectionState.Outcoming)
                 return false;
@@ -460,7 +460,7 @@ namespace LiteNetLib
             _netManager.DisconnectPeer(this);
         }
 
-        internal DisconnectResult ProcessDisconnect(NetPacket packet)
+        public DisconnectResult ProcessDisconnect(NetPacket packet)
         {
             if ((_connectionState == ConnectionState.Connected || _connectionState == ConnectionState.Outcoming) &&
                 packet.Size >= 9 &&
@@ -474,14 +474,14 @@ namespace LiteNetLib
             return DisconnectResult.None;
         }
 
-        internal void Reject(long connectionId, byte connectionNumber, byte[] data, int start, int length)
+        public void Reject(long connectionId, byte connectionNumber, byte[] data, int start, int length)
         {
             _connectTime = connectionId;
             _connectNum = connectionNumber;
             Shutdown(data, start, length, false);
         }
 
-        internal bool Shutdown(byte[] data, int start, int length, bool force)
+        public bool Shutdown(byte[] data, int start, int length, bool force)
         {
             lock (this)
             {
@@ -530,7 +530,7 @@ namespace LiteNetLib
             _resendDelay = 25.0 + _avgRtt * 2.1; // 25 ms + double rtt
         }
 
-        internal void AddIncomingPacket(NetPacket p)
+        public void AddIncomingPacket(NetPacket p)
         {
             if (p.IsFragmented)
             {
@@ -679,7 +679,7 @@ namespace LiteNetLib
             }
         }
 
-        internal ConnectRequestResult ProcessConnectRequest(NetConnectRequestPacket connRequest)
+        public ConnectRequestResult ProcessConnectRequest(NetConnectRequestPacket connRequest)
         {
             //current or new request
             switch (_connectionState)
@@ -724,7 +724,7 @@ namespace LiteNetLib
         }
 
         //Process incoming packet
-        internal void ProcessPacket(NetPacket packet)
+        public void ProcessPacket(NetPacket packet)
         {
             //not initialized
             if (_connectionState == ConnectionState.Incoming)
@@ -863,7 +863,7 @@ namespace LiteNetLib
             _mergeCount = 0;
         }
 
-        internal void SendUserData(NetPacket packet)
+        public void SendUserData(NetPacket packet)
         {
             packet.ConnectionNumber = _connectNum;
             int mergedPacketSize = NetConstants.HeaderSize + packet.Size + 2;
@@ -906,7 +906,7 @@ namespace LiteNetLib
             }
         }
 
-        internal void Update(int deltaTime)
+        public void Update(int deltaTime)
         {
             _timeSinceLastPacket += deltaTime;
             switch (_connectionState)
@@ -994,7 +994,7 @@ namespace LiteNetLib
         }
 
         //For channels
-        internal void Recycle(NetPacket packet)
+        public void Recycle(NetPacket packet)
         {
             _packetPool.Recycle(packet);
         }

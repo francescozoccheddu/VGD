@@ -8,8 +8,6 @@ namespace Wheeled.Menu
 
     public sealed class IPValidatorBehaviour : ValidatorBehaviour
     {
-        #region Public Methods
-
         [Serializable]
         public sealed class ChangedEvent : UnityEvent<IPAddress> { }
 
@@ -37,7 +35,5 @@ namespace Wheeled.Menu
             validated.Invoke(ip != null);
             changed.Invoke(ip);
         }
-
-        #endregion Public Methods
     }
 }

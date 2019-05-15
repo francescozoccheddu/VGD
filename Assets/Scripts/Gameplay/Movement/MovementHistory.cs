@@ -5,21 +5,15 @@ using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Movement
 {
-    internal interface IReadOnlyMovementHistory
+    public interface IReadOnlyMovementHistory
     {
-        #region Public Methods
-
         void GetSight(double _time, out Sight? _outSight);
 
         void GetSimulation(double _time, out CharacterController? _outSimulation, IReadOnlyInputHistory _inputHistory);
-
-        #endregion Public Methods
     }
 
-    internal static class MovementHistoryHelper
+    public static class MovementHistoryHelper
     {
-        #region Public Methods
-
         public static Snapshot GetSnapshot(this IReadOnlyMovementHistory _movementHistory, double _time, IReadOnlyInputHistory _inputHistory)
         {
             Snapshot snapshot = new Snapshot();
@@ -35,37 +29,21 @@ namespace Wheeled.Gameplay.Movement
             }
             return snapshot;
         }
-
-        #endregion Public Methods
     }
 
-    internal sealed class MovementHistory : IReadOnlyMovementHistory
+    public sealed class MovementHistory : IReadOnlyMovementHistory
     {
-        #region Public Properties
-
         public double MaxPrevisionTime { get => m_maxPrevisionTime; set { Debug.Assert(value >= 0.0); m_maxPrevisionTime = value; } }
-
-        #endregion Public Properties
-
-        #region Private Fields
 
         private readonly LinkedListHistory<int, Sight> m_sightHistory;
         private readonly LinkedListHistory<int, CharacterController> m_simulationHistory;
         private double m_maxPrevisionTime;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public MovementHistory()
         {
             m_sightHistory = new LinkedListHistory<int, Sight>();
             m_simulationHistory = new LinkedListHistory<int, CharacterController>();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public void Trim(int _oldest)
         {
@@ -146,10 +124,6 @@ namespace Wheeled.Gameplay.Movement
             m_simulationHistory.Set(_step, _simulation);
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void PartialSimulate(IReadOnlyInputHistory _inputHistory, ref CharacterController _refSimulationStep, int _step, ref double _refDeltaTime, bool _canPredict)
         {
             void Simulate(ref CharacterController _refInnerSimulationStep, ref int _refInnerStep, ref double _refInnerDeltaTime, in InputStep _inputStep)
@@ -200,7 +174,5 @@ namespace Wheeled.Gameplay.Movement
                 }
             }
         }
-
-        #endregion Private Methods
     }
 }

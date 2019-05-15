@@ -5,39 +5,23 @@ using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.PlayerView;
 
-namespace Wheeled.Gameplay.Stage
+namespace Wheeled.Gameplay.Offense
 {
-    internal sealed class OffenseStage : EventHistory<ShotOffense>.ITarget
+    public sealed class OffenseStage : EventHistory<ShotOffense>.ITarget
     {
-        #region Private Classes
-
         private class PendingRocketShot
         {
-            #region Public Properties
-
             public bool IsGone { get; private set; }
-
-            #endregion Public Properties
-
-            #region Private Fields
 
             private readonly RocketShotOffense m_offense;
             private readonly double m_time;
             private RocketProjectileBehaviour m_behaviour;
-
-            #endregion Private Fields
-
-            #region Public Constructors
 
             public PendingRocketShot(double _time, RocketShotOffense _offense)
             {
                 m_offense = _offense;
                 m_time = _time;
             }
-
-            #endregion Public Constructors
-
-            #region Public Methods
 
             public void Update(double _time)
             {
@@ -62,10 +46,6 @@ namespace Wheeled.Gameplay.Stage
                 }
             }
 
-            #endregion Public Methods
-
-            #region Private Methods
-
             private Vector3 GetEnd()
             {
                 return m_offense.Hit ?? (GetOrigin() + m_offense.Sight.Direction * (float) (RocketShotOffense.c_velocity * RocketShotOffense.c_maxLifetime));
@@ -80,20 +60,10 @@ namespace Wheeled.Gameplay.Stage
             {
                 return GetOrigin() + m_offense.Sight.Direction * (float) (_elapsedTime * RocketShotOffense.c_velocity);
             }
-
-            #endregion Private Methods
         }
-
-        #endregion Private Classes
-
-        #region Private Fields
 
         private readonly EventHistory<ShotOffense> m_history;
         private readonly List<PendingRocketShot> m_pendingRocketShots;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public OffenseStage()
         {
@@ -103,10 +73,6 @@ namespace Wheeled.Gameplay.Stage
             };
             m_pendingRocketShots = new List<PendingRocketShot>();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public void Put(double _time, in RifleShotOffense _offense)
         {
@@ -146,7 +112,5 @@ namespace Wheeled.Gameplay.Stage
                 break;
             }
         }
-
-        #endregion Public Methods
     }
 }

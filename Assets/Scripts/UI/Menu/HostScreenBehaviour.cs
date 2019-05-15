@@ -9,14 +9,8 @@ namespace Wheeled.Menu
 {
     public sealed class HostScreenBehaviour : MonoBehaviour
     {
-        #region Public Fields
-
         public ListBehaviour arenaList;
         public InputField portField;
-
-        #endregion Public Fields
-
-        #region Public Methods
 
         public void StartGame()
         {
@@ -29,17 +23,11 @@ namespace Wheeled.Menu
             });
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void OnEnable()
         {
             portField.text = "9060";
             arenaList.Count = Scripts.Scenes.arenas.Length;
             arenaList.Index = 0;
         }
-
-        #endregion Private Methods
     }
 }

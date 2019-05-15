@@ -13,7 +13,7 @@ namespace Wheeled.Gameplay.PlayerView
 
         public Transform arm;
 
-        internal Vector3 GetPosition(Vector3 _playerPosition, Sight _playerSight)
+        public Vector3 GetPosition(Vector3 _playerPosition, Sight _playerSight)
         {
             Vector3 pre = transform.position - arm.position;
             return (_playerSight.Quaternion * pre) + arm.position + _playerPosition;

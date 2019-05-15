@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Wheeled.Gameplay.Movement
 {
-    internal sealed class MovementValidator
+    public sealed class MovementValidator
     {
         private readonly Node[] m_buffer;
         private SimulationStepInfo m_last;

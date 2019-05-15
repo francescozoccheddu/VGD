@@ -2,33 +2,21 @@
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
-using Wheeled.Gameplay.Stage;
+using Wheeled.Gameplay.Offense;
 
 namespace Wheeled.Networking.Client
 {
-    internal sealed partial class ClientGameManager
+    public sealed partial class ClientGameManager
     {
-        #region Private Classes
-
         private sealed class NetPlayer : ClientPlayer
         {
-            #region Public Properties
-
             public float AverageReplicationInterval => m_replicationTapper.AverageInterval;
             public override bool IsLocal => false;
-
-            #endregion Public Properties
-
-            #region Private Fields
 
             private readonly TimeConstants.Tapper m_replicationTapper;
             private readonly ClientGameManager m_manager;
 
             private bool m_wasAlive;
-
-            #endregion Private Fields
-
-            #region Public Constructors
 
             public NetPlayer(ClientGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
             {
@@ -36,10 +24,6 @@ namespace Wheeled.Networking.Client
                 m_wasAlive = false;
                 m_manager = _manager;
             }
-
-            #endregion Public Constructors
-
-            #region Public Methods
 
             public void SignalReplication()
             {
@@ -58,10 +42,6 @@ namespace Wheeled.Networking.Client
                 PutSight(_step, _snapshot.sight);
             }
 
-            #endregion Public Methods
-
-            #region Protected Methods
-
             protected override void OnUpdated()
             {
                 bool isAlive = LifeHistory.IsAlive(m_manager.m_time);
@@ -71,10 +51,6 @@ namespace Wheeled.Networking.Client
                 }
                 m_wasAlive = isAlive;
             }
-
-            #endregion Protected Methods
         }
-
-        #endregion Private Classes
     }
 }

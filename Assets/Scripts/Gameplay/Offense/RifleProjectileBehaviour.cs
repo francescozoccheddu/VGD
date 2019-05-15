@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Wheeled.Gameplay.Stage
+namespace Wheeled.Gameplay.Offense
 {
     public sealed class RifleProjectileBehaviour : MonoBehaviour
     {
@@ -13,7 +13,7 @@ namespace Wheeled.Gameplay.Stage
 
         private float m_elapsedTime;
 
-        internal void Shoot(Vector3 _origin, Vector3 _end, bool _hit)
+        public void Shoot(Vector3 _origin, Vector3 _end, bool _hit)
         {
             m_elapsedTime = 0.0f;
             transform.position = _origin;
@@ -26,8 +26,6 @@ namespace Wheeled.Gameplay.Stage
             int particleCount = Mathf.RoundToInt(rayDensity * c_maxParticles);
 
             particles.emission.SetBurst(0, new ParticleSystem.Burst { count = particleCount });
-            
-
             if (_hit)
             {
                 Instantiate(rifleHit, _end, transform.rotation);

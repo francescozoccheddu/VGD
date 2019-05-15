@@ -2,18 +2,12 @@
 
 namespace Wheeled.Core.Data
 {
-    internal static class Scripts
+    public static class Scripts
     {
-        #region Public Properties
-
         public static SceneScript Scenes => s_ManagerScript.scenes;
         public static PlayerPreferencesScript PlayerPreferences => s_ManagerScript.playerPreferences;
         public static CollisionScript Collisions => s_ManagerScript.collisions;
         public static ActorScript Actors => s_ManagerScript.actors;
-
-        #endregion Public Properties
-
-        #region Private Properties
 
         private static ManagerScript s_ManagerScript
         {
@@ -27,12 +21,6 @@ namespace Wheeled.Core.Data
             }
         }
 
-        #endregion Private Properties
-
-        #region Private Fields
-
         private static ManagerScript s_managerScript;
-
-        #endregion Private Fields
     }
 }

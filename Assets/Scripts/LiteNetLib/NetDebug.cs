@@ -47,30 +47,30 @@ namespace LiteNetLib
         }
 
         [Conditional("DEBUG_MESSAGES")]
-        internal static void Write(string str, params object[] args)
+        public static void Write(string str, params object[] args)
         {
             WriteLogic(NetLogLevel.Trace, str, args);
         }
 
         [Conditional("DEBUG_MESSAGES")]
-        internal static void Write(NetLogLevel level, string str, params object[] args)
+        public static void Write(NetLogLevel level, string str, params object[] args)
         {
             WriteLogic(level, str, args);
         }
 
         [Conditional("DEBUG_MESSAGES"), Conditional("DEBUG")]
-        internal static void WriteForce(string str, params object[] args)
+        public static void WriteForce(string str, params object[] args)
         {
             WriteLogic(NetLogLevel.Trace, str, args);
         }
 
         [Conditional("DEBUG_MESSAGES"), Conditional("DEBUG")]
-        internal static void WriteForce(NetLogLevel level, string str, params object[] args)
+        public static void WriteForce(NetLogLevel level, string str, params object[] args)
         {
             WriteLogic(level, str, args);
         }
 
-        internal static void WriteError(string str, params object[] args)
+        public static void WriteError(string str, params object[] args)
         {
             WriteLogic(NetLogLevel.Error, str, args);
         }

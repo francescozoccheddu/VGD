@@ -16,7 +16,7 @@ namespace Wheeled.HUD
         public RawImage iconImage;
         public RawImage background;
 
-        internal void Set(IReadOnlyPlayer _player)
+        public void Set(IReadOnlyPlayer _player)
         {
             Color color = _player.GetColor();
             nameText.color = color;

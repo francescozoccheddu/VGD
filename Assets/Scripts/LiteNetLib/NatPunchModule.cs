@@ -60,7 +60,7 @@ namespace LiteNetLib
 
         private INatPunchListener _natPunchListener;
 
-        internal NatPunchModule(NetSocket socket)
+        public NatPunchModule(NetSocket socket)
         {
             _socket = socket;
             _requestEvents = new Queue<RequestEventData>();
@@ -73,9 +73,9 @@ namespace LiteNetLib
         }
 
         public void NatIntroduce(
-            IPEndPoint hostInternal,
+            IPEndPoint hostpublic,
             IPEndPoint hostExternal,
-            IPEndPoint clientInternal,
+            IPEndPoint clientpublic,
             IPEndPoint clientExternal,
             string additionalInfo)
         {
@@ -85,7 +85,7 @@ namespace LiteNetLib
             //send to client
             dw.Put((byte)PacketProperty.NatIntroduction);
             dw.Put(ClientByte);
-            dw.Put(hostInternal);
+            dw.Put(hostpublic);
             dw.Put(hostExternal);
             dw.Put(additionalInfo, MaxTokenLength);
             SocketError errorCode = 0;
@@ -96,7 +96,7 @@ namespace LiteNetLib
             dw.Reset();
             dw.Put((byte)PacketProperty.NatIntroduction);
             dw.Put(HostByte);
-            dw.Put(clientInternal);
+            dw.Put(clientpublic);
             dw.Put(clientExternal);
             dw.Put(additionalInfo, MaxTokenLength);
             _socket.SendTo(dw.Data, 0, dw.Length, hostExternal, ref errorCode);
@@ -167,20 +167,20 @@ namespace LiteNetLib
         {
             // read intro
             byte hostByte = dr.GetByte();
-            IPEndPoint remoteInternal = dr.GetNetEndPoint();
+            IPEndPoint remotepublic = dr.GetNetEndPoint();
             IPEndPoint remoteExternal = dr.GetNetEndPoint();
             string token = dr.GetString(MaxTokenLength);
 
             NetDebug.Write(NetLogLevel.Trace, "[NAT] introduction received; we are designated " + (hostByte == HostByte ? "host" : "client"));
             NetDataWriter writer = new NetDataWriter();
 
-            // send internal punch
+            // send public punch
             writer.Put((byte)PacketProperty.NatPunchMessage);
             writer.Put(hostByte);
             writer.Put(token);
             SocketError errorCode = 0;
-            _socket.SendTo(writer.Data, 0, writer.Length, remoteInternal, ref errorCode);
-            NetDebug.Write(NetLogLevel.Trace, "[NAT] internal punch sent to " + remoteInternal);
+            _socket.SendTo(writer.Data, 0, writer.Length, remotepublic, ref errorCode);
+            NetDebug.Write(NetLogLevel.Trace, "[NAT] public punch sent to " + remotepublic);
 
             // send external punch
             writer.Reset();
@@ -216,7 +216,7 @@ namespace LiteNetLib
             }
         }
 
-        internal void ProcessMessage(IPEndPoint senderEndPoint, NetPacket packet)
+        public void ProcessMessage(IPEndPoint senderEndPoint, NetPacket packet)
         {
             var dr = new NetDataReader(packet.RawData, NetConstants.HeaderSize, packet.Size);
             switch (packet.Property)

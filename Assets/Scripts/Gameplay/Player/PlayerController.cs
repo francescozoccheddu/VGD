@@ -10,25 +10,15 @@ using Wheeled.UI.HUD.DamageMarker;
 
 namespace Wheeled.Gameplay.Player
 {
-    internal sealed class PlayerController : MovementController.ICommitTarget, ActionController.ITarget, EventHistory<PlayerController.DamagePerformInfo>.ITarget, EventHistory<OffenseType>.ITarget
+    public sealed class PlayerController : MovementController.ICommitTarget, ActionController.ITarget, EventHistory<PlayerController.DamagePerformInfo>.ITarget, EventHistory<EOffenseType>.ITarget
     {
-        #region Public Properties
-
         public int MovementStep => m_movementController.Step;
-
-        #endregion Public Properties
-
-        #region Private Fields
 
         private readonly ActionController m_actionController;
         private readonly MovementController m_movementController;
         private readonly EventHistory<DamagePerformInfo> m_damageHistory;
-        private readonly EventHistory<OffenseType> m_hitConfirmHistory;
+        private readonly EventHistory<EOffenseType> m_hitConfirmHistory;
         private readonly Player m_player;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public PlayerController(Player _player)
         {
@@ -45,16 +35,12 @@ namespace Wheeled.Gameplay.Player
             {
                 Target = this
             };
-            m_hitConfirmHistory = new EventHistory<OffenseType>
+            m_hitConfirmHistory = new EventHistory<EOffenseType>
             {
                 Target = this
             };
             DeathCameraManager.EnableDefault();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         struct DamagePerformInfo
         {
@@ -71,7 +57,7 @@ namespace Wheeled.Gameplay.Player
             }, false);
         }
 
-        public void PutHitConfirm(double _time, OffenseType _info)
+        public void PutHitConfirm(double _time, EOffenseType _info)
         {
             m_hitConfirmHistory.Put(_time, _info);
         }
@@ -99,7 +85,7 @@ namespace Wheeled.Gameplay.Player
             InGameHUDBehaviour.Instance.leftCrossHair.Color = InGameHUDBehaviour.Instance.rightCrossHair.Color = color;
         }
 
-        void EventHistory<OffenseType>.ITarget.Perform(double _time, OffenseType _value)
+        void EventHistory<EOffenseType>.ITarget.Perform(double _time, EOffenseType _value)
         {
             InGameHUDBehaviour.Instance.hitMarker.Hit();
         }
@@ -148,7 +134,5 @@ namespace Wheeled.Gameplay.Player
             m_movementController.UpdateUntil(m_player.LocalTime);
             m_player.PutSight(m_movementController.Step, m_movementController.RawSnapshot.sight);
         }
-
-        #endregion Public Methods
     }
 }

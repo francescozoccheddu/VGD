@@ -4,20 +4,14 @@ namespace Wheeled.Gameplay.PlayerView
 {
     public sealed class DeathBehaviour : MonoBehaviour
     {
-        #region Public Properties
-
         public CameraBehaviour cameraBehaviour;
         public RifleDisplayBehaviour rifleDisplayBehaviour;
 
         public bool IsDead { get; private set; }
 
-        #endregion Public Properties
-
-        #region Internal Methods
-
         public Animator animator;
 
-        internal void Die(Vector3 _velocity)
+        public void Die(Vector3 _velocity)
         {
             if (!IsDead)
             {
@@ -42,8 +36,6 @@ namespace Wheeled.Gameplay.PlayerView
                 }
             }
         }
-
-
-        #endregion Internal Methods
+        
     }
 }

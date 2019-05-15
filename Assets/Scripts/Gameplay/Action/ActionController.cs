@@ -4,30 +4,16 @@ using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Gameplay.Action
 {
-    internal sealed class ActionController
+    public sealed class ActionController
     {
-        #region Public Interfaces
-
         public interface ITarget
         {
-            #region Public Methods
-
             void Kaze(KazeInfo _info);
 
             void Shoot(ShotInfo _info);
-
-            #endregion Public Methods
         }
 
-        #endregion Public Interfaces
-
-        #region Public Properties
-
         public ITarget Target { get; set; }
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         public void Update(double _time, IReadOnlyPlayer _player)
         {
@@ -82,7 +68,5 @@ namespace Wheeled.Gameplay.Action
                 }
             }
         }
-
-        #endregion Public Methods
     }
 }

@@ -1,27 +1,21 @@
 ﻿using UnityEngine;
 
-namespace Wheeled.Gameplay.Stage
+namespace Wheeled.Gameplay.Offense
 {
     public sealed class RocketProjectileBehaviour : MonoBehaviour
     {
-        #region Public Fields
-
         public ParticleSystem particleSystemTrail;
         public MeshRenderer meshRenderer;
 
         public GameObject explosion;
 
-        #endregion Public Fields
-
-        #region Internal Methods
-
-        internal void Dissolve()
+        public void Dissolve()
         {
             particleSystemTrail.Stop();
             meshRenderer.enabled = false;
         }
 
-        internal void Explode(Vector3 _position)
+        public void Explode(Vector3 _position)
         {
             transform.position = _position;
 
@@ -30,17 +24,15 @@ namespace Wheeled.Gameplay.Stage
             meshRenderer.enabled = false;
         }
 
-        internal void Move(Vector3 _position)
+        public void Move(Vector3 _position)
         {
             transform.LookAt(_position);
             transform.position = _position;
         }
 
-        internal void Shoot(Vector3 _origin, Vector3 _direction)
+        public void Shoot(Vector3 _origin, Vector3 _direction)
         {
             transform.position = _origin;
         }
-
-        #endregion Internal Methods
     }
 }

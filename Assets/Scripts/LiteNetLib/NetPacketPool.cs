@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace LiteNetLib
 {
-    internal sealed class NetPacketPool
+    public sealed class NetPacketPool
     {
         private readonly NetPacket[] _pool = new NetPacket[NetConstants.PacketPoolSize];
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);

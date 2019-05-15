@@ -10,7 +10,7 @@ using Wheeled.Gameplay.Player;
 namespace Wheeled.UI.HUD
 {
 
-    internal static class PlayerUtils
+    public static class PlayerUtils
     {
 
         public static string GetName(this IReadOnlyPlayer _player, bool _colored = false)

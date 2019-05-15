@@ -6,11 +6,7 @@ namespace Wheeled.Networking
 
     public struct GameRoomInfo
     {
-        #region Public Fields
-
         public IPEndPoint endPoint;
         public byte map;
-
-        #endregion Public Fields
     }
 }

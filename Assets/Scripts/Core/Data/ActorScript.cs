@@ -6,8 +6,6 @@ namespace Wheeled.Core.Data
     [CreateAssetMenu]
     public sealed class ActorScript : ScriptableObject
     {
-        #region Public Fields
-
         [Header("Player")]
         public GameObject collisionProbe;
         public GameObject player;
@@ -16,7 +14,5 @@ namespace Wheeled.Core.Data
         public GameObject rifleProjectile;
         public GameObject rocketProjectile;
         public GameObject explosion;
-
-        #endregion Public Fields
     }
 }

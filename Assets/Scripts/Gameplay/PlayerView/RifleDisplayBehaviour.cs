@@ -1,62 +1,45 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class RifleDisplayBehaviour : MonoBehaviour
+namespace Wheeled.Gameplay.PlayerView
 {
-    #region Internal Properties
-
-    internal float Power { get; set; }
-
-    #endregion Internal Properties
-
-    #region Public Fields
-
-    public Text text;
-
-    public Color BaseColor { get; set; } = Color.red;
-    public Color FixColor { get; set; } = Color.gray;
-
-    #endregion Public Fields
-
-    #region Private Fields
-
-    private const float c_fixDuration = 1.0f;
-    private float m_timeSinceLastShot;
-    private float m_fixPower;
-
-    private string m_cachedText;
-
-    #endregion Private Fields
-
-    #region Internal Methods
-
-    internal void Shoot(float _power)
+    public class RifleDisplayBehaviour : MonoBehaviour
     {
-        m_timeSinceLastShot = 0.0f;
-        m_fixPower = _power;
-    }
+        public float Power { get; set; }
 
-    #endregion Internal Methods
+        public Text text;
 
-    #region Private Methods
+        public Color BaseColor { get; set; } = Color.red;
+        public Color FixColor { get; set; } = Color.gray;
 
-    private void Start()
-    {
-        m_timeSinceLastShot = c_fixDuration;
-    }
+        private const float c_fixDuration = 1.0f;
+        private float m_timeSinceLastShot;
+        private float m_fixPower;
 
-    private void Update()
-    {
-        m_timeSinceLastShot += Time.deltaTime;
-        bool fix = m_timeSinceLastShot < c_fixDuration;
-        float power = fix ? m_fixPower : Power;
-        string newText = Mathf.RoundToInt(power * 100.0f).ToString();
-        if (newText != text.text)
+        private string m_cachedText;
+
+        public void Shoot(float _power)
         {
-            text.text = newText;
+            m_timeSinceLastShot = 0.0f;
+            m_fixPower = _power;
         }
-        text.color = fix ? FixColor : BaseColor;
-    }
 
-    #endregion Private Methods
+        private void Start()
+        {
+            m_timeSinceLastShot = c_fixDuration;
+        }
+
+        private void Update()
+        {
+            m_timeSinceLastShot += Time.deltaTime;
+            bool fix = m_timeSinceLastShot < c_fixDuration;
+            float power = fix ? m_fixPower : Power;
+            string newText = Mathf.RoundToInt(power * 100.0f).ToString();
+            if (newText != text.text)
+            {
+                text.text = newText;
+            }
+            text.color = fix ? FixColor : BaseColor;
+        }
+    }
 }

@@ -96,7 +96,7 @@ namespace LiteNetLib
         /// <summary>
         /// On peer connection requested
         /// </summary>
-        /// <param name="request">Request information (EndPoint, internal id, additional data)</param>
+        /// <param name="request">Request information (EndPoint, public id, additional data)</param>
         void OnConnectionRequest(ConnectionRequest request);
     }
 
