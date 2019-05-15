@@ -23,6 +23,7 @@ namespace Wheeled.Gameplay.PlayerView
             m_head = Instantiate(_head, socket);
             var cameraBehaviour = GetComponent<CameraBehaviour>();
             cameraBehaviour.SetLocal(cameraBehaviour.IsLocal);
+            GetComponent<MaterialBehaviour>().SetMaterial();
         }
 
     }
