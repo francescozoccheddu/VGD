@@ -1638,7 +1638,7 @@ PrefabInstance:
     - target: {fileID: -927199367670048503, guid: d8877a3bcf1ffc84bbf1f4abe0990f5e,
         type: 3}
       propertyPath: m_Name
-      value: Menu stage
+      value: Stage
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: d8877a3bcf1ffc84bbf1f4abe0990f5e,
         type: 3}
@@ -3356,7 +3356,7 @@ PrefabInstance:
     - target: {fileID: -927199367670048503, guid: 433852760b170ef4f8949fbd07d06672,
         type: 3}
       propertyPath: m_Name
-      value: Menu
+      value: Scrap
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 433852760b170ef4f8949fbd07d06672,
         type: 3}
