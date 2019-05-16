@@ -2,7 +2,7 @@
 using UnityEngine;
 using Wheeled.Gameplay.Movement;
 
-namespace Wheeled.Gameplay.Scene
+namespace Wheeled.Scene
 {
     public sealed class SpawnManagerBehaviour : MonoBehaviour
     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking.Server
 {
@@ -55,7 +56,7 @@ namespace Wheeled.Networking.Server
         {
             if (m_game == null && IsStarted)
             {
-                m_game = new ServerGameManager(RoomInfo.Value.map);
+                m_game = new ServerGameManager(RoomInfo.Value);
             }
         }
 
@@ -69,7 +70,7 @@ namespace Wheeled.Networking.Server
         {
             NetworkManager.instance.listener = null;
             NetworkManager.instance.DisconnectAll();
-            m_game?.Stopped();
+            ((IGameManager)m_game)?.Stopped();
             m_game = null;
             IsStarted = false;
             RoomInfo = null;

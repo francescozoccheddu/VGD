@@ -13,7 +13,6 @@ namespace Wheeled.Networking.Server
         private sealed class NetPlayer : AuthoritativePlayer, MovementValidator.ITarget, ActionValidator.ITarget
         {
             public float AverageNotifyInterval => m_notifyTapper.AverageInterval;
-            public override bool IsLocal => false;
             public double MaxValidationDelay { get => m_maxValidationDelay; set { Debug.Assert(value >= 0.0); m_actionValidator.MaxDelay = value; m_maxValidationDelay = value; } }
             public NetworkManager.Peer Peer { get; }
 
@@ -29,7 +28,7 @@ namespace Wheeled.Networking.Server
             private int m_lastNotifyStep;
             private bool m_wasAlive;
 
-            public NetPlayer(ServerGameManager _manager, byte _id, NetworkManager.Peer _peer, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
+            public NetPlayer(ServerGameManager _manager, int _id, NetworkManager.Peer _peer, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage, false)
             {
                 Peer = _peer;
                 m_movementValidator = new MovementValidator(c_maxValidationAnticipation)

@@ -1,7 +1,25 @@
 ﻿#ifndef _INC_GENVERT
 #define _INC_GENVERT
 
-#include "Material.cginc"
+inline fixed3 _genvert_calcEmission (in fixed3 _albedo, in int _intensity)
+{
+	if (_intensity == 0)
+	{
+		return fixed3 (0.0, 0.0, 0.0);
+	}
+	else if (_intensity == 1)
+	{
+		return _albedo / 2.0;
+	}
+	else if (_intensity == 2)
+	{
+		return _albedo;
+	}
+	else
+	{
+		return _albedo + fixed3 (0.5, 0.5, 0.5);
+	}
+}
 
 struct Input
 {
@@ -19,7 +37,7 @@ void vert (inout appdata_full _in, out Input _out)
 	bool t = (met >> 5) & ((1 << 1) - 1);
 	_out.albedo = t ? _PaintColor : _in.color.rgb;
 	_out.material = m;
-	_out.emission = calcEmission (_out.albedo, e);
+	_out.emission = _genvert_calcEmission (_out.albedo, e);
 }
 
 #endif

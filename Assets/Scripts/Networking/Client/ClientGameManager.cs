@@ -8,20 +8,19 @@ using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Offense;
 using Wheeled.HUD;
+using Wheeled.Core;
 
 namespace Wheeled.Networking.Client
 {
-    public sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IPlayerManager, OffenseBackstage.IValidationTarget
+    public sealed partial class ClientGameManager : Updatable.ITarget, Client.IGameManager, IGameManager, OffenseBackstage.IValidationTarget
     {
         private abstract class ClientPlayer : Player
         {
-            private readonly ClientGameManager m_manager;
 
             private bool m_isQuit;
 
-            protected ClientPlayer(ClientGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
+            protected ClientPlayer(int _id, OffenseBackstage _offenseBackstage, bool _isLocal) : base(_id, _offenseBackstage, _isLocal)
             {
-                m_manager = _manager;
             }
 
             public void NotifyQuit()
@@ -29,7 +28,7 @@ namespace Wheeled.Networking.Client
                 if (!m_isQuit)
                 {
                     m_isQuit = true;
-                    m_manager.MatchBoard.Put(m_manager.m_time, new EventBoardDispatcher.QuitEvent
+                    EventBoardBehaviour.Instance.Put(GameManager.Current.Time, new EventBoardBehaviour.QuitEvent
                     {
                         player = this
                     });
@@ -39,17 +38,22 @@ namespace Wheeled.Networking.Client
             protected override void OnUpdated()
             {
                 base.OnUpdated();
-                if (!m_isQuit && IsQuit(m_manager.m_time))
+                if (!m_isQuit && IsQuit(GameManager.Current.Time))
                 {
                     NotifyQuit();
                 }
             }
         }
 
-        double IPlayerManager.Time => m_time;
-        public EventBoardDispatcher MatchBoard { get; }
+        double IGameManager.Time => m_time;
 
         private IEnumerable<NetPlayer> m_NetPlayers => m_players.Values.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
+
+        GameRoomInfo IGameManager.Room => m_room;
+
+        IEnumerable<IReadOnlyPlayer> IGameManager.Players => m_players.Values;
+
+        IReadOnlyPlayer IGameManager.LocalPlayer => m_localPlayer;
 
         public const double c_netOffset = 0.025;
 
@@ -59,15 +63,19 @@ namespace Wheeled.Networking.Client
         private readonly OffenseBackstage m_offenseBackstage;
         private readonly OffenseBackstage m_localOffenseBackstage;
         private readonly LocalPlayer m_localPlayer;
-        private readonly Dictionary<byte, ClientPlayer> m_players;
+        private readonly Dictionary<int, ClientPlayer> m_players;
         private readonly Client.IServer m_server;
         private readonly Updatable m_updatable;
         private bool m_isRunning;
         private double m_targetTime;
         private double m_time;
 
-        public ClientGameManager(Client.IServer _server, byte _id)
+        private readonly GameRoomInfo m_room;
+
+        public ClientGameManager(Client.IServer _server, int _id, GameRoomInfo _roomInfo)
         {
+            GameManager.SetCurrentGameManager(this);
+            m_room = _roomInfo;
             Debug.Log("ClientGameManager started");
             m_offenseBackstage = new OffenseBackstage
             {
@@ -89,11 +97,10 @@ namespace Wheeled.Networking.Client
                 MaxMovementNotifyFrequency = 15,
                 Info = PlayerPreferences.Info
             };
-            m_players = new Dictionary<byte, ClientPlayer>
+            m_players = new Dictionary<int, ClientPlayer>
             {
                 { _id, m_localPlayer }
             };
-            MatchBoard = new EventBoardDispatcher();
             // Ready notify
             Serializer.WriteReady();
             m_server.Send(NetworkManager.ESendMethod.ReliableUnordered);
@@ -119,13 +126,12 @@ namespace Wheeled.Networking.Client
                     p.Update();
                 }
                 double forgetTime = m_time - c_quitForgetDelay;
-                foreach (KeyValuePair<byte, ClientPlayer> p in (from p in m_players where p.Value.IsQuit(forgetTime) select p).ToList())
+                foreach (KeyValuePair<int, ClientPlayer> p in (from p in m_players where p.Value.IsQuit(forgetTime) select p).ToList())
                 {
                     p.Value.NotifyQuit();
                     p.Value.Destroy();
                     m_players.Remove(p.Key);
                 }
-                MatchBoard.UpdateUntil(m_time);
             }
         }
 
@@ -149,11 +155,11 @@ namespace Wheeled.Networking.Client
                    select new OffenseBackstage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(time) };
         }
 
-        void OffenseBackstage.IValidationTarget.Damage(double _time, byte _offendedId, Offense _offense, float _damage)
+        void OffenseBackstage.IValidationTarget.Damage(double _time, int _offendedId, Offense _offense, float _damage)
         {
         }
 
-        private ClientPlayer GetPlayerById(byte _id)
+        private ClientPlayer GetPlayerById(int _id)
         {
             if (m_players.TryGetValue(_id, out ClientPlayer player))
             {
@@ -176,7 +182,7 @@ namespace Wheeled.Networking.Client
             ScoreBoardBehaviour.UpdateEntriesMain(players);
         }
 
-        private Player GetOrCreatePlayer(byte _id)
+        private Player GetOrCreatePlayer(int _id)
         {
             if (m_players.TryGetValue(_id, out ClientPlayer player))
             {
@@ -184,12 +190,12 @@ namespace Wheeled.Networking.Client
             }
             else
             {
-                NetPlayer newNetPlayer = new NetPlayer(this, _id, m_offenseBackstage)
+                NetPlayer newNetPlayer = new NetPlayer(_id, m_offenseBackstage)
                 {
                     HistoryDuration = 2.0,
                 };
                 m_players.Add(_id, newNetPlayer);
-                MatchBoard.Put(m_time, new EventBoardDispatcher.JoinEvent
+                EventBoardBehaviour.Instance.Put(m_time, new EventBoardBehaviour.JoinEvent
                 {
                     player = newNetPlayer
                 });
@@ -197,5 +203,12 @@ namespace Wheeled.Networking.Client
                 return newNetPlayer;
             }
         }
+
+        IReadOnlyPlayer IGameManager.GetPlayerById(int _id)
+        {
+            return GetPlayerById(_id);
+        }
+
+   
     }
 }

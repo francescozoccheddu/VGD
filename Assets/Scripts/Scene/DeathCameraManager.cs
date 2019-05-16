@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Wheeled.Core.Data;
 
-namespace Wheeled.Gameplay.Scene
+namespace Wheeled.Scene
 {
     public static class DeathCameraManager
     {

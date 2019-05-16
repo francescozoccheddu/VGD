@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Wheeled.Core;
 using Wheeled.Core.Data;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
+using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.PlayerView;
+using Wheeled.UI.HUD;
 
 namespace Wheeled.Gameplay.Offense
 {
@@ -15,7 +18,7 @@ namespace Wheeled.Gameplay.Offense
 
             private readonly RocketShotOffense m_offense;
             private readonly double m_time;
-            private RocketProjectileBehaviour m_behaviour;
+            private RocketBehaviour m_behaviour;
 
             public PendingRocketShot(double _time, RocketShotOffense _offense)
             {
@@ -30,7 +33,9 @@ namespace Wheeled.Gameplay.Offense
                 Vector3 end = GetEnd();
                 if (m_behaviour == null)
                 {
-                    m_behaviour = Object.Instantiate(Scripts.Actors.rocketProjectile, origin, Quaternion.FromToRotation(origin, end)).GetComponent<RocketProjectileBehaviour>();
+                    
+                    m_behaviour = Object.Instantiate(Scripts.Actors.rocketProjectile, origin, Quaternion.FromToRotation(origin, end)).GetComponent<RocketBehaviour>();
+                    m_behaviour.SetColor(GameManager.Current.GetPlayerById(m_offense.OffenderId).GetColor());
                 }
                 float progress = (float) (RocketShotOffense.c_velocity * elapsed / Vector3.Distance(origin, end));
                 Vector3 position = Vector3.Lerp(origin, end, progress);
@@ -104,9 +109,10 @@ namespace Wheeled.Gameplay.Offense
 
                 case RifleShotOffense o:
                 {
-                    RifleProjectileBehaviour behaviour = Object.Instantiate(Scripts.Actors.rifleProjectile).GetComponent<RifleProjectileBehaviour>();
+                    LaserBehaviour behaviour = Object.Instantiate(Scripts.Actors.rifleProjectile).GetComponent<LaserBehaviour>();
                     Vector3 origin = SocketsManagerBehaviour.Instance.rifle.GetPosition(o.Origin, o.Sight);
                     Vector3 end = o.Hit ?? (o.Origin + o.Sight.Direction * RifleShotOffense.c_maxDistance);
+                    behaviour.SetColor(GameManager.Current.GetPlayerById(o.OffenderId).GetColor());
                     behaviour.Shoot(origin, end, o.Hit != null);
                 }
                 break;

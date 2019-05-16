@@ -44,7 +44,7 @@ namespace Wheeled.HUD
             }
             while (i < list.childCount)
             {
-                Destroy(list.GetChild(i));
+                Destroy(list.GetChild(i).gameObject);
                 i++;
             }
         }

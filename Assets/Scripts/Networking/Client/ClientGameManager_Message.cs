@@ -32,7 +32,7 @@ namespace Wheeled.Networking.Client
 
                 case EMessage.PlayerIntroductionSync:
                 {
-                    _reader.ReadPlayerIntroduction(out byte id, out PlayerInfo info);
+                    _reader.ReadPlayerIntroduction(out int id, out PlayerInfo info);
                     GetOrCreatePlayer(id).Info = info;
                     UpdateScoreBoard();
                 }
@@ -41,7 +41,7 @@ namespace Wheeled.Networking.Client
                 case EMessage.RecapSync:
                 {
                     _reader.ReadRecapSync(out double time, out IEnumerable<PlayerRecapInfo> infos);
-                    Dictionary<byte, ClientPlayer> oldPlayers = new Dictionary<byte, ClientPlayer>(m_players);
+                    Dictionary<int, ClientPlayer> oldPlayers = new Dictionary<int, ClientPlayer>(m_players);
                     foreach (PlayerRecapInfo info in infos)
                     {
                         Player player = GetOrCreatePlayer(info.id);
@@ -60,7 +60,7 @@ namespace Wheeled.Networking.Client
 
                 case EMessage.QuitReplication:
                 {
-                    _reader.ReadQuitReplication(out double time, out byte id);
+                    _reader.ReadQuitReplication(out double time, out int id);
                     if (m_players.TryGetValue(id, out ClientPlayer player))
                     {
                         player.PutQuit(time);
@@ -82,7 +82,7 @@ namespace Wheeled.Networking.Client
 
                 case EMessage.MovementReplication:
                 {
-                    _reader.ReadMovementReplication(out byte id, out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
+                    _reader.ReadMovementReplication(out int id, out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
                     if (m_isRunning && step > m_time.CeilingSimulationSteps() + c_maxStepAdvance)
                     {
                         break;
@@ -95,14 +95,14 @@ namespace Wheeled.Networking.Client
 
                 case EMessage.SpawnOrderOrReplication:
                 {
-                    _reader.ReadSpawnOrderOrReplication(out double time, out byte id, out SpawnInfo spawnInfo);
+                    _reader.ReadSpawnOrderOrReplication(out double time, out int id, out SpawnInfo spawnInfo);
                     GetOrCreatePlayer(id).PutSpawn(time, spawnInfo);
                 }
                 break;
 
                 case EMessage.DamageOrderOrReplication:
                 {
-                    _reader.ReadDamageOrderOrReplication(out double time, out byte id, out DamageInfo info);
+                    _reader.ReadDamageOrderOrReplication(out double time, out int id, out DamageInfo info);
                     GetOrCreatePlayer(id).PutDamage(time, info);
                     if (info.offenderId == m_localPlayer.Id)
                     {
@@ -113,7 +113,7 @@ namespace Wheeled.Networking.Client
 
                 case EMessage.ShootReplication:
                 {
-                    _reader.ReadShotReplication(out double time, out byte id, out ShotInfo info);
+                    _reader.ReadShotReplication(out double time, out int id, out ShotInfo info);
                     NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
                     player?.PutShot(time, info);
                 }
@@ -126,7 +126,7 @@ namespace Wheeled.Networking.Client
                     Player victim = GetOrCreatePlayer(info.victimId);
                     killer.KillsValue.Put(time, info.killerKills);
                     victim.DeathsValue.Put(time, info.victimDeaths);
-                    MatchBoard.Put(m_time, new EventBoardDispatcher.KillEvent
+                    EventBoardBehaviour.Instance.Put(m_time, new EventBoardBehaviour.KillEvent
                     {
                         killer = killer,
                         victim = victim,

@@ -4,16 +4,16 @@ using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.PlayerView;
-using Wheeled.Gameplay.Scene;
+using Wheeled.Scene;
 using Wheeled.Gameplay.Offense;
+using Wheeled.Core;
 
 namespace Wheeled.Gameplay.Player
 {
     public interface IReadOnlyPlayer
     {
-        byte Id { get; }
+        int Id { get; }
         PlayerInfo? Info { get; }
-        bool IsLocal { get; }
         double LocalTime { get; }
         double TimeOffset { get; }
 
@@ -34,12 +34,23 @@ namespace Wheeled.Gameplay.Player
         {
             return _player.MovementHistory.GetSnapshot(_time, _player.InputHistory);
         }
+
+        public static bool IsLocal(this IReadOnlyPlayer _player)
+        {
+            return _player == GameManager.Current.LocalPlayer;
+        }
+
+        public static Color GetColor(this IReadOnlyPlayer _player)
+        {
+            return Scripts.PlayerPreferences.colors[_player.Info?.color ?? 0];
+        }
+
     }
 
     public abstract class Player : IReadOnlyPlayer, EventHistory<SpawnInfo>.ITarget, EventHistory<bool>.ITarget
     {
         public double HistoryDuration { get => m_historyDuration; set { Debug.Assert(value >= 0.0); m_historyDuration = value; } }
-        public byte Id { get; }
+        public int Id { get; }
         public PlayerInfo? Info
         {
             get => m_info;
@@ -54,8 +65,7 @@ namespace Wheeled.Gameplay.Player
                 }
             }
         }
-        public abstract bool IsLocal { get; }
-        public double LocalTime => m_manager.Time + TimeOffset;
+        public double LocalTime => GameManager.Current.Time + TimeOffset;
         public double TimeOffset { get; set; }
 
         // Status
@@ -72,8 +82,6 @@ namespace Wheeled.Gameplay.Player
         public int Deaths => DeathsValue.Value;
         public int Kills => KillsValue.Value;
 
-        // Logic
-        private readonly IPlayerManager m_manager;
         // Components
         private readonly OffenseStage m_offenseStage;
         private readonly PlayerView.PlayerView m_view;
@@ -89,19 +97,18 @@ namespace Wheeled.Gameplay.Player
         private double m_quitTime;
         private PlayerInfo? m_info;
 
-        protected Player(IPlayerManager _manager, byte _id, OffenseBackstage _offenseBackstage)
+        protected Player(int _id, OffenseBackstage _offenseBackstage, bool _isLocal)
         {
             // Logic
             Id = _id;
-            m_manager = _manager;
             m_offenseBackstage = _offenseBackstage;
             m_view = new PlayerView.PlayerView()
             {
-                IsLocal = IsLocal,
+                IsLocal = _isLocal,
                 sightInterpolationQuickness = 5.0f,
-                isSightInterpolationEnabled = !IsLocal,
+                isSightInterpolationEnabled = !_isLocal,
                 isPositionInterpolationEnabled = true,
-                positionInterpolationQuickness = IsLocal ? 25.0f : 20.0f
+                positionInterpolationQuickness = _isLocal ? 25.0f : 20.0f
             };
             m_shootHistory = new EventHistory<bool>()
             {
@@ -310,7 +317,7 @@ namespace Wheeled.Gameplay.Player
 
         private void Trim()
         {
-            double lastTime = m_manager.Time - HistoryDuration;
+            double lastTime = GameManager.Current.Time - HistoryDuration;
             int lastStep = lastTime.SimulationSteps();
             m_inputHistory.Trim(lastStep);
             m_lifeHistory.Trim(lastTime);
@@ -338,7 +345,7 @@ namespace Wheeled.Gameplay.Player
     public struct PlayerInfo
     {
         public string name;
-        public byte head;
-        public byte color;
+        public int head;
+        public int color;
     }
 }

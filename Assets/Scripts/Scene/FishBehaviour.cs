@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Wheeled.Core.Utils
+namespace Wheeled.Utils
 {
-    public sealed class AnimationSpeedRandomizerBehaviour : MonoBehaviour
+    public sealed class FishBehaviour : MonoBehaviour
     {
 
         public int seed = 0;

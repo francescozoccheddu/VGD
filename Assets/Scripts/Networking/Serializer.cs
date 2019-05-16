@@ -14,19 +14,17 @@ namespace Wheeled.Networking
     {
         public static readonly NetDataWriter writer = new NetDataWriter(true, 128);
 
-        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double)];
-
-        public static void WriteDiscoveryInfo(byte _arena)
+        public static void WriteDiscoveryInfo(int _arena)
         {
             writer.Reset();
-            writer.Put(_arena);
+            writer.PutAsByte(_arena);
         }
 
-        public static void WriteMovementAndInputReplication(byte _id, int _step, IEnumerable<InputStep> _inputSteps, in Snapshot _snapshot)
+        public static void WriteMovementAndInputReplication(int _id, int _step, IEnumerable<InputStep> _inputSteps, in Snapshot _snapshot)
         {
             writer.Reset();
             writer.Put(EMessage.MovementReplication);
-            writer.Put(_id);
+            writer.PutAsByte(_id);
             writer.Put(_step);
             writer.Put(_snapshot);
             writer.Put(_inputSteps, (_writer, _item) => _writer.Put(_item));
@@ -49,12 +47,12 @@ namespace Wheeled.Networking
             writer.Put(_simulationStepInfo);
         }
 
-        public static void WriteDamageOrderOrReplication(double _time, byte _id, DamageInfo _info)
+        public static void WriteDamageOrderOrReplication(double _time, int _id, DamageInfo _info)
         {
             writer.Reset();
             writer.Put(EMessage.DamageOrderOrReplication);
             writer.Put(_time);
-            writer.Put(_id);
+            writer.PutAsByte(_id);
             writer.Put(_info);
         }
 
@@ -74,50 +72,50 @@ namespace Wheeled.Networking
             writer.Put(_info);
         }
 
-        public static void WriteShootReplication(double _time, byte _id, ShotInfo _info)
+        public static void WriteShootReplication(double _time, int _id, ShotInfo _info)
         {
             writer.Reset();
             writer.Put(EMessage.ShootReplication);
             writer.Put(_time);
-            writer.Put(_id);
+            writer.PutAsByte(_id);
             writer.Put(_info);
         }
 
-        public static void WriteSpawnOrderOrReplication(double _time, byte _id, SpawnInfo _info)
+        public static void WriteSpawnOrderOrReplication(double _time, int _id, SpawnInfo _info)
         {
             writer.Reset();
             writer.Put(EMessage.SpawnOrderOrReplication);
             writer.Put(_time);
-            writer.Put(_id);
+            writer.PutAsByte(_id);
             writer.Put(_info);
         }
 
-        public static void WritePlayerIntroductionSync(byte _id, PlayerInfo _info)
+        public static void WritePlayerIntroductionSync(int _id, PlayerInfo _info)
         {
             writer.Reset();
             writer.Put(EMessage.PlayerIntroductionSync);
-            writer.Put(_id);
+            writer.PutAsByte(_id);
             writer.Put(_info);
         }
 
-        public static void WritePlayerWelcomeSync(byte _id, byte _map)
+        public static void WritePlayerWelcomeSync(int _id, int _arena)
         {
             writer.Reset();
             writer.Put(EMessage.PlayerWelcomeSync);
-            writer.Put(_id);
-            writer.Put(_map);
+            writer.PutAsByte(_id);
+            writer.PutAsByte(_arena);
             // Checksum
-            writer.Put((byte) (255 - _id));
-            writer.Put(_id);
-            writer.Put((byte) (255 - _id));
+            writer.PutAsByte(255 - _id);
+            writer.PutAsByte(_id);
+            writer.PutAsByte(255 - _id);
         }
 
-        public static void WriteQuitReplication(double _time, byte _id)
+        public static void WriteQuitReplication(double _time, int _id)
         {
             writer.Reset();
             writer.Put(EMessage.QuitReplication);
             writer.Put(_time);
-            writer.Put(_id);
+            writer.PutAsByte(_id);
         }
 
         public static void WriteReady()
@@ -207,8 +205,8 @@ namespace Wheeled.Networking
         private static void Put(this NetDataWriter _netDataWriter, in PlayerInfo _value)
         {
             _netDataWriter.Put(_value.name);
-            _netDataWriter.Put(_value.color);
-            _netDataWriter.Put(_value.head);
+            _netDataWriter.PutAsByte(_value.color);
+            _netDataWriter.PutAsByte(_value.head);
         }
 
         private static byte ConvertHealth(int _health)
@@ -218,18 +216,18 @@ namespace Wheeled.Networking
 
         private static void Put(this NetDataWriter _netDataWriter, in PlayerRecapInfo _value)
         {
-            _netDataWriter.Put(_value.id);
-            _netDataWriter.Put((byte) _value.kills);
-            _netDataWriter.Put((byte) _value.deaths);
-            _netDataWriter.Put(ConvertHealth(_value.health));
-            _netDataWriter.Put(_value.ping);
+            _netDataWriter.PutAsByte(_value.id);
+            _netDataWriter.PutAsByte(_value.kills);
+            _netDataWriter.PutAsByte(_value.deaths);
+            _netDataWriter.PutAsByte(ConvertHealth(_value.health));
+            _netDataWriter.PutAsByte(_value.ping);
         }
 
         private static void Put(this NetDataWriter _netDataWriter, in DamageInfo _value)
         {
-            _netDataWriter.Put(ConvertHealth(_value.damage));
-            _netDataWriter.Put(ConvertHealth(_value.maxHealth));
-            _netDataWriter.Put(_value.offenderId);
+            _netDataWriter.PutAsByte(ConvertHealth(_value.damage));
+            _netDataWriter.PutAsByte(ConvertHealth(_value.maxHealth));
+            _netDataWriter.PutAsByte(_value.offenderId);
             _netDataWriter.Put(_value.offenseType);
         }
 
@@ -242,7 +240,7 @@ namespace Wheeled.Networking
 
         private static void Put(this NetDataWriter _netDataWriter, in SpawnInfo _value)
         {
-            _netDataWriter.Put((byte) _value.spawnPoint);
+            _netDataWriter.PutAsByte(_value.spawnPoint);
         }
 
         private static void Put(this NetDataWriter _netDataWriter, in KazeInfo _value)
@@ -253,7 +251,7 @@ namespace Wheeled.Networking
         private static void Put<T>(this NetDataWriter _netDataWriter, IEnumerable<T> _value, Action<NetDataWriter, T> _put)
         {
             int countPosition = _netDataWriter.Length;
-            _netDataWriter.Put((byte) 0);
+            _netDataWriter.PutAsByte(0);
             int count = 0;
             foreach (T item in _value)
             {
@@ -269,11 +267,17 @@ namespace Wheeled.Networking
 
         private static void Put(this NetDataWriter _netDataWriter, in KillInfo _value)
         {
-            _netDataWriter.Put(_value.killerId);
-            _netDataWriter.Put(_value.victimId);
+            _netDataWriter.PutAsByte(_value.killerId);
+            _netDataWriter.PutAsByte(_value.victimId);
             _netDataWriter.Put(_value.offenseType);
-            _netDataWriter.Put(_value.killerKills);
-            _netDataWriter.Put(_value.victimDeaths);
+            _netDataWriter.PutAsByte(_value.killerKills);
+            _netDataWriter.PutAsByte(_value.victimDeaths);
         }
+
+        private static void PutAsByte(this NetDataWriter _netDataWriter, int _value)
+        {
+            _netDataWriter.Put((byte) Mathf.Clamp(_value, 0, 255));
+        }
+
     }
 }

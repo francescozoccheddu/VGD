@@ -3,7 +3,7 @@ using Wheeled.Core.Data;
 using Wheeled.Core.Utils;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
-using Wheeled.Gameplay.Scene;
+using Wheeled.Scene;
 using Wheeled.HUD;
 using Wheeled.UI.HUD;
 using Wheeled.UI.HUD.DamageMarker;

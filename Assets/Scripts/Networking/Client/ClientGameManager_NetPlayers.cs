@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using Wheeled.Core;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Offense;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking.Client
 {
@@ -11,18 +13,15 @@ namespace Wheeled.Networking.Client
         private sealed class NetPlayer : ClientPlayer
         {
             public float AverageReplicationInterval => m_replicationTapper.AverageInterval;
-            public override bool IsLocal => false;
 
             private readonly TimeConstants.Tapper m_replicationTapper;
-            private readonly ClientGameManager m_manager;
 
             private bool m_wasAlive;
 
-            public NetPlayer(ClientGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
+            public NetPlayer(int _id, OffenseBackstage _offenseBackstage) : base(_id, _offenseBackstage, false)
             {
                 m_replicationTapper = new TimeConstants.Tapper(1.0f);
                 m_wasAlive = false;
-                m_manager = _manager;
             }
 
             public void SignalReplication()
@@ -44,7 +43,7 @@ namespace Wheeled.Networking.Client
 
             protected override void OnUpdated()
             {
-                bool isAlive = LifeHistory.IsAlive(m_manager.m_time);
+                bool isAlive = LifeHistory.IsAlive(GameManager.Current.Time);
                 if (!m_wasAlive && isAlive)
                 {
                     m_replicationTapper.QuietTap();

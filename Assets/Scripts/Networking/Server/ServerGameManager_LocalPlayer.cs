@@ -10,11 +10,10 @@ namespace Wheeled.Networking.Server
     {
         private sealed class LocalPlayer : AuthoritativePlayer
         {
-            public override bool IsLocal => true;
 
             private readonly PlayerController m_playerController;
 
-            public LocalPlayer(ServerGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage) => m_playerController = new PlayerController(this);
+            public LocalPlayer(ServerGameManager _manager, int _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage, true) => m_playerController = new PlayerController(this);
 
             public void PutHitConfirm(double _time, EOffenseType _type) => m_playerController.PutHitConfirm(_time, _type);
 

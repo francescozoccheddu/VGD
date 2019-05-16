@@ -19,7 +19,7 @@ namespace Wheeled.Menu
             GameLauncher.Instance.StartGameAsServer(new GameRoomInfo
             {
                 endPoint = new IPEndPoint(IPAddress.Loopback, port),
-                map = (byte) arena
+                arena = arena
             });
         }
 
