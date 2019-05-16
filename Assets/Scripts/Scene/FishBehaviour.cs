@@ -27,7 +27,7 @@ namespace Wheeled.Utils
         private void Update()
         {
             m_progress += Time.deltaTime * frequency;
-            float speed = Mathf.PerlinNoise(m_progress, seed);
+            float speed = Mathf.LerpUnclamped(minSpeed, maxSpeed, Mathf.PerlinNoise(m_progress, seed));
             foreach (Animator animator in animators)
             {
                 animator.speed = speed;
