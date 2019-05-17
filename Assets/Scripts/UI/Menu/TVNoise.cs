@@ -11,7 +11,7 @@ namespace Wheeled.UI.Menu
     {
 
         public RawImage noiseImage;
-        public Light light;
+        public new Light light;
 
         [Range(0.0f, 1.0f)]
         public float alpha = 0.5f;

@@ -45,8 +45,6 @@ namespace Wheeled.Networking.Server
 
         private double m_lastTimeSyncTime;
 
-        private readonly int m_arena;
-
         public ServerGameManager(GameRoomInfo _roomInfo)
         {
             GameManager.SetCurrentGameManager(this);
@@ -114,7 +112,7 @@ namespace Wheeled.Networking.Server
             if (ProcessPlayerMessage(_peer, out NetPlayer netPlayer))
             {
                 // Welcome
-                Serializer.WritePlayerWelcomeSync(netPlayer.Id, m_arena);
+                Serializer.WritePlayerWelcomeSync(netPlayer.Id, m_room.arena);
                 netPlayer.Peer.Send(NetworkManager.ESendMethod.ReliableUnordered);
                 // Introduction (so that he knows the others)
                 foreach (AuthoritativePlayer p in m_players.Where(_p => _p != netPlayer))
@@ -139,7 +137,6 @@ namespace Wheeled.Networking.Server
         void Server.IGameManager.LatencyUpdated(NetworkManager.Peer _peer, double _latency)
         {
             GetNetPlayerByPeer(_peer)?.PingValue.Put(m_time, Mathf.RoundToInt((float) (_latency * 1000.0)));
-            UpdateScoreBoard();
         }
 
         void Server.IGameManager.ReceivedFrom(NetworkManager.Peer _peer, Deserializer _reader)
@@ -258,14 +255,6 @@ namespace Wheeled.Networking.Server
             return !GetPlayerById(_offense.OffenderId)?.IsQuit(_time) == true;
         }
 
-        private void UpdateScoreBoard()
-        {
-            IEnumerable<AuthoritativePlayer> players = from p
-                                                       in m_players
-                                                       where p.IsStarted && !p.IsQuit(m_time)
-                                                       select p;
-            ScoreBoardBehaviour.UpdateEntriesMain(players);
-        }
 
         private void WriteRecapSync()
         {
@@ -319,10 +308,6 @@ namespace Wheeled.Networking.Server
         }
 
         IReadOnlyPlayer IGameManager.GetPlayerById(int _id) => GetPlayerById(_id);
-
-        public IEnumerable<IReadOnlyPlayer> GetPlayers() => m_players;
-
-        public IReadOnlyPlayer GetLocalPlayer() => m_localPlayer;
 
     }
 }

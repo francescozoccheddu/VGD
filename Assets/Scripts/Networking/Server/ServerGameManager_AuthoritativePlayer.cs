@@ -76,7 +76,6 @@ namespace Wheeled.Networking.Server
                 {
                     IsStarted = true;
                     Spawn();
-                    m_manager.UpdateScoreBoard();
                 }
             }
 
@@ -126,7 +125,6 @@ namespace Wheeled.Networking.Server
                     player = this
                 });
                 Destroy();
-                m_manager.UpdateScoreBoard();
             }
 
             protected override void OnShotScheduled(double _time, ShotInfo _info)
@@ -194,7 +192,6 @@ namespace Wheeled.Networking.Server
                         offenseType = _node.damage.offenseType
                     });
                     m_manager.SendAll(NetworkManager.ESendMethod.ReliableSequenced);
-                    m_manager.UpdateScoreBoard();
                 }
             }
 

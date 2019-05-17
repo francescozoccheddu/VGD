@@ -34,7 +34,6 @@ namespace Wheeled.Networking.Client
                 {
                     _reader.ReadPlayerIntroduction(out int id, out PlayerInfo info);
                     GetOrCreatePlayer(id).Info = info;
-                    UpdateScoreBoard();
                 }
                 break;
 
@@ -54,7 +53,6 @@ namespace Wheeled.Networking.Client
                     {
                         oldPlayer.PutQuit(time);
                     }
-                    UpdateScoreBoard();
                 }
                 break;
 
@@ -65,7 +63,6 @@ namespace Wheeled.Networking.Client
                     {
                         player.PutQuit(time);
                     }
-                    UpdateScoreBoard();
                 }
                 break;
 
@@ -132,7 +129,6 @@ namespace Wheeled.Networking.Client
                         victim = victim,
                         offenseType = info.offenseType
                     });
-                    UpdateScoreBoard();
                 }
                 break;
             }
