@@ -30,7 +30,6 @@ namespace Wheeled.Scene
         private void RandomizeScene()
         {
             Color killerColor = GetRandom(Scripts.PlayerPreferences.colors);
-            Debug.Log(killerColor);
             killerMaterial.Color = killerColor;
             rocketMaterial.SetColor(killerColor);
             scrapMaterial.Color = GetRandom(Scripts.PlayerPreferences.colors);
