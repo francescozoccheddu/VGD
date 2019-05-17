@@ -2,6 +2,8 @@
 
 namespace Wheeled.Gameplay.PlayerView
 {
+
+    [ExecuteInEditMode]
     public class SightBehaviour : MonoBehaviour
     {
 
