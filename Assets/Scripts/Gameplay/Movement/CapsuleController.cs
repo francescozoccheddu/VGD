@@ -52,7 +52,7 @@ public struct CapsuleController
     private const int c_maxMoveIteractions = 2;
     private const float c_overShoot = 0.5f;
     private const float c_skin = 0.1f;
-    private const float c_groundOffset = 0.01f;
+    private const float c_groundOffset = 0.1f;
     private const float c_maxSlopeAngle = 50.0f;
     private const float c_maxHeight = 10.0f;
     private static readonly Vector3 s_emergencyRespawnPoint = new Vector3(0.0f, 5.0f, 0.0f);

@@ -824,7 +824,7 @@ MonoBehaviour:
   seed: 6
   frequency: 0.2
   minSpeed: 0.8
-  maxSpeed: 1.2
+  maxSpeed: 1.5
   animators:
   - {fileID: 400240922}
   - {fileID: 1936964689}
@@ -1524,7 +1524,7 @@ MonoBehaviour:
   seed: 7
   frequency: 0.2
   minSpeed: 0.8
-  maxSpeed: 1.2
+  maxSpeed: 1.5
   animators:
   - {fileID: 538509679}
   - {fileID: 1044511033}
@@ -2150,7 +2150,7 @@ MonoBehaviour:
   seed: 2
   frequency: 0.2
   minSpeed: 0.8
-  maxSpeed: 1.2
+  maxSpeed: 1.5
   animators:
   - {fileID: 916537638}
   - {fileID: 2001400706}
@@ -2401,7 +2401,7 @@ MonoBehaviour:
   seed: 1
   frequency: 0.2
   minSpeed: 0.8
-  maxSpeed: 1.2
+  maxSpeed: 1.5
   animators:
   - {fileID: 992286268}
   - {fileID: 76237811}
@@ -2739,8 +2739,8 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
+    m_Bias: 0.01
+    m_NormalBias: 0.05
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
       e00: 1
@@ -2910,6 +2910,16 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 4294967295
       objectReference: {fileID: 0}
+    - target: {fileID: -3202742794738357884, guid: 608ee94a9cc1f3840a71b813a5ff0dff,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: -3202742794738357884, guid: 608ee94a9cc1f3840a71b813a5ff0dff,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 608ee94a9cc1f3840a71b813a5ff0dff,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2964,16 +2974,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -3202742794738357884, guid: 608ee94a9cc1f3840a71b813a5ff0dff,
-        type: 3}
-      propertyPath: m_Layer
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: -3202742794738357884, guid: 608ee94a9cc1f3840a71b813a5ff0dff,
-        type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: -2271911505176160813, guid: 608ee94a9cc1f3840a71b813a5ff0dff,
         type: 3}
@@ -3580,7 +3580,7 @@ MonoBehaviour:
   seed: 5
   frequency: 0.2
   minSpeed: 0.8
-  maxSpeed: 1.2
+  maxSpeed: 1.5
   animators:
   - {fileID: 1358077445}
   - {fileID: 1800681833}
@@ -4974,7 +4974,7 @@ MonoBehaviour:
   seed: 4
   frequency: 0.2
   minSpeed: 0.8
-  maxSpeed: 1.2
+  maxSpeed: 1.5
   animators:
   - {fileID: 1669823363}
   - {fileID: 1139826965}
@@ -5418,7 +5418,7 @@ MonoBehaviour:
   seed: 0
   frequency: 0.2
   minSpeed: 0.8
-  maxSpeed: 1.2
+  maxSpeed: 1.5
   animators:
   - {fileID: 1903396780}
   - {fileID: 225052454}
@@ -5619,7 +5619,7 @@ MonoBehaviour:
   seed: 3
   frequency: 0.2
   minSpeed: 0.8
-  maxSpeed: 1.2
+  maxSpeed: 1.5
   animators:
   - {fileID: 1996223505}
   - {fileID: 101604429}
