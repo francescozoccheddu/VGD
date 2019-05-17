@@ -6,12 +6,12 @@ namespace Wheeled.Gameplay.Action
 {
     public abstract class Offense
     {
-        public byte OffenderId { get; }
+        public int OffenderId { get; }
         public Vector3 Origin { get; }
 
         public abstract EOffenseType Type { get; }
 
-        public Offense(byte _offenderId, Vector3 _origin)
+        public Offense(int _offenderId, Vector3 _origin)
         {
             OffenderId = _offenderId;
             Origin = _origin;
@@ -22,7 +22,7 @@ namespace Wheeled.Gameplay.Action
     {
         public override EOffenseType Type => EOffenseType.Explosion;
 
-        public ExplosionOffense(byte _offenderId, Vector3 _position) : base(_offenderId, _position)
+        public ExplosionOffense(int _offenderId, Vector3 _position) : base(_offenderId, _position)
         {
         }
     }
@@ -33,7 +33,7 @@ namespace Wheeled.Gameplay.Action
 
         public Vector3? Hit { get; set; }
 
-        public ShotOffense(byte _offenderId, Vector3 _position, Sight _sight) : base(_offenderId, _position)
+        public ShotOffense(int _offenderId, Vector3 _position, Sight _sight) : base(_offenderId, _position)
         {
             Sight = _sight;
             Hit = null;
@@ -47,7 +47,7 @@ namespace Wheeled.Gameplay.Action
         public const double c_maxLifetime = 5.0f;
         public const float c_velocity = 20.0f;
 
-        public RocketShotOffense(byte _offenderId, Vector3 _position, Sight _sight) : base(_offenderId, _position, _sight)
+        public RocketShotOffense(int _offenderId, Vector3 _position, Sight _sight) : base(_offenderId, _position, _sight)
         {
         }
     }
@@ -59,7 +59,7 @@ namespace Wheeled.Gameplay.Action
 
         public const float c_maxDistance = 100.0f;
 
-        public RifleShotOffense(byte _offenderId, Vector3 _position, Sight _sight, float _power) : base(_offenderId, _position, _sight)
+        public RifleShotOffense(int _offenderId, Vector3 _position, Sight _sight, float _power) : base(_offenderId, _position, _sight)
         {
             Power = _power;
         }
@@ -67,7 +67,7 @@ namespace Wheeled.Gameplay.Action
 
     public struct DamageInfo
     {
-        public byte offenderId;
+        public int offenderId;
         public int maxHealth;
         public int damage;
         public EOffenseType offenseType;
@@ -92,11 +92,11 @@ namespace Wheeled.Gameplay.Action
 
     public struct KillInfo
     {
-        public byte killerId;
-        public byte victimId;
+        public int killerId;
+        public int victimId;
         public EOffenseType offenseType;
-        public byte killerKills;
-        public byte victimDeaths;
+        public int killerKills;
+        public int victimDeaths;
     }
 
     public enum EOffenseType

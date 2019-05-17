@@ -2,6 +2,7 @@
 using Wheeled.Core.Data;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
+using Wheeled.Scene;
 
 namespace Wheeled.Gameplay.PlayerView
 {
@@ -149,6 +150,7 @@ namespace Wheeled.Gameplay.PlayerView
                 if (State == ELifeState.Exploded && m_lastState != ELifeState.Exploded && m_explosion == null)
                 {
                     m_explosion = Object.Instantiate(Scripts.Actors.explosion, m_simulation.Position, Quaternion.identity);
+                    ParticlesColorUtils.SetChildrenRendererColor(m_explosion, Color);
                 }
 
             }

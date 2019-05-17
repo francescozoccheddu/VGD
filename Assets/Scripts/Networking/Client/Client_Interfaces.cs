@@ -38,11 +38,11 @@ namespace Wheeled.Networking.Client
 
         void NetworkManager.IEventListener.Discovered(IPEndPoint _endPoint, Deserializer _reader)
         {
-            _reader.ReadDiscoveryInfo(out byte arena);
+            _reader.ReadDiscoveryInfo(out int arena);
             OnRoomDiscovered?.Invoke(new GameRoomInfo
             {
                 endPoint = _endPoint,
-                map = arena
+                arena = arena
             });
         }
 
@@ -55,7 +55,7 @@ namespace Wheeled.Networking.Client
         {
             if (_peer == m_server)
             {
-                m_game?.LatencyUpdated(_latency);
+                ((IGameManager)m_game)?.LatencyUpdated(_latency);
             }
             else
             {
@@ -73,13 +73,13 @@ namespace Wheeled.Networking.Client
                     {
                         if (_reader.ReadMessageType() == EMessage.PlayerWelcomeSync)
                         {
-                            _reader.ReadPlayerWelcomeSync(out byte id, out byte map);
+                            _reader.ReadPlayerWelcomeSync(out int id, out int map);
                             m_localPlayerId = id;
                             IsConnected = true;
                             GameRoomInfo roomInfo = new GameRoomInfo
                             {
                                 endPoint = _peer.EndPoint,
-                                map = map
+                                arena = map
                             };
                             RoomInfo = roomInfo;
                             OnConnected?.Invoke(roomInfo);
@@ -93,7 +93,7 @@ namespace Wheeled.Networking.Client
                 }
                 else
                 {
-                    m_game?.Received(_reader);
+                    ((IGameManager) m_game)?.Received(_reader);
                 }
             }
             else

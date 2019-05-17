@@ -7,6 +7,6 @@ namespace Wheeled.Networking
     public struct GameRoomInfo
     {
         public IPEndPoint endPoint;
-        public byte map;
+        public int arena;
     }
 }

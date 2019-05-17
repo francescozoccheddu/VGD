@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Wheeled.Core.Data;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking.Client
 {
@@ -29,7 +30,7 @@ namespace Wheeled.Networking.Client
 
         private IGameManager m_game;
 
-        private byte m_localPlayerId;
+        private int m_localPlayerId;
 
         private NetworkManager.Peer m_server;
 
@@ -68,7 +69,7 @@ namespace Wheeled.Networking.Client
         {
             if (m_game == null && IsStarted)
             {
-                m_game = new ClientGameManager(this, m_localPlayerId);
+                m_game = new ClientGameManager(this, m_localPlayerId, RoomInfo.Value);
             }
         }
 
@@ -82,7 +83,7 @@ namespace Wheeled.Networking.Client
         {
             m_server.Disconnect();
             m_server = new NetworkManager.Peer();
-            m_game?.Stopped();
+            ((IGameManager)m_game)?.Stopped();
             m_game = null;
             IsConnected = false;
             RoomInfo = null;

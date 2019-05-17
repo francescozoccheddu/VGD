@@ -7,7 +7,7 @@ using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
-using Wheeled.Gameplay.Scene;
+using Wheeled.Scene;
 using Wheeled.Gameplay.Offense;
 using Wheeled.HUD;
 
@@ -33,7 +33,7 @@ namespace Wheeled.Networking.Server
             private int m_maxMovementInputStepsSendCount;
             private double m_damageValidationDelay;
 
-            protected AuthoritativePlayer(ServerGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
+            protected AuthoritativePlayer(ServerGameManager _manager, int _id, OffenseBackstage _offenseBackstage, bool _isLocal) : base(_id, _offenseBackstage, _isLocal)
             {
                 m_manager = _manager;
                 m_lastValidatedDeathTime = double.NegativeInfinity;
@@ -49,7 +49,7 @@ namespace Wheeled.Networking.Server
                     health = LifeHistory.GetHealth(_time),
                     id = Id,
                     kills = Kills,
-                    ping = (byte) Mathf.Clamp(Ping, 0, 255)
+                    ping = Mathf.Clamp(Ping, 0, 255)
                 };
             }
 
@@ -80,7 +80,7 @@ namespace Wheeled.Networking.Server
                 }
             }
 
-            public byte? GetExplosionOffenderIdRecursive(double _time)
+            public int? GetExplosionOffenderIdRecursive(double _time)
             {
                 LifeHistory.GetLastDeathInfo(_time, out _, out DamageNode? node);
                 if (node != null)
@@ -121,7 +121,7 @@ namespace Wheeled.Networking.Server
                 Serializer.WriteQuitReplication(_time, Id);
                 m_manager.SendAll(NetworkManager.ESendMethod.ReliableUnordered);
                 m_manager.m_players.Remove(this);
-                m_manager.MatchBoard.Put(_time, new EventBoardDispatcher.QuitEvent
+                EventBoardBehaviour.Instance.Put(_time, new EventBoardBehaviour.QuitEvent
                 {
                     player = this
                 });
@@ -164,7 +164,7 @@ namespace Wheeled.Networking.Server
                     m_lastValidatedDeathTime = _node.time;
                     DeathsValue.Put(_node.time, Deaths + 1);
                     AuthoritativePlayer killer = null;
-                    byte offenderId = _node.damage.offenderId;
+                    int offenderId = _node.damage.offenderId;
                     if (offenderId != Id)
                     {
                         if (_node.damage.offenseType == EOffenseType.Explosion)
@@ -184,10 +184,10 @@ namespace Wheeled.Networking.Server
                         killerId = offenderId,
                         offenseType = _node.damage.offenseType,
                         victimId = Id,
-                        victimDeaths = (byte) Deaths,
-                        killerKills = (byte) (killer?.Kills ?? 0)
+                        victimDeaths = Deaths,
+                        killerKills = killer?.Kills ?? 0
                     });
-                    m_manager.MatchBoard.Put(m_manager.m_time, new EventBoardDispatcher.KillEvent
+                    EventBoardBehaviour.Instance.Put(m_manager.m_time, new EventBoardBehaviour.KillEvent
                     {
                         killer = killer,
                         victim = this,

@@ -14,7 +14,6 @@ namespace Wheeled.Networking
     {
         public sealed class DeserializationException : Exception { }
 
-        private static readonly byte[] s_timeChecksumBuffer = new byte[sizeof(double) + sizeof(ushort)];
         private readonly NetDataReader m_netDataReader;
 
         public Deserializer(NetDataReader _netDataReader)
@@ -34,7 +33,7 @@ namespace Wheeled.Networking
             _outInputSteps = ReadArray(ReadInputStep);
         }
 
-        public void ReadMovementReplication(out byte _outId, out int _outStep, out IEnumerable<InputStep> _outInputSteps, out Snapshot _snapshot)
+        public void ReadMovementReplication(out int _outId, out int _outStep, out IEnumerable<InputStep> _outInputSteps, out Snapshot _snapshot)
         {
             _outId = ReadByte();
             _outStep = ReadInt();
@@ -48,7 +47,7 @@ namespace Wheeled.Networking
             _outSimulation = ReadSimulationStepInfo();
         }
 
-        public void ReadDamageOrderOrReplication(out double _outTime, out byte _outId, out DamageInfo _outInfo)
+        public void ReadDamageOrderOrReplication(out double _outTime, out int _outId, out DamageInfo _outInfo)
         {
             _outTime = ReadDouble();
             _outId = ReadByte();
@@ -67,21 +66,21 @@ namespace Wheeled.Networking
             _outInfo = ReadShotInfo();
         }
 
-        public void ReadShotReplication(out double _outTime, out byte _outId, out ShotInfo _outInfo)
+        public void ReadShotReplication(out double _outTime, out int _outId, out ShotInfo _outInfo)
         {
             _outTime = ReadDouble();
             _outId = ReadByte();
             _outInfo = ReadShotInfo();
         }
 
-        public void ReadSpawnOrderOrReplication(out double _outTime, out byte _outId, out SpawnInfo _outSpawnInfo)
+        public void ReadSpawnOrderOrReplication(out double _outTime, out int _outId, out SpawnInfo _outSpawnInfo)
         {
             _outTime = ReadDouble();
             _outId = ReadByte();
             _outSpawnInfo = ReadSpawnInfo();
         }
 
-        public void ReadPlayerIntroduction(out byte _outId, out PlayerInfo _outInfo)
+        public void ReadPlayerIntroduction(out int _outId, out PlayerInfo _outInfo)
         {
             _outId = ReadByte();
             _outInfo = ReadPlayerInfo();
@@ -93,7 +92,7 @@ namespace Wheeled.Networking
             _outInfos = ReadArray(ReadPlayerRecapInfo);
         }
 
-        public void ReadPlayerWelcomeSync(out byte _outId, out byte _outMap)
+        public void ReadPlayerWelcomeSync(out int _outId, out int _outMap)
         {
             _outId = ReadByte();
             _outMap = ReadByte();
@@ -104,7 +103,7 @@ namespace Wheeled.Networking
             EnsureReadEnd();
         }
 
-        public void ReadQuitReplication(out double _outTime, out byte _outId)
+        public void ReadQuitReplication(out double _outTime, out int _outId)
         {
             _outTime = ReadDouble();
             _outId = ReadByte();
@@ -131,7 +130,7 @@ namespace Wheeled.Networking
             _outInfo = ReadKillInfo();
         }
 
-        public void ReadDiscoveryInfo(out byte _outArena)
+        public void ReadDiscoveryInfo(out int _outArena)
         {
             _outArena = ReadByte();
         }

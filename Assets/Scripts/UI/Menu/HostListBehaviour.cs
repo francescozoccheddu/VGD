@@ -92,7 +92,7 @@ namespace Wheeled.Menu
                         }
                     });
                     HostToggleBehaviour toggleBehaviour = entry.GetComponent<HostToggleBehaviour>();
-                    toggleBehaviour.Arena = _info.map;
+                    toggleBehaviour.Arena = _info.arena;
                     toggleBehaviour.EndPoint = _info.endPoint;
                     m_hosts.Add(_info.endPoint);
                 }
@@ -100,7 +100,7 @@ namespace Wheeled.Menu
                 {
                     HostToggleBehaviour toggleBehaviour = m_group.GetComponentsInChildren<HostToggleBehaviour>()
                         .FirstOrDefault(_c => _c.EndPoint.Equals(_info.endPoint));
-                    toggleBehaviour.Arena = _info.map;
+                    toggleBehaviour.Arena = _info.arena;
                 }
             }
         }

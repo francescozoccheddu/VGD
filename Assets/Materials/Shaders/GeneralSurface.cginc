@@ -2,11 +2,17 @@
 #define _INC_GENSURF
 
 #include "GeneralVertex.cginc"
-#include "Material.cginc"
+
+inline void _gensurf_calcMaterial (in fixed _in, out fixed _smoothness, out fixed _metallic)
+{
+	_smoothness = lerp (0.0, 0.85, _in);
+	_metallic = lerp (0.0, 0.9, _in);
+}
 
 inline void surf (in Input _in, inout SurfaceOutputStandard _out)
 {
-	calcMaterial (_in.material, _out.Smoothness, _out.Metallic);
+	_gensurf_calcMaterial (_in.material, _out.Smoothness, _out.Metallic);
+
 	_out.Albedo = _in.albedo;
 	_out.Alpha = _Alpha;
 	_out.Emission = _in.emission;

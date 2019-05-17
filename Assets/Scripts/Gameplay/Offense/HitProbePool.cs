@@ -11,7 +11,7 @@ namespace Wheeled.Gameplay.Offense
         {
             public bool isCritical;
             public Vector3 normal;
-            public byte? playerId;
+            public int? playerId;
             public Vector3 position;
         }
 
@@ -24,7 +24,7 @@ namespace Wheeled.Gameplay.Offense
             m_probes = new List<HitProbeBehaviour>();
         }
 
-        public void Add(byte _playerId, Snapshot _snapshot)
+        public void Add(int _playerId, Snapshot _snapshot)
         {
             while (m_nextProbe >= m_probes.Count)
             {

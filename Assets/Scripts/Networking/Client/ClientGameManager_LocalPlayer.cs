@@ -6,6 +6,7 @@ using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Offense;
+using Wheeled.Core;
 
 namespace Wheeled.Networking.Client
 {
@@ -13,18 +14,18 @@ namespace Wheeled.Networking.Client
     {
         private sealed class LocalPlayer : ClientPlayer
         {
-            public override bool IsLocal => true;
             public int MaxMovementInputStepsNotifyCount { get => m_maxMovementInputStepsSendCount; set { Debug.Assert(value >= 0); m_maxMovementInputStepsSendCount = value; } }
             public int MaxMovementNotifyFrequency { get => m_movementSendRate; set { Debug.Assert(value >= 0); m_movementSendRate = value; } }
 
-            private readonly ClientGameManager m_manager;
             private readonly PlayerController m_playerController;
             private int? m_lastNotifiedMovementStep;
             private int m_maxMovementInputStepsSendCount;
             private int m_movementSendRate;
             private float m_timeSinceLastMovementNotify;
 
-            public LocalPlayer(ClientGameManager _manager, byte _id, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage)
+            private readonly ClientGameManager m_manager;
+
+            public LocalPlayer(ClientGameManager _manager, int _id, OffenseBackstage _offenseBackstage) : base(_id, _offenseBackstage, true)
             {
                 m_manager = _manager;
                 m_playerController = new PlayerController(this);
@@ -56,7 +57,8 @@ namespace Wheeled.Networking.Client
             protected override void OnDamageScheduled(double _time, DamageInfo _info)
             {
                 base.OnDamageScheduled(_time, _info);
-                Vector3? position = m_manager.GetPlayerById(_info.offenderId)?.GetSnapshot(_time).simulation.Position;
+                ClientGameManager manager = (ClientGameManager) GameManager.Current;
+                Vector3? position = manager.GetPlayerById(_info.offenderId)?.GetSnapshot(_time).simulation.Position;
                 m_playerController.OnDamageScheduled(_time, _info, position);
             }
 

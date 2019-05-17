@@ -84,8 +84,8 @@ namespace Wheeled.Core.Data
 
         public static PlayerInfo Info => new PlayerInfo
         {
-            color = (byte) ColorIndex,
-            head = (byte) HeadIndex,
+            color = ColorIndex,
+            head = HeadIndex,
             name = Name
         };
 

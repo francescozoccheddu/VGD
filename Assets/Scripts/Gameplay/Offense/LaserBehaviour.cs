@@ -1,17 +1,27 @@
 ﻿using UnityEngine;
+using Wheeled.Scene;
 
 namespace Wheeled.Gameplay.Offense
 {
-    public sealed class RifleProjectileBehaviour : MonoBehaviour
+    public sealed class LaserBehaviour : MonoBehaviour
     {
         public GameObject rifleHit;
         public ParticleSystem particles;
-        
+
         private const float c_lifeTime = 1.0f;
         private const float c_maxRayLenght = 40f;
         private const int c_maxParticles = 100;
 
+
         private float m_elapsedTime;
+
+        private Color m_color = Color.red;
+
+        public void SetColor(Color _color)
+        {
+            m_color = _color;
+            ParticlesColorUtils.SetChildrenRendererColor(gameObject, m_color);
+        }
 
         public void Shoot(Vector3 _origin, Vector3 _end, bool _hit)
         {
@@ -28,7 +38,8 @@ namespace Wheeled.Gameplay.Offense
             particles.emission.SetBurst(0, new ParticleSystem.Burst { count = particleCount });
             if (_hit)
             {
-                Instantiate(rifleHit, _end, transform.rotation);
+                var gameObject = Instantiate(rifleHit, _end, transform.rotation);
+                ParticlesColorUtils.SetChildrenRendererColor(gameObject, m_color);
             }
         }
 

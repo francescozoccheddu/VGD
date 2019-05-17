@@ -4,9 +4,9 @@
     {
         public int deaths;
         public int health;
-        public byte id;
+        public int id;
         public int kills;
-        public byte ping;
+        public int ping;
     }
 
     // Notify: Client tells Server

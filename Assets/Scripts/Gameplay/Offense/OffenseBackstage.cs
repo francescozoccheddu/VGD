@@ -14,7 +14,7 @@ namespace Wheeled.Gameplay.Offense
         {
             IEnumerable<HitTarget> ProvideHitTarget(double _time, Action.Offense _offense);
 
-            void Damage(double _time, byte _offendedId, Action.Offense _offense, float _damage);
+            void Damage(double _time, int _offendedId, Action.Offense _offense, float _damage);
 
             bool ShouldProcess(double _time, Action.Offense _offense);
         }
@@ -25,7 +25,7 @@ namespace Wheeled.Gameplay.Offense
 
             public bool IsGone { get; private set; }
 
-            public byte OffenderId { get; }
+            public int OffenderId { get; }
 
             public double Time { get; }
 
@@ -240,7 +240,7 @@ namespace Wheeled.Gameplay.Offense
 
         public struct HitTarget
         {
-            public byte playerId;
+            public int playerId;
             public Snapshot snapshot;
         }
 

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2927217780996966289}
   - component: {fileID: 3073502955058465817}
   m_Layer: 0
-  m_Name: RocketProjectile
+  m_Name: Rocket
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1399,8 +1399,8 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0.8867924, g: 0.8867924, b: 0.8867924, a: 0}
-        key1: {r: 0.8773585, g: 0.8773585, b: 0.8773585, a: 0}
+        key0: {r: 0.8867924, g: 0.8867924, b: 0.8867924, a: 0.3529412}
+        key1: {r: 0.8773585, g: 0.8773585, b: 0.8773585, a: 0.23529412}
         key2: {r: 0.6415094, g: 0.6415094, b: 0.6415094, a: 0}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
@@ -4798,6 +4798,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Rocket
       objectReference: {fileID: 0}
+    - target: {fileID: -1504981713932161579, guid: d6d345b44eda24348b2d576724f14395,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4c50c33dc68c9f247b3451a340f715e3, type: 2}
     - target: {fileID: -4216859302048453862, guid: d6d345b44eda24348b2d576724f14395,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4853,11 +4858,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -1504981713932161579, guid: d6d345b44eda24348b2d576724f14395,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 4c50c33dc68c9f247b3451a340f715e3, type: 2}
     - target: {fileID: -6057140222963153312, guid: d6d345b44eda24348b2d576724f14395,
         type: 3}
       propertyPath: m_Controller

@@ -11,16 +11,23 @@ using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Offense;
 using Wheeled.HUD;
 using Wheeled.Networking.Client;
+using Wheeled.Core;
 
 namespace Wheeled.Networking.Server
 {
-    public sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget, IPlayerManager, OffenseBackstage.IValidationTarget
+    public sealed partial class ServerGameManager : Server.IGameManager, Updatable.ITarget, IGameManager, OffenseBackstage.IValidationTarget
     {
-        double IPlayerManager.Time => m_time;
-
-        public EventBoardDispatcher MatchBoard { get; }
+        double IGameManager.Time => m_time;
 
         private IEnumerable<NetPlayer> m_NetPlayers => m_players.Where(_p => _p != m_localPlayer).Cast<NetPlayer>();
+
+        GameRoomInfo IGameManager.Room => m_room;
+
+        IEnumerable<IReadOnlyPlayer> IGameManager.Players => m_players;
+
+        IReadOnlyPlayer IGameManager.LocalPlayer => m_localPlayer;
+
+        private readonly GameRoomInfo m_room;
 
         private const int c_replicationRate = 10;
         private const double c_validationDelay = 0.3;
@@ -31,17 +38,19 @@ namespace Wheeled.Networking.Server
         private readonly List<AuthoritativePlayer> m_players;
         private readonly Updatable m_updatable;
         private readonly OffenseBackstage m_offenseBackstage;
-        private byte m_nextPlayerId;
+        private int m_nextPlayerId;
         private double m_time;
         private float m_timeSinceLastReplication;
         private double m_lastRecapSyncTime;
 
         private double m_lastTimeSyncTime;
 
-        private readonly byte m_arena;
+        private readonly int m_arena;
 
-        public ServerGameManager(byte _arena)
+        public ServerGameManager(GameRoomInfo _roomInfo)
         {
+            GameManager.SetCurrentGameManager(this);
+            m_room = _roomInfo;
             m_offenseBackstage = new OffenseBackstage
             {
                 ValidationTarget = this
@@ -62,8 +71,6 @@ namespace Wheeled.Networking.Server
             {
                 m_localPlayer
             };
-            MatchBoard = new EventBoardDispatcher();
-            m_arena = _arena;
             m_localPlayer.Start();
         }
 
@@ -100,7 +107,6 @@ namespace Wheeled.Networking.Server
                 WriteRecapSync();
                 SendAll(NetworkManager.ESendMethod.Sequenced);
             }
-            MatchBoard.UpdateUntil(m_time);
         }
 
         void Server.IGameManager.ConnectedTo(NetworkManager.Peer _peer)
@@ -205,7 +211,7 @@ namespace Wheeled.Networking.Server
                 DamageValidationDelay = c_validationDelay,
                 Info = _reader.ReadPlayerInfo()
             };
-            MatchBoard.Put(m_time, new EventBoardDispatcher.JoinEvent
+            EventBoardBehaviour.Instance.Put(m_time, new EventBoardBehaviour.JoinEvent
             {
                 player = netPlayer
             });
@@ -234,7 +240,7 @@ namespace Wheeled.Networking.Server
                    select new OffenseBackstage.HitTarget { playerId = p.Id, snapshot = p.GetSnapshot(time) };
         }
 
-        void OffenseBackstage.IValidationTarget.Damage(double _time, byte _offendedId, Offense _offense, float _damage)
+        void OffenseBackstage.IValidationTarget.Damage(double _time, int _offendedId, Offense _offense, float _damage)
         {
             AuthoritativePlayer offended = GetPlayerById(_offendedId);
             int damage = Mathf.RoundToInt(_damage * LifeHistory.c_fullHealth);
@@ -311,5 +317,12 @@ namespace Wheeled.Networking.Server
             Serializer.WriteTimeSync(m_time);
             SendAll(NetworkManager.ESendMethod.Sequenced);
         }
+
+        IReadOnlyPlayer IGameManager.GetPlayerById(int _id) => GetPlayerById(_id);
+
+        public IEnumerable<IReadOnlyPlayer> GetPlayers() => m_players;
+
+        public IReadOnlyPlayer GetLocalPlayer() => m_localPlayer;
+
     }
 }

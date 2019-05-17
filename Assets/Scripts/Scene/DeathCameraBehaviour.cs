@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Wheeled.Gameplay.Scene
+namespace Wheeled.Scene
 {
     public sealed class DeathCameraBehaviour : MonoBehaviour
     {

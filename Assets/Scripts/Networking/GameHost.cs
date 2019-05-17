@@ -1,4 +1,8 @@
-﻿namespace Wheeled.Networking
+﻿using System.Collections.Generic;
+using Wheeled.Gameplay.Player;
+using Wheeled.HUD;
+
+namespace Wheeled.Networking
 {
     public delegate void GameHostStopped(EGameHostStopCause _cause);
 
@@ -7,11 +11,12 @@
         Programmatically, NetworkError, Disconnected, UnableToConnect
     }
 
-    public interface IGameHost
+    public interface IGameHost 
     {
         event GameHostStopped OnStopped;
 
         bool IsStarted { get; }
+
         GameRoomInfo? RoomInfo { get; }
 
         void GameReady();

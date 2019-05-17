@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
+using Wheeled.Scene;
 
 namespace Wheeled.Gameplay.Offense
 {
-    public sealed class RocketProjectileBehaviour : MonoBehaviour
+    public sealed class RocketBehaviour : MonoBehaviour
     {
         public ParticleSystem particleSystemTrail;
         public MeshRenderer meshRenderer;
 
         public GameObject explosion;
+
+        private Color m_color = Color.red;
 
         public void Dissolve()
         {
@@ -19,7 +22,8 @@ namespace Wheeled.Gameplay.Offense
         {
             transform.position = _position;
 
-            Instantiate(explosion, _position, Quaternion.identity);
+            var gameObject = Instantiate(explosion, _position, Quaternion.identity);
+            ParticlesColorUtils.SetChildrenRendererColor(gameObject, m_color);
             particleSystemTrail.Stop();
             meshRenderer.enabled = false;
         }
@@ -30,9 +34,11 @@ namespace Wheeled.Gameplay.Offense
             transform.position = _position;
         }
 
-        public void Shoot(Vector3 _origin, Vector3 _direction)
+        public void SetColor(Color _color)
         {
-            transform.position = _origin;
+            m_color = _color;
+            ParticlesColorUtils.SetChildrenRendererColor(gameObject, _color);
         }
+
     }
 }

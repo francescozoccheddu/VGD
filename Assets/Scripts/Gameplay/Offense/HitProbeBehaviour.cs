@@ -6,7 +6,7 @@ namespace Wheeled.Gameplay.Offense
 {
     public sealed class HitProbeBehaviour : MonoBehaviour
     {
-        public byte PlayerId { get; private set; }
+        public int PlayerId { get; private set; }
 
         public Collider[] criticalColliders;
 
@@ -20,7 +20,7 @@ namespace Wheeled.Gameplay.Offense
             return criticalColliders?.Contains(_collider) ?? false;
         }
 
-        public void Set(byte _playerId, Snapshot _snapshot)
+        public void Set(int _playerId, Snapshot _snapshot)
         {
             PlayerId = _playerId;
             gameObject.SetActive(true);
