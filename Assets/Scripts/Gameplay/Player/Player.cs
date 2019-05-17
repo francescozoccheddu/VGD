@@ -26,6 +26,8 @@ namespace Wheeled.Gameplay.Player
         IReadOnlyLifeHistory LifeHistory { get; }
         IReadOnlyWeaponsHistory WeaponsHistory { get; }
         IReadOnlyMovementHistory MovementHistory { get; }
+
+        bool IsQuit(double _time);
     }
 
     public static class PlayerHelper
