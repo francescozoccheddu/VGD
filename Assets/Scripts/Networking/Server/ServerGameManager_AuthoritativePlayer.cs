@@ -211,13 +211,9 @@ namespace Wheeled.Networking.Server
             {
                 m_nextSpawnTime = double.NaN;
                 double spawnTime = m_manager.m_time + c_spawnDelay;
-                IEnumerable<Vector3> positions = from p in m_manager.m_players
-                                                 where !p.IsQuit(spawnTime)
-                                                 && p.LifeHistory.IsAlive(spawnTime)
-                                                 select p.GetSnapshot(spawnTime).simulation.Position;
                 PutSpawn(spawnTime, new SpawnInfo()
                 {
-                    spawnPoint = SpawnManagerBehaviour.Spawn(positions)
+                    spawnPoint = SpawnManagerBehaviour.Spawn(spawnTime)
                 });
             }
 
