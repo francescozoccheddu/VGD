@@ -32,7 +32,7 @@ void vert (inout appdata_full _in, out Input _out)
 {
 	UNITY_INITIALIZE_OUTPUT (Input, _out);
 	int met = min (int (_in.color.a * (1 << 6)), (1 << 6) - 1);
-	fixed m = (met & ((1 << 3) - 1)) / fixed (1 << 3);
+	fixed m = (met & ((1 << 3) - 1)) / fixed ((1 << 3) - 1);
 	int e = (met >> 3) & ((1 << 2) - 1);
 	bool t = (met >> 5) & ((1 << 1) - 1);
 	_out.albedo = t ? _PaintColor : _in.color.rgb;
