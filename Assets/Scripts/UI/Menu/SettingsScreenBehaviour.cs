@@ -31,6 +31,7 @@ namespace Wheeled.Menu
             colorList.Count = Scripts.PlayerPreferences.colors.Length;
             headList.Count = Scripts.PlayerPreferences.heads.Length;
             UpdateScreen();
+            nameField.onValueChanged.Invoke(nameField.text);
         }
     }
 }

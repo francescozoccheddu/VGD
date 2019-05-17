@@ -131,8 +131,8 @@ namespace Wheeled.Gameplay.PlayerView
                 if (isSightInterpolationEnabled)
                 {
                     float lerpAlpha = Mathf.Min(0.9f, _deltaTime * sightInterpolationQuickness);
-                    m_sightBehaviour.Turn = Mathf.Lerp(m_sightBehaviour.Turn, m_sight.Turn, lerpAlpha);
-                    m_sightBehaviour.LookUp = Mathf.Lerp(m_sightBehaviour.LookUp, m_sight.LookUp, lerpAlpha);
+                    m_sightBehaviour.turn = Mathf.Lerp(m_sightBehaviour.turn, m_sight.Turn, lerpAlpha);
+                    m_sightBehaviour.lookUp = Mathf.Lerp(m_sightBehaviour.lookUp, m_sight.LookUp, lerpAlpha);
                 }
                 else
                 {
@@ -185,8 +185,8 @@ namespace Wheeled.Gameplay.PlayerView
         {
             if (m_gameObject != null)
             {
-                m_sightBehaviour.Turn = m_sight.Turn;
-                m_sightBehaviour.LookUp = m_sight.LookUp;
+                m_sightBehaviour.turn = m_sight.Turn;
+                m_sightBehaviour.lookUp = m_sight.LookUp;
                 m_sightBehaviour.ReachTarget();
             }
         }

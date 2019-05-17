@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2927217780996966289}
   - component: {fileID: 3073502955058465817}
+  - component: {fileID: 1885063118110789701}
+  - component: {fileID: 166064163648918508}
   m_Layer: 0
   m_Name: Rocket
   m_TagString: Untagged
@@ -44,18 +46,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92013fe0c56d7de4bb1270c9f54ea9ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleSystemTrail: {fileID: 8448806358970058326}
+  particleSystemTrail: {fileID: 166064163648918508}
   meshRenderer: {fileID: 5837824864783628215}
   explosion: {fileID: 1590646576897671981, guid: fd833a662494921499ed1f8958c9d2ba,
     type: 3}
---- !u!199 &6584937742230021341
+--- !u!199 &1885063118110789701
 ParticleSystemRenderer:
   serializedVersion: 6
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5276187709680698219}
+  m_GameObject: {fileID: 1199107559721684683}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -110,13 +112,13 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
---- !u!198 &8448806358970058326
+--- !u!198 &166064163648918508
 ParticleSystem:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5276187709680698219}
+  m_GameObject: {fileID: 1199107559721684683}
   serializedVersion: 6
   lengthInSec: 5
   simulationSpeed: 1
@@ -4865,12 +4867,6 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: a2fe13e5df059014ba92f420da973fc4, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d6d345b44eda24348b2d576724f14395, type: 3}
---- !u!1 &5276187709680698219 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -927199367670048503, guid: d6d345b44eda24348b2d576724f14395,
-    type: 3}
-  m_PrefabInstance: {fileID: 4186418912856087138}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &9179340017445253496 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: d6d345b44eda24348b2d576724f14395,

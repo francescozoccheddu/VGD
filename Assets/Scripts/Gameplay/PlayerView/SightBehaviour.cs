@@ -22,13 +22,14 @@ namespace Wheeled.Gameplay.PlayerView
         public float maxTurnOffset = 30.0f;
         private float m_turn;
 
-        public float LookUp { get; set; }
-        public float Turn { get; set; }
+        [Header("Sight")]
+        public float lookUp;
+        public float turn;
 
         public void ReachTarget()
         {
-            m_turn = Turn;
-            m_lookUp = LookUp;
+            m_turn = turn;
+            m_lookUp = lookUp;
         }
 
         private float Lerp(float _current, float _target, float _speed, float _maxOffset)
@@ -44,13 +45,13 @@ namespace Wheeled.Gameplay.PlayerView
 
         private void Update()
         {
-            m_turn = Lerp(m_turn, Turn, turnSpeed, maxTurnOffset);
-            m_lookUp = Lerp(m_lookUp, LookUp, lookUpSpeed, maxLookUpOffset);
+            m_turn = Lerp(m_turn, turn, turnSpeed, maxTurnOffset);
+            m_lookUp = Lerp(m_lookUp, lookUp, lookUpSpeed, maxLookUpOffset);
 
             head.localRotation = Quaternion.Euler(m_lookUp * headLookUpFactor, 0.0f, 0.0f);
             arm.localRotation = Quaternion.Euler(m_lookUp, 0.0f, 0.0f);
             torso.localRotation = Quaternion.Euler(0.0f, m_turn, 0.0f);
-            cameraArm.localRotation = Quaternion.Euler(LookUp, Turn, 0.0f);
+            cameraArm.localRotation = Quaternion.Euler(lookUp, turn, 0.0f);
         }
     }
 }

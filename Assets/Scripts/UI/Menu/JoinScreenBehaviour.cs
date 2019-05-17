@@ -21,6 +21,8 @@ namespace Wheeled.Menu
         {
             ipField.text = "";
             portField.text = "9060";
+            ipField.onValueChanged.Invoke(ipField.text);
+            portField.onValueChanged.Invoke(portField.text);
         }
     }
 }

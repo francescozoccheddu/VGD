@@ -28,6 +28,7 @@ namespace Wheeled.Menu
             portField.text = "9060";
             arenaList.Count = Scripts.Scenes.arenas.Length;
             arenaList.Index = 0;
+            portField.onValueChanged.Invoke(portField.text);
         }
     }
 }
