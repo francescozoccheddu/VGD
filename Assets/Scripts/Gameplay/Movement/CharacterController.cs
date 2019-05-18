@@ -6,8 +6,14 @@ public struct CharacterController
 {
     public Vector3 Position { get => m_capsule.position; set => m_capsule.position = value; }
     public Vector3 Velocity { get => m_capsule.velocity; set => m_capsule.velocity = value; }
-    public float Height { get => m_capsule.height; set => m_capsule.height = value; }
-    public bool IsGrounded => m_capsule.IsGrounded;
+    public float Height
+    {
+        get
+        {
+            m_capsule.AnalyseFloor(out float height, out _);
+            return height;
+        }
+    }
 
     public float dashStamina;
 
@@ -46,9 +52,11 @@ public struct CharacterController
     public CharacterController Simulate(Vector2 _movementXZ, bool _jump, bool _dash, float _deltaTime)
     {
         CharacterController next = this;
+        next.m_capsule.AnalyseFloor(out _, out Vector3? groundNormal);
+        bool isGrounded = groundNormal != null;
         next.dashStamina = Mathf.Clamp01(next.dashStamina + _deltaTime * c_dashRegenSpeed);
         _movementXZ = Vector2.ClampMagnitude(_movementXZ, 1.0f);
-        if (next.m_capsule.IsGrounded)
+        if (isGrounded)
         {
             if (_jump)
             {
@@ -89,7 +97,7 @@ public struct CharacterController
             float targetSpeed = velocityXZ.magnitude;
             if (targetSpeed > 0.0f)
             {
-                float drag = next.m_capsule.IsGrounded ? c_groundDragXZ : c_airDragXZ;
+                float drag = isGrounded ? c_groundDragXZ : c_airDragXZ;
                 float targetMagnitude = Mathf.Max(0.0f, Mathf.Min(targetSpeed - drag * _deltaTime, c_maxSpeedXZ));
                 velocityXZ = velocityXZ * (targetMagnitude / targetSpeed);
                 next.m_capsule.velocity = velocityXZ.ToVector3XZ(next.m_capsule.velocity.y);

@@ -269,7 +269,6 @@ namespace Wheeled.Networking
             {
                 Velocity = ReadVector3(),
                 Position = ReadVector3(),
-                Height = ReadFloat(),
                 dashStamina = ReadFloat()
             };
         }
