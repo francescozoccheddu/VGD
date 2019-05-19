@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using Wheeled.Core.Utils;
 
 namespace Wheeled.UI.Menu
 {
@@ -22,11 +23,7 @@ namespace Wheeled.UI.Menu
         [Range(0.1f, 10.0f)]
         public float frequency = 1.0f;
 
-        [Range(0.0f, 10.0f)]
-        public float lightIntensity = 0.5f;
-
-        [Range(0.0f, 10.0f)]
-        public float noiseLightIntensity = 0.5f;
+        public MinMaxRange lightIntensity = new MinMaxRange(1.0f, 3.0f);
 
         private float m_time;
         private float m_seed;
@@ -44,7 +41,7 @@ namespace Wheeled.UI.Menu
             Color color = noiseImage.color;
             color.a = noise * alpha;
             noiseImage.color = color;
-            light.intensity = Mathf.Lerp(lightIntensity, noiseLightIntensity, noise);
+            light.intensity = lightIntensity.LerpUnclamped(1.0f - noise);
         }
 
     }

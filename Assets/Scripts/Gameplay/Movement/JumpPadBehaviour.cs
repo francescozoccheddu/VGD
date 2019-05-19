@@ -1,19 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Wheeled.Core.Utils;
 
 namespace Wheeled.Gameplay.Movement
 {
     public class JumpPadBehaviour : MonoBehaviour
     {
-        [Header("Inner radius")]
-        public float innerRadiusXZ;
-        public float innerRadiusY;
-
-        [Header("Outer radius")]
-        public float outerRadiusXZ;
-        public float outerRadiusY;
-
-        [Header("Force")]
+        public MinMaxRange radiusY;
+        public MinMaxRange radiusXZ;
         public float force = 50.0f;
 
         public const float c_averageViewMass = 3.0f;
@@ -23,7 +17,7 @@ namespace Wheeled.Gameplay.Movement
             float factorXZ, factorY;
             {
                 float distanceXZ = Vector2.Distance(_position.ToVector2XZ(), transform.position.ToVector2XZ());
-                factorXZ = 1.0f - Mathf.Clamp01((distanceXZ - innerRadiusXZ) / (outerRadiusXZ - innerRadiusXZ));
+                factorXZ = 1.0f - radiusXZ.GetClampedProgress(distanceXZ);
             }
             {
                 float diffY = _position.y - transform.position.y;
@@ -33,7 +27,7 @@ namespace Wheeled.Gameplay.Movement
                 }
                 else
                 {
-                    factorY = 1.0f - Mathf.Clamp01((diffY - innerRadiusY) / (outerRadiusY - innerRadiusY));
+                    factorY = 1.0f - radiusY.GetClampedProgress(diffY);
                 }
             }
             float factor = factorXZ * factorY;
