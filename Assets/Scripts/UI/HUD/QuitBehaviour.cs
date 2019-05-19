@@ -27,7 +27,7 @@ namespace Wheeled.Assets.Scripts.HUD
             else
             {
                 m_elapsedTime = 0.0f;
-                text.text = "Hold <b>ESC</b> to quit";
+                text.text = "Hold \u00A8 to quit";
                 animator.SetBool("IsVisible", false);
             }
         }

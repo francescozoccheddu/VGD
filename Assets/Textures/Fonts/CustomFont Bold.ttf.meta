@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 97a05bd8b066c97439a0b18b21564e8b
+guid: 3fd7fd3466c8a12408622fc21e7a5abc
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -8,10 +8,11 @@ TrueTypeFontImporter:
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
-  fontName: KG She Persisted
+  fontName: CustomFont
   fontNames:
-  - KG She Persisted
-  fallbackFontReferences: []
+  - CustomFont
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 04813efc2a91dce41b349e185b4913e9, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1

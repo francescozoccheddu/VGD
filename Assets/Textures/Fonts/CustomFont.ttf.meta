@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b874b25bd1405be4aaa359153f9045f4
+guid: 04813efc2a91dce41b349e185b4913e9
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -8,9 +8,9 @@ TrueTypeFontImporter:
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
-  fontName: GROBOLD
+  fontName: CustomFont
   fontNames:
-  - GROBOLD
+  - CustomFont
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
