@@ -35,17 +35,22 @@ public static class CapsuleControllerHelper
         return Vector3.Angle(_a, _b) <= _maxAngleOffset
             && AreNearlyEqual(_a.magnitude, _b.magnitude, _maxMagnitudeOffset);
     }
+
+    public static Vector3 Slide(in Vector3 _velocity, in Vector3 _normal)
+    {
+        Vector3 rightDirection = Vector3.Cross(_velocity, _normal);
+        return Vector3.Cross(_normal, rightDirection);
+    }
+
 }
 
 public struct CapsuleController
 {
-    public bool IsGrounded => height <= c_skin + c_groundOffset;
 
     public const float c_height = 1.3f;
     public const float c_radius = 0.5f;
     public Vector3 position;
     public Vector3 velocity;
-    public float height;
 
     private const float c_gameCeilingY = 5.0f;
     private const float c_gameFloorY = -5.0f;
@@ -67,7 +72,6 @@ public struct CapsuleController
     {
         return new CapsuleController
         {
-            height = Mathf.Lerp(_a.height, _b.height, _progress),
             position = Vector3.Lerp(_a.position, _b.position, _progress),
             velocity = Vector3.Lerp(_a.velocity, _b.velocity, _progress)
         };
@@ -80,7 +84,6 @@ public struct CapsuleController
         next.EarlyDepenetrationY();
         next.MoveY(_deltaTime);
         next.MoveXZ(_deltaTime);
-        next.CalculateHeight();
         return next;
     }
 
@@ -124,7 +127,7 @@ public struct CapsuleController
 
                 if (distance < movementDistance)
                 {
-                    velocity = Slide(velocity, hit.normal);
+                    velocity = CapsuleControllerHelper.Slide(velocity, hit.normal);
                 }
 
                 _deltaTime *= 1.0f - Mathf.Clamp01(distance / movementDistance);
@@ -137,11 +140,7 @@ public struct CapsuleController
         }
     }
 
-    private Vector3 Slide(in Vector3 _velocity, in Vector3 _normal)
-    {
-        Vector3 rightDirection = Vector3.Cross(_velocity, _normal);
-        return Vector3.Cross(_normal, rightDirection);
-    }
+
 
     private void ConvertCollisionY(in Vector3 _normal)
     {
@@ -149,22 +148,25 @@ public struct CapsuleController
         {
             float oldY = velocity.y;
             velocity.y = 0;
-            velocity += Slide(Vector3.up * oldY, _normal);
+            velocity += CapsuleControllerHelper.Slide(Vector3.up * oldY, _normal);
         }
     }
 
-    private void CalculateHeight()
+    public void AnalyseFloor(out float _outHeight, out Vector3? _outNormal)
     {
         const float sphereBodyDistance = c_height - c_radius * 2.0f;
         const float shootDistance = sphereBodyDistance + c_maxHeight;
         Vector3 startingPosition = position + Vector3.up * (c_height / 2.0f - c_radius);
         if (Physics.SphereCast(startingPosition, c_radius, -Vector3.up, out RaycastHit hit, shootDistance, Scripts.Collisions.movement))
         {
-            height = hit.distance - sphereBodyDistance;
+            _outHeight = hit.distance - sphereBodyDistance;
+            bool isGrounded = _outHeight < c_skin + c_groundOffset;
+            _outNormal = isGrounded ? hit.normal : (Vector3?) null;
         }
         else
         {
-            height = c_maxHeight;
+            _outHeight = c_maxHeight;
+            _outNormal = null;
         }
     }
 

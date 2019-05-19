@@ -4913,10 +4913,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9856aefe2fae6548afea9c33bbe5aec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  innerRadiusXZ: 0.3
-  innerRadiusY: 1.5
-  outerRadiusXZ: 0.5
-  outerRadiusY: 2
+  radiusY:
+    max: 2
+    min: 1
+  radiusXZ:
+    max: 0.5
+    min: 0.25
   force: 50
 --- !u!1 &5660418749640553089
 GameObject:

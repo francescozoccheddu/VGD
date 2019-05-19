@@ -158,7 +158,7 @@ namespace Wheeled.Networking
 
         private static void Put(this NetDataWriter _netDataWriter, Enum _value)
         {
-            _netDataWriter.Put(Convert.ToByte(_value));
+            _netDataWriter.PutAsByte(Convert.ToByte(_value));
         }
 
         private static void Put(this NetDataWriter _netDataWriter, in Vector3 _value)
@@ -180,7 +180,6 @@ namespace Wheeled.Networking
         {
             _netDataWriter.Put(_value.Velocity);
             _netDataWriter.Put(_value.Position);
-            _netDataWriter.Put(_value.Height);
             _netDataWriter.Put(_value.dashStamina);
         }
 
