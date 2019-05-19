@@ -16,7 +16,7 @@ namespace Wheeled.UI.HUD
         public static string GetName(this IReadOnlyPlayer _player, bool _colored = false)
         {
 
-            string name = _player?.Info?.name.Trim();
+            string name = _player?.Info?.name?.Trim();
             if (string.IsNullOrEmpty(name))
             {
                 return string.Format("Player {0}", _player.Id);

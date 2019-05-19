@@ -6,6 +6,7 @@ namespace Wheeled.Core.Data
 {
     public static class PlayerPreferences
     {
+
         public static int HeadIndex
         {
             get

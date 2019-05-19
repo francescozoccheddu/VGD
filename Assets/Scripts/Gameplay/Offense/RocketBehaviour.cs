@@ -15,15 +15,29 @@ namespace Wheeled.Gameplay.Offense
         public void Dissolve()
         {
             particleSystemTrail.Stop();
+            if (Application.isPlaying)
             meshRenderer.enabled = false;
+        }
+
+        private void OnEnable()
+        {
+            meshRenderer.enabled = true;
+            
+        }
+
+        public void Explode()
+        {
+            Explode(transform.position);
         }
 
         public void Explode(Vector3 _position)
         {
             transform.position = _position;
-
-            var gameObject = Instantiate(explosion, _position, Quaternion.identity);
-            ParticlesColorUtils.SetChildrenRendererColor(gameObject, m_color);
+            if (Application.isPlaying)
+            {
+                var gameObject = Instantiate(explosion, _position, Quaternion.identity);
+                ParticlesColorUtils.SetChildrenRendererColor(gameObject, m_color);
+            }
             particleSystemTrail.Stop();
             meshRenderer.enabled = false;
         }

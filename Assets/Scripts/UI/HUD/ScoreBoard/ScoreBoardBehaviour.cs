@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Wheeled.Core;
 using Wheeled.Core.Data;
 using Wheeled.Gameplay.Player;
+using Wheeled.Gameplay.Action;
 
 namespace Wheeled.HUD
 {
@@ -18,17 +20,14 @@ namespace Wheeled.HUD
         [Range(0.0f,1.0f)]
         public float antiScoreGroupAlpha;
 
-        private static ScoreBoardBehaviour s_instance;
-
-        public static void UpdateEntriesMain(IEnumerable<IReadOnlyPlayer> _players)
+        public void UpdateEntries()
         {
-            s_instance.UpdateEntries(_players);
-        }
-
-        public void UpdateEntries(IEnumerable<IReadOnlyPlayer> _players)
-        {
+            var players = from p
+                           in GameManager.Current.Players
+                           where !p.IsQuit(GameManager.Current.Time)
+                           select p;
             int i = 0;
-            foreach (var player in _players)
+            foreach (var player in players)
             {
                 GameObject gameObject;
                 if (i >= list.childCount)
@@ -49,16 +48,15 @@ namespace Wheeled.HUD
             }
         }
 
-        private void Awake()
-        {
-            s_instance = this;
-        }
-
         private void Update()
         {
             bool isOpen = Input.GetButton("ScoreBoard");
             antiScoreGroup.alpha = isOpen ? antiScoreGroupAlpha : 1.0f;
             scoreGroup.SetActive(isOpen);
+            if (isOpen)
+            {
+                UpdateEntries();
+            }
         }
         
     }

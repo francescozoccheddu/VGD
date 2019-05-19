@@ -59,7 +59,7 @@ namespace Wheeled.Gameplay.Movement
         public float LookUp
         {
             get => m_lookUp;
-            set => m_lookUp = Mathf.Clamp(value, -40.0f, 50.0f);
+            set => m_lookUp = Mathf.Clamp(value, -40.0f, 70.0f);
         }
         public Quaternion Quaternion => Quaternion.Euler(m_lookUp, m_turn, 0.0f);
         public float Turn

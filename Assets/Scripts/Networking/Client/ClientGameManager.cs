@@ -104,7 +104,6 @@ namespace Wheeled.Networking.Client
             // Ready notify
             Serializer.WriteReady();
             m_server.Send(NetworkManager.ESendMethod.ReliableUnordered);
-            UpdateScoreBoard();
         }
 
         void Updatable.ITarget.Update()
@@ -173,15 +172,6 @@ namespace Wheeled.Networking.Client
             return GetPlayerById(_offense.OffenderId)?.IsQuit(_time) == false;
         }
 
-        private void UpdateScoreBoard()
-        {
-            IEnumerable<ClientPlayer> players = from p
-                                                in m_players
-                                                where !p.Value.IsQuit(m_time)
-                                                select p.Value;
-            ScoreBoardBehaviour.UpdateEntriesMain(players);
-        }
-
         private Player GetOrCreatePlayer(int _id)
         {
             if (m_players.TryGetValue(_id, out ClientPlayer player))
@@ -199,7 +189,6 @@ namespace Wheeled.Networking.Client
                 {
                     player = newNetPlayer
                 });
-                UpdateScoreBoard();
                 return newNetPlayer;
             }
         }
