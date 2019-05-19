@@ -113,7 +113,7 @@ ModelImporter:
   meshes:
     lODScreenPercentages: []
     globalScale: 1
-    meshCompression: 2
+    meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
     importVisibility: 0
@@ -142,8 +142,8 @@ ModelImporter:
     tangentImportMode: 2
     normalCalculationMode: 1
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
-    blendShapeNormalImportMode: 2
-    normalSmoothingSource: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 3
   referencedClips: []
   importAnimation: 0
   copyAvatar: 0
