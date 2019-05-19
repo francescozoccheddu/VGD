@@ -1971,6 +1971,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Stage
       objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: d8877a3bcf1ffc84bbf1f4abe0990f5e,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: d8877a3bcf1ffc84bbf1f4abe0990f5e,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4010,7 +4015,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 0
 --- !u!224 &709196333
 RectTransform:
@@ -5315,7 +5320,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!108 &1541725755
 Light:
@@ -6373,7 +6378,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!108 &1876185647
 Light:
@@ -6661,12 +6666,12 @@ PrefabInstance:
     - target: {fileID: 8416325899184927864, guid: d68cab5a56f39f442828f1715614cc34,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.23426256
+      value: -0.33459905
       objectReference: {fileID: 0}
     - target: {fileID: 8416325899184927864, guid: d68cab5a56f39f442828f1715614cc34,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9721734
+      value: 0.94236064
       objectReference: {fileID: 0}
     - target: {fileID: 8416325899184927864, guid: d68cab5a56f39f442828f1715614cc34,
         type: 3}
