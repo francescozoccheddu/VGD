@@ -138,6 +138,12 @@ namespace Wheeled.Sound
                 m_audioSource = _parent.AddComponent<AudioSource>();
                 m_audioSource.clip = _layer.clip;
                 m_layer = _layer;
+                m_audioSource.reverbZoneMix = _layer.reverbMix;
+                m_audioSource.spatialBlend = _layer.spatialBlend;
+                m_audioSource.spread = _layer.spread;
+                m_audioSource.dopplerLevel = _layer.doppler;
+                m_audioSource.maxDistance = _layer.falloffDistance.max;
+                m_audioSource.minDistance = _layer.falloffDistance.min;
             }
 
             private void UpdateSource()
