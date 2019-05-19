@@ -34,12 +34,21 @@ namespace Wheeled.Core.Utils
 
         public float GetProgress(float _value)
         {
+            if (min >= max)
+            {
+                return 0.0f;
+            }
             return (_value - min) / Extent;
         }
 
         public float GetClampedProgress(float _value)
         {
             return Mathf.Clamp01(GetProgress(_value));
+        }
+
+        public float Clamp(float _value)
+        {
+            return Mathf.Clamp(_value, min, max);
         }
 
     }
@@ -68,6 +77,7 @@ namespace Wheeled.Core.Utils
 
         public override void OnGUI(Rect _position, SerializedProperty _property, GUIContent _label)
         {
+            EditorGUI.BeginProperty(_position, _label, _property);
             var minProperty = _property.FindPropertyRelative(nameof(MinMaxRange.min));
             var maxProperty = _property.FindPropertyRelative(nameof(MinMaxRange.max));
             m_values[0] = minProperty.floatValue;
@@ -76,6 +86,7 @@ namespace Wheeled.Core.Utils
             m_values[1] = Mathf.Max(m_values);
             minProperty.floatValue = m_values[0];
             maxProperty.floatValue = m_values[1];
+            EditorGUI.EndProperty();
         }
     }
 
