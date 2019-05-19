@@ -9,7 +9,7 @@ namespace Wheeled.Sound
     {
         public Rect Range { get; }
 
-        public AnimationCurveLimitAttribute(float _minX = float.NegativeInfinity, float _maxX = float.PositiveInfinity, float _minY = float.NegativeInfinity, float _maxY = float.PositiveInfinity)
+        public AnimationCurveLimitAttribute(float _minX = 0.0f, float _maxX = 1.0f, float _minY = 0.0f, float _maxY = 1.0f)
         {
             Range = new Rect(_minX, _minY, _maxX - _minX, _maxY - _minY);
         }
@@ -21,27 +21,10 @@ namespace Wheeled.Sound
     public class AnimationCurveLimitDrawer : PropertyDrawer
     {
 
-        private Color? m_color;
-
-        private void ChooseColor()
-        {
-            // TODO
-            m_color = Color.red;
-        }
-
-        private void CacheColor()
-        {
-            if (m_color != null)
-            {
-                ChooseColor();
-            }
-        }
-
         public override void OnGUI(Rect _position, SerializedProperty _property, GUIContent _label)
         {
-            CacheColor();
             AnimationCurveLimitAttribute limitAttribute = (AnimationCurveLimitAttribute) attribute;
-            EditorGUI.CurveField(_position, _property, m_color.Value, limitAttribute.Range);
+            EditorGUI.CurveField(_position, _property, Color.white, limitAttribute.Range);
         }
     }
 
