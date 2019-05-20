@@ -24,7 +24,7 @@ namespace Wheeled.HUD
                 IReadOnlyPlayer player = this.player;
                 _eventBoard.Add(() =>
                 {
-                    return string.Format("{0} joined the game", player.GetColoredName());
+                    return string.Format("{0}<color=\"#FFFC\">joined the game</color>", player.GetColoredName());
                 });
             }
         }
@@ -55,11 +55,11 @@ namespace Wheeled.HUD
                 string format;
                 if (killer == victim)
                 {
-                    format = "{0} killed himself by {2}";
+                    format = "{0}<color=\"#FFFC\"> killed himself by {2}</color>";
                 }
                 else
                 {
-                    format = "{0} killed {1} by {2}";
+                    format = "{0}<color=\"#FFFC\"> killed {1} by {2}</color>";
                 }
                 _eventBoard.Add(() =>
                 {
@@ -77,7 +77,7 @@ namespace Wheeled.HUD
                 IReadOnlyPlayer player = this.player;
                 _eventBoard.Add(() =>
                 {
-                    return string.Format("{0} left the game", player.GetColoredName());
+                    return string.Format("{0}<color=\"#FFFC\"> left the game</color>", player.GetColoredName());
                 });
             }
         }

@@ -19,7 +19,7 @@ namespace Wheeled.UI.HUD
             string name = _player?.Info?.name?.Trim();
             if (string.IsNullOrEmpty(name))
             {
-                return string.Format("Player {0}", _player.Id);
+                return string.Format("Player {0}", _player.Id + 1);
             }
             else
             {

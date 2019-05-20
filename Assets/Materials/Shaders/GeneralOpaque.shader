@@ -17,7 +17,7 @@ Shader "Wheeled/General/Opaque"
 
 		CGPROGRAM
 
-			#pragma surface surf Standard vertex:vert
+			#pragma surface surf Standard vertex:vert fullforwardshadows
 
 			fixed3 _PaintColor;
 			static const fixed _Alpha = 1.0;

@@ -3707,7 +3707,7 @@ PrefabInstance:
     - target: {fileID: 2927217780996966289, guid: b72e2cc371e1c904d925f0d33a77285f,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.62
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 2927217780996966289, guid: b72e2cc371e1c904d925f0d33a77285f,
         type: 3}
@@ -3756,23 +3756,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9179340017445253496, guid: b72e2cc371e1c904d925f0d33a77285f,
         type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0.8141662
-      objectReference: {fileID: 0}
-    - target: {fileID: 9179340017445253496, guid: b72e2cc371e1c904d925f0d33a77285f,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9179340017445253496, guid: b72e2cc371e1c904d925f0d33a77285f,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.5806319
-      objectReference: {fileID: 0}
-    - target: {fileID: 9179340017445253496, guid: b72e2cc371e1c904d925f0d33a77285f,
-        type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -109.01
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5837824864783628215, guid: b72e2cc371e1c904d925f0d33a77285f,
         type: 3}
@@ -3781,8 +3766,33 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 166064163648918508, guid: b72e2cc371e1c904d925f0d33a77285f,
         type: 3}
-      propertyPath: stopAction
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 166064163648918508, guid: b72e2cc371e1c904d925f0d33a77285f,
+        type: 3}
+      propertyPath: CollisionModule.enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 166064163648918508, guid: b72e2cc371e1c904d925f0d33a77285f,
+        type: 3}
+      propertyPath: CollisionModule.plane0
+      value: 
+      objectReference: {fileID: 672424819}
+    - target: {fileID: 166064163648918508, guid: b72e2cc371e1c904d925f0d33a77285f,
+        type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 166064163648918508, guid: b72e2cc371e1c904d925f0d33a77285f,
+        type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 166064163648918508, guid: b72e2cc371e1c904d925f0d33a77285f,
+        type: 3}
+      propertyPath: InitialModule.gravityModifier.scalar
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b72e2cc371e1c904d925f0d33a77285f, type: 3}
@@ -3990,6 +4000,36 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 433852760b170ef4f8949fbd07d06672, type: 3}
+--- !u!1 &672424818
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 672424819}
+  m_Layer: 0
+  m_Name: Smoke collision plane
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &672424819
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 672424818}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 2.5}
+  m_LocalScale: {x: 2, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &687256774 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4728689924848345068, guid: 86275ede797dc324bbfe0dfefeb5d503,
@@ -7923,6 +7963,11 @@ PrefabInstance:
       propertyPath: m_Text
       value: SETTINGS
       objectReference: {fileID: 0}
+    - target: {fileID: 3023211856774332145, guid: a2e06e99a04e86440917ead666a0eefc,
+        type: 3}
+      propertyPath: m_FontData.m_FontStyle
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3874122283629598940, guid: a2e06e99a04e86440917ead666a0eefc,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -9852,6 +9897,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Text
       value: QUIT
+      objectReference: {fileID: 0}
+    - target: {fileID: 3023211856774332145, guid: a2e06e99a04e86440917ead666a0eefc,
+        type: 3}
+      propertyPath: m_FontData.m_FontStyle
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3874122283629598940, guid: a2e06e99a04e86440917ead666a0eefc,
         type: 3}

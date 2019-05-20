@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 294455732137753825}
   - component: {fileID: 7723024099181288248}
   m_Layer: 5
-  m_Name: Input Invalidable
+  m_Name: Invalidable input
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
