@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using Wheeled.Core;
 using Wheeled.Networking;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
     public sealed class HostListBehaviour : MonoBehaviour
     {

@@ -4,7 +4,7 @@ using Wheeled.Core.Data;
 using Wheeled.Gameplay.Player;
 using Wheeled.UI.HUD;
 
-namespace Wheeled.HUD
+namespace Wheeled.UI.HUD
 {
     public sealed class ScoreBoardEntryBehaviour : MonoBehaviour
     {

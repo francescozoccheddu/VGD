@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace Wheeled.HUD
+namespace Wheeled.UI.HUD
 {
     public sealed class EventBoardEventBehaviour : MonoBehaviour
     {

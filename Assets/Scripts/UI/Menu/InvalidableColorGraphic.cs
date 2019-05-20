@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
     public sealed class InvalidableColorGraphic : MonoBehaviour
     {

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using UnityEngine;
 
 namespace Wheeled.Networking.Client
 {
@@ -13,10 +14,7 @@ namespace Wheeled.Networking.Client
 
         double IServer.Ping => m_server.Ping;
 
-        void IServer.Send(NetworkManager.ESendMethod _method)
-        {
-            m_server.Send(_method);
-        }
+        void IServer.Send(NetworkManager.ESendMethod _method) => m_server.Send(_method);
 
         void NetworkManager.IEventListener.ConnectedTo(NetworkManager.Peer _peer)
         {
@@ -38,24 +36,28 @@ namespace Wheeled.Networking.Client
 
         void NetworkManager.IEventListener.Discovered(IPEndPoint _endPoint, Deserializer _reader)
         {
-            _reader.ReadDiscoveryInfo(out int arena);
-            OnRoomDiscovered?.Invoke(new GameRoomInfo
+            try
             {
-                endPoint = _endPoint,
-                arena = arena
-            });
+                _reader.ReadDiscoveryInfo(out int arena);
+                OnRoomDiscovered?.Invoke(new GameRoomInfo
+                {
+                    endPoint = _endPoint,
+                    arena = arena
+                });
+            }
+            catch (Deserializer.DeserializationException e)
+            {
+                Debug.LogException(e);
+            }
         }
 
-        NetworkManager.EDiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(Deserializer _reader)
-        {
-            return NetworkManager.EDiscoveryRequestAction.Ignore;
-        }
+        NetworkManager.EDiscoveryRequestAction NetworkManager.IEventListener.DiscoveryRequested(Deserializer _reader) => NetworkManager.EDiscoveryRequestAction.Ignore;
 
         void NetworkManager.IEventListener.LatencyUpdated(NetworkManager.Peer _peer, double _latency)
         {
             if (_peer == m_server)
             {
-                ((IGameManager)m_game)?.LatencyUpdated(_latency);
+                m_game?.LatencyUpdated(_latency);
             }
             else
             {
@@ -93,7 +95,7 @@ namespace Wheeled.Networking.Client
                 }
                 else
                 {
-                    ((IGameManager) m_game)?.Received(_reader);
+                    m_game?.Received(_reader);
                 }
             }
             else
@@ -102,14 +104,8 @@ namespace Wheeled.Networking.Client
             }
         }
 
-        bool NetworkManager.IEventListener.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, Deserializer _reader)
-        {
-            return false;
-        }
+        bool NetworkManager.IEventListener.ShouldAcceptConnectionRequest(NetworkManager.Peer _peer, Deserializer _reader) => false;
 
-        void NetworkManager.IEventListener.Stopped(NetworkManager.EStopCause _cause)
-        {
-            NotifyStopped(EGameHostStopCause.NetworkError);
-        }
+        void NetworkManager.IEventListener.Stopped(NetworkManager.EStopCause _cause) => NotifyStopped(EGameHostStopCause.NetworkError);
     }
 }

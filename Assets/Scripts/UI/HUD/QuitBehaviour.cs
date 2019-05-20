@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using Wheeled.Core;
 
-namespace Wheeled.HUD
+namespace Wheeled.UI.HUD
 {
     public sealed class QuitBehaviour : MonoBehaviour
     {

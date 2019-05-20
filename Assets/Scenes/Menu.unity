@@ -1813,8 +1813,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Wheeled.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    m_TypeName: Wheeled.UI.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  ensureNotInUse: 0
   changed:
     m_PersistentCalls:
       m_Calls:
@@ -1829,7 +1830,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Wheeled.Menu.PortValidatorBehaviour+ChangedEvent, Assembly-CSharp,
+    m_TypeName: Wheeled.UI.Menu.PortValidatorBehaviour+ChangedEvent, Assembly-CSharp,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &295742552 stripped
 MonoBehaviour:
@@ -4723,8 +4724,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Wheeled.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    m_TypeName: Wheeled.UI.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   changed:
     m_PersistentCalls:
       m_Calls:
@@ -4739,8 +4740,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Wheeled.Menu.IPValidatorBehaviour+ChangedEvent, Assembly-CSharp, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    m_TypeName: Wheeled.UI.Menu.IPValidatorBehaviour+ChangedEvent, Assembly-CSharp,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &1005038062 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7723024099181288248, guid: 5127e1f912bb4e6478fadb5811d74249,
@@ -4992,12 +4993,13 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Wheeled.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    m_TypeName: Wheeled.UI.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  ensureNotInUse: 1
   changed:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Wheeled.Menu.PortValidatorBehaviour+ChangedEvent, Assembly-CSharp,
+    m_TypeName: Wheeled.UI.Menu.PortValidatorBehaviour+ChangedEvent, Assembly-CSharp,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &1099945020 stripped
 MonoBehaviour:
@@ -6079,8 +6081,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Wheeled.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    m_TypeName: Wheeled.UI.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!1001 &1812952505
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10156,8 +10158,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Wheeled.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    m_TypeName: Wheeled.UI.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &7704663163823535067
 MonoBehaviour:
   m_ObjectHideFlags: 0

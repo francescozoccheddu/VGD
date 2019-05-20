@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
     public sealed class HeadFanBehaviour : MonoBehaviour
     {

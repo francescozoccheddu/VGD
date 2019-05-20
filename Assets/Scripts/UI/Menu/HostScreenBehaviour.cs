@@ -5,7 +5,7 @@ using Wheeled.Core;
 using Wheeled.Core.Data;
 using Wheeled.Networking;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
     public sealed class HostScreenBehaviour : MonoBehaviour
     {
@@ -15,12 +15,19 @@ namespace Wheeled.Menu
         public void StartGame()
         {
             int port = int.Parse(portField.text);
-            int arena = arenaList.Index;
-            GameLauncher.Instance.StartGameAsServer(new GameRoomInfo
+            if (PortValidatorBehaviour.IsInUse(port))
             {
-                endPoint = new IPEndPoint(IPAddress.Loopback, port),
-                arena = arena
-            });
+                ScreenManagerBehaviour.SetError("Port is in use");
+            }
+            else
+            {
+                int arena = arenaList.Index;
+                GameLauncher.Instance.StartGameAsServer(new GameRoomInfo
+                {
+                    endPoint = new IPEndPoint(IPAddress.Loopback, port),
+                    arena = arena
+                });
+            }
         }
 
         private void OnEnable()

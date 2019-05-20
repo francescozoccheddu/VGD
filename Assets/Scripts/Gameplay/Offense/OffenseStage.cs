@@ -79,7 +79,7 @@ namespace Wheeled.Gameplay.Offense
             m_pendingRocketShots = new List<PendingRocketShot>();
         }
 
-        public void Put(double _time, in RifleShotOffense _offense)
+        public void Put(double _time, in LaserShotOffense _offense)
         {
             m_history.Put(_time, _offense);
         }
@@ -107,11 +107,11 @@ namespace Wheeled.Gameplay.Offense
                 m_pendingRocketShots.Add(new PendingRocketShot(_time, o));
                 break;
 
-                case RifleShotOffense o:
+                case LaserShotOffense o:
                 {
                     LaserBehaviour behaviour = Object.Instantiate(Scripts.Actors.rifleProjectile).GetComponent<LaserBehaviour>();
                     Vector3 origin = SocketsManagerBehaviour.Instance.rifle.GetPosition(o.Origin, o.Sight);
-                    Vector3 end = o.Hit ?? (o.Origin + o.Sight.Direction * RifleShotOffense.c_maxDistance);
+                    Vector3 end = o.Hit ?? (o.Origin + o.Sight.Direction * LaserShotOffense.c_maxDistance);
                     behaviour.SetColor(GameManager.Current.GetPlayerById(o.OffenderId).GetColor());
                     behaviour.Shoot(origin, end, o.Hit != null);
                 }

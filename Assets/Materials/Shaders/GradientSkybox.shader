@@ -47,17 +47,17 @@ Shader "Wheeled/Gradient Skybox"
 			fixed _Intensity;
 			fixed _Exponent;
 
-			v2f vert (appdata v)
+			v2f vert (appdata _in)
 			{
 				v2f o;
-				o.position = UnityObjectToClipPos (v.position);
-				o.texcoord = v.texcoord;
+				o.position = UnityObjectToClipPos (_in.position);
+				o.texcoord = _in.texcoord;
 				return o;
 			}
 
-			fixed4 frag (v2f i) : COLOR
+			fixed4 frag (v2f _in) : COLOR
 			{
-				half d = dot (normalize (i.texcoord), fixed4 (0.0, 1.0, 0.0, 0.0)) * 0.5f + 0.5f;
+				half d = dot (normalize (_in.texcoord), fixed4 (0.0, 1.0, 0.0, 0.0)) * 0.5f + 0.5f;
 				return lerp (_Color1, _Color2, pow (d, _Exponent))* _Intensity;
 			}
 

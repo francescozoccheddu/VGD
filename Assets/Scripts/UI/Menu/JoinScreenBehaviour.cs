@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Wheeled.Core;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
     public sealed class JoinScreenBehaviour : MonoBehaviour
     {

@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
     public abstract class ValidatorBehaviour : MonoBehaviour
     {

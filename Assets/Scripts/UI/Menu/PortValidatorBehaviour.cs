@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Linq;
+using System.Net.NetworkInformation;
 using UnityEngine.Events;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
     public sealed class PortValidatorBehaviour : ValidatorBehaviour
     {
         [Serializable]
         public sealed class ChangedEvent : UnityEvent<int?> { }
+
+        public bool ensureNotInUse;
 
         public ChangedEvent changed;
 
@@ -22,15 +26,21 @@ namespace Wheeled.Menu
             return null;
         }
 
-        public static bool IsValidPort(string _string)
-        {
-            return ParsePort(_string) != null;
-        }
+        public static bool IsInUse(int _port) => IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners().Any(_p => _p.Port == _port);
+
+        public static bool IsValidPort(string _string) => ParsePort(_string) != null;
 
         public void Validate(string _string)
         {
             int? port = ParsePort(_string);
-            validated.Invoke(port != null);
+            if (port != null && ensureNotInUse)
+            {
+                validated.Invoke(!IsInUse(port.Value));
+            }
+            else
+            {
+                validated.Invoke(port != null);
+            }
             changed.Invoke(port);
         }
     }
