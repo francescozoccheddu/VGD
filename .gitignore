@@ -267,3 +267,4 @@ __pycache__/
 /Build
 VGD.sln
 Assembly-CSharp.csproj
+/Resources/AE/**/* Logs
