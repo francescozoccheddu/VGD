@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.NetworkInformation;
 using UnityEngine.Events;
+using Wheeled.Networking;
 
 namespace Wheeled.UI.Menu
 {
@@ -27,6 +28,8 @@ namespace Wheeled.UI.Menu
         }
 
         public static bool IsInUse(int _port) => IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners().Any(_p => _p.Port == _port);
+        public static bool IsInUseBySomeoneElse(int _port) => (!NetworkManager.instance.IsRunning || NetworkManager.instance.Port != _port) && IsInUse(_port);
+
 
         public static bool IsValidPort(string _string) => ParsePort(_string) != null;
 
@@ -35,7 +38,7 @@ namespace Wheeled.UI.Menu
             int? port = ParsePort(_string);
             if (port != null && ensureNotInUse)
             {
-                validated.Invoke(!IsInUse(port.Value));
+                validated.Invoke(!IsInUseBySomeoneElse(port.Value));
             }
             else
             {

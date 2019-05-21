@@ -12,20 +12,26 @@ namespace Wheeled.UI.Menu
         public ListBehaviour arenaList;
         public InputField portField;
 
+        private int m_arena;
+
+        public void PrepareToStartGame()
+        {
+            m_arena = arenaList.Index;
+        }
+
         public void StartGame()
         {
             int port = int.Parse(portField.text);
-            if (PortValidatorBehaviour.IsInUse(port))
+            if (PortValidatorBehaviour.IsInUseBySomeoneElse(port))
             {
                 ScreenManagerBehaviour.SetError("Port is in use");
             }
             else
             {
-                int arena = arenaList.Index;
                 GameLauncher.Instance.StartGameAsServer(new GameRoomInfo
                 {
                     endPoint = new IPEndPoint(IPAddress.Loopback, port),
-                    arena = arena
+                    arena = m_arena
                 });
             }
         }
