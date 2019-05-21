@@ -132,6 +132,8 @@ MonoBehaviour:
   wheel: {fileID: 5801517394044964028}
   hip: {fileID: 6129853966686499467}
   smoothSpeed: 10
+  deceleration: 20
+  isGrounded: 0
 --- !u!114 &407538879
 MonoBehaviour:
   m_ObjectHideFlags: 0

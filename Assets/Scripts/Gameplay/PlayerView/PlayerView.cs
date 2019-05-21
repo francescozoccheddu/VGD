@@ -8,6 +8,9 @@ namespace Wheeled.Gameplay.PlayerView
 {
     public sealed class PlayerView
     {
+
+        private const float c_minGroundedHeight = 0.2f;
+
         public ELifeState State { get; set; }
 
         public bool IsLocal
@@ -17,7 +20,7 @@ namespace Wheeled.Gameplay.PlayerView
             {
                 if (m_gameObject != null)
                 {
-                    m_cameraBehaviour.SetLocal(value);
+                    m_gameObject.GetComponent<CameraBehaviour>().SetLocal(value);
                 }
                 m_isLocal = value;
             }
@@ -58,7 +61,7 @@ namespace Wheeled.Gameplay.PlayerView
 
         private GameObject m_gameObject;
         private DeathBehaviour m_deathBehaviour;
-        private CameraBehaviour m_cameraBehaviour;
+        private WheelBehaviour m_wheelBehaviour;
         private SightBehaviour m_sightBehaviour;
         private DamperBehaviour m_damperBehaviour;
         private RifleDisplayBehaviour m_rifleDisplayBehaviour;
@@ -102,6 +105,7 @@ namespace Wheeled.Gameplay.PlayerView
             {
                 ReachSightTarget();
                 ReachSimulationTarget();
+                m_sightBehaviour.ReachTarget();
             }
         }
 
@@ -121,7 +125,9 @@ namespace Wheeled.Gameplay.PlayerView
                 {
                     float lerpAlpha = Mathf.Min(0.9f, _deltaTime * positionInterpolationQuickness);
                     m_gameObject.transform.position = Vector3.LerpUnclamped(m_gameObject.transform.position, m_simulation.Position, lerpAlpha);
-                    m_damperBehaviour.height = Mathf.Lerp(m_damperBehaviour.height, m_simulation.Height, lerpAlpha);
+                    float height = m_simulation.Height;
+                    m_damperBehaviour.height = Mathf.Lerp(m_damperBehaviour.height, height, lerpAlpha);
+                    m_wheelBehaviour.isGrounded = height <= c_minGroundedHeight;
                 }
                 else
                 {
@@ -163,7 +169,6 @@ namespace Wheeled.Gameplay.PlayerView
             {
                 Object.Destroy(m_gameObject);
             }
-            m_cameraBehaviour = null;
             m_deathBehaviour = null;
             m_damperBehaviour = null;
             m_sightBehaviour = null;
@@ -177,7 +182,9 @@ namespace Wheeled.Gameplay.PlayerView
             if (m_gameObject != null)
             {
                 m_gameObject.transform.position = m_simulation.Position;
-                m_damperBehaviour.height = m_simulation.Height;
+                float height = m_simulation.Height;
+                m_damperBehaviour.height = height;
+                m_wheelBehaviour.isGrounded = height <= c_minGroundedHeight;
             }
         }
 
@@ -194,7 +201,8 @@ namespace Wheeled.Gameplay.PlayerView
             if (m_gameObject == null)
             {
                 m_gameObject = Object.Instantiate(Scripts.Actors.player, m_simulation.Position, Quaternion.identity);
-                m_cameraBehaviour = m_gameObject.GetComponent<CameraBehaviour>();
+                m_gameObject.GetComponent<CameraBehaviour>().SetLocal(IsLocal);
+                m_wheelBehaviour = m_gameObject.GetComponent<WheelBehaviour>();
                 m_damperBehaviour = m_gameObject.GetComponent<DamperBehaviour>();
                 m_sightBehaviour = m_gameObject.GetComponent<SightBehaviour>();
                 m_deathBehaviour = m_gameObject.GetComponent<DeathBehaviour>();
@@ -204,7 +212,6 @@ namespace Wheeled.Gameplay.PlayerView
                 m_rifleDisplayBehaviour.Power = RiflePower;
                 m_rifleDisplayBehaviour.BaseColor = m_color;
                 m_animator = m_gameObject.GetComponent<Animator>();
-                m_cameraBehaviour.SetLocal(IsLocal);
                 ReachTarget();
             }
         }
