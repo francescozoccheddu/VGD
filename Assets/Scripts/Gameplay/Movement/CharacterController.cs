@@ -100,7 +100,17 @@ public struct CharacterController
                 float drag = isGrounded ? c_groundDragXZ : c_airDragXZ;
                 float targetMagnitude = Mathf.Max(0.0f, Mathf.Min(targetSpeed - drag * _deltaTime, c_maxSpeedXZ));
                 velocityXZ = velocityXZ * (targetMagnitude / targetSpeed);
-                next.m_capsule.velocity = velocityXZ.ToVector3XZ(next.m_capsule.velocity.y);
+                Vector3 movementVelocity = velocityXZ.ToVector3XZ();
+                if (isGrounded && groundNormal != Vector3.up)
+                {
+                    Vector3 slide = CapsuleControllerHelper.Slide(movementVelocity, groundNormal.Value);
+                    if (slide.y < 0.0f)
+                    {
+                        movementVelocity = slide;
+                    }
+                }
+                movementVelocity.y += next.m_capsule.velocity.y;
+                next.m_capsule.velocity = movementVelocity;
             }
         }
         next.m_capsule = next.m_capsule.Simulate(_deltaTime);
