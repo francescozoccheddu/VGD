@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using UnityEngine.Events;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
 
     public sealed class IPValidatorBehaviour : ValidatorBehaviour

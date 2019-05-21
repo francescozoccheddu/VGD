@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-
+using UnityEngine;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
-using Wheeled.HUD;
+using Wheeled.UI.HUD;
 
 namespace Wheeled.Networking.Client
 {
@@ -14,124 +14,134 @@ namespace Wheeled.Networking.Client
 
         void Client.IGameManager.Received(Deserializer _reader)
         {
-            // TODO Catch exception
-            switch (_reader.ReadMessageType())
+            try
             {
-                case EMessage.TimeSync:
+
+                switch (_reader.ReadMessageType())
                 {
-                    _reader.ReadTimeSync(out double time);
-                    // Time
-                    m_targetTime = time + m_server.Ping;
-                    if (!m_isRunning)
+                    case EMessage.TimeSync:
                     {
-                        m_isRunning = true;
-                        m_time = m_targetTime;
+                        _reader.ReadTimeSync(out double time);
+                        // Time
+                        m_targetTime = time + m_server.Ping;
+                        if (!m_isRunning)
+                        {
+                            m_isRunning = true;
+                            m_time = m_targetTime;
+                        }
                     }
-                }
-                break;
+                    break;
 
-                case EMessage.PlayerIntroductionSync:
-                {
-                    _reader.ReadPlayerIntroduction(out int id, out PlayerInfo info);
-                    GetOrCreatePlayer(id).Info = info;
-                }
-                break;
-
-                case EMessage.RecapSync:
-                {
-                    _reader.ReadRecapSync(out double time, out IEnumerable<PlayerRecapInfo> infos);
-                    Dictionary<int, ClientPlayer> oldPlayers = new Dictionary<int, ClientPlayer>(m_players);
-                    foreach (PlayerRecapInfo info in infos)
+                    case EMessage.PlayerIntroductionSync:
                     {
-                        Player player = GetOrCreatePlayer(info.id);
-                        player.DeathsValue.Put(time, info.deaths);
-                        player.PutHealth(time, info.health);
-                        player.KillsValue.Put(time, info.kills);
-                        oldPlayers.Remove(info.id);
+                        _reader.ReadPlayerIntroduction(out int id, out PlayerInfo info);
+                        GetOrCreatePlayer(id).Info = info;
                     }
-                    foreach (ClientPlayer oldPlayer in oldPlayers.Values)
+                    break;
+
+                    case EMessage.RecapSync:
                     {
-                        oldPlayer.PutQuit(time);
+                        _reader.ReadRecapSync(out double time, out IEnumerable<PlayerRecapInfo> infos);
+                        Dictionary<int, ClientPlayer> oldPlayers = new Dictionary<int, ClientPlayer>(m_players);
+                        foreach (PlayerRecapInfo info in infos)
+                        {
+                            Player player = GetOrCreatePlayer(info.id);
+                            player.DeathsValue.Put(time, info.deaths);
+                            player.PutHealth(time, info.health);
+                            player.KillsValue.Put(time, info.kills);
+                            oldPlayers.Remove(info.id);
+                        }
+                        foreach (ClientPlayer oldPlayer in oldPlayers.Values)
+                        {
+                            oldPlayer.PutQuit(time);
+                        }
+                        _reader.EnsureReadEnd();
                     }
-                }
-                break;
+                    break;
 
-                case EMessage.QuitReplication:
-                {
-                    _reader.ReadQuitReplication(out double time, out int id);
-                    if (m_players.TryGetValue(id, out ClientPlayer player))
+                    case EMessage.QuitReplication:
                     {
-                        player.PutQuit(time);
+                        _reader.ReadQuitReplication(out double time, out int id);
+                        if (m_players.TryGetValue(id, out ClientPlayer player))
+                        {
+                            player.PutQuit(time);
+                        }
                     }
-                }
-                break;
+                    break;
 
-                case EMessage.SimulationOrder:
-                {
-                    _reader.ReadSimulationOrder(out int step, out SimulationStepInfo simulation);
-                    if (m_isRunning && step > m_time.CeilingSimulationSteps() + c_maxStepAdvance)
+                    case EMessage.SimulationOrder:
                     {
-                        break;
+                        _reader.ReadSimulationOrder(out int step, out SimulationStepInfo simulation);
+                        if (m_isRunning && step > m_time.CeilingSimulationSteps() + c_maxStepAdvance)
+                        {
+                            break;
+                        }
+                        m_localPlayer.Correct(step, simulation);
                     }
-                    m_localPlayer.Correct(step, simulation);
-                }
-                break;
+                    break;
 
-                case EMessage.MovementReplication:
-                {
-                    _reader.ReadMovementReplication(out int id, out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
-                    if (m_isRunning && step > m_time.CeilingSimulationSteps() + c_maxStepAdvance)
+                    case EMessage.MovementReplication:
                     {
-                        break;
+                        _reader.ReadMovementReplication(out int id, out int step, out IEnumerable<InputStep> inputSteps, out Snapshot snapshot);
+                        if (m_isRunning && step > m_time.CeilingSimulationSteps() + c_maxStepAdvance)
+                        {
+                            break;
+                        }
+                        NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
+                        player?.SignalReplication();
+                        player?.Move(step, inputSteps, snapshot);
+                        _reader.EnsureReadEnd();
                     }
-                    NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
-                    player?.SignalReplication();
-                    player?.Move(step, inputSteps, snapshot);
-                }
-                break;
+                    break;
 
-                case EMessage.SpawnOrderOrReplication:
-                {
-                    _reader.ReadSpawnOrderOrReplication(out double time, out int id, out SpawnInfo spawnInfo);
-                    GetOrCreatePlayer(id).PutSpawn(time, spawnInfo);
-                }
-                break;
-
-                case EMessage.DamageOrderOrReplication:
-                {
-                    _reader.ReadDamageOrderOrReplication(out double time, out int id, out DamageInfo info);
-                    GetOrCreatePlayer(id).PutDamage(time, info);
-                    if (info.offenderId == m_localPlayer.Id)
+                    case EMessage.SpawnOrderOrReplication:
                     {
-                        m_localPlayer.PutHitConfirm(time, info.offenseType);
+                        _reader.ReadSpawnOrderOrReplication(out double time, out int id, out SpawnInfo spawnInfo);
+                        GetOrCreatePlayer(id).PutSpawn(time, spawnInfo);
                     }
-                }
-                break;
+                    break;
 
-                case EMessage.ShootReplication:
-                {
-                    _reader.ReadShotReplication(out double time, out int id, out ShotInfo info);
-                    NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
-                    player?.PutShot(time, info);
-                }
-                break;
-
-                case EMessage.KillSync:
-                {
-                    _reader.ReadKillSync(out double time, out KillInfo info);
-                    Player killer = GetOrCreatePlayer(info.killerId);
-                    Player victim = GetOrCreatePlayer(info.victimId);
-                    killer.KillsValue.Put(time, info.killerKills);
-                    victim.DeathsValue.Put(time, info.victimDeaths);
-                    EventBoardBehaviour.Instance.Put(m_time, new EventBoardBehaviour.KillEvent
+                    case EMessage.DamageOrderOrReplication:
                     {
-                        killer = killer,
-                        victim = victim,
-                        offenseType = info.offenseType
-                    });
+                        _reader.ReadDamageOrderOrReplication(out double time, out int id, out DamageInfo info);
+                        GetOrCreatePlayer(id).PutDamage(time, info);
+                        if (info.offenderId == m_localPlayer.Id)
+                        {
+                            m_localPlayer.PutHitConfirm(time, info.offenseType);
+                        }
+                    }
+                    break;
+
+                    case EMessage.ShootReplication:
+                    {
+                        _reader.ReadShotReplication(out double time, out int id, out ShotInfo info);
+                        NetPlayer player = GetOrCreatePlayer(id) as NetPlayer;
+                        player?.PutShot(time, info);
+                    }
+                    break;
+
+                    case EMessage.KillSync:
+                    {
+                        _reader.ReadKillSync(out double time, out KillInfo info);
+                        Player killer = GetOrCreatePlayer(info.killerId);
+                        Player victim = GetOrCreatePlayer(info.victimId);
+                        killer.KillsValue.Put(time, info.killerKills);
+                        victim.DeathsValue.Put(time, info.victimDeaths);
+                        EventBoardBehaviour.Instance.Put(m_time, new EventBoardBehaviour.KillEvent
+                        {
+                            killer = killer,
+                            victim = victim,
+                            offenseType = info.offenseType
+                        });
+                    }
+                    break;
                 }
-                break;
+            }
+            catch (Deserializer.DeserializationException e)
+            {
+                Debug.LogException(e);
             }
         }
+
     }
 }

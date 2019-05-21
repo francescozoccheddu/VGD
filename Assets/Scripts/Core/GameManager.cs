@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Wheeled.Gameplay.Player;
-using Wheeled.HUD;
+using Wheeled.UI.HUD;
 using Wheeled.Networking;
 
 namespace Wheeled.Core

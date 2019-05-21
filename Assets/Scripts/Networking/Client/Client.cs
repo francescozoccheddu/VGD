@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using Wheeled.Core.Data;
-using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking.Client
 {
@@ -83,7 +82,7 @@ namespace Wheeled.Networking.Client
         {
             m_server.Disconnect();
             m_server = new NetworkManager.Peer();
-            ((IGameManager)m_game)?.Stopped();
+            m_game?.Stopped();
             m_game = null;
             IsConnected = false;
             RoomInfo = null;

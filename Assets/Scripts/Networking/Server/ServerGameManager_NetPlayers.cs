@@ -3,8 +3,8 @@ using UnityEngine;
 using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
-using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Offense;
+using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Networking.Server
 {
@@ -17,6 +17,7 @@ namespace Wheeled.Networking.Server
             public NetworkManager.Peer Peer { get; }
 
             private const int c_maxCorrectionFrequency = 5;
+            private const float c_maxStartWaitTime = 5.0f;
             private const double c_maxValidationAnticipation = 4.0f;
 
             private const float c_notifyDelaySmoothQuickness = 0.2f;
@@ -27,6 +28,9 @@ namespace Wheeled.Networking.Server
             private float m_timeSinceLastCorrection;
             private int m_lastNotifyStep;
             private bool m_wasAlive;
+            private readonly float m_creationTime;
+            private const float c_playerIntroductionResendPeriod = 20.0f;
+            private float m_lastPlayerIntroduction;
 
             public NetPlayer(ServerGameManager _manager, int _id, NetworkManager.Peer _peer, OffenseBackstage _offenseBackstage) : base(_manager, _id, _offenseBackstage, false)
             {
@@ -44,12 +48,11 @@ namespace Wheeled.Networking.Server
                 MaxValidationDelay = 1.0;
                 m_lastNotifyStep = -1;
                 m_notifyTapper = new TimeConstants.Tapper(0.0f);
+                m_creationTime = Time.realtimeSinceStartup;
+                m_lastPlayerIntroduction = Time.realtimeSinceStartup;
             }
 
-            public void TryKaze(double _time, KazeInfo _info)
-            {
-                m_actionValidator.PutKaze(_time, _info);
-            }
+            public void TryKaze(double _time, KazeInfo _info) => m_actionValidator.PutKaze(_time, _info);
 
             public void TryMove(int _step, IEnumerable<InputStep> _inputSteps, Snapshot _snapshot)
             {
@@ -62,20 +65,11 @@ namespace Wheeled.Networking.Server
                 PutSight(_step, _snapshot.sight);
             }
 
-            public void TryShoot(double _time, ShotInfo _info)
-            {
-                m_actionValidator.PutShot(_time, _info);
-            }
+            public void TryShoot(double _time, ShotInfo _info) => m_actionValidator.PutShot(_time, _info);
 
-            void ActionValidator.ITarget.Kaze(double _time, KazeInfo _info)
-            {
-                PutKaze(LocalTime, _info);
-            }
+            void ActionValidator.ITarget.Kaze(double _time, KazeInfo _info) => PutKaze(LocalTime, _info);
 
-            void ActionValidator.ITarget.Shoot(double _time, ShotInfo _info)
-            {
-                PutShot(LocalTime, _info);
-            }
+            void ActionValidator.ITarget.Shoot(double _time, ShotInfo _info) => PutShot(LocalTime, _info);
 
             void MovementValidator.ITarget.Corrected(int _step, in SimulationStepInfo _simulation)
             {
@@ -97,10 +91,7 @@ namespace Wheeled.Networking.Server
                 PutSimulation(_step, _simulation);
             }
 
-            protected override int GetLastValidMovementStep()
-            {
-                return m_movementValidator.Step;
-            }
+            protected override int GetLastValidMovementStep() => m_movementValidator.Step;
 
             protected override void OnActorSpawned()
             {
@@ -111,8 +102,27 @@ namespace Wheeled.Networking.Server
                 m_movementValidator.IsRunning = true;
             }
 
+            public bool ShouldKick => !IsStarted && Time.realtimeSinceStartup - m_creationTime > c_maxStartWaitTime;
+
+
+            protected override void OnQuitScheduled(double _time)
+            {
+                base.OnQuitScheduled(_time);
+                Peer.Disconnect();
+            }
+
             protected override void OnUpdated()
             {
+                if (!IsStarted && Time.realtimeSinceStartup - m_creationTime > c_maxStartWaitTime)
+                {
+                    Debug.LogFormat("Start message timeout. Kicking player {0}", Id);
+                    PutQuit(m_manager.m_time);
+                }
+                if (Time.realtimeSinceStartup - m_lastPlayerIntroduction > c_playerIntroductionResendPeriod)
+                {
+                    m_lastPlayerIntroduction = Time.realtimeSinceStartup;
+                    m_manager.SendPlayerIntroductions(this, NetworkManager.ESendMethod.Unreliable);
+                }
                 UpdateNotifyTapper();
                 m_timeSinceLastCorrection += Time.deltaTime;
                 double lastMovementTime = m_movementValidator.Step.SimulationPeriod();
@@ -126,10 +136,7 @@ namespace Wheeled.Networking.Server
                 m_movementValidator.IsRunning = false;
             }
 
-            protected override void SendReplication(NetworkManager.ESendMethod _method)
-            {
-                m_manager.SendAllBut(Peer, _method);
-            }
+            protected override void SendReplication(NetworkManager.ESendMethod _method) => m_manager.SendAllBut(Peer, _method);
 
             protected override void OnActorBreathed()
             {

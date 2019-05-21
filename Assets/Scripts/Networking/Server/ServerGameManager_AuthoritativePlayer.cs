@@ -9,7 +9,7 @@ using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
 using Wheeled.Scene;
 using Wheeled.Gameplay.Offense;
-using Wheeled.HUD;
+using Wheeled.UI.HUD;
 
 namespace Wheeled.Networking.Server
 {

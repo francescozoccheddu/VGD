@@ -98,7 +98,6 @@ namespace Wheeled.Sound
             if (m_playingLayers != null)
             {
                 float normalizedValue = valueRange.GetClampedProgress(_value);
-                Debug.LogFormat("m_value = {0} value = {1}", _value, normalizedValue);
                 foreach (PlayingLayer layer in m_playingLayers)
                 {
                     layer.SetValue(normalizedValue);

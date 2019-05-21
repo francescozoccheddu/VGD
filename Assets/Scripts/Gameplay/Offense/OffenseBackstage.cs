@@ -85,12 +85,12 @@ namespace Wheeled.Gameplay.Offense
             }
         }
 
-        private sealed class PendingRifleShotOffense : PendingShotOffense
+        private sealed class PendingLaserShotOffense : PendingShotOffense
         {
             private const float c_criticalDamage = 2.0f;
             private const float c_damage = 0.7f;
 
-            public PendingRifleShotOffense(double _time, RifleShotOffense _offense) : base(_time, _offense)
+            public PendingLaserShotOffense(double _time, LaserShotOffense _offense) : base(_time, _offense)
             {
             }
 
@@ -98,7 +98,7 @@ namespace Wheeled.Gameplay.Offense
             {
                 if (_time >= Time)
                 {
-                    RifleShotOffense offense = (RifleShotOffense) Offense;
+                    LaserShotOffense offense = (LaserShotOffense) Offense;
                     _probes.Clear();
                     {
                         IEnumerable<HitTarget> targets = _target?.ProvideHitTarget(_time, Offense);
@@ -112,7 +112,7 @@ namespace Wheeled.Gameplay.Offense
                         Physics.SyncTransforms();
                     }
                     Vector3 origin = GetOrigin();
-                    Vector3 end = origin + offense.Sight.Direction * RifleShotOffense.c_maxDistance;
+                    Vector3 end = origin + offense.Sight.Direction * LaserShotOffense.c_maxDistance;
                     if (_probes.RayCast(origin, end, out HitProbePool.HitInfo hitInfo))
                     {
                         end = hitInfo.position;
@@ -121,7 +121,7 @@ namespace Wheeled.Gameplay.Offense
                             float damage = (hitInfo.isCritical ? c_criticalDamage : c_damage) * offense.Power;
                             _target.Damage(Time, hitInfo.playerId.Value, offense, damage);
                         }
-                        ((RifleShotOffense) Offense).Hit = hitInfo.position;
+                        ((LaserShotOffense) Offense).Hit = hitInfo.position;
                     }
                     _probes.Clear();
                     Dispose();
@@ -260,9 +260,9 @@ namespace Wheeled.Gameplay.Offense
             m_offenses.Add(new PendingExplosionOffense(_time, _offense));
         }
 
-        public void PutRifle(double _time, RifleShotOffense _offense)
+        public void PutRifle(double _time, LaserShotOffense _offense)
         {
-            m_offenses.Add(new PendingRifleShotOffense(_time, _offense));
+            m_offenses.Add(new PendingLaserShotOffense(_time, _offense));
         }
 
         public void PutRocket(double _time, RocketShotOffense _offense)

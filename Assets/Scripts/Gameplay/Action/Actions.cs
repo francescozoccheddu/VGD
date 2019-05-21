@@ -52,14 +52,14 @@ namespace Wheeled.Gameplay.Action
         }
     }
 
-    public sealed class RifleShotOffense : ShotOffense
+    public sealed class LaserShotOffense : ShotOffense
     {
-        public override EOffenseType Type => EOffenseType.Rifle;
+        public override EOffenseType Type => EOffenseType.Laser;
         public float Power { get; }
 
         public const float c_maxDistance = 100.0f;
 
-        public RifleShotOffense(int _offenderId, Vector3 _position, Sight _sight, float _power) : base(_offenderId, _position, _sight)
+        public LaserShotOffense(int _offenderId, Vector3 _position, Sight _sight, float _power) : base(_offenderId, _position, _sight)
         {
             Power = _power;
         }
@@ -101,6 +101,6 @@ namespace Wheeled.Gameplay.Action
 
     public enum EOffenseType
     {
-        Rifle, Rocket, Explosion
+        Laser, Rocket, Explosion
     }
 }

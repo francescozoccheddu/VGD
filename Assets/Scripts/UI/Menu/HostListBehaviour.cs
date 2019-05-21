@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using Wheeled.Core;
 using Wheeled.Networking;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
     public sealed class HostListBehaviour : MonoBehaviour
     {
@@ -41,7 +41,6 @@ namespace Wheeled.Menu
         {
             if (m_group != null)
             {
-                Debug.LogFormat("Update current: ip = {0}", _ip?.ToString() ?? "null");
                 IPEndPoint endPoint = null;
                 if (_ip != null && _port != null)
                 {
@@ -71,7 +70,6 @@ namespace Wheeled.Menu
                     toggle.group = m_group;
                     toggle.onValueChanged.AddListener(_isOn =>
                     {
-                        Debug.LogFormat("Toggle {0} changed: isOn = {1}", _info.endPoint, _isOn);
                         if (_isOn)
                         {
                             ipField.text = _info.endPoint.Address.MapToIPv4().ToString();

@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
     public sealed class ListBehaviour : MonoBehaviour
     {

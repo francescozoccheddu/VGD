@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
     public sealed class ErrorScreenBehaviour : MonoBehaviour
     {

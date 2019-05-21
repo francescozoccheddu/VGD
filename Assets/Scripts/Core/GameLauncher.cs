@@ -7,6 +7,7 @@ using Wheeled.Gameplay.PlayerView;
 using Wheeled.Networking;
 using Wheeled.Networking.Client;
 using Wheeled.Networking.Server;
+using Wheeled.UI.Menu;
 
 namespace Wheeled.Core
 {
@@ -154,7 +155,7 @@ namespace Wheeled.Core
 
         private void GameStopped(EGameHostStopCause _cause)
         {
-            Menu.ScreenManagerBehaviour.SetError(_cause.ToString());
+            ScreenManagerBehaviour.SetError(_cause.ToString());
             QuitGame();
         }
 

@@ -5,7 +5,7 @@ using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Player;
 using Wheeled.UI.HUD;
 
-namespace Wheeled.HUD
+namespace Wheeled.UI.HUD
 {
     public sealed class EventBoardBehaviour : MonoBehaviour, EventHistory<EventBoardBehaviour.IEvent>.ITarget
     {
@@ -24,7 +24,7 @@ namespace Wheeled.HUD
                 IReadOnlyPlayer player = this.player;
                 _eventBoard.Add(() =>
                 {
-                    return string.Format("{0}<color=\"#FFFC\">joined the game</color>", player.GetColoredName());
+                    return string.Format("{0}<color=\"#FFFC\"> joined the game</color>", player.GetColoredName());
                 });
             }
         }
@@ -42,7 +42,7 @@ namespace Wheeled.HUD
                 string cause = null;
                 switch (offenseType)
                 {
-                    case EOffenseType.Rifle:
+                    case EOffenseType.Laser:
                     cause = "laser";
                     break;
                     case EOffenseType.Rocket:
@@ -59,7 +59,7 @@ namespace Wheeled.HUD
                 }
                 else
                 {
-                    format = "{0}<color=\"#FFFC\"> killed {1} by {2}</color>";
+                    format = "{0}<color=\"#FFFC\"> killed </color>{1}<color=\"#FFFC\"> by {2}</color>";
                 }
                 _eventBoard.Add(() =>
                 {

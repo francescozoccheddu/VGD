@@ -7,7 +7,7 @@ using Wheeled.Gameplay;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Player;
 using Wheeled.Gameplay.Offense;
-using Wheeled.HUD;
+using Wheeled.UI.HUD;
 using Wheeled.Core;
 
 namespace Wheeled.Networking.Client

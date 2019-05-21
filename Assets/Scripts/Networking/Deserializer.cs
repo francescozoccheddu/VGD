@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 
 using UnityEngine;
+using Wheeled.Core.Data;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Player;
@@ -45,6 +46,7 @@ namespace Wheeled.Networking
         {
             _outStep = ReadInt();
             _outSimulation = ReadSimulationStepInfo();
+            EnsureReadEnd();
         }
 
         public void ReadDamageOrderOrReplication(out double _outTime, out int _outId, out DamageInfo _outInfo)
@@ -52,18 +54,21 @@ namespace Wheeled.Networking
             _outTime = ReadDouble();
             _outId = ReadByte();
             _outInfo = ReadDamageInfo();
+            EnsureReadEnd();
         }
 
         public void ReadKazeNotify(out double _outTime, out KazeInfo _outInfo)
         {
             _outTime = ReadDouble();
             _outInfo = ReadKazeInfo();
+            EnsureReadEnd();
         }
 
         public void ReadShotNotify(out double _outTime, out ShotInfo _outInfo)
         {
             _outTime = ReadDouble();
             _outInfo = ReadShotInfo();
+            EnsureReadEnd();
         }
 
         public void ReadShotReplication(out double _outTime, out int _outId, out ShotInfo _outInfo)
@@ -71,6 +76,7 @@ namespace Wheeled.Networking
             _outTime = ReadDouble();
             _outId = ReadByte();
             _outInfo = ReadShotInfo();
+            EnsureReadEnd();
         }
 
         public void ReadSpawnOrderOrReplication(out double _outTime, out int _outId, out SpawnInfo _outSpawnInfo)
@@ -78,12 +84,14 @@ namespace Wheeled.Networking
             _outTime = ReadDouble();
             _outId = ReadByte();
             _outSpawnInfo = ReadSpawnInfo();
+            EnsureReadEnd();
         }
 
         public void ReadPlayerIntroduction(out int _outId, out PlayerInfo _outInfo)
         {
             _outId = ReadByte();
             _outInfo = ReadPlayerInfo();
+            EnsureReadEnd();
         }
 
         public void ReadPlayerSync(out double _outTime, out IEnumerable<PlayerRecapInfo> _outInfos)
@@ -96,6 +104,7 @@ namespace Wheeled.Networking
         {
             _outId = ReadByte();
             _outMap = ReadByte();
+            EnsureRead(_outMap >= 0 && _outMap < Scripts.Scenes.arenas.Length);
             // Checksum
             EnsureRead(ReadByte() == 255 - _outId);
             EnsureRead(ReadByte() == _outId);
@@ -107,6 +116,7 @@ namespace Wheeled.Networking
         {
             _outTime = ReadDouble();
             _outId = ReadByte();
+            EnsureReadEnd();
         }
 
         public void ReadRecapSync(out double _outTime, out IEnumerable<PlayerRecapInfo> _outInfos)
@@ -128,21 +138,27 @@ namespace Wheeled.Networking
         {
             _outTime = ReadDouble();
             _outInfo = ReadKillInfo();
+            EnsureReadEnd();
         }
 
         public void ReadDiscoveryInfo(out int _outArena)
         {
             _outArena = ReadByte();
+            EnsureRead(_outArena >= 0 && _outArena < Scripts.Scenes.arenas.Length);
+            EnsureReadEnd();
         }
 
         public PlayerInfo ReadPlayerInfo()
         {
-            return new PlayerInfo
+            var info = new PlayerInfo
             {
                 name = ReadString(),
                 color = ReadByte(),
                 head = ReadByte()
             };
+            EnsureRead(info.color >= 0 && info.color < Scripts.PlayerPreferences.colors.Length);
+            EnsureRead(info.head >= 0 && info.head < Scripts.PlayerPreferences.heads.Length);
+            return info;
         }
 
         private static void EnsureRead(bool _read)
@@ -153,7 +169,7 @@ namespace Wheeled.Networking
             }
         }
 
-        private void EnsureReadEnd()
+        public void EnsureReadEnd()
         {
             EnsureRead(m_netDataReader.EndOfData);
         }

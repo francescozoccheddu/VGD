@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Wheeled.Menu
+namespace Wheeled.UI.Menu
 {
     public sealed class ValidatorProxyBehaviour : ValidatorBehaviour
     {

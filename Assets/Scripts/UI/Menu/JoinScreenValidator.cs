@@ -1,4 +1,4 @@
-﻿namespace Wheeled.Menu
+﻿namespace Wheeled.UI.Menu
 {
     public sealed class JoinScreenValidator : ValidatorBehaviour
     {

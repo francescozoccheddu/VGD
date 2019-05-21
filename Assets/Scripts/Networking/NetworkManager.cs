@@ -3,7 +3,6 @@ using LiteNetLib.Utils;
 
 using System;
 using System.Net;
-
 using UnityEngine;
 
 namespace Wheeled.Networking
@@ -38,45 +37,21 @@ namespace Wheeled.Networking
 
             private readonly NetPeer m_peer;
 
-            public Peer(NetPeer _peer = null)
-            {
-                m_peer = _peer;
-            }
+            public Peer(NetPeer _peer = null) => m_peer = _peer;
 
-            public static bool operator !=(Peer _a, Peer _b)
-            {
-                return !(_a == _b);
-            }
+            public static bool operator !=(Peer _a, Peer _b) => !(_a == _b);
 
-            public static bool operator ==(Peer _a, Peer _b)
-            {
-                return _a.Equals(_b);
-            }
+            public static bool operator ==(Peer _a, Peer _b) => _a.Equals(_b);
 
-            public void Disconnect()
-            {
-                m_peer?.Disconnect();
-            }
+            public void Disconnect() => m_peer?.Disconnect();
 
-            public override bool Equals(object _other)
-            {
-                return (_other as Peer?)?.Equals(this) == true;
-            }
+            public override bool Equals(object _other) => (_other as Peer?)?.Equals(this) == true;
 
-            public bool Equals(Peer _other)
-            {
-                return _other.IsValid && IsValid && _other.m_peer.Id == m_peer.Id && _other.m_peer.ConnectionNum == m_peer.ConnectionNum;
-            }
+            public bool Equals(Peer _other) => _other.IsValid && IsValid && _other.m_peer.Id == m_peer.Id && _other.m_peer.ConnectionNum == m_peer.ConnectionNum;
 
-            public override int GetHashCode()
-            {
-                return (m_peer?.Id)?.GetHashCode() ?? 0;
-            }
+            public override int GetHashCode() => (m_peer?.Id)?.GetHashCode() ?? 0;
 
-            public void Send(NetworkManager.ESendMethod _method)
-            {
-                m_peer?.Send(Serializer.writer, (DeliveryMethod) _method);
-            }
+            public void Send(NetworkManager.ESendMethod _method) => m_peer?.Send(Serializer.writer, (DeliveryMethod) _method);
         }
 
         public enum EDiscoveryRequestAction
