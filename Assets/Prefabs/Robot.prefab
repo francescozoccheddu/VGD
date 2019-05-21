@@ -174,10 +174,10 @@ MonoBehaviour:
   arm: {fileID: 8393276695295442018}
   torso: {fileID: 8416325899184927864}
   cameraArm: {fileID: 2197297887863010409}
-  lookUpSpeed: 8
+  lookUpTime: 0.2
   maxLookUpOffset: 20
   headLookUpFactor: 0.3
-  turnSpeed: 10
+  turnTime: 0.1
   maxTurnOffset: 15
   lookUp: 0
   turn: 0

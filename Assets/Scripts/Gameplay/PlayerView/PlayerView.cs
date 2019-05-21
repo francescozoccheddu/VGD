@@ -187,7 +187,6 @@ namespace Wheeled.Gameplay.PlayerView
             {
                 m_sightBehaviour.turn = m_sight.Turn;
                 m_sightBehaviour.lookUp = m_sight.LookUp;
-                m_sightBehaviour.ReachTarget();
             }
         }
         private void EnsureSpawned()

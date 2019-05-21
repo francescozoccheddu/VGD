@@ -15,6 +15,9 @@ namespace Wheeled.UI.Menu
         [Range(200.0f, 2000.0f)]
         public float deceleration = 500.0f;
 
+        [Range(0.0f, 2000.0f)]
+        public float initialSpeed = 0.0f;
+
         private float m_speed;
         private float m_target;
 
@@ -49,6 +52,11 @@ namespace Wheeled.UI.Menu
             }
             m_target = 0.0f;
             transform.Rotate(Vector3.up, m_speed * Time.deltaTime);
+        }
+
+        private void OnEnable()
+        {
+            SetSpeed(initialSpeed);
         }
 
     }
