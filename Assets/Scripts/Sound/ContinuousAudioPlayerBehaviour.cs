@@ -3,15 +3,18 @@
 namespace Wheeled.Sound
 {
 
-    public sealed class ContinuousAudioPlayer : AudioPlayer
+    public sealed class ContinuousAudioPlayer : AudioPlayerBehaviour
     {
 
         public float value;
 
         public bool useDelta;
 
-        [Range(0.0f, 2.0f)]
-        public float smoothTime = 1.0f;
+        [Range(0.0f, 0.5f)]
+        public float attackSmoothTime = 0.1f;
+
+        [Range(0.0f, 0.5f)]
+        public float releaseSmoothTime = 0.1f;
 
         public float maxSpeed = float.PositiveInfinity;
 
@@ -46,6 +49,7 @@ namespace Wheeled.Sound
         private void Update()
         {
             float target = useDelta ? Mathf.Abs(value - m_lastValue) / Time.deltaTime : value;
+            float smoothTime = target > m_value ? attackSmoothTime : releaseSmoothTime;
             m_value = Mathf.SmoothDamp(m_value, valueRange.Clamp(target), ref m_velocity, smoothTime, maxSpeed, Time.deltaTime);
             m_lastValue = value;
             SetValue(m_value);

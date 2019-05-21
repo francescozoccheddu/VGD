@@ -4,7 +4,7 @@ using Wheeled.Core.Utils;
 namespace Wheeled.Sound
 {
 
-    public abstract class AudioPlayer : MonoBehaviour
+    public abstract class AudioPlayerBehaviour : MonoBehaviour
     {
 
 #pragma warning disable CA2235
