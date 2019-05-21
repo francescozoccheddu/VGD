@@ -3,7 +3,7 @@
 namespace Wheeled.Sound
 {
 
-    public sealed class ContinuousAudioPlayer : AudioPlayerBehaviour
+    public sealed class ContinuousAudioPlayerBehaviour : AudioPlayerBehaviour
     {
 
         public float value;

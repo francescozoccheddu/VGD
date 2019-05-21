@@ -8,7 +8,7 @@ namespace Wheeled.Sound
 
         public float value;
 
-        public ContinuousAudioPlayer[] audioPlayers;
+        public ContinuousAudioPlayerBehaviour[] audioPlayers;
 
         public void ReachValue()
         {

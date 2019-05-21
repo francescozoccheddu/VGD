@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 using Wheeled.Core.Utils;
 
 namespace Wheeled.Sound
@@ -17,22 +18,19 @@ namespace Wheeled.Sound
             [HideInInspector]
             public string name;
 
-            public static Layer MakeDefault()
+            public static Layer MakeDefault() => new Layer
             {
-                return new Layer
-                {
-                    name = "Empty",
-                    clip = null,
-                    volume = AnimationCurve.Constant(0.0f, 1.0f, 1.0f),
-                    pitch = AnimationCurve.Constant(0.0f, 1.0f, 1.0f),
-                    pitcher = new MinMaxRange(1.0f, 1.0f),
-                    spatialBlend = 0.0f,
-                    doppler = 1.0f,
-                    spread = 0.0f,
-                    falloffDistance = new MinMaxRange(1.0f, 100.0f),
-                    reverbMix = 1.0f
-                };
-            }
+                name = "Empty",
+                clip = null,
+                volume = AnimationCurve.Constant(0.0f, 1.0f, 1.0f),
+                pitch = AnimationCurve.Constant(0.0f, 1.0f, 1.0f),
+                pitcher = new MinMaxRange(1.0f, 1.0f),
+                spatialBlend = 0.0f,
+                doppler = 1.0f,
+                spread = 0.0f,
+                falloffDistance = new MinMaxRange(1.0f, 100.0f),
+                reverbMix = 1.0f
+            };
 
             public void EditorUpdate()
             {
@@ -179,16 +177,24 @@ namespace Wheeled.Sound
 
         private PlayingLayer[] m_playingLayers;
 
-        private void Start()
+        public void Recreate()
         {
+            if (m_playingLayers != null)
+            {
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    m_playingLayers[i]?.Destroy();
+                }
+            }
             m_playingLayers = new PlayingLayer[layers.Length];
             for (int i = 0; i < layers.Length; i++)
             {
-                m_playingLayers[i]?.Destroy();
                 m_playingLayers[i] = new PlayingLayer(gameObject, layers[i]);
             }
             AudioReady();
         }
+
+        private void Start() => Recreate();
 
         protected virtual void AudioReady()
         {
@@ -196,5 +202,26 @@ namespace Wheeled.Sound
         }
 
     }
+
+#if UNITY_EDITOR
+
+    [CustomEditor(typeof(AudioPlayerBehaviour), true)]
+    public class AudioPlayerEditor : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector();
+
+            if (Application.isPlaying)
+            {
+                if (GUILayout.Button("Recreate"))
+                {
+                    ((AudioPlayerBehaviour) target).Recreate();
+                }
+            }
+        }
+    }
+
+#endif
 
 }
