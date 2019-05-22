@@ -1887,7 +1887,7 @@ PrefabInstance:
     - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
         type: 3}
       propertyPath: m_Text
-      value: Hold <b>ESC</b> to quit
+      value: "Hold \xA8 to quit"
       objectReference: {fileID: 0}
     - target: {fileID: 6352087822541685042, guid: ce785f9b21762d241814be105e43623c,
         type: 3}
