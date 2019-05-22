@@ -6010,6 +6010,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1662343596}
   - component: {fileID: 1662343597}
+  - component: {fileID: 1662343598}
   m_Layer: 0
   m_Name: Intros
   m_TagString: Untagged
@@ -6053,6 +6054,27 @@ MonoBehaviour:
   rocketMaterial: {fileID: 1503359839}
   scrapMaterial: {fileID: 1134674796}
   killerHead: {fileID: 1482867030}
+--- !u!114 &1662343598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662343595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 021eda902ace5264da29ed6af647a7b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  valueRange:
+    max: 1
+    min: 0
+  layers: []
+  value: 0
+  useDelta: 0
+  attackSmoothTime: 0.1
+  releaseSmoothTime: 0.1
+  maxSpeed: Infinity
 --- !u!1001 &1720687119
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6930,12 +6952,12 @@ PrefabInstance:
     - target: {fileID: 8416325899184927864, guid: d68cab5a56f39f442828f1715614cc34,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.8610209
+      value: 0.8557646
       objectReference: {fileID: 0}
     - target: {fileID: 8416325899184927864, guid: d68cab5a56f39f442828f1715614cc34,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.50856966
+      value: 0.51736534
       objectReference: {fileID: 0}
     - target: {fileID: 8416325899184927864, guid: d68cab5a56f39f442828f1715614cc34,
         type: 3}
