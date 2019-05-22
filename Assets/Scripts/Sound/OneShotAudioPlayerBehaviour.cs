@@ -26,4 +26,37 @@ namespace Wheeled.Sound
 
     }
 
+
+#if UNITY_EDITOR
+
+    [CustomEditor(typeof(OneShotAudioPlayerBehaviour))]
+    public sealed class OneShotAudioPlayerEditor : AudioPlayerEditor
+    {
+
+        private float m_value;
+
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector();
+
+            if (Application.isPlaying)
+            {
+                if (GUILayout.Button("Recreate"))
+                {
+                    ((AudioPlayerBehaviour) target).Recreate();
+                }
+                OneShotAudioPlayerBehaviour audioPlayer = (OneShotAudioPlayerBehaviour) target;
+                m_value = EditorGUILayout.Slider(m_value, audioPlayer.valueRange.min, audioPlayer.valueRange.max);
+                if (GUILayout.Button("Play"))
+                {
+                    audioPlayer.Play(m_value);
+                }
+            }
+        }
+
+    }
+
+#endif
+
+
 }
