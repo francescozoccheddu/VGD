@@ -7,6 +7,29 @@ using UnityEngine;
 
 namespace Wheeled.Networking
 {
+
+    public static class StopCauseHelper
+    {
+
+        public static string GetHumanReadableMessage(this NetworkManager.EStopCause _stopCause)
+        {
+            switch (_stopCause)
+            {
+                case NetworkManager.EStopCause.UnableToStart:
+                return "Failed to start the connection";
+                case NetworkManager.EStopCause.Programmatically:
+                return "Connection interrupted by user";
+                case NetworkManager.EStopCause.NetworkError:
+                return "Network error";
+                case NetworkManager.EStopCause.UnexpectedStop:
+                return "Unexpected network interruption";
+                default:
+                return "Unknown network error";
+            }
+        }
+
+    }
+
     public sealed partial class NetworkManager
     {
         public interface IEventListener
@@ -67,6 +90,7 @@ namespace Wheeled.Networking
             ReliableSequenced = LiteNetLib.DeliveryMethod.ReliableSequenced,
             ReliableOrdered = LiteNetLib.DeliveryMethod.ReliableOrdered
         }
+
 
         public enum EStopCause
         {
