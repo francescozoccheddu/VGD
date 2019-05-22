@@ -214,6 +214,8 @@ namespace Wheeled.Sound
 
             if (Application.isPlaying)
             {
+                EditorGUILayout.Separator();
+                EditorGUILayout.LabelField("Test", EditorStyles.boldLabel);
                 if (GUILayout.Button("Recreate"))
                 {
                     ((AudioPlayerBehaviour) target).Recreate();

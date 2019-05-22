@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 
 namespace Wheeled.Sound
 {
@@ -29,15 +30,9 @@ namespace Wheeled.Sound
             m_lastValue = value;
         }
 
-        protected override void AudioReady()
-        {
-            Setup();
-        }
+        protected override void AudioReady() => Setup();
 
-        private void OnEnable()
-        {
-            Setup();   
-        }
+        private void OnEnable() => Setup();
 
         private void Setup()
         {
@@ -56,5 +51,34 @@ namespace Wheeled.Sound
         }
 
     }
+
+#if UNITY_EDITOR
+
+    [CustomEditor(typeof(ContinuousAudioPlayerBehaviour))]
+    public sealed class ContinuousAudioPlayerEditor : AudioPlayerEditor
+    {
+
+        private float m_value;
+        private bool m_override;
+
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+            if (Application.isPlaying)
+            {
+                m_override = EditorGUILayout.Toggle("Override value", m_override);
+                if (m_override)
+                {
+                    ContinuousAudioPlayerBehaviour audioPlayer = (ContinuousAudioPlayerBehaviour) target;
+                    m_value = EditorGUILayout.Slider(m_value, audioPlayer.valueRange.min, audioPlayer.valueRange.max);
+                    audioPlayer.value = m_value;
+                }
+            }
+        }
+
+    }
+
+#endif
+
 
 }
