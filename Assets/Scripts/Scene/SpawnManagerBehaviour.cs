@@ -19,6 +19,11 @@ namespace Wheeled.Scene
             s_instance = this;
         }
 
+        public static Vector3 GetEmergencyRespawnLocation()
+        {
+            return s_instance.points[0].position;
+        }
+
 
         public static int Spawn(double _time)
         {

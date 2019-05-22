@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Wheeled.Core.Data;
+using Wheeled.Scene;
 
 public static class CapsuleControllerHelper
 {
@@ -60,7 +61,6 @@ public struct CapsuleController
     private const float c_groundOffset = 0.1f;
     private const float c_maxSlopeAngle = 50.0f;
     private const float c_maxHeight = 10.0f;
-    private static readonly Vector3 s_emergencyRespawnPoint = new Vector3(0.0f, 5.0f, 0.0f);
 
     public static bool AreNearlyEqual(in CapsuleController _a, in CapsuleController _b)
     {
@@ -104,7 +104,7 @@ public struct CapsuleController
                     return;
                 }
             }
-            position = s_emergencyRespawnPoint;
+            position = SpawnManagerBehaviour.GetEmergencyRespawnLocation();
             velocity = Vector3.zero;
             Debug.LogWarning("Emergency respawn");
         }
