@@ -2,8 +2,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Wheeled.Core.Data;
-using Wheeled.Gameplay.Player;
-using Wheeled.Gameplay.PlayerView;
 using Wheeled.Networking;
 using Wheeled.Networking.Client;
 using Wheeled.Networking.Server;
@@ -31,20 +29,11 @@ namespace Wheeled.Core
             }
         }
 
-        public void OnEnable()
-        {
-            DontDestroyOnLoad(gameObject);
-        }
+        public void OnEnable() => DontDestroyOnLoad(gameObject);
 
-        public void Update()
-        {
-            NetworkManager.instance.Update();
-        }
+        public void Update() => NetworkManager.instance.Update();
 
-        private void OnDestroy()
-        {
-            NetworkManager.instance.Stop();
-        }
+        private void OnDestroy() => NetworkManager.instance.Stop();
 
 
         public bool IsBusy => m_host?.IsStarted == true;
@@ -155,29 +144,17 @@ namespace Wheeled.Core
 
         private void GameStopped(EGameHostStopCause _cause)
         {
-            ScreenManagerBehaviour.SetError(_cause.ToString());
+            ScreenManagerBehaviour.SetError(_cause.GetHumanReadableMessage());
             QuitGame();
         }
 
-        private void LoadScene(int _scene)
-        {
-            SceneManager.LoadSceneAsync(_scene, LoadSceneMode.Single).completed += GameSceneLoaded;
-        }
+        private void LoadScene(int _scene) => SceneManager.LoadSceneAsync(_scene, LoadSceneMode.Single).completed += GameSceneLoaded;
 
-        private void OnApplicationQuit()
-        {
-            m_isQuitting = true;
-        }
+        private void OnApplicationQuit() => m_isQuitting = true;
 
-        private void RoomDiscovered(GameRoomInfo _room)
-        {
-            OnGameRoomDiscovered?.Invoke(_room);
-        }
+        private void RoomDiscovered(GameRoomInfo _room) => OnGameRoomDiscovered?.Invoke(_room);
 
-        private void RoomJoined(GameRoomInfo _room)
-        {
-            LoadScene(Scripts.Scenes.arenas[_room.arena].buildIndex);
-        }
+        private void RoomJoined(GameRoomInfo _room) => LoadScene(Scripts.Scenes.arenas[_room.arena].buildIndex);
 
         private void GameSceneLoaded(AsyncOperation _operation)
         {

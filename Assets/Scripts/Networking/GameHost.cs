@@ -6,6 +6,29 @@ namespace Wheeled.Networking
 {
     public delegate void GameHostStopped(EGameHostStopCause _cause);
 
+
+    public static class GameHostHelper
+    {
+
+        public static string GetHumanReadableMessage(this EGameHostStopCause _stopCause)
+        {
+            switch (_stopCause)
+            {
+                case EGameHostStopCause.Programmatically:
+                return "Interrupted by user";
+                case EGameHostStopCause.NetworkError:
+                return "Network error";
+                case EGameHostStopCause.Disconnected:
+                return "Disconnected";
+                case EGameHostStopCause.UnableToConnect:
+                return "Connection failed";
+                default:
+                return "Unknown stop cause";
+            }
+        }
+
+    }
+
     public enum EGameHostStopCause
     {
         Programmatically, NetworkError, Disconnected, UnableToConnect

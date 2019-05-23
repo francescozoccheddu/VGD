@@ -7017,6 +7017,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 407538878, guid: d68cab5a56f39f442828f1715614cc34, type: 3}
+      propertyPath: isGrounded
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 407538877, guid: d68cab5a56f39f442828f1715614cc34, type: 3}
     - {fileID: 407538881, guid: d68cab5a56f39f442828f1715614cc34, type: 3}

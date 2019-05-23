@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="21cm"
+   height="9cm"
+   viewBox="0 0 209.99999 90"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="Logo.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="384.00083"
+     inkscape:cy="223.42823"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     units="cm"
+     inkscape:window-width="1366"
+     inkscape:window-height="745"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     showguides="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid26" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-207)">
+    <g
+       id="g26"
+       transform="translate(-13.646862,15.544609)">
+      <g
+         id="g3741"
+         transform="translate(0.52916667,0.52916667)">
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+           x="-110.08991"
+           y="231.7438"
+           id="text12"
+           transform="rotate(-30)"><tspan
+             sodipodi:role="line"
+             x="-110.08991"
+             y="231.7438"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35.27777863px;font-family:'Harlow Solid Italic';-inkscape-font-specification:'Harlow Solid Italic, ';stroke-width:0.26458332"
+             id="tspan14">Junk</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+           x="-93.091118"
+           y="254.42285"
+           id="text20"
+           transform="rotate(-30)"><tspan
+             sodipodi:role="line"
+             id="tspan18"
+             x="-93.091118"
+             y="254.42285"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.98611069px;font-family:'Harlow Solid Italic';-inkscape-font-specification:'Harlow Solid Italic, ';stroke-width:0.26458332">Yard</tspan></text>
+      </g>
+    </g>
+    <g
+       id="g3735"
+       transform="translate(-0.52916663,-0.52916663)">
+      <text
+         id="text30"
+         y="279.13046"
+         x="85.253601"
+         style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.98611259px;font-family:'Corporation Games';-inkscape-font-specification:'Corporation Games';stroke-width:0.26458332"
+           y="279.13046"
+           x="85.253601"
+           id="tspan28"
+           sodipodi:role="line">ARENA</tspan></text>
+      <text
+         id="text24"
+         y="263.62482"
+         x="197.14099"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444447px;line-height:1.25;font-family:'Corporation Games';-inkscape-font-specification:'Corporation Games';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444447px;line-height:1.25;font-family:'Corporation Games';-inkscape-font-specification:'Corporation Games';stroke-width:0.26458332"
+           y="263.62482"
+           x="197.14099"
+           id="tspan22"
+           sodipodi:role="line">TM</tspan></text>
+    </g>
+  </g>
+</svg>
