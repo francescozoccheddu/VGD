@@ -53,13 +53,12 @@ public struct CapsuleController
     public Vector3 position;
     public Vector3 velocity;
 
-    private const float c_gameCeilingY = 5.0f;
+    private const float c_gameCeilingY = 15.0f;
     private const float c_gameFloorY = -5.0f;
     private const int c_maxMoveIteractions = 2;
     private const float c_overShoot = 0.5f;
     private const float c_skin = 0.1f;
     private const float c_groundOffset = 0.1f;
-    private const float c_maxSlopeAngle = 50.0f;
     private const float c_maxHeight = 10.0f;
 
     public static bool AreNearlyEqual(in CapsuleController _a, in CapsuleController _b)
