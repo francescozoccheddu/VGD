@@ -1673,7 +1673,7 @@ PrefabInstance:
     - target: {fileID: 3947823970511687806, guid: 5127e1f912bb4e6478fadb5811d74249,
         type: 3}
       propertyPath: m_Text
-      value: IP
+      value: port
       objectReference: {fileID: 0}
     - target: {fileID: 7872838180338463977, guid: 5127e1f912bb4e6478fadb5811d74249,
         type: 3}
@@ -4810,7 +4810,7 @@ PrefabInstance:
     - target: {fileID: 3947823970511687806, guid: 5127e1f912bb4e6478fadb5811d74249,
         type: 3}
       propertyPath: m_Text
-      value: port
+      value: ip
       objectReference: {fileID: 0}
     - target: {fileID: 7872838180338463977, guid: 5127e1f912bb4e6478fadb5811d74249,
         type: 3}
@@ -4850,7 +4850,7 @@ PrefabInstance:
     - target: {fileID: 5275230429770264118, guid: 5127e1f912bb4e6478fadb5811d74249,
         type: 3}
       propertyPath: m_Text
-      value: IP
+      value: insert ip
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5127e1f912bb4e6478fadb5811d74249, type: 3}
@@ -6233,7 +6233,7 @@ PrefabInstance:
     - target: {fileID: 5275230429770264118, guid: 5127e1f912bb4e6478fadb5811d74249,
         type: 3}
       propertyPath: m_Text
-      value: name
+      value: insert your name
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5127e1f912bb4e6478fadb5811d74249, type: 3}
@@ -6930,12 +6930,12 @@ PrefabInstance:
     - target: {fileID: 8416325899184927864, guid: d68cab5a56f39f442828f1715614cc34,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.8610209
+      value: 0.8557646
       objectReference: {fileID: 0}
     - target: {fileID: 8416325899184927864, guid: d68cab5a56f39f442828f1715614cc34,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.50856966
+      value: 0.51736534
       objectReference: {fileID: 0}
     - target: {fileID: 8416325899184927864, guid: d68cab5a56f39f442828f1715614cc34,
         type: 3}

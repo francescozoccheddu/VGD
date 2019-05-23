@@ -21,7 +21,7 @@ OS2Version: 3
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 0
 CreationTime: 1273845575
-ModificationTime: 1558634539
+ModificationTime: 1558649832
 PfmFamily: 17
 TTFWeight: 700
 TTFWidth: 5
@@ -109,14 +109,13 @@ LangName: 3082 "" "" "Negrita"
 LangName: 3084 "" "" "Gras"
 GaspTable: 1 65535 2 0
 Encoding: UnicodeBmp
-Compacted: 1
 UnicodeInterp: none
 NameList: AGL For New Fonts
 DisplaySize: -48
 AntiAlias: 1
 FitToEm: 0
-WinInfo: 0 27 10
-BeginChars: 65539 69
+WinInfo: 0 27 6
+BeginChars: 65539 70
 
 StartChar: exclam
 Encoding: 33 33 0
@@ -3307,6 +3306,34 @@ Encoding: 32 32 68
 Width: 508
 Flags: W
 LayerCount: 2
+EndChar
+
+StartChar: colon
+Encoding: 58 58 69
+Width: 493
+Flags: W
+LayerCount: 2
+Fore
+SplineSet
+401 608 m 0,0,1
+ 401 549 401 549 358 513 c 128,-1,2
+ 315 477 315 477 254 477 c 0,3,4
+ 201 477 201 477 162 518 c 128,-1,5
+ 123 559 123 559 123 612 c 0,6,7
+ 123 672 123 672 165 717 c 128,-1,8
+ 207 762 207 762 266 762 c 0,9,10
+ 321 762 321 762 361 714 c 128,-1,11
+ 401 666 401 666 401 608 c 0,0,1
+379 121 m 0,12,13
+ 379 66 379 66 332 31 c 128,-1,14
+ 285 -4 285 -4 227 -4 c 0,15,16
+ 176 -4 176 -4 134 29.5 c 128,-1,17
+ 92 63 92 63 92 117 c 0,18,19
+ 92 180 92 180 134 219 c 128,-1,20
+ 176 258 176 258 237 258 c 0,21,22
+ 297 258 297 258 338 219 c 128,-1,23
+ 379 180 379 180 379 121 c 0,12,13
+EndSplineSet
 EndChar
 EndChars
 EndSplineFont
