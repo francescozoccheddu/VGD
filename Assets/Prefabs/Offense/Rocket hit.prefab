@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1879089094957725661}
   - component: {fileID: 7944579314579645124}
   - component: {fileID: 3391632451066348438}
+  - component: {fileID: 5212543680254118459}
   m_Layer: 15
   m_Name: Rocket hit
   m_TagString: Untagged
@@ -4830,6 +4831,19 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
+--- !u!114 &5212543680254118459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1590646576897671981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04cf8baa8609ddd4cb96ba673511bc51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 7002126523097668628, guid: fbd145e4f04636940b21a400a921deea, type: 3}
 --- !u!1001 &3934966767495805885
 PrefabInstance:
   m_ObjectHideFlags: 0

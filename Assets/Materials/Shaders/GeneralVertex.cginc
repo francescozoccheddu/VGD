@@ -5,19 +5,23 @@ inline fixed3 _genvert_calcEmission (in fixed3 _albedo, in int _intensity)
 {
 	if (_intensity == 0)
 	{
+		// None
 		return fixed3 (0.0, 0.0, 0.0);
 	}
 	else if (_intensity == 1)
 	{
+		// Half
 		return _albedo / 2.0;
 	}
 	else if (_intensity == 2)
 	{
+		// Full
 		return _albedo;
 	}
 	else
 	{
-		return _albedo + fixed3 (0.5, 0.5, 0.5);
+		// Overshoot
+		return _albedo * 2.0;
 	}
 }
 

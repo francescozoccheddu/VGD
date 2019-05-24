@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using Wheeled.Core.Utils;
 
@@ -130,6 +131,8 @@ namespace Wheeled.Sound
             private float m_pitchModifier;
             private float m_value;
 
+            public bool IsPlaying => m_audioSource?.isPlaying ?? false;
+
             public PlayingLayer(GameObject _parent, Layer _layer)
             {
                 m_audioSource = _parent.AddComponent<AudioSource>();
@@ -174,6 +177,8 @@ namespace Wheeled.Sound
             }
 
         }
+
+        public bool IsPlaying => m_playingLayers?.Any(_l => _l?.IsPlaying ?? false) ?? false;
 
         private PlayingLayer[] m_playingLayers;
 

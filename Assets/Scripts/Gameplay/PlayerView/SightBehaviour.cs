@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
+using Wheeled.Sound;
 
 namespace Wheeled.Gameplay.PlayerView
 {
 
-    [ExecuteInEditMode]
     public class SightBehaviour : MonoBehaviour
     {
 
@@ -27,6 +27,10 @@ namespace Wheeled.Gameplay.PlayerView
         [Header("Sight")]
         public float lookUp;
         public float turn;
+
+        [Header("Sounds")]
+        public ContinuousAudioPlayerBehaviour turnSound;
+        public ContinuousAudioPlayerBehaviour lookUpSound;
 
         public void ReachTarget()
         {
@@ -59,6 +63,9 @@ namespace Wheeled.Gameplay.PlayerView
             arm.localRotation = Quaternion.Euler(m_lookUp, 0.0f, 0.0f);
             torso.localRotation = Quaternion.Euler(0.0f, m_turn, 0.0f);
             cameraArm.localRotation = Quaternion.Euler(lookUp, turn, 0.0f);
+
+            lookUpSound.value = lookUp;
+            turnSound.value = turn;
         }
     }
 }

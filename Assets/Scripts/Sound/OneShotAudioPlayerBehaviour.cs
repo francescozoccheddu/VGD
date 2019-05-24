@@ -8,14 +8,32 @@ namespace Wheeled.Sound
     public sealed class OneShotAudioPlayerBehaviour : AudioPlayerBehaviour
     {
 
-        public bool playOnAwake;
-
-        private void Awake()
+        public enum EAutoPlayMode
         {
-            if (playOnAwake)
+            None, PlayOnAwake, PlayOnAwakeThenDestroy
+        }
+
+        public EAutoPlayMode autoPlayMode;
+
+        protected override void AudioReady()
+        {
+            if (autoPlayMode != EAutoPlayMode.None)
             {
-                Play(1.0f);
+                Play();
             }
+        }
+
+        private void Update()
+        {
+            if (autoPlayMode == EAutoPlayMode.PlayOnAwakeThenDestroy && !IsPlaying)
+            {
+                Destroy(gameObject);
+            }
+        }
+
+        public void Play()
+        {
+            Play(valueRange.max);
         }
 
         public void Play(float _value)

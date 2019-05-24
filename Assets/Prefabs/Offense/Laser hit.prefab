@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4963357755490578148}
   - component: {fileID: 3586077117036965835}
   - component: {fileID: 2596682526122643195}
+  - component: {fileID: 384822472408303679}
   m_Layer: 15
   m_Name: Laser hit
   m_TagString: Untagged
@@ -4810,3 +4811,16 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
+--- !u!114 &384822472408303679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1071223986564736647}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04cf8baa8609ddd4cb96ba673511bc51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 8187527375195720875, guid: d74d229e398bcc74f9bbd4c0cd8a36e0, type: 3}

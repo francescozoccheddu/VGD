@@ -12,6 +12,8 @@ namespace Wheeled.Gameplay.Offense
         private const float c_maxRayLenght = 40f;
         private const int c_maxParticles = 100;
 
+        public GameObject sound;
+
 
         private float m_elapsedTime;
 
@@ -28,9 +30,11 @@ namespace Wheeled.Gameplay.Offense
             m_elapsedTime = 0.0f;
             transform.position = _origin;
             Vector3 ray = _end - _origin;
-            Vector3 scale = new Vector3(1.0f, 1.0f, ray.magnitude);
+            float distance = ray.magnitude;
+            Vector3 scale = new Vector3(1.0f, 1.0f, distance);
             transform.localScale = scale;
             transform.localRotation = Quaternion.LookRotation(ray);
+            Instantiate(sound, transform.position, transform.rotation).GetComponent<LaserSoundBehaviour>().Distance = distance;
 
             float rayDensity = Mathf.Clamp01(ray.magnitude / c_maxRayLenght);
             int particleCount = Mathf.RoundToInt(rayDensity * c_maxParticles);
