@@ -57,6 +57,7 @@ namespace Wheeled.Core
                         SceneManager.LoadScene(Scripts.Scenes.menuSceneBuildIndex, LoadSceneMode.Single);
                     }
                     Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
                 }
             }
             else
@@ -159,6 +160,7 @@ namespace Wheeled.Core
         private void GameSceneLoaded(AsyncOperation _operation)
         {
             m_host?.GameReady();
+            Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
 

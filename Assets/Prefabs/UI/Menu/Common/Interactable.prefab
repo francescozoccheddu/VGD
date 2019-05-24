@@ -39,9 +39,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 920012561154519324, guid: bbdeb9ab8580bb94bb15fd5776542efe,
         type: 3}
-      propertyPath: m_FontData.m_FontStyle
-      value: 1
-      objectReference: {fileID: 0}
+      propertyPath: m_FontData.m_Font
+      value: 
+      objectReference: {fileID: 12800000, guid: 3fd7fd3466c8a12408622fc21e7a5abc,
+        type: 3}
     - target: {fileID: 8576743259713661494, guid: bbdeb9ab8580bb94bb15fd5776542efe,
         type: 3}
       propertyPath: m_LocalPosition.x

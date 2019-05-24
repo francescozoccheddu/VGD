@@ -1513,7 +1513,32 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 4294967295
       objectReference: {fileID: 0}
+    - target: {fileID: 5126107299910684663, guid: 61d7128d80d67554a97ed11743cf5686,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: -2157530879824945170, guid: 61d7128d80d67554a97ed11743cf5686,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 49692035260690558, guid: 61d7128d80d67554a97ed11743cf5686,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: -2332329936676844283, guid: 61d7128d80d67554a97ed11743cf5686,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: -7682357403508396754, guid: 61d7128d80d67554a97ed11743cf5686,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 1495486904287460846, guid: 61d7128d80d67554a97ed11743cf5686,
         type: 3}
       propertyPath: m_StaticEditorFlags
       value: 4294967295
@@ -1657,16 +1682,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.y
       value: 1.877
-      objectReference: {fileID: 0}
-    - target: {fileID: -2332329936676844283, guid: 61d7128d80d67554a97ed11743cf5686,
-        type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 4294967295
-      objectReference: {fileID: 0}
-    - target: {fileID: -2157530879824945170, guid: 61d7128d80d67554a97ed11743cf5686,
-        type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: -2152330019286516523, guid: 61d7128d80d67554a97ed11743cf5686,
         type: 3}
@@ -2230,7 +2245,7 @@ Light:
   m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
