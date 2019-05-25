@@ -1251,7 +1251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   valueRange:
-    max: 1
+    max: 0.5
     min: 0
   layers:
   - name: Damper
@@ -1315,10 +1315,71 @@ MonoBehaviour:
       min: 1
     reverbMix: 1
     priority: 200
+  - name: Servo small
+    clip: {fileID: 8300000, guid: b64653d4bf52a6940a692990e034972f, type: 3}
+    volume:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0.002002716
+        value: 0
+        inSlope: 0.6686759
+        outSlope: 0.6686759
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.088354595
+      - serializedVersion: 3
+        time: 1
+        value: 0.33019638
+        inSlope: 0.18986383
+        outSlope: 0.18986383
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.12449784
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    pitch:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.5
+        inSlope: 0.60849
+        outSlope: 0.60849
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1.10849
+        inSlope: 0.60849
+        outSlope: 0.60849
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    pitcher:
+      max: 1
+      min: 1
+    spatialBlend: 1
+    doppler: 1
+    spread: 0
+    falloffDistance:
+      max: 5
+      min: 1
+    reverbMix: 1
+    priority: 198
   value: 0
   useDelta: 1
-  attackSmoothTime: 0.1
-  releaseSmoothTime: 0.1
+  attackSmoothTime: 0.15
+  releaseSmoothTime: 0.15
   maxSpeed: Infinity
 --- !u!54 &3532023806091245620
 Rigidbody:
@@ -1565,20 +1626,20 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0
         value: 0
-        inSlope: 0.304245
-        outSlope: 0.304245
-        tangentMode: 34
+        inSlope: 0.9014452
+        outSlope: 0.9014452
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
-        outWeight: 0.33333334
+        outWeight: 0.09418838
       - serializedVersion: 3
         time: 1
-        value: 0.304245
-        inSlope: 0.304245
-        outSlope: 0.304245
-        tangentMode: 34
+        value: 0.49765015
+        inSlope: 0.23545581
+        outSlope: 0.23545581
+        tangentMode: 0
         weightedMode: 0
-        inWeight: 0.33333334
+        inWeight: 0.11022043
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -1650,17 +1711,17 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0
         value: 0.5
-        inSlope: 0.6933937
-        outSlope: 0.6933937
+        inSlope: 0.5129738
+        outSlope: 0.5129738
         tangentMode: 34
         weightedMode: 0
         inWeight: 0
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 1.1933937
-        inSlope: 0.6933937
-        outSlope: 0.6933937
+        value: 1.0129738
+        inSlope: 0.5129738
+        outSlope: 0.5129738
         tangentMode: 34
         weightedMode: 0
         inWeight: 0.33333334
@@ -1711,17 +1772,17 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0
         value: 0.5
-        inSlope: 1.0153236
-        outSlope: 1.0153236
+        inSlope: 0.89149857
+        outSlope: 0.89149857
         tangentMode: 34
         weightedMode: 0
         inWeight: 0
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 1.5153236
-        inSlope: 1.0153236
-        outSlope: 1.0153236
+        value: 1.3914986
+        inSlope: 0.89149857
+        outSlope: 0.89149857
         tangentMode: 34
         weightedMode: 0
         inWeight: 0.33333334
