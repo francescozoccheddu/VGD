@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4921251043291716081}
   - component: {fileID: 4901078821790714410}
   m_Layer: 5
-  m_Name: Toggle Icon
+  m_Name: Icon toggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -199,7 +199,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectDistance: {x: -1, y: -1}
   m_UseGraphicAlpha: 1
 --- !u!1 &6520598937516480218
 GameObject:
@@ -308,5 +308,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectDistance: {x: -1, y: -1}
   m_UseGraphicAlpha: 1
