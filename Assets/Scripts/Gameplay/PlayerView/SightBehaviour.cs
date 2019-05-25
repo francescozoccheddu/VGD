@@ -28,10 +28,6 @@ namespace Wheeled.Gameplay.PlayerView
         public float lookUp;
         public float turn;
 
-        [Header("Sounds")]
-        public ContinuousAudioPlayerBehaviour turnSound;
-        public ContinuousAudioPlayerBehaviour lookUpSound;
-
         public void ReachTarget()
         {
             m_turn = turn;
@@ -64,8 +60,6 @@ namespace Wheeled.Gameplay.PlayerView
             torso.localRotation = Quaternion.Euler(0.0f, m_turn, 0.0f);
             cameraArm.localRotation = Quaternion.Euler(lookUp, turn, 0.0f);
 
-            lookUpSound.value = lookUp;
-            turnSound.value = turn;
         }
     }
 }
