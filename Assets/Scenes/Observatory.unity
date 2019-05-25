@@ -35,10 +35,10 @@ RenderSettings:
   m_DefaultReflectionMode: 0
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
-  m_ReflectionIntensity: 0.51
-  m_CustomReflection: {fileID: 0}
+  m_ReflectionIntensity: 0.8
+  m_CustomReflection: {fileID: 8900000, guid: 006bb2dd4bb388e468d0479da61d4c9b, type: 3}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 1.0119087, g: 0.5461219, b: 0.6774314, a: 0.51}
+  m_IndirectSpecularColor: {r: 1.1959759, g: 0.44632316, b: 0.62416637, a: 0.8}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -55,16 +55,17 @@ LightmapSettings:
     m_EnableRealtimeLightmaps: 0
   m_LightmapEditorSettings:
     serializedVersion: 12
-    m_Resolution: 2
-    m_BakeResolution: 10
-    m_AtlasSize: 128
+    m_Resolution: 4
+    m_BakeResolution: 80
+    m_AtlasSize: 2048
     m_AO: 0
     m_AOMaxDistance: 1
     m_CompAOExponent: 1
     m_CompAOExponentDirect: 0
     m_ExtractAmbientOcclusion: 0
-    m_Padding: 2
-    m_LightmapParameters: {fileID: 0}
+    m_Padding: 4
+    m_LightmapParameters: {fileID: 15200, guid: 0000000000000000f000000000000000,
+      type: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
     m_FinalGather: 0
@@ -96,7 +97,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ShowResolutionOverlay: 1
     m_ExportTrainingData: 0
-  m_LightingDataAsset: {fileID: 112000000, guid: a906333b681178b448148dc2d6e680cc,
+  m_LightingDataAsset: {fileID: 112000000, guid: cc9effaf62ebf184787a17271d1993e6,
     type: 2}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -894,88 +895,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 14
   m_Mesh: {fileID: 3909233067320746374, guid: 38a5418ac4da3914e873abf20d032655, type: 3}
---- !u!114 &449347693
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449347688}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 021eda902ace5264da29ed6af647a7b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  valueRange:
-    max: 0.2
-    min: 0
-  layers:
-  - name: Big telescope motor
-    clip: {fileID: 8300000, guid: 1173e3d2dd5413c4cbfbe81e3daaff41, type: 3}
-    volume:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0.79716873
-        outSlope: 0.79716873
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 1
-        value: 0.79716873
-        inSlope: 0.79716873
-        outSlope: 0.79716873
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    pitch:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0.8007202
-        inSlope: 0.4740584
-        outSlope: 0.4740584
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 1
-        value: 1.2747786
-        inSlope: 0.4740584
-        outSlope: 0.4740584
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    pitcher:
-      max: 1
-      min: 1
-    spatialBlend: 1
-    doppler: 1
-    spread: 0
-    falloffDistance:
-      max: 8
-      min: 5
-    reverbMix: 1.1
-    priority: 212
-  value: 0
-  useDelta: 0
-  attackSmoothTime: 0.15
-  releaseSmoothTime: 0.15
-  maxSpeed: Infinity
 --- !u!114 &449347694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -991,7 +910,7 @@ MonoBehaviour:
   x: 0
   y: 1
   z: 0
-  player: {fileID: 449347693}
+  player: {fileID: 2055085641}
 --- !u!114 &449347695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1007,89 +926,7 @@ MonoBehaviour:
   x: 1
   y: 0
   z: 0
-  player: {fileID: 449347696}
---- !u!114 &449347696
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449347685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 021eda902ace5264da29ed6af647a7b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  valueRange:
-    max: 0.1
-    min: 0
-  layers:
-  - name: Big telescope motor
-    clip: {fileID: 8300000, guid: 1173e3d2dd5413c4cbfbe81e3daaff41, type: 3}
-    volume:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0.60377383
-        outSlope: 0.60377383
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 1
-        value: 0.60377383
-        inSlope: 0.60377383
-        outSlope: 0.60377383
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    pitch:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0.8007202
-        inSlope: 0.4740584
-        outSlope: 0.4740584
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 1
-        value: 1.2747786
-        inSlope: 0.4740584
-        outSlope: 0.4740584
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    pitcher:
-      max: 1.3
-      min: 1.3
-    spatialBlend: 1
-    doppler: 1
-    spread: 0
-    falloffDistance:
-      max: 7
-      min: 4
-    reverbMix: 1.1
-    priority: 212
-  value: 0
-  useDelta: 0
-  attackSmoothTime: 0.15
-  releaseSmoothTime: 0.15
-  maxSpeed: Infinity
+  player: {fileID: 2055085640}
 --- !u!1 &452830781
 GameObject:
   m_ObjectHideFlags: 0
@@ -4296,7 +4133,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0.9
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -4326,7 +4163,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1.1
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -4378,6 +4215,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 449347684}
+  - {fileID: 2055085639}
   m_Father: {fileID: 907928896}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5105,6 +4943,202 @@ Transform:
   m_Father: {fileID: 1337957258}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: -30, z: 0}
+--- !u!1 &2055085638
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2055085639}
+  - component: {fileID: 2055085641}
+  - component: {fileID: 2055085640}
+  m_Layer: 10
+  m_Name: Sound
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2055085639
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2055085638}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1677485974}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2055085640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2055085638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 021eda902ace5264da29ed6af647a7b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  valueRange:
+    max: 0.1
+    min: 0
+  layers:
+  - name: Big telescope motor
+    clip: {fileID: 8300000, guid: 1173e3d2dd5413c4cbfbe81e3daaff41, type: 3}
+    volume:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.5023639
+        outSlope: 0.5023639
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0.5023639
+        inSlope: 0.5023639
+        outSlope: 0.5023639
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    pitch:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.8007202
+        inSlope: 0.4740584
+        outSlope: 0.4740584
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1.2747786
+        inSlope: 0.4740584
+        outSlope: 0.4740584
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    pitcher:
+      max: 1.3
+      min: 1.3
+    spatialBlend: 1
+    doppler: 1
+    spread: 0
+    falloffDistance:
+      max: 8
+      min: 3
+    reverbMix: 1.1
+    priority: 212
+  value: 0
+  useDelta: 0
+  attackSmoothTime: 0.15
+  releaseSmoothTime: 0.15
+  maxSpeed: Infinity
+--- !u!114 &2055085641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2055085638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 021eda902ace5264da29ed6af647a7b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  valueRange:
+    max: 0.2
+    min: 0
+  layers:
+  - name: Big telescope motor
+    clip: {fileID: 8300000, guid: 1173e3d2dd5413c4cbfbe81e3daaff41, type: 3}
+    volume:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    pitch:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.8007202
+        inSlope: 0.4740584
+        outSlope: 0.4740584
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1.2747786
+        inSlope: 0.4740584
+        outSlope: 0.4740584
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    pitcher:
+      max: 1
+      min: 1
+    spatialBlend: 1
+    doppler: 1
+    spread: 0
+    falloffDistance:
+      max: 12
+      min: 3
+    reverbMix: 1.1
+    priority: 212
+  value: 0
+  useDelta: 0
+  attackSmoothTime: 0.15
+  releaseSmoothTime: 0.15
+  maxSpeed: Infinity
 --- !u!1001 &2143704860
 PrefabInstance:
   m_ObjectHideFlags: 0
