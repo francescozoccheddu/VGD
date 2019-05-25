@@ -107,4 +107,5 @@ MonoBehaviour:
       max: 10
       min: 2
     reverbMix: 1
+    priority: 14
   autoPlayMode: 2

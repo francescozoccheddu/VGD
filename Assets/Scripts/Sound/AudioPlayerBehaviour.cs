@@ -30,7 +30,8 @@ namespace Wheeled.Sound
                 doppler = 1.0f,
                 spread = 0.0f,
                 falloffDistance = new MinMaxRange(1.0f, 100.0f),
-                reverbMix = 1.0f
+                reverbMix = 1.0f,
+                priority = 128
             };
 
             public void EditorUpdate()
@@ -70,6 +71,9 @@ namespace Wheeled.Sound
 
             [Range(0.0f, 1.1f)]
             public float reverbMix;
+
+            [Range(0, 255)]
+            public int priority;
 
         }
 
@@ -144,6 +148,7 @@ namespace Wheeled.Sound
                 m_audioSource.dopplerLevel = _layer.doppler;
                 m_audioSource.maxDistance = _layer.falloffDistance.max;
                 m_audioSource.minDistance = _layer.falloffDistance.min;
+                m_audioSource.priority = 128;
             }
 
             private void UpdateSource()

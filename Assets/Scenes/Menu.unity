@@ -5919,6 +5919,7 @@ MonoBehaviour:
       max: 5
       min: 1
     reverbMix: 1
+    priority: 9
   value: 0
   useDelta: 1
   attackSmoothTime: 0.005

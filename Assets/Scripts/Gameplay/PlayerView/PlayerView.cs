@@ -94,7 +94,11 @@ namespace Wheeled.Gameplay.PlayerView
 
         public void ShootRocket() => m_gameObject?.GetComponent<WeaponsBehaviour>().ShootRocket();
 
-        public void ShootRifle() => m_gameObject?.GetComponent<WeaponsBehaviour>().ShootLaser(RiflePower);
+        public void ShootRifle()
+        {
+            m_rifleDisplayBehaviour.Shoot(RiflePower);
+            m_gameObject?.GetComponent<WeaponsBehaviour>().ShootLaser(RiflePower);
+        }
         public void ReachTarget()
         {
             if (m_gameObject != null)

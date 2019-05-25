@@ -4864,6 +4864,7 @@ MonoBehaviour:
       max: 10
       min: 2
     reverbMix: 1
+    priority: 45
   autoPlayMode: 1
 --- !u!1001 &4186418912856087138
 PrefabInstance:
