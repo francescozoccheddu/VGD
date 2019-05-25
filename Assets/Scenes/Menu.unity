@@ -5801,13 +5801,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   noiseImage: {fileID: 1587999911}
   light: {fileID: 8940211}
-  alpha: 0.3
-  probability: 0.329
-  frequency: 6.92
+  alpha: 0.45
+  probability: 0.25
+  frequency: 7
   sound: {fileID: 1587999913}
   lightIntensity:
     max: 3
-    min: 1
+    min: 0.7
 --- !u!114 &1587999911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5856,7 +5856,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   valueRange:
-    max: 20
+    max: 1
     min: 0
   layers:
   - name: Light
@@ -5866,21 +5866,21 @@ MonoBehaviour:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0
-        inSlope: 1
-        outSlope: 1
-        tangentMode: 34
+        value: 0.19104004
+        inSlope: 0.26150912
+        outSlope: 0.26150912
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
-        outWeight: 0
+        outWeight: 0.108216435
       - serializedVersion: 3
         time: 1
-        value: 1
-        inSlope: 1
-        outSlope: 1
-        tangentMode: 34
+        value: 0.59669876
+        inSlope: 0.60152745
+        outSlope: 0.60152745
+        tangentMode: 0
         weightedMode: 0
-        inWeight: 0
+        inWeight: 0.09018034
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -5890,21 +5890,21 @@ MonoBehaviour:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1.0023499
-        inSlope: 0.014167786
-        outSlope: 0.014167786
-        tangentMode: 34
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 1.0165176
-        inSlope: 0.014167786
-        outSlope: 0.014167786
-        tangentMode: 34
+        value: 1.01297
+        inSlope: 0.034661356
+        outSlope: 0.034661356
+        tangentMode: 0
         weightedMode: 0
-        inWeight: 0.33333334
+        inWeight: 0.10220438
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -5922,7 +5922,7 @@ MonoBehaviour:
     priority: 9
   value: 0
   useDelta: 1
-  attackSmoothTime: 0.005
+  attackSmoothTime: 0.001
   releaseSmoothTime: 0.05
   maxSpeed: Infinity
 --- !u!1 &1590318754
