@@ -31,6 +31,104 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6959035608650686514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7014973821056198200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 021eda902ace5264da29ed6af647a7b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  valueRange:
+    max: 1
+    min: 0
+  layers:
+  - name: Small telescope motor
+    clip: {fileID: 8300000, guid: da6fe24800dfe5048aac74208b94f685, type: 3}
+    volume:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0.6273582
+        outSlope: 0.6273582
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0.6273582
+        inSlope: 0.6273582
+        outSlope: 0.6273582
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    pitch:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.90686035
+        inSlope: 0.15210342
+        outSlope: 0.15210342
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1.0589638
+        inSlope: 0.15210342
+        outSlope: 0.15210342
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    pitcher:
+      max: 1.1111112
+      min: 0.9
+    spatialBlend: 1
+    doppler: 1
+    spread: 0
+    falloffDistance:
+      max: 4
+      min: 2
+    reverbMix: 1
+    priority: 255
+  value: 0
+  useDelta: 0
+  attackSmoothTime: 0.1
+  releaseSmoothTime: 0.1
+  maxSpeed: Infinity
+--- !u!114 &7090812263404583905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7014973821056198200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8486466f95ea3044b814618831eda74a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  x: 1
+  y: 1
+  z: 0
+  player: {fileID: 6959035608650686514}
 --- !u!1001 &438705453084380737
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -88,6 +186,12 @@ PrefabInstance:
 --- !u!4 &4858307058598323547 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 47d012f3194b1fa4d81082ac50f3998f,
+    type: 3}
+  m_PrefabInstance: {fileID: 438705453084380737}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7014973821056198200 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7443510982013823097, guid: 47d012f3194b1fa4d81082ac50f3998f,
     type: 3}
   m_PrefabInstance: {fileID: 438705453084380737}
   m_PrefabAsset: {fileID: 0}

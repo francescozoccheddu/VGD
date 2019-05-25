@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Wheeled.Sound;
 
 namespace Wheeled.Gameplay.PlayerView
 {
@@ -31,9 +32,13 @@ namespace Wheeled.Gameplay.PlayerView
         public float smoothSpeed = 1f;
         private float m_height;
 
+        [Header("Sounds")]
+        public ContinuousAudioPlayerBehaviour sound;
+
         private void Update()
         {
             const float maxHeight = c_maxWheelDistance - c_baseWheelDistance;
+            sound.value = Mathf.Clamp(height, 0.0f, maxHeight);
             m_height = Mathf.Min(height, Mathf.Lerp(m_height, Mathf.Min(height, maxHeight), Time.deltaTime * smoothSpeed));
 
             float wheelDistance = Mathf.Clamp(m_height + c_baseWheelDistance, c_minWheelDistance, c_maxWheelDistance);

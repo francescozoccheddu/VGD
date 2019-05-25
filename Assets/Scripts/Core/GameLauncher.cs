@@ -52,6 +52,7 @@ namespace Wheeled.Core
                 DestroyHost();
                 if (!m_isQuitting)
                 {
+                    NetworkManager.instance.Stop();
                     if (SceneManager.GetActiveScene().buildIndex != Scripts.Scenes.menuSceneBuildIndex)
                     {
                         SceneManager.LoadScene(Scripts.Scenes.menuSceneBuildIndex, LoadSceneMode.Single);

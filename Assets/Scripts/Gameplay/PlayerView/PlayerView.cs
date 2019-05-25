@@ -92,12 +92,12 @@ namespace Wheeled.Gameplay.PlayerView
             m_sight = _snapshot.sight;
         }
 
-        public void ShootRocket() => m_animator?.SetTrigger("Shoot Rocket");
+        public void ShootRocket() => m_gameObject?.GetComponent<WeaponsBehaviour>().ShootRocket();
 
         public void ShootRifle()
         {
-            m_animator?.SetTrigger("Shoot Rifle");
-            m_rifleDisplayBehaviour?.Shoot(RiflePower);
+            m_rifleDisplayBehaviour.Shoot(RiflePower);
+            m_gameObject?.GetComponent<WeaponsBehaviour>().ShootLaser(RiflePower);
         }
         public void ReachTarget()
         {

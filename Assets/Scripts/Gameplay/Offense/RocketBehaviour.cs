@@ -6,7 +6,7 @@ namespace Wheeled.Gameplay.Offense
     public sealed class RocketBehaviour : MonoBehaviour
     {
         public ParticleSystem particleSystemTrail;
-        public MeshRenderer meshRenderer;
+        public GameObject rocket;
 
         public GameObject explosion;
 
@@ -16,30 +16,25 @@ namespace Wheeled.Gameplay.Offense
         {
             particleSystemTrail.Stop();
             if (Application.isPlaying)
-            meshRenderer.enabled = false;
+            {
+                if (rocket != null)
+                {
+                    Destroy(rocket);
+                }
+            }
         }
 
-        private void OnEnable()
-        {
-            meshRenderer.enabled = true;
-            
-        }
-
-        public void Explode()
-        {
-            Explode(transform.position);
-        }
+        public void Explode() => Explode(transform.position);
 
         public void Explode(Vector3 _position)
         {
             transform.position = _position;
             if (Application.isPlaying)
             {
-                var gameObject = Instantiate(explosion, _position, Quaternion.identity);
+                GameObject gameObject = Instantiate(explosion, _position, Quaternion.identity);
                 ParticlesColorUtils.SetChildrenRendererColor(gameObject, m_color);
             }
-            particleSystemTrail.Stop();
-            meshRenderer.enabled = false;
+            Dissolve();
         }
 
         public void Move(Vector3 _position)

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Wheeled.Sound;
 
 namespace Wheeled.Gameplay.PlayerView
 {
@@ -15,6 +16,11 @@ namespace Wheeled.Gameplay.PlayerView
 
         [Header("Properties")]
         public float smoothSpeed = 10.0f;
+
+        [Header("Sound")]
+        public ContinuousAudioPlayerBehaviour tiresSound;
+        public ContinuousAudioPlayerBehaviour wheelSound;
+        public ContinuousAudioPlayerBehaviour hipSound;
 
         private Vector3 m_lastPosition;
         private float m_hipTurn;
@@ -61,6 +67,17 @@ namespace Wheeled.Gameplay.PlayerView
             float turn = Mathf.LerpAngle(hip.localEulerAngles.y, m_hipTurn, Time.deltaTime * smoothSpeed);
             hip.localEulerAngles = new Vector3(0, turn, 0);
             m_lastPosition = transform.position;
+            // Sound
+            float intensity = Mathf.Abs(angularSpeed);
+            tiresSound.value = isGrounded ? intensity: 0.0f;
+            wheelSound.value = intensity;
+            hipSound.value = m_hipTurn;
+        }
+
+        private void OnDisable()
+        {
+            tiresSound.value = 0.0f;
+            wheelSound.value = 0.0f;
         }
     }
 }

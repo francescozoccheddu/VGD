@@ -159,6 +159,7 @@ MonoBehaviour:
   rifleHit: {fileID: 1071223986564736647, guid: b8e4a3e9ff7a3ad4cb6ea07702f01d3b,
     type: 3}
   particles: {fileID: 3823166888782029550}
+  sound: {fileID: 8187527375195720875, guid: d74d229e398bcc74f9bbd4c0cd8a36e0, type: 3}
 --- !u!199 &6185666138883945388
 ParticleSystemRenderer:
   serializedVersion: 6

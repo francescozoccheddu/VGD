@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   particleSystemTrail: {fileID: 166064163648918508}
-  meshRenderer: {fileID: 5837824864783628215}
+  rocket: {fileID: 5276187709680698219}
   explosion: {fileID: 1590646576897671981, guid: fd833a662494921499ed1f8958c9d2ba,
     type: 3}
 --- !u!199 &1885063118110789701
@@ -4788,6 +4788,84 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
+--- !u!114 &8490434038025167808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5276187709680698219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d53e043e2e66c843b4b9dbbd707501a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  valueRange:
+    max: 1
+    min: 0
+  layers:
+  - name: Rocket flyby
+    clip: {fileID: 8300000, guid: ac5ddb7e6c395ac428e8151133d74f7d, type: 3}
+    volume:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    pitch:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    pitcher:
+      max: 1.1111112
+      min: 0.9
+    spatialBlend: 1
+    doppler: 5
+    spread: 0
+    falloffDistance:
+      max: 10
+      min: 2
+    reverbMix: 1
+    priority: 45
+  autoPlayMode: 1
 --- !u!1001 &4186418912856087138
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4867,15 +4945,15 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 4c50c33dc68c9f247b3451a340f715e3, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d6d345b44eda24348b2d576724f14395, type: 3}
---- !u!4 &9179340017445253496 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: d6d345b44eda24348b2d576724f14395,
+--- !u!1 &5276187709680698219 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -927199367670048503, guid: d6d345b44eda24348b2d576724f14395,
     type: 3}
   m_PrefabInstance: {fileID: 4186418912856087138}
   m_PrefabAsset: {fileID: 0}
---- !u!23 &5837824864783628215 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -1504981713932161579, guid: d6d345b44eda24348b2d576724f14395,
+--- !u!4 &9179340017445253496 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: d6d345b44eda24348b2d576724f14395,
     type: 3}
   m_PrefabInstance: {fileID: 4186418912856087138}
   m_PrefabAsset: {fileID: 0}
