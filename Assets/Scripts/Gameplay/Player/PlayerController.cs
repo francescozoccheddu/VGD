@@ -94,7 +94,7 @@ namespace Wheeled.Gameplay.Player
             InGameHUDBehaviour.Instance.healthIndicator.NotifyDamage();
             if (_value.origin != null && _value.info.offenderId != m_player.Id)
             {
-                DamageMarkerManagerBehaviour.Instance.Add(_value.origin.Value);
+                DamageMarkerManagerBehaviour.Instance.Add(_value.origin.Value, _value.info.damage);
             }
         }
 

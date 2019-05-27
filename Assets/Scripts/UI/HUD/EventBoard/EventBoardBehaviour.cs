@@ -25,7 +25,7 @@ namespace Wheeled.UI.HUD
                 _eventBoard.Add(() =>
                 {
                     return string.Format("{0}<color=\"#FFFC\"> joined the game</color>", player.GetColoredName());
-                });
+                }, EventBoardEventBehaviour.EEventType.Join);
             }
         }
 
@@ -64,7 +64,7 @@ namespace Wheeled.UI.HUD
                 _eventBoard.Add(() =>
                 {
                     return string.Format(format, killer.GetColoredName(), victim.GetColoredName(), cause);
-                });
+                }, EventBoardEventBehaviour.EEventType.Kill);
             }
         }
 
@@ -78,7 +78,7 @@ namespace Wheeled.UI.HUD
                 _eventBoard.Add(() =>
                 {
                     return string.Format("{0}<color=\"#FFFC\"> left the game</color>", player.GetColoredName());
-                });
+                }, EventBoardEventBehaviour.EEventType.Quit);
             }
         }
 
@@ -104,10 +104,11 @@ namespace Wheeled.UI.HUD
 
         public static EventBoardBehaviour Instance { get; private set; }
 
-        private void Add(EventBoardEventBehaviour.TextProvider _messageProvider)
+        private void Add(EventBoardEventBehaviour.TextProvider _messageProvider, EventBoardEventBehaviour.EEventType _type)
         {
-            EventBoardEventBehaviour gameObject = Instantiate(eventPrefab, transform).GetComponent<EventBoardEventBehaviour>();
-            gameObject.MessageProvider = _messageProvider;
+            EventBoardEventBehaviour behaviour = Instantiate(eventPrefab, transform).GetComponent<EventBoardEventBehaviour>();
+            behaviour.MessageProvider = _messageProvider;
+            behaviour.PlaySound(_type);
         }
 
         public GameObject eventPrefab;

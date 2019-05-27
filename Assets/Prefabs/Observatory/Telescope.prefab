@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &7428649196302625869
 Transform:
@@ -141,21 +141,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Telescope
       objectReference: {fileID: 0}
-    - target: {fileID: -6874540395504895234, guid: 47d012f3194b1fa4d81082ac50f3998f,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 4c50c33dc68c9f247b3451a340f715e3, type: 2}
-    - target: {fileID: -6057140222963153312, guid: 47d012f3194b1fa4d81082ac50f3998f,
-        type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 853780d93afceca4294bd7d9757ba869, type: 2}
-    - target: {fileID: -4937062936340611053, guid: 47d012f3194b1fa4d81082ac50f3998f,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 4c50c33dc68c9f247b3451a340f715e3, type: 2}
     - target: {fileID: -4216859302048453862, guid: 47d012f3194b1fa4d81082ac50f3998f,
         type: 3}
       propertyPath: m_RootOrder
@@ -176,7 +161,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -6057140222963153312, guid: 47d012f3194b1fa4d81082ac50f3998f,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 853780d93afceca4294bd7d9757ba869, type: 2}
     - target: {fileID: -1504981713932161579, guid: 47d012f3194b1fa4d81082ac50f3998f,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4c50c33dc68c9f247b3451a340f715e3, type: 2}
+    - target: {fileID: -4937062936340611053, guid: 47d012f3194b1fa4d81082ac50f3998f,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4c50c33dc68c9f247b3451a340f715e3, type: 2}
+    - target: {fileID: -6874540395504895234, guid: 47d012f3194b1fa4d81082ac50f3998f,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 

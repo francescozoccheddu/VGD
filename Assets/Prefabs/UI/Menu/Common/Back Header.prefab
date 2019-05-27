@@ -177,6 +177,16 @@ PrefabInstance:
       propertyPath: m_Text
       value: <<<
       objectReference: {fileID: 0}
+    - target: {fileID: 4506105658100180347, guid: a2e06e99a04e86440917ead666a0eefc,
+        type: 3}
+      propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 8300000, guid: f2ff41451adef4f49a20cd87e8c23f60, type: 3}
+    - target: {fileID: 4506105658100180347, guid: a2e06e99a04e86440917ead666a0eefc,
+        type: 3}
+      propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 8300000, guid: f2ff41451adef4f49a20cd87e8c23f60, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a2e06e99a04e86440917ead666a0eefc, type: 3}
 --- !u!1001 &8434595433332193115
@@ -189,7 +199,7 @@ PrefabInstance:
     - target: {fileID: 6442239898825457234, guid: 91bc5d9614168834a8bd92003ef39af5,
         type: 3}
       propertyPath: m_Name
-      value: Back Header
+      value: Back header
       objectReference: {fileID: 0}
     - target: {fileID: 1289493281627318285, guid: 91bc5d9614168834a8bd92003ef39af5,
         type: 3}

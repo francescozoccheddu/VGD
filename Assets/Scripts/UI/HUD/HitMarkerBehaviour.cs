@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Wheeled.Sound;
 
 namespace Wheeled.UI.HUD
 {
@@ -15,6 +16,7 @@ namespace Wheeled.UI.HUD
         public void Hit()
         {
             animator.SetTrigger("Hit");
+            GetComponent<AudioSource>().Play();
         }
 
     }
