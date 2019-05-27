@@ -9,7 +9,7 @@ using Wheeled.Sound;
 
 namespace Wheeled.UI.Menu
 {
-    public sealed class TVNoise : MonoBehaviour
+    public sealed class TVNoiseBehaviour : MonoBehaviour
     {
 
         public RawImage noiseImage;

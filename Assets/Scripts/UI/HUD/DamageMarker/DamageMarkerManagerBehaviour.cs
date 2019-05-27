@@ -13,11 +13,11 @@ namespace Wheeled.UI.HUD.DamageMarker
         public static DamageMarkerManagerBehaviour Instance { get; private set; }
         public GameObject markerPrefab;
 
-        public void Add(Vector3 _position)
+        public void Add(Vector3 _position, float _damage)
         {
             Instantiate(markerPrefab, transform)
                 .GetComponent<DamageMarkerBehaviour>()
-                .Set(_position);
+                .Set(_position, _damage);
         }
 
         public Camera Camera { get; private set; }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using Wheeled.Sound;
 
 namespace Wheeled.UI.HUD.DamageMarker
 {
@@ -22,15 +23,18 @@ namespace Wheeled.UI.HUD.DamageMarker
         [Range(1.0f, 50.0f)]
         public float interpolationQuickness = 1.0f;
 
+        public OneShotAudioPlayerBehaviour sound;
+
         public void Destroy()
         {
             Destroy(gameObject);
         }
 
-        public void Set(Vector3 _position)
+        public void Set(Vector3 _position, float _damage)
         {
             Position = _position;
             transform.eulerAngles = new Vector3(0.0f, 0.0f, CalculateRotation());
+            sound.Play(_damage);
         }
 
         private float CalculateRotation()

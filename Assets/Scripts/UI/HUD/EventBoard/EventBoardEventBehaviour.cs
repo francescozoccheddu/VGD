@@ -8,19 +8,42 @@ namespace Wheeled.UI.HUD
 
         public Text text;
 
-        public void Destroy()
+        public AudioClip killSound;
+        public AudioClip joinSound;
+        public AudioClip quitSound;
+
+        public void Destroy() => Destroy(gameObject);
+
+        public enum EEventType
         {
-            Destroy(gameObject);
+            Kill, Join, Quit
+        }
+
+        public void PlaySound(EEventType _type)
+        {
+            AudioClip clip;
+            switch (_type)
+            {
+                case EEventType.Kill:
+                clip = killSound;
+                break;
+                case EEventType.Join:
+                clip = joinSound;
+                break;
+                case EEventType.Quit:
+                clip = quitSound;
+                break;
+                default:
+                return;
+            }
+            GetComponentInParent<UIAudioSourceBehaviour>().Play(clip);
         }
 
         public delegate string TextProvider();
 
         public TextProvider MessageProvider { get; set; }
 
-        private void Update()
-        {
-            text.text= MessageProvider();
-        }
+        private void Update() => text.text = MessageProvider();
 
     }
 }

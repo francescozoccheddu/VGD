@@ -23,6 +23,8 @@ namespace Wheeled.UI.Menu
         private ToggleGroup m_group;
         private int m_port;
 
+        public AudioClip sound;
+
         public void PortChanged(int? _port)
         {
             if (_port != null)
@@ -65,6 +67,7 @@ namespace Wheeled.UI.Menu
                 {
                     loadingLabel.SetActive(false);
                     listGroup.SetActive(true);
+                    GetComponentInParent<UIAudioSourceBehaviour>().Play(sound);
                     GameObject entry = Instantiate(hostTogglePrefab, m_group.transform);
                     Toggle toggle = entry.GetComponent<Toggle>();
                     toggle.group = m_group;
