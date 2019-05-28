@@ -6,6 +6,12 @@ namespace Wheeled.Gameplay.Movement
 {
     public sealed partial class MovementController
     {
+
+        public bool EnableMovement { get; set; } = true;
+        public bool EnableSight { get; set; } = true;
+        public bool EnableDash { get; set; } = true;
+        public bool EnableJump { get; set; } = true;
+
         public ICommitTarget target;
 
         private InputStep m_accumulatedInput;
@@ -26,10 +32,7 @@ namespace Wheeled.Gameplay.Movement
         public int Step { get; private set; }
         public double Time { get; private set; }
 
-        public void Pause()
-        {
-            IsRunning = false;
-        }
+        public void Pause() => IsRunning = false;
 
         public void StartAt(double _time)
         {
@@ -125,17 +128,29 @@ namespace Wheeled.Gameplay.Movement
 
                 RotateMovementXZ(right, forward, m_snapshot.sight.Turn, out float movementX, out float movementZ);
                 ClampMovement(ref movementX, ref movementZ);
-                m_accumulatedInput.movementX += (float) (movementX * stepDeltaTime);
-                m_accumulatedInput.movementZ += (float) (movementZ * stepDeltaTime);
-                m_accumulatedInput.jump |= jumped;
-                m_accumulatedInput.dash |= dashed;
+                if (EnableMovement)
+                {
+                    m_accumulatedInput.movementX += (float) (movementX * stepDeltaTime);
+                    m_accumulatedInput.movementZ += (float) (movementZ * stepDeltaTime);
+                }
+                if (EnableJump)
+                {
+                    m_accumulatedInput.jump |= jumped;
+                }
+                if (EnableDash)
+                {
+                    m_accumulatedInput.dash |= dashed;
+                }
 
                 jumped = false;
                 dashed = false;
 
-                float weight = (float) (stepDeltaTime / processDeltaTime);
-                m_snapshot.sight.Turn += turn * weight;
-                m_snapshot.sight.LookUp += lookUp * weight;
+                if (EnableSight)
+                {
+                    float weight = (float) (stepDeltaTime / processDeltaTime);
+                    m_snapshot.sight.Turn += turn * weight;
+                    m_snapshot.sight.LookUp += lookUp * weight;
+                }
 
                 m_accumulatedTime += stepDeltaTime;
                 if (finalized)

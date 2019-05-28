@@ -5,6 +5,7 @@ using Wheeled.Core.Data;
 using Wheeled.Networking;
 using Wheeled.Networking.Client;
 using Wheeled.Networking.Server;
+using Wheeled.Tutorial;
 using Wheeled.UI.Menu;
 
 namespace Wheeled.Core
@@ -72,6 +73,22 @@ namespace Wheeled.Core
             if (!IsBusy)
             {
                 EnsureClient().Start(_endPoint);
+            }
+            else
+            {
+                Debug.LogWarning("StartGameAsClient has been ignored because a game is running or loading");
+            }
+        }
+
+        public void StartTutorial()
+        {
+            if (!IsBusy)
+            {
+                DestroyHost();
+                TutorialHost host = new TutorialHost();
+                m_host = host;
+                host.OnStopped += GameStopped;
+                LoadScene(Scripts.Scenes.tutorialSceneBuildIndex);
             }
             else
             {

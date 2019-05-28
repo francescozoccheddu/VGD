@@ -6,6 +6,11 @@ namespace Wheeled.Gameplay.Action
 {
     public sealed class ActionController
     {
+
+        public bool EnableKaze { get; set; } = true;
+        public bool EnableRifle { get; set; } = true;
+        public bool EnableRocket { get; set; } = true;
+
         public interface ITarget
         {
             void Kaze(KazeInfo _info);
@@ -37,7 +42,7 @@ namespace Wheeled.Gameplay.Action
             }
             if (Target != null)
             {
-                if (Input.GetButtonDown("ShootRifle") && LifeHistoryHelper.IsAlive(GetHealth()) && _player.WeaponsHistory.CanShootRifle(_time, out _))
+                if (EnableRifle && Input.GetButtonDown("ShootRifle") && LifeHistoryHelper.IsAlive(GetHealth()) && _player.WeaponsHistory.CanShootRifle(_time, out _))
                 {
                     Target.Shoot(new ShotInfo
                     {
@@ -46,7 +51,7 @@ namespace Wheeled.Gameplay.Action
                         isRocket = false
                     });
                 }
-                if (Input.GetButtonDown("ShootRocket") && LifeHistoryHelper.IsAlive(GetHealth()) && _player.WeaponsHistory.CanShootRocket(_time))
+                if (EnableRocket && Input.GetButtonDown("ShootRocket") && LifeHistoryHelper.IsAlive(GetHealth()) && _player.WeaponsHistory.CanShootRocket(_time))
                 {
                     Target.Shoot(new ShotInfo
                     {
@@ -55,7 +60,7 @@ namespace Wheeled.Gameplay.Action
                         isRocket = true
                     });
                 }
-                if (Input.GetButtonDown("Kaze") && !LifeHistoryHelper.IsExploded(GetHealth()))
+                if (EnableKaze && Input.GetButtonDown("Kaze") && !LifeHistoryHelper.IsExploded(GetHealth()))
                 {
                     _player.LifeHistory.GetLastDeathInfo(_time, out DamageNode? death, out DamageNode? explosion);
                     if (explosion == null && (_time - death?.time > ActionValidator.c_maxKazeWaitAfterDeath != true))

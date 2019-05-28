@@ -26,12 +26,16 @@ namespace Wheeled.UI.HUD
         private void OnEnable()
         {
             IPEndPoint endPoint = GameManager.Current.Room.endPoint;
-            IPAddress ip = GameManager.Current.Room.endPoint.Address;
-            if (IPAddress.IsLoopback(ip))
+            text.enabled = endPoint != null;
+            if (endPoint != null)
             {
-                ip = GetLocalIPAddress() ?? ip;
+                IPAddress ip = GameManager.Current.Room.endPoint.Address;
+                if (IPAddress.IsLoopback(ip))
+                {
+                    ip = GetLocalIPAddress() ?? ip;
+                }
+                text.text = string.Format("<color=\"#FFF7\">join at </color>{0}<color=\"#FFF7\">:</color>{1}", ip, endPoint.Port);
             }
-            text.text = string.Format("<color=\"#FFF7\">join at </color>{0}<color=\"#FFF7\">:</color>{1}", ip, endPoint.Port);
         }
 
     }

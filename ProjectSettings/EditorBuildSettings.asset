@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Underwater.unity
     guid: e8551ba55660e734fbe487e47b0b6da9
+  - enabled: 1
+    path: Assets/Scenes/Tutorial.unity
+    guid: 5cdde2a5fa65eef4fa2f6a9add2167d1
   m_configObjects: {}

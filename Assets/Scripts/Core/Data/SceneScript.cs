@@ -7,5 +7,6 @@ namespace Wheeled.Core.Data
     {
         public ArenaScript[] arenas;
         public int menuSceneBuildIndex;
+        public int tutorialSceneBuildIndex;
     }
 }

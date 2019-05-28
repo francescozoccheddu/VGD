@@ -17,3 +17,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2269e2747a892974cb9f15f984757857, type: 2}
   - {fileID: 11400000, guid: 48f55ed3c841f6b4eb3e24d578abfcc4, type: 2}
   menuSceneBuildIndex: 0
+  tutorialSceneBuildIndex: 4
