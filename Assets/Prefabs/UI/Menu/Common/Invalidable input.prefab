@@ -123,8 +123,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Wheeled.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    m_TypeName: Wheeled.UI.Menu.ValidatorBehaviour+ValidatedEvent, Assembly-CSharp,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &294455732014091152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,7 +171,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   validColor: {fileID: 5189851656562207115, guid: 2881ae374054fc449a1e28a3ae5d52a4,
     type: 3}
-  invalidColor: {r: 0.84, g: 0, b: 0.11199989, a: 1}
+  invalidColor: {r: 0.84, g: 0, b: 0.11199989, a: 0.5019608}
   target: {fileID: 5275230429770264118}
 --- !u!1001 &294455732014091148
 PrefabInstance:
