@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Wheeled.Core.Data;
 using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.PlayerView;
@@ -38,17 +37,14 @@ namespace Wheeled.Gameplay.Offense
 
             public abstract void Update(double _time, OffenseBackstage _stage);
 
-            public void Dispose()
-            {
-                IsGone = true;
-            }
+            public void Dispose() => IsGone = true;
         }
 
         private class PendingExplosionOffense : PendingOffense
         {
-            private const float c_fullDamage = 1.0f;
-            private const float c_innerRadius = 2.0f;
-            private const float c_outerRadius = 5.0f;
+            private const float c_fullDamage = 0.8f;
+            private const float c_innerRadius = 1.0f;
+            private const float c_outerRadius = 3.0f;
 
             public PendingExplosionOffense(double _time, ExplosionOffense _offense) : base(_time, _offense)
             {
@@ -63,21 +59,12 @@ namespace Wheeled.Gameplay.Offense
                     {
                         foreach (HitTarget t in targets)
                         {
-                            float damage;
                             float distance = Vector3.Distance(t.snapshot.simulation.Position, Offense.Origin);
-                            if (distance <= c_innerRadius)
+                            float intensity = (1.0f - Mathf.Clamp01((distance - c_innerRadius) / (c_outerRadius - c_innerRadius)));
+                            if (intensity > 0.0f)
                             {
-                                damage = c_fullDamage;
+                                _stage.ValidationTarget.Damage(Time, t.playerId, Offense, intensity * c_fullDamage);
                             }
-                            else if (distance <= c_outerRadius)
-                            {
-                                damage = Mathf.Clamp01((distance - c_innerRadius) / (c_outerRadius - c_innerRadius)) * c_fullDamage;
-                            }
-                            else
-                            {
-                                continue;
-                            }
-                            _stage.ValidationTarget.Damage(Time, t.playerId, Offense, damage);
                         }
                     }
                     Dispose();
@@ -87,8 +74,8 @@ namespace Wheeled.Gameplay.Offense
 
         private sealed class PendingLaserShotOffense : PendingShotOffense
         {
-            private const float c_criticalDamage = 2.0f;
-            private const float c_damage = 0.7f;
+            private const float c_criticalFullDamage = 0.9f;
+            private const float c_fullDamage = 0.3f;
 
             public PendingLaserShotOffense(double _time, LaserShotOffense _offense) : base(_time, _offense)
             {
@@ -118,7 +105,7 @@ namespace Wheeled.Gameplay.Offense
                         end = hitInfo.position;
                         if (hitInfo.playerId != null)
                         {
-                            float damage = (hitInfo.isCritical ? c_criticalDamage : c_damage) * offense.Power;
+                            float damage = (hitInfo.isCritical ? c_criticalFullDamage : c_fullDamage) * offense.Power;
                             _target.Damage(Time, hitInfo.playerId.Value, offense, damage);
                         }
                         ((LaserShotOffense) Offense).Hit = hitInfo.position;
@@ -131,10 +118,10 @@ namespace Wheeled.Gameplay.Offense
 
         private sealed class PendingRocketShotOffense : PendingShotOffense
         {
-            private const float c_fullDamage = 1.0f;
+            private const float c_fullDamage = 0.7f;
             private const double c_hitTestDuration = 0.5;
-            private const float c_innerRadius = 2.0f;
-            private const float c_outerRadius = 5.0f;
+            private const float c_innerRadius = 1.0f;
+            private const float c_outerRadius = 3.0f;
             private double m_lifetime;
 
             public PendingRocketShotOffense(double _time, RocketShotOffense _offense) : base(_time, _offense)
@@ -173,21 +160,12 @@ namespace Wheeled.Gameplay.Offense
                             {
                                 foreach (HitTarget t in targets)
                                 {
-                                    float damage;
                                     float distance = Vector3.Distance(t.snapshot.simulation.Position, position);
-                                    if (distance <= c_innerRadius)
+                                    float intensity = (1.0f - Mathf.Clamp01((distance - c_innerRadius) / (c_outerRadius - c_innerRadius)));
+                                    if (intensity > 0.0f)
                                     {
-                                        damage = c_fullDamage;
+                                        _target.Damage(hitTime, t.playerId, Offense, intensity * c_fullDamage);
                                     }
-                                    else if (distance <= c_outerRadius)
-                                    {
-                                        damage = Mathf.Clamp01((distance - c_innerRadius) / (c_outerRadius - c_innerRadius)) * c_fullDamage;
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-                                    _target.Damage(hitTime, t.playerId, Offense, damage);
                                 }
                             }
                             ((RocketShotOffense) Offense).Hit = hitInfo.position;
@@ -255,20 +233,11 @@ namespace Wheeled.Gameplay.Offense
             m_probePool = new HitProbePool();
         }
 
-        public void PutExplosion(double _time, ExplosionOffense _offense)
-        {
-            m_offenses.Add(new PendingExplosionOffense(_time, _offense));
-        }
+        public void PutExplosion(double _time, ExplosionOffense _offense) => m_offenses.Add(new PendingExplosionOffense(_time, _offense));
 
-        public void PutRifle(double _time, LaserShotOffense _offense)
-        {
-            m_offenses.Add(new PendingLaserShotOffense(_time, _offense));
-        }
+        public void PutRifle(double _time, LaserShotOffense _offense) => m_offenses.Add(new PendingLaserShotOffense(_time, _offense));
 
-        public void PutRocket(double _time, RocketShotOffense _offense)
-        {
-            m_offenses.Add(new PendingRocketShotOffense(_time, _offense));
-        }
+        public void PutRocket(double _time, RocketShotOffense _offense) => m_offenses.Add(new PendingRocketShotOffense(_time, _offense));
 
         public void UpdateUntil(double _time)
         {

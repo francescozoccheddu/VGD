@@ -149,12 +149,12 @@ namespace Wheeled.Gameplay.Player
             }
             else
             {
-                m_weaponsHistory.PutRifleShot(_time);
                 m_weaponsHistory.CanShootRifle(_time, out float power);
                 power = Mathf.Max(Action.WeaponsHistory.c_rifleMinPower, power);
                 LaserShotOffense offense = new LaserShotOffense(Id, _info.position, _info.sight, power);
                 m_offenseBackstage.PutRifle(_time, offense);
                 m_offenseStage.Put(_time, offense);
+                m_weaponsHistory.PutRifleShot(_time);
             }
             m_shootHistory.Put(_time, _info.isRocket);
             OnShotScheduled(_time, _info);
