@@ -41,4 +41,14 @@ Nicola Manca
 - [Dental_chair_servo_switch](https://freesound.org/people/beerbelly38/sounds/160432/) by beerbelly38 of [Freesound.org](https://freesound.org) **(Changes were made)**
 - [Zoom Lens](https://freesound.org/people/Pogotron/sounds/64314/) by Pogotron of [Freesound.org](https://freesound.org) **(Changes were made)**
 - [mechanical](https://freesound.org/people/Halleck/sounds/19336/) by Halleck of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [Squeaking Bolt 2](https://freesound.org/people/temawas/sounds/256841/) by temawas of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [spinning weight](https://freesound.org/people/Thoryn/sounds/445822/) by Thoryn of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [Spinning a Weight on Wood](https://freesound.org/people/mars_98/sounds/445043/) by mars_98 of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [resonant_metal_plates](https://freesound.org/people/plingativator/sounds/188916/) by plingativator of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [Impact-Misc_Tools-0003](https://freesound.org/people/D%20W/sounds/144262/) by D W of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [Metal Impact - Ceramic Piece in Sink](https://freesound.org/people/RoganDerrick/sounds/260435/) by RoganDerrick of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [Tapping Metal](https://freesound.org/people/PsychoPancake/sounds/325238/) by PsychoPancake of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [Rubbing Metal](https://freesound.org/people/PsychoPancake/sounds/325235/) by PsychoPancake of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [FAN 2](https://freesound.org/people/temawas/sounds/179244/) by temawas of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [Bathroom Extractor Fan, A](https://freesound.org/people/InspectorJ/sounds/400577/) by [InspectorJ](www.jshaw.co.uk) of [Freesound.org](https://freesound.org) **(Changes were made)**
 - Other free sounds from [FreeSound.org](https://freesound.org/) under CC0 license
