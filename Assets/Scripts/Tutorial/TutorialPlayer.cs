@@ -1,12 +1,13 @@
-﻿using Wheeled.Core;
-using Wheeled.Core.Utils;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Wheeled.Gameplay.Action;
 using Wheeled.Gameplay.Movement;
 using Wheeled.Gameplay.Offense;
 using Wheeled.Gameplay.Player;
 
 namespace Wheeled.Tutorial
 {
-    public sealed class TutorialPlayer : Player
+    public sealed class TutorialPlayer : Player, OffenseBackstage.IValidationTarget
     {
 
         public PlayerController Controller { get; }
@@ -21,6 +22,7 @@ namespace Wheeled.Tutorial
         {
 
             m_offenseBackstage = _offenseBackstage;
+            m_offenseBackstage.ValidationTarget = this;
             Controller = new PlayerController(this)
             {
                 EnableDash = false,
@@ -53,8 +55,8 @@ namespace Wheeled.Tutorial
 
         protected override void OnUpdated()
         {
-            base.OnUpdated();
             m_offenseBackstage.UpdateUntil(LocalTime);
+            base.OnUpdated();
             Controller.OnUpdated();
         }
 
@@ -63,5 +65,9 @@ namespace Wheeled.Tutorial
             base.OnInfoSetup();
             Controller.OnInfoSetup();
         }
+
+        IEnumerable<OffenseBackstage.HitTarget> OffenseBackstage.IValidationTarget.ProvideHitTarget(double _time, Offense _offense) => Enumerable.Empty<OffenseBackstage.HitTarget>();
+        void OffenseBackstage.IValidationTarget.Damage(double _time, int _offendedId, Offense _offense, float _damage) { }
+        bool OffenseBackstage.IValidationTarget.ShouldProcess(double _time, Offense _offense) => true;
     }
 }

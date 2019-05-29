@@ -20,8 +20,9 @@ namespace Wheeled.Tutorial.Steps
 
         private void Update()
         {
-            var snapshot = m_Player.Snapshot;
-            if (Mathf.Abs(snapshot.sight.Turn - m_origin.Turn) >= minAngle || Mathf.Abs(snapshot.sight.LookUp - m_origin.LookUp) >= minAngle)
+            Snapshot snapshot = m_Player.Snapshot;
+            if (Mathf.Abs(Mathf.DeltaAngle(snapshot.sight.Turn, m_origin.Turn)) >= minAngle
+                || Mathf.Abs(Mathf.DeltaAngle(snapshot.sight.LookUp, m_origin.LookUp)) >= minAngle)
             {
                 Complete();
             }
