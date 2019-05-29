@@ -17,6 +17,8 @@ namespace Wheeled.UI.HUD
 
         public GameObject entryPrefab;
 
+        public bool IsOpen { get; private set; }
+
         [Range(0.0f,1.0f)]
         public float antiScoreGroupAlpha;
 
@@ -50,10 +52,10 @@ namespace Wheeled.UI.HUD
 
         private void Update()
         {
-            bool isOpen = Input.GetButton("ScoreBoard");
-            antiScoreGroup.alpha = isOpen ? antiScoreGroupAlpha : 1.0f;
-            scoreGroup.SetActive(isOpen);
-            if (isOpen)
+            IsOpen = Input.GetButton("ScoreBoard");
+            antiScoreGroup.alpha = IsOpen ? antiScoreGroupAlpha : 1.0f;
+            scoreGroup.SetActive(IsOpen);
+            if (IsOpen)
             {
                 UpdateEntries();
             }

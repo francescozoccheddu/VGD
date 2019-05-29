@@ -11,6 +11,10 @@ namespace Wheeled.Gameplay.Action
         public bool EnableRifle { get; set; } = true;
         public bool EnableRocket { get; set; } = true;
 
+        public static bool IsShootingRifle => Input.GetButtonDown("ShootRifle");
+        public static bool IsShootingRocket => Input.GetButtonDown("ShootRocket");
+        public static bool IsKazing => Input.GetButtonDown("Kaze");
+
         public interface ITarget
         {
             void Kaze(KazeInfo _info);
@@ -42,7 +46,7 @@ namespace Wheeled.Gameplay.Action
             }
             if (Target != null)
             {
-                if (EnableRifle && Input.GetButtonDown("ShootRifle") && LifeHistoryHelper.IsAlive(GetHealth()) && _player.WeaponsHistory.CanShootRifle(_time, out _))
+                if (EnableRifle && IsShootingRifle && LifeHistoryHelper.IsAlive(GetHealth()) && _player.WeaponsHistory.CanShootRifle(_time, out _))
                 {
                     Target.Shoot(new ShotInfo
                     {
@@ -51,7 +55,7 @@ namespace Wheeled.Gameplay.Action
                         isRocket = false
                     });
                 }
-                if (EnableRocket && Input.GetButtonDown("ShootRocket") && LifeHistoryHelper.IsAlive(GetHealth()) && _player.WeaponsHistory.CanShootRocket(_time))
+                if (EnableRocket && IsShootingRocket && LifeHistoryHelper.IsAlive(GetHealth()) && _player.WeaponsHistory.CanShootRocket(_time))
                 {
                     Target.Shoot(new ShotInfo
                     {
@@ -60,7 +64,7 @@ namespace Wheeled.Gameplay.Action
                         isRocket = true
                     });
                 }
-                if (EnableKaze && Input.GetButtonDown("Kaze") && !LifeHistoryHelper.IsExploded(GetHealth()))
+                if (EnableKaze && IsKazing && !LifeHistoryHelper.IsExploded(GetHealth()))
                 {
                     _player.LifeHistory.GetLastDeathInfo(_time, out DamageNode? death, out DamageNode? explosion);
                     if (explosion == null && (_time - death?.time > ActionValidator.c_maxKazeWaitAfterDeath != true))

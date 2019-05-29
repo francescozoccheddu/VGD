@@ -14,22 +14,6 @@ namespace Wheeled.Tutorial
     public sealed class TutorialGameManager : IGameManager, Updatable.ITarget
     {
 
-        private sealed class TutorialPlayer : Player
-        {
-
-            private readonly OffenseBackstage m_offenseBackstage;
-
-            public static TutorialPlayer Create() => new TutorialPlayer(new OffenseBackstage());
-
-            public TutorialPlayer(OffenseBackstage _offenseBackstage) : base(0, _offenseBackstage, true) => m_offenseBackstage = _offenseBackstage;
-
-            protected override void OnUpdated()
-            {
-                base.OnUpdated();
-                m_offenseBackstage.UpdateUntil(LocalTime);
-            }
-
-        }
 
         public double Time { get; private set; }
 

@@ -55,7 +55,7 @@ namespace Wheeled.Scene
             Transform point = s_instance.points[_id];
             return new Snapshot
             {
-                sight = new Sight { Turn = point.eulerAngles.y },
+                sight = new Sight { Turn = point.eulerAngles.y, LookUp = -point.eulerAngles.x },
                 simulation = new CharacterController { Position = point.position }
             };
         }

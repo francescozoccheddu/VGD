@@ -12,6 +12,16 @@ namespace Wheeled.Gameplay.Movement
         public bool EnableDash { get; set; } = true;
         public bool EnableJump { get; set; } = true;
 
+
+        public static float HorizontalMovement => Input.GetAxis("Horizontal");
+        public static float VerticalMovement => Input.GetAxis("Vertical");
+        public static float HorizontalSight => Input.GetAxis("Mouse X");
+        public static float VerticalSight => Input.GetAxis("Mouse Y");
+
+        public static bool IsJumping => Input.GetButtonDown("Jump");
+        public static bool IsDashing => Input.GetButtonDown("Dash");
+
+
         public ICommitTarget target;
 
         private InputStep m_accumulatedInput;
@@ -107,12 +117,12 @@ namespace Wheeled.Gameplay.Movement
         {
             double processDeltaTime = _now - Time;
 
-            float right = Input.GetAxis("Horizontal");
-            float forward = Input.GetAxis("Vertical");
-            bool jumped = Input.GetButtonDown("Jump");
-            bool dashed = Input.GetButtonDown("Dash");
-            float turn = Input.GetAxis("Mouse X");
-            float lookUp = -Input.GetAxis("Mouse Y");
+            float right = HorizontalMovement;
+            float forward = VerticalMovement;
+            bool jumped = IsJumping;
+            bool dashed = IsDashing;
+            float turn = HorizontalSight;
+            float lookUp = -VerticalSight;
 
             while (Time < _now)
             {

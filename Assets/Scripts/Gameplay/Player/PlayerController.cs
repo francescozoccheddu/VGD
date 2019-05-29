@@ -11,6 +11,15 @@ namespace Wheeled.Gameplay.Player
 {
     public sealed class PlayerController : MovementController.ICommitTarget, ActionController.ITarget, EventHistory<PlayerController.DamagePerformInfo>.ITarget, EventHistory<EOffenseType>.ITarget
     {
+
+        public bool EnableSight { get => m_movementController.EnableSight; set => m_movementController.EnableSight = value; }
+        public bool EnableMovement { get => m_movementController.EnableMovement; set => m_movementController.EnableMovement = value; }
+        public bool EnableJump { get => m_movementController.EnableJump; set => m_movementController.EnableJump = value; }
+        public bool EnableDash { get => m_movementController.EnableDash; set => m_movementController.EnableDash = value; }
+        public bool EnableKaze { get => m_actionController.EnableKaze; set => m_actionController.EnableKaze = value; }
+        public bool EnableRocket { get => m_actionController.EnableRocket; set => m_actionController.EnableRocket = value; }
+        public bool EnableRifle { get => m_actionController.EnableRifle; set => m_actionController.EnableRifle = value; }
+
         public int MovementStep => m_movementController.Step;
 
         private readonly ActionController m_actionController;
