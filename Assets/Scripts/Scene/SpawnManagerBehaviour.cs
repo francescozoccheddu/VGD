@@ -53,9 +53,10 @@ namespace Wheeled.Scene
         public static Snapshot Get(int _id)
         {
             Transform point = s_instance.points[_id];
+            float lookUp = point.eulerAngles.x;
             return new Snapshot
             {
-                sight = new Sight { Turn = point.eulerAngles.y, LookUp = -point.eulerAngles.x },
+                sight = new Sight { Turn = point.eulerAngles.y, LookUp = lookUp },
                 simulation = new CharacterController { Position = point.position }
             };
         }

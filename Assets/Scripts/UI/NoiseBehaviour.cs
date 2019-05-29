@@ -7,26 +7,16 @@ using UnityEngine.UI;
 using Wheeled.Core.Utils;
 using Wheeled.Sound;
 
-namespace Wheeled.UI.Menu
+namespace Wheeled.UI
 {
-    public sealed class TVNoiseBehaviour : MonoBehaviour
+    public abstract class NoiseBehaviour : MonoBehaviour
     {
-
-        public RawImage noiseImage;
-        public new Light light;
-
-        [Range(0.0f, 1.0f)]
-        public float alpha = 0.5f;
 
         [Range(0.01f, 0.5f)]
         public float probability = 0.1f;
 
         [Range(0.1f, 10.0f)]
         public float frequency = 1.0f;
-
-        public ContinuousAudioPlayerBehaviour sound;
-
-        public MinMaxRange lightIntensity = new MinMaxRange(1.0f, 3.0f);
 
         private float m_time;
         private float m_seed;
@@ -41,12 +31,10 @@ namespace Wheeled.UI.Menu
             m_time += Time.deltaTime * frequency;
             float value = Mathf.PerlinNoise(m_time, m_seed);
             float noise = 1.0f - Mathf.Clamp01(value / probability);
-            sound.value = noise;
-            Color color = noiseImage.color;
-            color.a = noise * alpha;
-            noiseImage.color = color;
-            light.intensity = lightIntensity.LerpUnclamped(1.0f - noise);
+            NoiseUpdated(noise);
         }
+
+        protected abstract void NoiseUpdated(float _noise);
 
     }
 }
