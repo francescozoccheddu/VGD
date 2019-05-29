@@ -2514,26 +2514,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5992229944378835294, guid: 5f667c90d997b4847a777b3d98e2f2fa,
         type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 5992229944378835294, guid: 5f667c90d997b4847a777b3d98e2f2fa,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5992229944378835294, guid: 5f667c90d997b4847a777b3d98e2f2fa,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5992229944378835294, guid: 5f667c90d997b4847a777b3d98e2f2fa,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 5992229944378835294, guid: 5f667c90d997b4847a777b3d98e2f2fa,
-        type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 90
       objectReference: {fileID: 0}
@@ -2546,26 +2526,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 14
-      objectReference: {fileID: 0}
-    - target: {fileID: 4042196890279826047, guid: 5f667c90d997b4847a777b3d98e2f2fa,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 4042196890279826047, guid: 5f667c90d997b4847a777b3d98e2f2fa,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4042196890279826047, guid: 5f667c90d997b4847a777b3d98e2f2fa,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4042196890279826047, guid: 5f667c90d997b4847a777b3d98e2f2fa,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 4042196890279826047, guid: 5f667c90d997b4847a777b3d98e2f2fa,
         type: 3}

@@ -224,6 +224,7 @@ namespace Wheeled.Gameplay.Player
         public void Update()
         {
             m_spawnHistory.PerformUntil(LocalTime);
+            m_offenseStage.Update(LocalTime);
             int? health = LifeHistory.GetHealthOrNull(LocalTime);
             if (health != null)
             {
@@ -242,7 +243,6 @@ namespace Wheeled.Gameplay.Player
                     OnActorBreathed();
                 }
             }
-            m_offenseStage.Update(LocalTime);
             OnUpdated();
             m_shootHistory.PerformUntil(LocalTime);
             UpdateView(health);

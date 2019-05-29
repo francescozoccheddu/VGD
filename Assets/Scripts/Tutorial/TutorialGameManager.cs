@@ -11,7 +11,7 @@ using Wheeled.Scene;
 
 namespace Wheeled.Tutorial
 {
-    public sealed class TutorialGameManager : IGameManager, Updatable.ITarget
+    public sealed class TutorialGameManager : IGameManager, Updatable.ITarget, OffenseBackstage.IValidationTarget
     {
 
 
@@ -27,11 +27,16 @@ namespace Wheeled.Tutorial
 
 
         private readonly TutorialPlayer m_player;
+        private readonly OffenseBackstage m_offenseBackstage;
 
         public TutorialGameManager()
         {
             GameManager.SetCurrentGameManager(this);
-            m_player = TutorialPlayer.Create();
+            m_offenseBackstage = new OffenseBackstage
+            {
+                ValidationTarget = this
+            };
+            m_player = new TutorialPlayer(m_offenseBackstage);
             m_player.Info = PlayerPreferences.Info;
             new Updatable(this, false)
             {
@@ -46,7 +51,13 @@ namespace Wheeled.Tutorial
         void Updatable.ITarget.Update()
         {
             Time += UnityEngine.Time.deltaTime;
+            m_offenseBackstage.UpdateUntil(Time);
             m_player.Update();
         }
+
+        IEnumerable<OffenseBackstage.HitTarget> OffenseBackstage.IValidationTarget.ProvideHitTarget(double _time, Offense _offense) => Enumerable.Empty<OffenseBackstage.HitTarget>();
+        void OffenseBackstage.IValidationTarget.Damage(double _time, int _offendedId, Offense _offense, float _damage) { }
+        bool OffenseBackstage.IValidationTarget.ShouldProcess(double _time, Offense _offense) => true;
+
     }
 }
