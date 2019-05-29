@@ -54,6 +54,10 @@ namespace Wheeled.Scene
         {
             Transform point = s_instance.points[_id];
             float lookUp = point.eulerAngles.x;
+            if (lookUp > 180.0f)
+            {
+                lookUp -= 360.0f;
+            }
             return new Snapshot
             {
                 sight = new Sight { Turn = point.eulerAngles.y, LookUp = lookUp },
