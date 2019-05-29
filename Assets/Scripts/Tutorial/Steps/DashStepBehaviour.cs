@@ -9,7 +9,7 @@ namespace Wheeled.Tutorial.Steps
 
         private void Awake()
         {
-            m_Player.Controller.EnableDash = true;
+            m_Player.EnableDash = true;
         }
 
         private void Update()

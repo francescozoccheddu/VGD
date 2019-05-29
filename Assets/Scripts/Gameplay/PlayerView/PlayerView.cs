@@ -13,6 +13,31 @@ namespace Wheeled.Gameplay.PlayerView
 
         public ELifeState State { get; set; }
 
+        public bool EnableRocket {
+            get => m_enableRocket;
+            set
+            {
+                if (m_gameObject != null)
+                {
+                    m_gameObject.GetComponent<WeaponsBehaviour>().EnableRocket = value;
+                }
+                m_enableRocket = value;
+            }
+        } 
+
+        public bool EnableRifle
+        {
+            get => m_enableRifle;
+            set
+            {
+                if (m_gameObject != null)
+                {
+                    m_gameObject.GetComponent<WeaponsBehaviour>().EnableRifle = value;
+                }
+                m_enableRifle = value;
+            }
+        }
+
         public bool IsLocal
         {
             get => m_isLocal;
@@ -71,6 +96,8 @@ namespace Wheeled.Gameplay.PlayerView
         private CharacterController m_simulation;
         private Sight m_sight;
         private bool m_isLocal;
+        private bool m_enableRocket;
+        private bool m_enableRifle;
         private GameObject m_explosion;
         private GameObject m_head;
         private Color m_color;
@@ -84,6 +111,8 @@ namespace Wheeled.Gameplay.PlayerView
             sightInterpolationQuickness = 5.0f;
             m_isLocal = false;
             m_head = Scripts.PlayerPreferences.heads[0].prefab;
+            m_enableRifle = true;
+            m_enableRocket = true;
         }
 
         public void Move(in Snapshot _snapshot)
@@ -212,6 +241,9 @@ namespace Wheeled.Gameplay.PlayerView
                 m_rifleDisplayBehaviour.Power = RiflePower;
                 m_rifleDisplayBehaviour.BaseColor = m_color;
                 m_animator = m_gameObject.GetComponent<Animator>();
+                var weaponsBehaviour = m_gameObject.GetComponent<WeaponsBehaviour>();
+                weaponsBehaviour.EnableRocket = m_enableRocket;
+                weaponsBehaviour.EnableRifle = m_enableRifle;
                 ReachTarget();
             }
         }

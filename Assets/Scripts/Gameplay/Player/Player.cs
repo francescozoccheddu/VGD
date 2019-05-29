@@ -70,6 +70,7 @@ namespace Wheeled.Gameplay.Player
         public double LocalTime => GameManager.Current.Time + TimeOffset;
         public double TimeOffset { get; set; }
 
+
         // Status
         public SingleValueHistory<int> PingValue { get; }
         public SingleValueHistory<int> DeathsValue { get; }
@@ -86,7 +87,7 @@ namespace Wheeled.Gameplay.Player
 
         // Components
         private readonly OffenseStage m_offenseStage;
-        private readonly PlayerView.PlayerView m_view;
+        protected readonly PlayerView.PlayerView m_view;
         private readonly LifeHistory m_lifeHistory;
         private readonly EventHistory<SpawnInfo> m_spawnHistory;
         private readonly WeaponsHistory m_weaponsHistory;

@@ -149,6 +149,7 @@ namespace Wheeled.Sound
                 m_audioSource.maxDistance = _layer.falloffDistance.max;
                 m_audioSource.minDistance = _layer.falloffDistance.min;
                 m_audioSource.priority = 128;
+                m_audioSource.playOnAwake = false;
             }
 
             private void UpdateSource()

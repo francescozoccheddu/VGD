@@ -10,7 +10,7 @@ namespace Wheeled.Tutorial.Steps
 
         private void Awake()
         {
-            m_Player.Controller.EnableRifle = true;
+            m_Player.EnableRifle = true;
         }
 
         private void Update()

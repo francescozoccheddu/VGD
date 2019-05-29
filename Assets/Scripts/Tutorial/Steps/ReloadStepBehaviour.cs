@@ -10,7 +10,7 @@ namespace Wheeled.Tutorial.Steps
 
         private void Awake()
         {
-            m_Player.Controller.EnableKaze = true;
+            m_Player.EnableKaze = true;
         }
 
         private void Update()

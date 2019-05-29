@@ -15,6 +15,12 @@ namespace Wheeled.Gameplay.PlayerView
         public OneShotAudioPlayerBehaviour rocketSound;
         public Animator animator;
 
+        public GameObject rocket;
+        public GameObject rifle;
+
+        public bool EnableRocket { get => rocket.activeSelf; set => rocket.SetActive(value); }
+        public bool EnableRifle { get => rifle.activeSelf; set => rifle.SetActive(value); }
+
         public void ShootLaser(float _power)
         {
             animator.SetTrigger("Shoot Rifle");

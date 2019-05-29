@@ -14,7 +14,7 @@ namespace Wheeled.Tutorial.Steps
         private void Awake()
         {
             m_origin = m_Player.Snapshot.simulation.Position;
-            m_Player.Controller.EnableMovement = true;
+            m_Player.EnableMovement = true;
         }
 
         private void Update()

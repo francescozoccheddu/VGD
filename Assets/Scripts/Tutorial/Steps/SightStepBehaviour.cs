@@ -15,7 +15,7 @@ namespace Wheeled.Tutorial.Steps
         private void Awake()
         {
             m_origin = m_Player.Snapshot.sight;
-            m_Player.Controller.EnableSight = true;
+            m_Player.EnableSight = true;
         }
 
         private void Update()

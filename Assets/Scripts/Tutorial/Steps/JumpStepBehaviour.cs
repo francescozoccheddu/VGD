@@ -9,7 +9,7 @@ namespace Wheeled.Tutorial.Steps
 
         private void Awake()
         {
-            m_Player.Controller.EnableJump = true;
+            m_Player.EnableJump = true;
         }
 
         private void Update()

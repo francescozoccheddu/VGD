@@ -10,7 +10,7 @@ namespace Wheeled.Tutorial.Steps
 
         private void Awake()
         {
-            m_Player.Controller.EnableRocket = true;
+            m_Player.EnableRocket = true;
         }
 
         private void Update()
