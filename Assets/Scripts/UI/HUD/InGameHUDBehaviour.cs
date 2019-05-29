@@ -15,13 +15,13 @@ namespace Wheeled.UI.HUD
         public CrossHairBehaviour leftCrossHair;
         public CrossHairBehaviour rightCrossHair;
 
-        public CanvasGroup aliveOnlyGroup;
+        public GameObject aliveOnlyGroup;
 
         public static InGameHUDBehaviour Instance { get; private set; }
 
         public void SetAlive(bool _alive)
         {
-            aliveOnlyGroup.alpha = _alive ? 1.0f : 0.0f;
+            aliveOnlyGroup.SetActive(_alive);
         }
 
         private void Awake()

@@ -121,9 +121,12 @@ namespace Wheeled.Sound
 
         private void OnDisable()
         {
-            foreach (PlayingLayer layer in m_playingLayers)
+            if (m_playingLayers != null)
             {
-                layer.Stop();
+                foreach (PlayingLayer layer in m_playingLayers)
+                {
+                    layer.Stop();
+                }
             }
         }
 

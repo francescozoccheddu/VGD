@@ -33,5 +33,11 @@ namespace Wheeled.UI.HUD
             text.color = Color.Lerp(text.color, target, Time.deltaTime * colorInterpolationQuickness);
         }
 
+        private void OnEnable()
+        {
+            m_health = 0.0f;
+            text.color = criticalColor;
+        }
+
     }
 }
