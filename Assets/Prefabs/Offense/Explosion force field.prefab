@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8098195661706648505}
   - component: {fileID: 8098195661706648504}
   m_Layer: 15
-  m_Name: ExplosionImpulse
+  m_Name: Explosion force field
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60,7 +60,7 @@ ParticleSystemForceField:
   m_Parameters:
     m_Shape: 0
     m_StartRange: 0
-    m_EndRange: 3
+    m_EndRange: 8
     m_Length: 1
     m_GravityFocus: 0
     m_RotationRandomness: {x: 0, y: 0}
@@ -226,7 +226,7 @@ ParticleSystemForceField:
     m_GravityCurve:
       serializedVersion: 2
       minMaxState: 1
-      scalar: 7
+      scalar: 1
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -244,6 +244,15 @@ ParticleSystemForceField:
           time: 0.25
           value: 0
           inSlope: 4
+          outSlope: 0
+          tangentMode: 69
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 5
+          value: 0
+          inSlope: -0
           outSlope: 0
           tangentMode: 5
           weightedMode: 0
@@ -542,5 +551,5 @@ ParticleSystemForceField:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    m_MultiplyDragByParticleSize: 1
-    m_MultiplyDragByParticleVelocity: 1
+    m_MultiplyDragByParticleSize: 0
+    m_MultiplyDragByParticleVelocity: 0

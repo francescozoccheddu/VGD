@@ -2467,9 +2467,9 @@ ParticleSystem:
     enabled: 1
     startLifetime:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 2.13
-      minScalar: 5
+      minMaxState: 3
+      scalar: 2
+      minScalar: 3
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -2521,7 +2521,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 3.7323973
+      scalar: 2
       minScalar: 0.47
       maxCurve:
         serializedVersion: 2
@@ -3855,7 +3855,7 @@ ParticleSystem:
     flipU: 0
     flipV: 0
   VelocityModule:
-    enabled: 1
+    enabled: 0
     x:
       serializedVersion: 2
       minMaxState: 0
@@ -4665,7 +4665,7 @@ ParticleSystem:
     multiplierCurve:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.5
+      scalar: 1
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -4997,7 +4997,7 @@ ParticleSystem:
     strength:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.25
+      scalar: 0.5
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -5154,7 +5154,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     separateAxes: 0
-    frequency: 2.28
+    frequency: 0.8
     damping: 1
     octaves: 1
     octaveMultiplier: 0.5
@@ -5545,17 +5545,17 @@ ParticleSystem:
         - serializedVersion: 3
           time: 0
           value: 1
-          inSlope: -0.484375
-          outSlope: -0.484375
+          inSlope: -0.66470337
+          outSlope: -0.66470337
           tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0.33333334
         - serializedVersion: 3
           time: 1
-          value: 0.515625
-          inSlope: -0.484375
-          outSlope: -0.484375
+          value: 0.33529663
+          inSlope: -0.66470337
+          outSlope: -0.66470337
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
@@ -5693,7 +5693,7 @@ ParticleSystem:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    range: {x: 0.5, y: 1}
+    range: {x: 0.5, y: 2}
     separateAxes: 0
   RotationBySpeedModule:
     enabled: 0
