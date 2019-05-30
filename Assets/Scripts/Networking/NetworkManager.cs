@@ -115,10 +115,7 @@ namespace Wheeled.Networking
             {
                 DiscoveryEnabled = true,
                 SimulatePacketLoss = false,
-                SimulationPacketLossChance = 5,
                 SimulateLatency = false,
-                SimulationMinLatency = 100,
-                SimulationMaxLatency = 150,
             };
         }
 
@@ -198,13 +195,6 @@ namespace Wheeled.Networking
 
         public void Update()
         {
-            if (Debug.isDebugBuild)
-            {
-                if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.F8))
-                {
-                    m_netManager.SimulatePacketLoss = m_netManager.SimulateLatency = !m_netManager.SimulateLatency;
-                }
-            }
             m_netManager.PollEvents();
             NotifyIfNotRunning();
         }

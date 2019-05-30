@@ -51,6 +51,8 @@ Nicola Manca
 - [Rubbing Metal](https://freesound.org/people/PsychoPancake/sounds/325235/) by PsychoPancake of [Freesound.org](https://freesound.org) **(Changes were made)**
 - [FAN 2](https://freesound.org/people/temawas/sounds/179244/) by temawas of [Freesound.org](https://freesound.org) **(Changes were made)**
 - [Bathroom Extractor Fan, A](https://freesound.org/people/InspectorJ/sounds/400577/) by [InspectorJ](www.jshaw.co.uk) of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [patrons laughing](https://freesound.org/people/pbrproductions/sounds/418831/) by pbrproductions of [Freesound.org](https://freesound.org) **(Changes were made)**
+- [big crowd laughter](https://freesound.org/people/Kyster/sounds/124028/) by Kyster of [Freesound.org](https://freesound.org) **(Changes were made)**
 - Other free sounds from [FreeSound.org](https://freesound.org/) under CC0 license
 
 A special thanks to Albano Carrisi.

@@ -15,7 +15,7 @@ namespace Wheeled.Tutorial
         public ExposedReference<Text> element;
         [TextArea(3,4)]
         public string text;
-        [Range(8, 24)]
+        [Range(8, 48)]
         public int size = 12;
 
         public override Playable CreatePlayable(PlayableGraph _graph, GameObject _owner)
