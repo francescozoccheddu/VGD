@@ -20,6 +20,7 @@ namespace Wheeled.Gameplay.PlayerView
                 if (m_gameObject != null)
                 {
                     m_gameObject.GetComponent<WeaponsBehaviour>().EnableRocket = value;
+                    m_gameObject.GetComponent<MaterialBehaviour>().SetMaterial();
                 }
                 m_enableRocket = value;
             }
@@ -33,6 +34,7 @@ namespace Wheeled.Gameplay.PlayerView
                 if (m_gameObject != null)
                 {
                     m_gameObject.GetComponent<WeaponsBehaviour>().EnableRifle = value;
+                    m_gameObject.GetComponent<MaterialBehaviour>().SetMaterial();
                 }
                 m_enableRifle = value;
             }
@@ -235,7 +237,6 @@ namespace Wheeled.Gameplay.PlayerView
                 m_damperBehaviour = m_gameObject.GetComponent<DamperBehaviour>();
                 m_sightBehaviour = m_gameObject.GetComponent<SightBehaviour>();
                 m_deathBehaviour = m_gameObject.GetComponent<DeathBehaviour>();
-                m_gameObject.GetComponent<MaterialBehaviour>().Color = m_color;
                 m_gameObject.GetComponent<HeadBehaviour>().SetHead(m_head);
                 m_rifleDisplayBehaviour = m_gameObject.GetComponent<RifleDisplayBehaviour>();
                 m_rifleDisplayBehaviour.Power = RiflePower;
@@ -244,6 +245,7 @@ namespace Wheeled.Gameplay.PlayerView
                 var weaponsBehaviour = m_gameObject.GetComponent<WeaponsBehaviour>();
                 weaponsBehaviour.EnableRocket = m_enableRocket;
                 weaponsBehaviour.EnableRifle = m_enableRifle;
+                m_gameObject.GetComponent<MaterialBehaviour>().Color = m_color;
                 ReachTarget();
             }
         }
