@@ -124,9 +124,8 @@ namespace Wheeled.Networking.Server
                 // Welcome
                 Serializer.WritePlayerWelcomeSync(netPlayer.Id, m_room.arena);
                 netPlayer.Peer.Send(NetworkManager.ESendMethod.ReliableUnordered);
-                // Introduction (so that he knows the others)
+                // Introduction
                 SendPlayerIntroductions(netPlayer, NetworkManager.ESendMethod.ReliableUnordered);
-                // Introduction (so that the others know him)
                 Serializer.WritePlayerIntroductionSync(netPlayer.Id, netPlayer.Info.Value);
                 SendAllBut(netPlayer.Peer, NetworkManager.ESendMethod.ReliableUnordered);
                 // Recap

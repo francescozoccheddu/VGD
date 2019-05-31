@@ -9,10 +9,6 @@
         public int ping;
     }
 
-    // Notify: Client tells Server
-    // Replication: Server tells Client about someone else
-    // Order: Server tells Client about itself
-    // Sync: Server tells Client about the room
     public enum EMessage
     {
         // Movement

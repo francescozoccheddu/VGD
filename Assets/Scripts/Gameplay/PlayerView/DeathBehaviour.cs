@@ -22,7 +22,6 @@ namespace Wheeled.Gameplay.PlayerView
                 rifleDisplayBehaviour.enabled = false;
                 GetComponent<DamperBehaviour>().enabled = false;
                 GetComponent<SightBehaviour>().enabled = false;
-                // TODO Disable behaviourss
                 foreach (Collider c in GetComponentsInChildren<Collider>())
                 {
                     c.enabled = true;
